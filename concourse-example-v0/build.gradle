@@ -1,0 +1,20 @@
+
+buildscript {
+    apply from: "../gradle-v0/src/main/groovy/version/buildscript.gradle", to: buildscript
+    apply from: "../gradle-v0/src/main/groovy/kotlinjvm/buildscript.gradle", to: buildscript
+    apply from: "../gradle-v0/src/main/groovy/bintray/buildscript.gradle", to: buildscript
+}
+
+apply from: "../gradle-v0/src/main/groovy/version/build.gradle"
+apply from: "../gradle-v0/src/main/groovy/kotlinjvm/build.gradle"
+apply from: "../gradle-v0/src/main/groovy/bintray/build.gradle"
+
+repositories {
+    maven {
+        url  "https://dl.bintray.com/philarios/philarios"
+    }
+}
+
+dependencies {
+    compile 'io.philarios:philarios-concourse-v0:0.1.0'
+}

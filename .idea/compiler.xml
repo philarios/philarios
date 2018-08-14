@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="philarios-codegen-v0_main" target="1.8" />
       <module name="philarios-codegen-v0_test" target="1.8" />
+      <module name="philarios-concourse-example-v0_main" target="1.8" />
+      <module name="philarios-concourse-example-v0_test" target="1.8" />
       <module name="philarios-concourse-v0_main" target="1.8" />
       <module name="philarios-concourse-v0_test" target="1.8" />
       <module name="philarios-core-v0_main" target="1.8" />
