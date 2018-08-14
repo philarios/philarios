@@ -1,0 +1,11 @@
+
+buildscript {
+    apply from: "../gradle-v0/src/main/groovy/kotlinjvm/buildscript.gradle", to: buildscript
+}
+
+apply from: "../gradle-v0/src/main/groovy/kotlinjvm/build.gradle"
+
+dependencies {
+    compile project(":philarios-core-v0")
+    compile "com.squareup:kotlinpoet:0.7.0"
+}

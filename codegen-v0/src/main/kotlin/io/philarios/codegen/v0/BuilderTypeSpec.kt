@@ -1,0 +1,337 @@
+package io.philarios.codegen.v0
+
+import com.squareup.kotlinpoet.*
+import io.philarios.codegen.v0.util.kotlinpoet.Statement
+import io.philarios.codegen.v0.util.kotlinpoet.addStatements
+import io.philarios.schema.v0.*
+
+
+object BuilderTypeSpec {
+
+    fun build(type: Type, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+        return when (type) {
+            is Struct -> StructBuilderTypeSpec.build(type, typeRefs)
+            is Union -> UnionBuilderTypeSpec.build(type, typeRefs)
+            else -> emptyList()
+        }
+    }
+
+}
+
+private object StructBuilderTypeSpec {
+
+    fun build(type: Struct, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+        return listOf(buildOne(type, typeRefs))
+    }
+
+    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
+        if (type.fields.isEmpty()) {
+            return buildObject(type)
+        }
+        return buildDataClass(type, typeRefs)
+    }
+
+    private fun buildObject(type: Struct): TypeSpec {
+        return TypeSpec.classBuilder(type.builderClassName.rawType)
+                .addSuperinterface(type.builderSuperinterface)
+                .addAnnotation(dslBuilderClassName)
+                .addTypeVariable(TypeVariableName("C", KModifier.OUT))
+                .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
+                        .initializer("context")
+                        .build())
+                .primaryConstructor(FunSpec.constructorBuilder()
+                        .addParameter(contextParameterSpec)
+                        .build())
+                .addFunction(FunSpec.builder("build")
+                        .addModifiers(KModifier.OVERRIDE)
+                        .returns(type.className)
+                        .addStatement("return %T", type.className)
+                        .build())
+                .build()
+    }
+
+    private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
+        val fields = type.fields
+        return TypeSpec.classBuilder(type.builderClassName.rawType)
+                .addSuperinterface(type.builderSuperinterface)
+                .addAnnotation(dslBuilderClassName)
+                .addTypeVariable(TypeVariableName("C", KModifier.OUT))
+                .primaryConstructor(constructor(type))
+                .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
+                        .initializer("context")
+                        .build())
+                .addProperties(fields.map { field ->
+                    PropertySpec.builder(field.name, field.type.nullableTypeName, KModifier.PRIVATE)
+                            .mutable(true)
+                            .initializer(field.name)
+                            .build()
+                })
+                .addFunctions(fields
+                        .map { parameterFunction(type, it, typeRefs) }
+                        .flatMap { it }
+                )
+                .addFunction(contextFunction(type))
+                .addFunction(forEachContextFunction(type))
+                .addFunction(splitFunction(type))
+                .addFunction(mergeFunction(type))
+                .addFunction(buildFunction(type))
+                .addFunction(unaryPlusFunction(type))
+                .build()
+    }
+
+    private fun constructor(type: Struct): FunSpec {
+        val fields = type.fields
+        return FunSpec.constructorBuilder()
+                .addParameter(contextParameterSpec)
+                .addParameters(fields.map { field ->
+                    ParameterSpec.builder(field.name, field.type.nullableTypeName, KModifier.PRIVATE)
+                            .defaultValue(when (field.type) {
+                                is ListType -> "emptyList()"
+                                is MapType -> "emptyMap()"
+                                else -> "null"
+                            })
+                            .build()
+                })
+                .build()
+    }
+
+    private fun parameterFunction(type: Struct, field: Field, typeRefs: Map<RefType, Type>): List<FunSpec> {
+        val fieldType = field.type
+        return when (fieldType) {
+            is Struct -> listOf(
+//                    setDslBodyParameterFunction(type, field, fieldType),
+                    setDslSpecParameterFunction(type, field, fieldType)
+            )
+            is Union -> fieldType.shapes.map {
+                setDslSpecParameterFunction(type, field, it)
+            }
+            is ListType -> {
+                val listType = fieldType.type
+                when (listType) {
+                    is Struct -> listOf(
+//                            addDslBodyParameterFunction(type, field, listType),
+                            addDslSpecParameterFunction(type, field, listType)
+                    )
+                    is Union -> listType.shapes.map {
+                        addDslSpecParameterFunction(type, field, it)
+                    }
+                    is ListType -> emptyList() // TODO no idea what to do here
+                    is RefType -> parameterFunction(type, Field(field.name, ListType(typeRefs[listType]!!)), typeRefs)
+                    else -> listOf(
+                            addParameterFunction(type, field, listType),
+                            addAllParameterFunction(type, field)
+                    )
+                }
+            }
+            is MapType -> {
+                val keyType = fieldType.keyType
+                val valueType = fieldType.valueType
+                // TODO clean this up a bit
+                if (keyType is Struct || keyType is Union) {
+                    emptyList<FunSpec>()
+                }
+                if (valueType is Struct || valueType is Union) {
+                    emptyList<FunSpec>()
+                }
+                listOf(
+                        putKeyValueParameterFunction(type, field, keyType, valueType),
+                        putPairParameterFunction(type, field, keyType, valueType)
+                )
+            }
+            is RefType -> parameterFunction(type, Field(field.name, typeRefs[fieldType]!!), typeRefs)
+            else -> listOf(setParameterFunction(type, field))
+        }
+    }
+
+    private fun setParameterFunction(type: Struct, field: Field): FunSpec {
+        val name = field.name
+        val typeName = field.type.typeName
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder(name, typeName).build())
+                .addStatement("this.%L = %L", name, name)
+                .build()
+    }
+
+    private fun addParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
+        val listTypeName = listType.typeName
+        val name = field.name
+        val singularName = field.singularName
+
+        return FunSpec.builder(singularName)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder(singularName, listTypeName).build())
+                .addStatement("this.%L = this.%L.orEmpty() + %L", name, name, singularName)
+                .build()
+    }
+
+    private fun putKeyValueParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
+        val keyClassName = keyType.className
+        val valueClassName = valueType.className
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder("key", keyClassName).build())
+                .addParameter(ParameterSpec.builder("value", valueClassName).build())
+                .addStatement("this.%L = this.%L.orEmpty() + Pair(%L,%L)", name, name, "key", "value")
+                .build()
+    }
+
+    private fun putPairParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
+        val keyClassName = keyType.className
+        val valueClassName = valueType.className
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(ClassName.bestGuess(Pair::class.qualifiedName!!), keyClassName, valueClassName)).build())
+                .addStatement("this.%L = this.%L.orEmpty() + Pair(%L,%L)", name, name, "pair.first", "pair.second")
+                .build()
+    }
+
+    private fun addAllParameterFunction(type: Struct, field: Field): FunSpec {
+        val name = field.name
+        val typeName = field.type.typeName
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder(name, typeName).build())
+                .addStatement("this.%L = this.%L.orEmpty() + %L", name, name, name)
+                .build()
+    }
+
+    private fun setDslBodyParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
+        val name = field.name
+
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(fieldType.bodyParameterSpec)
+                .addStatement("this.%L = %T(body).translate(context)", name, fieldType.translatorClassName)
+                .build()
+    }
+
+    private fun setDslSpecParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
+        val name = field.name
+
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(fieldType.specParameterSpec)
+                .addStatement("this.%L = %T(spec).translate(context)", name, fieldType.translatorClassName)
+                .build()
+    }
+
+    private fun addDslBodyParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
+        val name = field.name
+        val singularName = field.singularName
+
+        return FunSpec.builder(singularName)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(listType.bodyParameterSpec)
+                .addStatement("this.%L = this.%L.orEmpty() + %T(body).translate(context)", name, name, listType.translatorClassName)
+                .build()
+    }
+
+    private fun addDslSpecParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
+        val name = field.name
+        val singularName = field.singularName
+
+        return FunSpec.builder(singularName)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(listType.specParameterSpec)
+                .addStatement("this.%L = this.%L.orEmpty() + %T(spec).translate(context)", name, name, listType.translatorClassName)
+                .build()
+    }
+
+    private fun contextFunction(type: Struct): FunSpec {
+        return FunSpec.builder("context")
+                .addTypeVariable(TypeVariableName("C"))
+                .addTypeVariable(TypeVariableName("C2"))
+                .receiver(type.builderClassName)
+                .addParameter(otherContextParameterSpec)
+                .addParameter(type.otherBodyParameterSpec)
+                .addStatement("val builder = split(context)")
+                .addStatement("body.invoke(builder)")
+                .addStatement("merge(builder)")
+                .build()
+    }
+
+    private fun forEachContextFunction(type: Struct): FunSpec {
+        return FunSpec.builder("forEachContext")
+                .addTypeVariable(TypeVariableName("C"))
+                .addTypeVariable(TypeVariableName("C2"))
+                .receiver(type.builderClassName)
+                .addParameter(otherContextListParameterSpec)
+                .addParameter(type.otherBodyParameterSpec)
+                .addStatement("context.forEach { context(it, body) }")
+                .build()
+    }
+
+    private fun splitFunction(type: Struct): FunSpec {
+        val builderClassNameAlternate = type.otherBuilderClassName
+        val fields = type.fields
+        return FunSpec.builder("split")
+                .addModifiers(KModifier.PRIVATE)
+                .addTypeVariable(TypeVariableName("C2"))
+                .addParameter(otherContextParameterSpec)
+                .returns(builderClassNameAlternate)
+                .addStatement(
+                        "return %T(${(listOf("context") + fields).map { "%L" }.joinToString(",")})",
+                        *(listOf(builderClassNameAlternate.rawType, "context") + fields.map { it.name }).toTypedArray()
+                )
+                .build()
+    }
+
+    private fun mergeFunction(type: Struct): FunSpec {
+        val fields = type.fields
+        return FunSpec.builder("merge")
+                .addModifiers(KModifier.PRIVATE)
+                .addTypeVariable(TypeVariableName("C2"))
+                .addParameter("other", type.otherBuilderClassName)
+                .addStatements(
+                        fields.map { Statement("this.%L = other.%L", listOf(it.name, it.name)) }
+                )
+                .build()
+    }
+
+    private fun buildFunction(type: Struct): FunSpec {
+        val className = type.className
+        val fields = type.fields
+        return FunSpec.builder("build")
+                .addModifiers(KModifier.OVERRIDE)
+                .returns(className)
+                .addStatement(
+                        "return %T(${fields.map {
+                            when (it.type) {
+                                is OptionType -> "%L"
+                                else -> "%L!!"
+                            }
+                        }.joinToString(",")})",
+                        *(listOf(className) + fields.map { it.name }).toTypedArray()
+                )
+                .build()
+    }
+
+    private fun unaryPlusFunction(type: Struct): FunSpec {
+        return FunSpec.builder("unaryPlus")
+                .addModifiers(KModifier.OPERATOR)
+                .receiver(type.specClassName)
+                .addStatement("apply(body)")
+                .build()
+    }
+
+}
+
+private object UnionBuilderTypeSpec {
+
+    fun build(type: Union, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+        return type.shapes.flatMap { StructBuilderTypeSpec.build(it, typeRefs) }
+    }
+
+}

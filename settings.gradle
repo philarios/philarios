@@ -1,0 +1,12 @@
+def proj = "philarios"
+def modules = [
+        "gradle-v0",
+        "core-v0",
+        "codegen-v0",
+        "concourse-v0",
+]
+
+modules.each {
+    include(it)
+    project(":$it").name = "$proj-${it.replaceAll("/", "-")}"
+}

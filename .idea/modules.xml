@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/philarios.iml" filepath="$PROJECT_DIR$/philarios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0.iml" group="philarios-codegen-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0_main.iml" group="philarios-codegen-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/codegen-v0/philarios-codegen-v0_test.iml" group="philarios-codegen-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0.iml" group="philarios-concourse-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0_main.iml" group="philarios-concourse-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/concourse-v0/philarios-concourse-v0_test.iml" group="philarios-concourse-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0.iml" group="philarios-core-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_main.iml" group="philarios-core-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_test.iml" group="philarios-core-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0.iml" group="philarios-gradle-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_main.iml" group="philarios-gradle-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_test.iml" group="philarios-gradle-v0" />
+    </modules>
+  </component>
+</project>

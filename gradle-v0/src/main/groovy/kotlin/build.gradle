@@ -1,0 +1,18 @@
+
+ext {
+    kotlin_version = '1.2.30'
+}
+
+apply plugin: 'kotlin-platform-common'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+}
+
+sourceSets {
+    main.java.srcDirs += "src/generated/kotlin"
+}
