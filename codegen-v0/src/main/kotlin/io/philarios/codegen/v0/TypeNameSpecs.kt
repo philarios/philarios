@@ -82,6 +82,9 @@ val Type.translatorListClassName
 val Type.specClassName
     get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C", KModifier.IN))
 
+val Type.otherSpecClassName
+    get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C2", KModifier.IN))
+
 val Type.builderClassName
     get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C"))
 

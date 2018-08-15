@@ -34,9 +34,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="philarios-concourse-example-v0_main" />
-    <orderEntry type="library" name="Gradle: io.philarios:philarios-concourse-v0:0.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: io.philarios:philarios-codegen-v0:0.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: io.philarios:philarios-core-v0:0.1.0" level="project" />
+    <orderEntry type="module" module-name="philarios-concourse-v0_main" />
+    <orderEntry type="module" module-name="philarios-codegen-v0_main" />
+    <orderEntry type="module" module-name="philarios-core-v0_main" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.30" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.30" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup:kotlinpoet:0.7.0" level="project" />

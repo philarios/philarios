@@ -16,9 +16,9 @@ val otherContextParameterSpec
             .builder("context", TypeVariableName("C2"))
             .build()
 
-val otherContextListParameterSpec
+val otherContextIterableParameterSpec
     get() = ParameterSpec
-            .builder("context", ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), TypeVariableName("C2")))
+            .builder("context", ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.Iterable"), TypeVariableName("C2")))
             .build()
 
 val Type.specParameterSpec
@@ -26,16 +26,19 @@ val Type.specParameterSpec
             .builder("spec", specClassName)
             .build()
 
+val Type.otherSpecParameterSpec
+    get() = ParameterSpec
+            .builder("spec", otherSpecClassName)
+            .build()
+
 val Type.bodyParameterSpec
     get() = ParameterSpec
             .builder("body", bodyLambdaTypeName)
-            .defaultValue("{}")
             .build()
 
 val Type.otherBodyParameterSpec
     get() = ParameterSpec
             .builder("body", otherBodyLambdaTypeName)
-            .defaultValue("{}")
             .build()
 
 val Type.listBodyParameterSpec

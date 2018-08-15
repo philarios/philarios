@@ -10,29 +10,52 @@ import kotlin.Boolean
 import kotlin.Int
 import kotlin.Pair
 import kotlin.String
+import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 
 data class Concourse(val teams: List<Team>) {
     companion object {
-        operator fun <C> invoke(body: ConcourseBuilder<C>.() -> Unit = {}): ConcourseSpec<C> = ConcourseSpec<C>(body)
+        operator fun <C> invoke(body: ConcourseBuilder<C>.() -> Unit): ConcourseSpec<C> = ConcourseSpec<C>(body)
     }
 }
 
 @DslBuilder
 class ConcourseBuilder<out C>(val context: C, private var teams: List<Team>? = emptyList()) : Builder<Concourse> {
+    fun <C> ConcourseBuilder<C>.team(body: TeamBuilder<C>.() -> Unit) {
+        this.teams = this.teams.orEmpty() + TeamTranslator<C>(body).translate(context)
+    }
+
     fun <C> ConcourseBuilder<C>.team(spec: TeamSpec<C>) {
         this.teams = this.teams.orEmpty() + TeamTranslator<C>(spec).translate(context)
     }
 
-    fun <C, C2> ConcourseBuilder<C>.context(context: C2, body: ConcourseBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> ConcourseBuilder<C>.include(context: C2, body: ConcourseBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> ConcourseBuilder<C>.forEachContext(context: List<C2>, body: ConcourseBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> ConcourseBuilder<C>.include(context: C2, spec: ConcourseSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> ConcourseBuilder<C>.include(body: ConcourseBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> ConcourseBuilder<C>.include(spec: ConcourseSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> ConcourseBuilder<C>.includeForEach(context: Iterable<C2>, body: ConcourseBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> ConcourseBuilder<C>.includeForEach(context: Iterable<C2>, spec: ConcourseSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): ConcourseBuilder<C2> = ConcourseBuilder(context,teams)
@@ -42,20 +65,16 @@ class ConcourseBuilder<out C>(val context: C, private var teams: List<Team>? = e
     }
 
     override fun build(): Concourse = Concourse(teams!!)
-
-    operator fun ConcourseSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit = {}) : Spec<ConcourseBuilder<C>, Concourse> {
+open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit) : Spec<ConcourseBuilder<C>, Concourse> {
     override fun ConcourseBuilder<C>.body() {
         this@ConcourseSpec.body.invoke(this)
     }
 }
 
 open class ConcourseTranslator<in C>(private val spec: ConcourseSpec<C>) : Translator<C, Concourse> {
-    constructor(body: ConcourseBuilder<C>.() -> Unit = {}) : this(ConcourseSpec<C>(body))
+    constructor(body: ConcourseBuilder<C>.() -> Unit) : this(ConcourseSpec<C>(body))
 
     override fun translate(context: C): Concourse {
         val builder = ConcourseBuilder(context)
@@ -66,7 +85,7 @@ open class ConcourseTranslator<in C>(private val spec: ConcourseSpec<C>) : Trans
 
 data class Team(val name: String, val pipelines: List<Pipeline>) {
     companion object {
-        operator fun <C> invoke(body: TeamBuilder<C>.() -> Unit = {}): TeamSpec<C> = TeamSpec<C>(body)
+        operator fun <C> invoke(body: TeamBuilder<C>.() -> Unit): TeamSpec<C> = TeamSpec<C>(body)
     }
 }
 
@@ -80,18 +99,40 @@ class TeamBuilder<out C>(
         this.name = name
     }
 
+    fun <C> TeamBuilder<C>.pipeline(body: PipelineBuilder<C>.() -> Unit) {
+        this.pipelines = this.pipelines.orEmpty() + PipelineTranslator<C>(body).translate(context)
+    }
+
     fun <C> TeamBuilder<C>.pipeline(spec: PipelineSpec<C>) {
         this.pipelines = this.pipelines.orEmpty() + PipelineTranslator<C>(spec).translate(context)
     }
 
-    fun <C, C2> TeamBuilder<C>.context(context: C2, body: TeamBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TeamBuilder<C>.include(context: C2, body: TeamBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TeamBuilder<C>.forEachContext(context: List<C2>, body: TeamBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TeamBuilder<C>.include(context: C2, spec: TeamSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TeamBuilder<C>.include(body: TeamBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TeamBuilder<C>.include(spec: TeamSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TeamBuilder<C>.includeForEach(context: Iterable<C2>, body: TeamBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TeamBuilder<C>.includeForEach(context: Iterable<C2>, spec: TeamSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TeamBuilder<C2> = TeamBuilder(context,name,pipelines)
@@ -102,20 +143,16 @@ class TeamBuilder<out C>(
     }
 
     override fun build(): Team = Team(name!!,pipelines!!)
-
-    operator fun TeamSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit = {}) : Spec<TeamBuilder<C>, Team> {
+open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit) : Spec<TeamBuilder<C>, Team> {
     override fun TeamBuilder<C>.body() {
         this@TeamSpec.body.invoke(this)
     }
 }
 
 open class TeamTranslator<in C>(private val spec: TeamSpec<C>) : Translator<C, Team> {
-    constructor(body: TeamBuilder<C>.() -> Unit = {}) : this(TeamSpec<C>(body))
+    constructor(body: TeamBuilder<C>.() -> Unit) : this(TeamSpec<C>(body))
 
     override fun translate(context: C): Team {
         val builder = TeamBuilder(context)
@@ -132,7 +169,7 @@ data class Pipeline(
         val groups: List<Group>
 ) {
     companion object {
-        operator fun <C> invoke(body: PipelineBuilder<C>.() -> Unit = {}): PipelineSpec<C> = PipelineSpec<C>(body)
+        operator fun <C> invoke(body: PipelineBuilder<C>.() -> Unit): PipelineSpec<C> = PipelineSpec<C>(body)
     }
 }
 
@@ -149,30 +186,64 @@ class PipelineBuilder<out C>(
         this.name = name
     }
 
+    fun <C> PipelineBuilder<C>.job(body: JobBuilder<C>.() -> Unit) {
+        this.jobs = this.jobs.orEmpty() + JobTranslator<C>(body).translate(context)
+    }
+
     fun <C> PipelineBuilder<C>.job(spec: JobSpec<C>) {
         this.jobs = this.jobs.orEmpty() + JobTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> PipelineBuilder<C>.resource(body: ResourceBuilder<C>.() -> Unit) {
+        this.resources = this.resources.orEmpty() + ResourceTranslator<C>(body).translate(context)
     }
 
     fun <C> PipelineBuilder<C>.resource(spec: ResourceSpec<C>) {
         this.resources = this.resources.orEmpty() + ResourceTranslator<C>(spec).translate(context)
     }
 
+    fun <C> PipelineBuilder<C>.resource_type(body: ResourceTypeBuilder<C>.() -> Unit) {
+        this.resource_types = this.resource_types.orEmpty() + ResourceTypeTranslator<C>(body).translate(context)
+    }
+
     fun <C> PipelineBuilder<C>.resource_type(spec: ResourceTypeSpec<C>) {
         this.resource_types = this.resource_types.orEmpty() + ResourceTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> PipelineBuilder<C>.group(body: GroupBuilder<C>.() -> Unit) {
+        this.groups = this.groups.orEmpty() + GroupTranslator<C>(body).translate(context)
     }
 
     fun <C> PipelineBuilder<C>.group(spec: GroupSpec<C>) {
         this.groups = this.groups.orEmpty() + GroupTranslator<C>(spec).translate(context)
     }
 
-    fun <C, C2> PipelineBuilder<C>.context(context: C2, body: PipelineBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> PipelineBuilder<C>.include(context: C2, body: PipelineBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> PipelineBuilder<C>.forEachContext(context: List<C2>, body: PipelineBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> PipelineBuilder<C>.include(context: C2, spec: PipelineSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> PipelineBuilder<C>.include(body: PipelineBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> PipelineBuilder<C>.include(spec: PipelineSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> PipelineBuilder<C>.includeForEach(context: Iterable<C2>, body: PipelineBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> PipelineBuilder<C>.includeForEach(context: Iterable<C2>, spec: PipelineSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): PipelineBuilder<C2> = PipelineBuilder(context,name,jobs,resources,resource_types,groups)
@@ -186,20 +257,16 @@ class PipelineBuilder<out C>(
     }
 
     override fun build(): Pipeline = Pipeline(name!!,jobs!!,resources!!,resource_types!!,groups!!)
-
-    operator fun PipelineSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit = {}) : Spec<PipelineBuilder<C>, Pipeline> {
+open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit) : Spec<PipelineBuilder<C>, Pipeline> {
     override fun PipelineBuilder<C>.body() {
         this@PipelineSpec.body.invoke(this)
     }
 }
 
 open class PipelineTranslator<in C>(private val spec: PipelineSpec<C>) : Translator<C, Pipeline> {
-    constructor(body: PipelineBuilder<C>.() -> Unit = {}) : this(PipelineSpec<C>(body))
+    constructor(body: PipelineBuilder<C>.() -> Unit) : this(PipelineSpec<C>(body))
 
     override fun translate(context: C): Pipeline {
         val builder = PipelineBuilder(context)
@@ -224,7 +291,7 @@ data class Job(
         val ensure: Step?
 ) {
     companion object {
-        operator fun <C> invoke(body: JobBuilder<C>.() -> Unit = {}): JobSpec<C> = JobSpec<C>(body)
+        operator fun <C> invoke(body: JobBuilder<C>.() -> Unit): JobSpec<C> = JobSpec<C>(body)
     }
 }
 
@@ -321,14 +388,32 @@ class JobBuilder<out C>(
         this.ensure = ensure
     }
 
-    fun <C, C2> JobBuilder<C>.context(context: C2, body: JobBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> JobBuilder<C>.include(context: C2, body: JobBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> JobBuilder<C>.forEachContext(context: List<C2>, body: JobBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> JobBuilder<C>.include(context: C2, spec: JobSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> JobBuilder<C>.include(body: JobBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> JobBuilder<C>.include(spec: JobSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> JobBuilder<C>.includeForEach(context: Iterable<C2>, body: JobBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> JobBuilder<C>.includeForEach(context: Iterable<C2>, spec: JobSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): JobBuilder<C2> = JobBuilder(context,name,plan,serial,build_logs_to_retain,serial_groups,max_in_flight,public,disable_manual_trigger,interruptible,on_success,on_failure,on_abort,ensure)
@@ -350,20 +435,16 @@ class JobBuilder<out C>(
     }
 
     override fun build(): Job = Job(name!!,plan!!,serial,build_logs_to_retain,serial_groups!!,max_in_flight,public,disable_manual_trigger,interruptible,on_success,on_failure,on_abort,ensure)
-
-    operator fun JobSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit = {}) : Spec<JobBuilder<C>, Job> {
+open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit) : Spec<JobBuilder<C>, Job> {
     override fun JobBuilder<C>.body() {
         this@JobSpec.body.invoke(this)
     }
 }
 
 open class JobTranslator<in C>(private val spec: JobSpec<C>) : Translator<C, Job> {
-    constructor(body: JobBuilder<C>.() -> Unit = {}) : this(JobSpec<C>(body))
+    constructor(body: JobBuilder<C>.() -> Unit) : this(JobSpec<C>(body))
 
     override fun translate(context: C): Job {
         val builder = JobBuilder(context)
@@ -390,7 +471,7 @@ data class Get(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: GetBuilder<C>.() -> Unit = {}): GetSpec<C> = GetSpec<C>(body)
+        operator fun <C> invoke(body: GetBuilder<C>.() -> Unit): GetSpec<C> = GetSpec<C>(body)
     }
 }
 
@@ -408,7 +489,7 @@ data class Put(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: PutBuilder<C>.() -> Unit = {}): PutSpec<C> = PutSpec<C>(body)
+        operator fun <C> invoke(body: PutBuilder<C>.() -> Unit): PutSpec<C> = PutSpec<C>(body)
     }
 }
 
@@ -430,7 +511,7 @@ data class Task(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: TaskBuilder<C>.() -> Unit = {}): TaskSpec<C> = TaskSpec<C>(body)
+        operator fun <C> invoke(body: TaskBuilder<C>.() -> Unit): TaskSpec<C> = TaskSpec<C>(body)
     }
 }
 
@@ -445,7 +526,7 @@ data class Aggregate(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: AggregateBuilder<C>.() -> Unit = {}): AggregateSpec<C> = AggregateSpec<C>(body)
+        operator fun <C> invoke(body: AggregateBuilder<C>.() -> Unit): AggregateSpec<C> = AggregateSpec<C>(body)
     }
 }
 
@@ -460,7 +541,7 @@ data class Do(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: DoBuilder<C>.() -> Unit = {}): DoSpec<C> = DoSpec<C>(body)
+        operator fun <C> invoke(body: DoBuilder<C>.() -> Unit): DoSpec<C> = DoSpec<C>(body)
     }
 }
 
@@ -475,7 +556,7 @@ data class Try(
         val attempts: Int?
 ) : Step() {
     companion object {
-        operator fun <C> invoke(body: TryBuilder<C>.() -> Unit = {}): TrySpec<C> = TrySpec<C>(body)
+        operator fun <C> invoke(body: TryBuilder<C>.() -> Unit): TrySpec<C> = TrySpec<C>(body)
     }
 }
 
@@ -560,14 +641,32 @@ class GetBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> GetBuilder<C>.context(context: C2, body: GetBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> GetBuilder<C>.include(context: C2, body: GetBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> GetBuilder<C>.forEachContext(context: List<C2>, body: GetBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> GetBuilder<C>.include(context: C2, spec: GetSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> GetBuilder<C>.include(body: GetBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> GetBuilder<C>.include(spec: GetSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> GetBuilder<C>.includeForEach(context: Iterable<C2>, body: GetBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> GetBuilder<C>.includeForEach(context: Iterable<C2>, spec: GetSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): GetBuilder<C2> = GetBuilder(context,get,resource,version,passed,params,trigger,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -589,10 +688,6 @@ class GetBuilder<out C>(
     }
 
     override fun build(): Get = Get(get!!,resource,version,passed!!,params!!,trigger,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun GetSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
 @DslBuilder
@@ -666,14 +761,32 @@ class PutBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> PutBuilder<C>.context(context: C2, body: PutBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> PutBuilder<C>.include(context: C2, body: PutBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> PutBuilder<C>.forEachContext(context: List<C2>, body: PutBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> PutBuilder<C>.include(context: C2, spec: PutSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> PutBuilder<C>.include(body: PutBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> PutBuilder<C>.include(spec: PutSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> PutBuilder<C>.includeForEach(context: Iterable<C2>, body: PutBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> PutBuilder<C>.includeForEach(context: Iterable<C2>, spec: PutSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): PutBuilder<C2> = PutBuilder(context,put,resource,params,get_params,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -693,10 +806,6 @@ class PutBuilder<out C>(
     }
 
     override fun build(): Put = Put(put!!,resource,params!!,get_params!!,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun PutSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
 @DslBuilder
@@ -720,6 +829,10 @@ class TaskBuilder<out C>(
 ) : Builder<Task> {
     fun <C> TaskBuilder<C>.task(task: String) {
         this.task = task
+    }
+
+    fun <C> TaskBuilder<C>.config(body: TaskConfigBuilder<C>.() -> Unit) {
+        this.config = TaskConfigTranslator<C>(body).translate(context)
     }
 
     fun <C> TaskBuilder<C>.config(spec: TaskConfigSpec<C>) {
@@ -794,14 +907,32 @@ class TaskBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> TaskBuilder<C>.context(context: C2, body: TaskBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskBuilder<C>.include(context: C2, body: TaskBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskBuilder<C>.forEachContext(context: List<C2>, body: TaskBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskBuilder<C>.include(context: C2, spec: TaskSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskBuilder<C>.include(body: TaskBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskBuilder<C>.include(spec: TaskSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskBuilder<C2> = TaskBuilder(context,task,config,file,privileged,params,image,input_mapping,output_mapping,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -825,10 +956,6 @@ class TaskBuilder<out C>(
     }
 
     override fun build(): Task = Task(task!!,config!!,file,privileged,params!!,image,input_mapping!!,output_mapping!!,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun TaskSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
 @DslBuilder
@@ -899,14 +1026,32 @@ class AggregateBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> AggregateBuilder<C>.context(context: C2, body: AggregateBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> AggregateBuilder<C>.include(context: C2, body: AggregateBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> AggregateBuilder<C>.forEachContext(context: List<C2>, body: AggregateBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> AggregateBuilder<C>.include(context: C2, spec: AggregateSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> AggregateBuilder<C>.include(body: AggregateBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> AggregateBuilder<C>.include(spec: AggregateSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> AggregateBuilder<C>.includeForEach(context: Iterable<C2>, body: AggregateBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> AggregateBuilder<C>.includeForEach(context: Iterable<C2>, spec: AggregateSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): AggregateBuilder<C2> = AggregateBuilder(context,aggregate,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -923,10 +1068,6 @@ class AggregateBuilder<out C>(
     }
 
     override fun build(): Aggregate = Aggregate(aggregate!!,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun AggregateSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
 @DslBuilder
@@ -997,14 +1138,32 @@ class DoBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> DoBuilder<C>.context(context: C2, body: DoBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> DoBuilder<C>.include(context: C2, body: DoBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> DoBuilder<C>.forEachContext(context: List<C2>, body: DoBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> DoBuilder<C>.include(context: C2, spec: DoSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> DoBuilder<C>.include(body: DoBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> DoBuilder<C>.include(spec: DoSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> DoBuilder<C>.includeForEach(context: Iterable<C2>, body: DoBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> DoBuilder<C>.includeForEach(context: Iterable<C2>, spec: DoSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): DoBuilder<C2> = DoBuilder(context,doIt,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -1021,10 +1180,6 @@ class DoBuilder<out C>(
     }
 
     override fun build(): Do = Do(doIt!!,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun DoSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
 @DslBuilder
@@ -1095,14 +1250,32 @@ class TryBuilder<out C>(
         this.attempts = attempts
     }
 
-    fun <C, C2> TryBuilder<C>.context(context: C2, body: TryBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TryBuilder<C>.include(context: C2, body: TryBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TryBuilder<C>.forEachContext(context: List<C2>, body: TryBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TryBuilder<C>.include(context: C2, spec: TrySpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TryBuilder<C>.include(body: TryBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TryBuilder<C>.include(spec: TrySpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TryBuilder<C>.includeForEach(context: Iterable<C2>, body: TryBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TryBuilder<C>.includeForEach(context: Iterable<C2>, spec: TrySpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TryBuilder<C2> = TryBuilder(context,tryIt,on_success,on_failure,on_abort,ensure,tags,timeout,attempts)
@@ -1119,50 +1292,46 @@ class TryBuilder<out C>(
     }
 
     override fun build(): Try = Try(tryIt!!,on_success,on_failure,on_abort,ensure,tags!!,timeout,attempts)
-
-    operator fun TrySpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit = {}) : Spec<GetBuilder<C>, Get> {
+open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : Spec<GetBuilder<C>, Get> {
     override fun GetBuilder<C>.body() {
         this@GetSpec.body.invoke(this)
     }
 }
 
-open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit = {}) : Spec<PutBuilder<C>, Put> {
+open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : Spec<PutBuilder<C>, Put> {
     override fun PutBuilder<C>.body() {
         this@PutSpec.body.invoke(this)
     }
 }
 
-open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit = {}) : Spec<TaskBuilder<C>, Task> {
+open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : Spec<TaskBuilder<C>, Task> {
     override fun TaskBuilder<C>.body() {
         this@TaskSpec.body.invoke(this)
     }
 }
 
-open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit = {}) : Spec<AggregateBuilder<C>, Aggregate> {
+open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit) : Spec<AggregateBuilder<C>, Aggregate> {
     override fun AggregateBuilder<C>.body() {
         this@AggregateSpec.body.invoke(this)
     }
 }
 
-open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit = {}) : Spec<DoBuilder<C>, Do> {
+open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : Spec<DoBuilder<C>, Do> {
     override fun DoBuilder<C>.body() {
         this@DoSpec.body.invoke(this)
     }
 }
 
-open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit = {}) : Spec<TryBuilder<C>, Try> {
+open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit) : Spec<TryBuilder<C>, Try> {
     override fun TryBuilder<C>.body() {
         this@TrySpec.body.invoke(this)
     }
 }
 
 open class GetTranslator<in C>(private val spec: GetSpec<C>) : Translator<C, Get> {
-    constructor(body: GetBuilder<C>.() -> Unit = {}) : this(GetSpec<C>(body))
+    constructor(body: GetBuilder<C>.() -> Unit) : this(GetSpec<C>(body))
 
     override fun translate(context: C): Get {
         val builder = GetBuilder(context)
@@ -1172,7 +1341,7 @@ open class GetTranslator<in C>(private val spec: GetSpec<C>) : Translator<C, Get
 }
 
 open class PutTranslator<in C>(private val spec: PutSpec<C>) : Translator<C, Put> {
-    constructor(body: PutBuilder<C>.() -> Unit = {}) : this(PutSpec<C>(body))
+    constructor(body: PutBuilder<C>.() -> Unit) : this(PutSpec<C>(body))
 
     override fun translate(context: C): Put {
         val builder = PutBuilder(context)
@@ -1182,7 +1351,7 @@ open class PutTranslator<in C>(private val spec: PutSpec<C>) : Translator<C, Put
 }
 
 open class TaskTranslator<in C>(private val spec: TaskSpec<C>) : Translator<C, Task> {
-    constructor(body: TaskBuilder<C>.() -> Unit = {}) : this(TaskSpec<C>(body))
+    constructor(body: TaskBuilder<C>.() -> Unit) : this(TaskSpec<C>(body))
 
     override fun translate(context: C): Task {
         val builder = TaskBuilder(context)
@@ -1192,7 +1361,7 @@ open class TaskTranslator<in C>(private val spec: TaskSpec<C>) : Translator<C, T
 }
 
 open class AggregateTranslator<in C>(private val spec: AggregateSpec<C>) : Translator<C, Aggregate> {
-    constructor(body: AggregateBuilder<C>.() -> Unit = {}) : this(AggregateSpec<C>(body))
+    constructor(body: AggregateBuilder<C>.() -> Unit) : this(AggregateSpec<C>(body))
 
     override fun translate(context: C): Aggregate {
         val builder = AggregateBuilder(context)
@@ -1202,7 +1371,7 @@ open class AggregateTranslator<in C>(private val spec: AggregateSpec<C>) : Trans
 }
 
 open class DoTranslator<in C>(private val spec: DoSpec<C>) : Translator<C, Do> {
-    constructor(body: DoBuilder<C>.() -> Unit = {}) : this(DoSpec<C>(body))
+    constructor(body: DoBuilder<C>.() -> Unit) : this(DoSpec<C>(body))
 
     override fun translate(context: C): Do {
         val builder = DoBuilder(context)
@@ -1212,7 +1381,7 @@ open class DoTranslator<in C>(private val spec: DoSpec<C>) : Translator<C, Do> {
 }
 
 open class TryTranslator<in C>(private val spec: TrySpec<C>) : Translator<C, Try> {
-    constructor(body: TryBuilder<C>.() -> Unit = {}) : this(TrySpec<C>(body))
+    constructor(body: TryBuilder<C>.() -> Unit) : this(TrySpec<C>(body))
 
     override fun translate(context: C): Try {
         val builder = TryBuilder(context)
@@ -1232,7 +1401,7 @@ data class TaskConfig(
         val params: Map<String, Any>
 ) {
     companion object {
-        operator fun <C> invoke(body: TaskConfigBuilder<C>.() -> Unit = {}): TaskConfigSpec<C> = TaskConfigSpec<C>(body)
+        operator fun <C> invoke(body: TaskConfigBuilder<C>.() -> Unit): TaskConfigSpec<C> = TaskConfigSpec<C>(body)
     }
 }
 
@@ -1252,6 +1421,10 @@ class TaskConfigBuilder<out C>(
         this.platform = platform
     }
 
+    fun <C> TaskConfigBuilder<C>.image_resource(body: TaskResourceBuilder<C>.() -> Unit) {
+        this.image_resource = TaskResourceTranslator<C>(body).translate(context)
+    }
+
     fun <C> TaskConfigBuilder<C>.image_resource(spec: TaskResourceSpec<C>) {
         this.image_resource = TaskResourceTranslator<C>(spec).translate(context)
     }
@@ -1260,12 +1433,24 @@ class TaskConfigBuilder<out C>(
         this.rootfs_uri = rootfs_uri
     }
 
+    fun <C> TaskConfigBuilder<C>.input(body: TaskInputBuilder<C>.() -> Unit) {
+        this.inputs = this.inputs.orEmpty() + TaskInputTranslator<C>(body).translate(context)
+    }
+
     fun <C> TaskConfigBuilder<C>.input(spec: TaskInputSpec<C>) {
         this.inputs = this.inputs.orEmpty() + TaskInputTranslator<C>(spec).translate(context)
     }
 
+    fun <C> TaskConfigBuilder<C>.output(body: TaskOutputBuilder<C>.() -> Unit) {
+        this.outputs = this.outputs.orEmpty() + TaskOutputTranslator<C>(body).translate(context)
+    }
+
     fun <C> TaskConfigBuilder<C>.output(spec: TaskOutputSpec<C>) {
         this.outputs = this.outputs.orEmpty() + TaskOutputTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> TaskConfigBuilder<C>.cache(body: TaskCacheBuilder<C>.() -> Unit) {
+        this.caches = this.caches.orEmpty() + TaskCacheTranslator<C>(body).translate(context)
     }
 
     fun <C> TaskConfigBuilder<C>.cache(spec: TaskCacheSpec<C>) {
@@ -1284,14 +1469,32 @@ class TaskConfigBuilder<out C>(
         this.params = this.params.orEmpty() + Pair(pair.first,pair.second)
     }
 
-    fun <C, C2> TaskConfigBuilder<C>.context(context: C2, body: TaskConfigBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskConfigBuilder<C>.include(context: C2, body: TaskConfigBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskConfigBuilder<C>.forEachContext(context: List<C2>, body: TaskConfigBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskConfigBuilder<C>.include(context: C2, spec: TaskConfigSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskConfigBuilder<C>.include(body: TaskConfigBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskConfigBuilder<C>.include(spec: TaskConfigSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskConfigBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskConfigBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskConfigBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskConfigSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskConfigBuilder<C2> = TaskConfigBuilder(context,platform,image_resource,rootfs_uri,inputs,outputs,caches,run,params)
@@ -1308,20 +1511,16 @@ class TaskConfigBuilder<out C>(
     }
 
     override fun build(): TaskConfig = TaskConfig(platform!!,image_resource!!,rootfs_uri,inputs!!,outputs!!,caches!!,run,params!!)
-
-    operator fun TaskConfigSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit = {}) : Spec<TaskConfigBuilder<C>, TaskConfig> {
+open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit) : Spec<TaskConfigBuilder<C>, TaskConfig> {
     override fun TaskConfigBuilder<C>.body() {
         this@TaskConfigSpec.body.invoke(this)
     }
 }
 
 open class TaskConfigTranslator<in C>(private val spec: TaskConfigSpec<C>) : Translator<C, TaskConfig> {
-    constructor(body: TaskConfigBuilder<C>.() -> Unit = {}) : this(TaskConfigSpec<C>(body))
+    constructor(body: TaskConfigBuilder<C>.() -> Unit) : this(TaskConfigSpec<C>(body))
 
     override fun translate(context: C): TaskConfig {
         val builder = TaskConfigBuilder(context)
@@ -1337,7 +1536,7 @@ data class TaskResource(
         val version: Map<String, String>
 ) {
     companion object {
-        operator fun <C> invoke(body: TaskResourceBuilder<C>.() -> Unit = {}): TaskResourceSpec<C> = TaskResourceSpec<C>(body)
+        operator fun <C> invoke(body: TaskResourceBuilder<C>.() -> Unit): TaskResourceSpec<C> = TaskResourceSpec<C>(body)
     }
 }
 
@@ -1377,14 +1576,32 @@ class TaskResourceBuilder<out C>(
         this.version = this.version.orEmpty() + Pair(pair.first,pair.second)
     }
 
-    fun <C, C2> TaskResourceBuilder<C>.context(context: C2, body: TaskResourceBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskResourceBuilder<C>.include(context: C2, body: TaskResourceBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskResourceBuilder<C>.forEachContext(context: List<C2>, body: TaskResourceBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskResourceBuilder<C>.include(context: C2, spec: TaskResourceSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskResourceBuilder<C>.include(body: TaskResourceBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskResourceBuilder<C>.include(spec: TaskResourceSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskResourceBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskResourceBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskResourceBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskResourceSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskResourceBuilder<C2> = TaskResourceBuilder(context,type,source,params,version)
@@ -1397,20 +1614,16 @@ class TaskResourceBuilder<out C>(
     }
 
     override fun build(): TaskResource = TaskResource(type!!,source!!,params!!,version!!)
-
-    operator fun TaskResourceSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit = {}) : Spec<TaskResourceBuilder<C>, TaskResource> {
+open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit) : Spec<TaskResourceBuilder<C>, TaskResource> {
     override fun TaskResourceBuilder<C>.body() {
         this@TaskResourceSpec.body.invoke(this)
     }
 }
 
 open class TaskResourceTranslator<in C>(private val spec: TaskResourceSpec<C>) : Translator<C, TaskResource> {
-    constructor(body: TaskResourceBuilder<C>.() -> Unit = {}) : this(TaskResourceSpec<C>(body))
+    constructor(body: TaskResourceBuilder<C>.() -> Unit) : this(TaskResourceSpec<C>(body))
 
     override fun translate(context: C): TaskResource {
         val builder = TaskResourceBuilder(context)
@@ -1425,7 +1638,7 @@ data class TaskInput(
         val optional: Boolean
 ) {
     companion object {
-        operator fun <C> invoke(body: TaskInputBuilder<C>.() -> Unit = {}): TaskInputSpec<C> = TaskInputSpec<C>(body)
+        operator fun <C> invoke(body: TaskInputBuilder<C>.() -> Unit): TaskInputSpec<C> = TaskInputSpec<C>(body)
     }
 }
 
@@ -1448,14 +1661,32 @@ class TaskInputBuilder<out C>(
         this.optional = optional
     }
 
-    fun <C, C2> TaskInputBuilder<C>.context(context: C2, body: TaskInputBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskInputBuilder<C>.include(context: C2, body: TaskInputBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskInputBuilder<C>.forEachContext(context: List<C2>, body: TaskInputBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskInputBuilder<C>.include(context: C2, spec: TaskInputSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskInputBuilder<C>.include(body: TaskInputBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskInputBuilder<C>.include(spec: TaskInputSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskInputBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskInputBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskInputBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskInputSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskInputBuilder<C2> = TaskInputBuilder(context,name,path,optional)
@@ -1467,20 +1698,16 @@ class TaskInputBuilder<out C>(
     }
 
     override fun build(): TaskInput = TaskInput(name!!,path,optional!!)
-
-    operator fun TaskInputSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit = {}) : Spec<TaskInputBuilder<C>, TaskInput> {
+open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit) : Spec<TaskInputBuilder<C>, TaskInput> {
     override fun TaskInputBuilder<C>.body() {
         this@TaskInputSpec.body.invoke(this)
     }
 }
 
 open class TaskInputTranslator<in C>(private val spec: TaskInputSpec<C>) : Translator<C, TaskInput> {
-    constructor(body: TaskInputBuilder<C>.() -> Unit = {}) : this(TaskInputSpec<C>(body))
+    constructor(body: TaskInputBuilder<C>.() -> Unit) : this(TaskInputSpec<C>(body))
 
     override fun translate(context: C): TaskInput {
         val builder = TaskInputBuilder(context)
@@ -1491,7 +1718,7 @@ open class TaskInputTranslator<in C>(private val spec: TaskInputSpec<C>) : Trans
 
 data class TaskOutput(val name: String, val path: String?) {
     companion object {
-        operator fun <C> invoke(body: TaskOutputBuilder<C>.() -> Unit = {}): TaskOutputSpec<C> = TaskOutputSpec<C>(body)
+        operator fun <C> invoke(body: TaskOutputBuilder<C>.() -> Unit): TaskOutputSpec<C> = TaskOutputSpec<C>(body)
     }
 }
 
@@ -1509,14 +1736,32 @@ class TaskOutputBuilder<out C>(
         this.path = path
     }
 
-    fun <C, C2> TaskOutputBuilder<C>.context(context: C2, body: TaskOutputBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskOutputBuilder<C>.include(context: C2, body: TaskOutputBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskOutputBuilder<C>.forEachContext(context: List<C2>, body: TaskOutputBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskOutputBuilder<C>.include(context: C2, spec: TaskOutputSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskOutputBuilder<C>.include(body: TaskOutputBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskOutputBuilder<C>.include(spec: TaskOutputSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskOutputBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskOutputBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskOutputBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskOutputSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskOutputBuilder<C2> = TaskOutputBuilder(context,name,path)
@@ -1527,20 +1772,16 @@ class TaskOutputBuilder<out C>(
     }
 
     override fun build(): TaskOutput = TaskOutput(name!!,path)
-
-    operator fun TaskOutputSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit = {}) : Spec<TaskOutputBuilder<C>, TaskOutput> {
+open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit) : Spec<TaskOutputBuilder<C>, TaskOutput> {
     override fun TaskOutputBuilder<C>.body() {
         this@TaskOutputSpec.body.invoke(this)
     }
 }
 
 open class TaskOutputTranslator<in C>(private val spec: TaskOutputSpec<C>) : Translator<C, TaskOutput> {
-    constructor(body: TaskOutputBuilder<C>.() -> Unit = {}) : this(TaskOutputSpec<C>(body))
+    constructor(body: TaskOutputBuilder<C>.() -> Unit) : this(TaskOutputSpec<C>(body))
 
     override fun translate(context: C): TaskOutput {
         val builder = TaskOutputBuilder(context)
@@ -1551,7 +1792,7 @@ open class TaskOutputTranslator<in C>(private val spec: TaskOutputSpec<C>) : Tra
 
 data class TaskCache(val path: String) {
     companion object {
-        operator fun <C> invoke(body: TaskCacheBuilder<C>.() -> Unit = {}): TaskCacheSpec<C> = TaskCacheSpec<C>(body)
+        operator fun <C> invoke(body: TaskCacheBuilder<C>.() -> Unit): TaskCacheSpec<C> = TaskCacheSpec<C>(body)
     }
 }
 
@@ -1561,14 +1802,32 @@ class TaskCacheBuilder<out C>(val context: C, private var path: String? = null) 
         this.path = path
     }
 
-    fun <C, C2> TaskCacheBuilder<C>.context(context: C2, body: TaskCacheBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskCacheBuilder<C>.include(context: C2, body: TaskCacheBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskCacheBuilder<C>.forEachContext(context: List<C2>, body: TaskCacheBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskCacheBuilder<C>.include(context: C2, spec: TaskCacheSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskCacheBuilder<C>.include(body: TaskCacheBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskCacheBuilder<C>.include(spec: TaskCacheSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskCacheBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskCacheBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskCacheBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskCacheSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskCacheBuilder<C2> = TaskCacheBuilder(context,path)
@@ -1578,20 +1837,16 @@ class TaskCacheBuilder<out C>(val context: C, private var path: String? = null) 
     }
 
     override fun build(): TaskCache = TaskCache(path!!)
-
-    operator fun TaskCacheSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit = {}) : Spec<TaskCacheBuilder<C>, TaskCache> {
+open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit) : Spec<TaskCacheBuilder<C>, TaskCache> {
     override fun TaskCacheBuilder<C>.body() {
         this@TaskCacheSpec.body.invoke(this)
     }
 }
 
 open class TaskCacheTranslator<in C>(private val spec: TaskCacheSpec<C>) : Translator<C, TaskCache> {
-    constructor(body: TaskCacheBuilder<C>.() -> Unit = {}) : this(TaskCacheSpec<C>(body))
+    constructor(body: TaskCacheBuilder<C>.() -> Unit) : this(TaskCacheSpec<C>(body))
 
     override fun translate(context: C): TaskCache {
         val builder = TaskCacheBuilder(context)
@@ -1607,7 +1862,7 @@ data class TaskRunConfig(
         val user: String?
 ) {
     companion object {
-        operator fun <C> invoke(body: TaskRunConfigBuilder<C>.() -> Unit = {}): TaskRunConfigSpec<C> = TaskRunConfigSpec<C>(body)
+        operator fun <C> invoke(body: TaskRunConfigBuilder<C>.() -> Unit): TaskRunConfigSpec<C> = TaskRunConfigSpec<C>(body)
     }
 }
 
@@ -1639,14 +1894,32 @@ class TaskRunConfigBuilder<out C>(
         this.user = user
     }
 
-    fun <C, C2> TaskRunConfigBuilder<C>.context(context: C2, body: TaskRunConfigBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> TaskRunConfigBuilder<C>.include(context: C2, body: TaskRunConfigBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> TaskRunConfigBuilder<C>.forEachContext(context: List<C2>, body: TaskRunConfigBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> TaskRunConfigBuilder<C>.include(context: C2, spec: TaskRunConfigSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> TaskRunConfigBuilder<C>.include(body: TaskRunConfigBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TaskRunConfigBuilder<C>.include(spec: TaskRunConfigSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TaskRunConfigBuilder<C>.includeForEach(context: Iterable<C2>, body: TaskRunConfigBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TaskRunConfigBuilder<C>.includeForEach(context: Iterable<C2>, spec: TaskRunConfigSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): TaskRunConfigBuilder<C2> = TaskRunConfigBuilder(context,path,args,dir,user)
@@ -1659,20 +1932,16 @@ class TaskRunConfigBuilder<out C>(
     }
 
     override fun build(): TaskRunConfig = TaskRunConfig(path!!,args!!,dir,user)
-
-    operator fun TaskRunConfigSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit = {}) : Spec<TaskRunConfigBuilder<C>, TaskRunConfig> {
+open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit) : Spec<TaskRunConfigBuilder<C>, TaskRunConfig> {
     override fun TaskRunConfigBuilder<C>.body() {
         this@TaskRunConfigSpec.body.invoke(this)
     }
 }
 
 open class TaskRunConfigTranslator<in C>(private val spec: TaskRunConfigSpec<C>) : Translator<C, TaskRunConfig> {
-    constructor(body: TaskRunConfigBuilder<C>.() -> Unit = {}) : this(TaskRunConfigSpec<C>(body))
+    constructor(body: TaskRunConfigBuilder<C>.() -> Unit) : this(TaskRunConfigSpec<C>(body))
 
     override fun translate(context: C): TaskRunConfig {
         val builder = TaskRunConfigBuilder(context)
@@ -1690,7 +1959,7 @@ data class Resource(
         val webhook_token: String?
 ) {
     companion object {
-        operator fun <C> invoke(body: ResourceBuilder<C>.() -> Unit = {}): ResourceSpec<C> = ResourceSpec<C>(body)
+        operator fun <C> invoke(body: ResourceBuilder<C>.() -> Unit): ResourceSpec<C> = ResourceSpec<C>(body)
     }
 }
 
@@ -1736,14 +2005,32 @@ class ResourceBuilder<out C>(
         this.webhook_token = webhook_token
     }
 
-    fun <C, C2> ResourceBuilder<C>.context(context: C2, body: ResourceBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> ResourceBuilder<C>.include(context: C2, body: ResourceBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> ResourceBuilder<C>.forEachContext(context: List<C2>, body: ResourceBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> ResourceBuilder<C>.include(context: C2, spec: ResourceSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> ResourceBuilder<C>.include(body: ResourceBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> ResourceBuilder<C>.include(spec: ResourceSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> ResourceBuilder<C>.includeForEach(context: Iterable<C2>, body: ResourceBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> ResourceBuilder<C>.includeForEach(context: Iterable<C2>, spec: ResourceSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): ResourceBuilder<C2> = ResourceBuilder(context,name,type,source,check_every,tags,webhook_token)
@@ -1758,20 +2045,16 @@ class ResourceBuilder<out C>(
     }
 
     override fun build(): Resource = Resource(name!!,type!!,source!!,check_every,tags!!,webhook_token)
-
-    operator fun ResourceSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit = {}) : Spec<ResourceBuilder<C>, Resource> {
+open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit) : Spec<ResourceBuilder<C>, Resource> {
     override fun ResourceBuilder<C>.body() {
         this@ResourceSpec.body.invoke(this)
     }
 }
 
 open class ResourceTranslator<in C>(private val spec: ResourceSpec<C>) : Translator<C, Resource> {
-    constructor(body: ResourceBuilder<C>.() -> Unit = {}) : this(ResourceSpec<C>(body))
+    constructor(body: ResourceBuilder<C>.() -> Unit) : this(ResourceSpec<C>(body))
 
     override fun translate(context: C): Resource {
         val builder = ResourceBuilder(context)
@@ -1789,7 +2072,7 @@ data class ResourceType(
         val tags: List<String>
 ) {
     companion object {
-        operator fun <C> invoke(body: ResourceTypeBuilder<C>.() -> Unit = {}): ResourceTypeSpec<C> = ResourceTypeSpec<C>(body)
+        operator fun <C> invoke(body: ResourceTypeBuilder<C>.() -> Unit): ResourceTypeSpec<C> = ResourceTypeSpec<C>(body)
     }
 }
 
@@ -1839,14 +2122,32 @@ class ResourceTypeBuilder<out C>(
         this.tags = this.tags.orEmpty() + tags
     }
 
-    fun <C, C2> ResourceTypeBuilder<C>.context(context: C2, body: ResourceTypeBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> ResourceTypeBuilder<C>.include(context: C2, body: ResourceTypeBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> ResourceTypeBuilder<C>.forEachContext(context: List<C2>, body: ResourceTypeBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> ResourceTypeBuilder<C>.include(context: C2, spec: ResourceTypeSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> ResourceTypeBuilder<C>.include(body: ResourceTypeBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> ResourceTypeBuilder<C>.include(spec: ResourceTypeSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> ResourceTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: ResourceTypeBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> ResourceTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: ResourceTypeSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): ResourceTypeBuilder<C2> = ResourceTypeBuilder(context,name,type,source,privileged,params,tags)
@@ -1861,20 +2162,16 @@ class ResourceTypeBuilder<out C>(
     }
 
     override fun build(): ResourceType = ResourceType(name!!,type!!,source!!,privileged,params!!,tags!!)
-
-    operator fun ResourceTypeSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit = {}) : Spec<ResourceTypeBuilder<C>, ResourceType> {
+open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit) : Spec<ResourceTypeBuilder<C>, ResourceType> {
     override fun ResourceTypeBuilder<C>.body() {
         this@ResourceTypeSpec.body.invoke(this)
     }
 }
 
 open class ResourceTypeTranslator<in C>(private val spec: ResourceTypeSpec<C>) : Translator<C, ResourceType> {
-    constructor(body: ResourceTypeBuilder<C>.() -> Unit = {}) : this(ResourceTypeSpec<C>(body))
+    constructor(body: ResourceTypeBuilder<C>.() -> Unit) : this(ResourceTypeSpec<C>(body))
 
     override fun translate(context: C): ResourceType {
         val builder = ResourceTypeBuilder(context)
@@ -1889,7 +2186,7 @@ data class Group(
         val resources: List<String>
 ) {
     companion object {
-        operator fun <C> invoke(body: GroupBuilder<C>.() -> Unit = {}): GroupSpec<C> = GroupSpec<C>(body)
+        operator fun <C> invoke(body: GroupBuilder<C>.() -> Unit): GroupSpec<C> = GroupSpec<C>(body)
     }
 }
 
@@ -1920,14 +2217,32 @@ class GroupBuilder<out C>(
         this.resources = this.resources.orEmpty() + resources
     }
 
-    fun <C, C2> GroupBuilder<C>.context(context: C2, body: GroupBuilder<C2>.() -> Unit = {}) {
+    fun <C, C2> GroupBuilder<C>.include(context: C2, body: GroupBuilder<C2>.() -> Unit) {
         val builder = split(context)
-        body.invoke(builder)
+        builder.apply(body)
         merge(builder)
     }
 
-    fun <C, C2> GroupBuilder<C>.forEachContext(context: List<C2>, body: GroupBuilder<C2>.() -> Unit = {}) {
-        context.forEach { context(it, body) }
+    fun <C, C2> GroupBuilder<C>.include(context: C2, spec: GroupSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> GroupBuilder<C>.include(body: GroupBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> GroupBuilder<C>.include(spec: GroupSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> GroupBuilder<C>.includeForEach(context: Iterable<C2>, body: GroupBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> GroupBuilder<C>.includeForEach(context: Iterable<C2>, spec: GroupSpec<C2>) {
+        context.forEach { include(it, spec) }
     }
 
     private fun <C2> split(context: C2): GroupBuilder<C2> = GroupBuilder(context,name,jobs,resources)
@@ -1939,20 +2254,16 @@ class GroupBuilder<out C>(
     }
 
     override fun build(): Group = Group(name!!,jobs!!,resources!!)
-
-    operator fun GroupSpec<C>.unaryPlus() {
-        apply(body)
-    }
 }
 
-open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit = {}) : Spec<GroupBuilder<C>, Group> {
+open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit) : Spec<GroupBuilder<C>, Group> {
     override fun GroupBuilder<C>.body() {
         this@GroupSpec.body.invoke(this)
     }
 }
 
 open class GroupTranslator<in C>(private val spec: GroupSpec<C>) : Translator<C, Group> {
-    constructor(body: GroupBuilder<C>.() -> Unit = {}) : this(GroupSpec<C>(body))
+    constructor(body: GroupBuilder<C>.() -> Unit) : this(GroupSpec<C>(body))
 
     override fun translate(context: C): Group {
         val builder = GroupBuilder(context)

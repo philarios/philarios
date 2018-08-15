@@ -70,12 +70,10 @@ private object StructBuilderTypeSpec {
                         .map { parameterFunction(type, it, typeRefs) }
                         .flatMap { it }
                 )
-                .addFunction(contextFunction(type))
-                .addFunction(forEachContextFunction(type))
+                .addFunctions(includeFunctions(type))
                 .addFunction(splitFunction(type))
                 .addFunction(mergeFunction(type))
                 .addFunction(buildFunction(type))
-                .addFunction(unaryPlusFunction(type))
                 .build()
     }
 
@@ -99,21 +97,21 @@ private object StructBuilderTypeSpec {
         val fieldType = field.type
         return when (fieldType) {
             is Struct -> listOf(
-//                    setDslBodyParameterFunction(type, field, fieldType),
-                    setDslSpecParameterFunction(type, field, fieldType)
+                    setParameterFunctionWithBody(type, field, fieldType),
+                    setParameterFunctionWithSpec(type, field, fieldType)
             )
             is Union -> fieldType.shapes.map {
-                setDslSpecParameterFunction(type, field, it)
+                setParameterFunctionWithSpec(type, field, it)
             }
             is ListType -> {
                 val listType = fieldType.type
                 when (listType) {
                     is Struct -> listOf(
-//                            addDslBodyParameterFunction(type, field, listType),
-                            addDslSpecParameterFunction(type, field, listType)
+                            addParameterFunctionWithBody(type, field, listType),
+                            addParameterFunctionWithSpec(type, field, listType)
                     )
                     is Union -> listType.shapes.map {
-                        addDslSpecParameterFunction(type, field, it)
+                        addParameterFunctionWithSpec(type, field, it)
                     }
                     is ListType -> emptyList() // TODO no idea what to do here
                     is RefType -> parameterFunction(type, Field(field.name, ListType(typeRefs[listType]!!)), typeRefs)
@@ -203,7 +201,7 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun setDslBodyParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
+    private fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
         val name = field.name
 
         return FunSpec.builder(name)
@@ -214,7 +212,7 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun setDslSpecParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
+    private fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
         val name = field.name
 
         return FunSpec.builder(name)
@@ -225,7 +223,7 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun addDslBodyParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
+    private fun addParameterFunctionWithBody(type: Struct, field: Field, listType: Type): FunSpec {
         val name = field.name
         val singularName = field.singularName
 
@@ -237,7 +235,7 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun addDslSpecParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
+    private fun addParameterFunctionWithSpec(type: Struct, field: Field, listType: Type): FunSpec {
         val name = field.name
         val singularName = field.singularName
 
@@ -249,27 +247,80 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun contextFunction(type: Struct): FunSpec {
-        return FunSpec.builder("context")
+    private fun includeFunctions(type: Struct): List<FunSpec> {
+        return listOf(
+                includeFunctionWithContextAndBody(type),
+                includeFunctionWithContextAndSpec(type),
+                includeFunctionWithBody(type),
+                includeFunctionWithSpec(type),
+                includeForEachFunctionWithBody(type),
+                includeForEachFunctionWithSpec(type)
+        )
+    }
+
+    private fun includeFunctionWithContextAndBody(type: Struct): FunSpec {
+        return FunSpec.builder("include")
                 .addTypeVariable(TypeVariableName("C"))
                 .addTypeVariable(TypeVariableName("C2"))
                 .receiver(type.builderClassName)
                 .addParameter(otherContextParameterSpec)
                 .addParameter(type.otherBodyParameterSpec)
                 .addStatement("val builder = split(context)")
-                .addStatement("body.invoke(builder)")
+                .addStatement("builder.apply(body)")
                 .addStatement("merge(builder)")
                 .build()
     }
 
-    private fun forEachContextFunction(type: Struct): FunSpec {
-        return FunSpec.builder("forEachContext")
+    private fun includeFunctionWithContextAndSpec(type: Struct): FunSpec {
+        return FunSpec.builder("include")
                 .addTypeVariable(TypeVariableName("C"))
                 .addTypeVariable(TypeVariableName("C2"))
                 .receiver(type.builderClassName)
-                .addParameter(otherContextListParameterSpec)
+                .addParameter(otherContextParameterSpec)
+                .addParameter(type.otherSpecParameterSpec)
+                .addStatement("val builder = split(context)")
+                .addStatement("builder.apply(spec.body)")
+                .addStatement("merge(builder)")
+                .build()
+    }
+
+    private fun includeFunctionWithBody(type: Struct): FunSpec {
+        return FunSpec.builder("include")
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(type.bodyParameterSpec)
+                .addStatement("apply(body)")
+                .build()
+    }
+
+    private fun includeFunctionWithSpec(type: Struct): FunSpec {
+        return FunSpec.builder("include")
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(type.specParameterSpec)
+                .addStatement("apply(spec.body)")
+                .build()
+    }
+
+    private fun includeForEachFunctionWithBody(type: Struct): FunSpec {
+        return FunSpec.builder("includeForEach")
+                .addTypeVariable(TypeVariableName("C"))
+                .addTypeVariable(TypeVariableName("C2"))
+                .receiver(type.builderClassName)
+                .addParameter(otherContextIterableParameterSpec)
                 .addParameter(type.otherBodyParameterSpec)
-                .addStatement("context.forEach { context(it, body) }")
+                .addStatement("context.forEach { include(it, body) }")
+                .build()
+    }
+
+    private fun includeForEachFunctionWithSpec(type: Struct): FunSpec {
+        return FunSpec.builder("includeForEach")
+                .addTypeVariable(TypeVariableName("C"))
+                .addTypeVariable(TypeVariableName("C2"))
+                .receiver(type.builderClassName)
+                .addParameter(otherContextIterableParameterSpec)
+                .addParameter(type.otherSpecParameterSpec)
+                .addStatement("context.forEach { include(it, spec) }")
                 .build()
     }
 
@@ -315,14 +366,6 @@ private object StructBuilderTypeSpec {
                         }.joinToString(",")})",
                         *(listOf(className) + fields.map { it.name }).toTypedArray()
                 )
-                .build()
-    }
-
-    private fun unaryPlusFunction(type: Struct): FunSpec {
-        return FunSpec.builder("unaryPlus")
-                .addModifiers(KModifier.OPERATOR)
-                .receiver(type.specClassName)
-                .addStatement("apply(body)")
                 .build()
     }
 

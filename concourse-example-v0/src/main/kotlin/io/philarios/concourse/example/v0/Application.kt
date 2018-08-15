@@ -19,7 +19,7 @@ object TestPipeline: PipelineSpec<String>({
 
     name("test-pipeline")
 
-    resource(GitResource)
+    include(1, GitResource)
 
     job(Job {
         plan(Get{
@@ -29,6 +29,10 @@ object TestPipeline: PipelineSpec<String>({
 
 })
 
-object GitResource : ResourceSpec<String>({
+object GitResource : PipelineSpec<Int>({
+
+    resource {
+        source("repo" to context)
+    }
 
 })

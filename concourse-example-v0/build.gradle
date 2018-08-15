@@ -16,5 +16,6 @@ repositories {
 }
 
 dependencies {
-    compile 'io.philarios:philarios-concourse-v0:0.1.0'
+    compile project(":philarios-concourse-v0")
+//    compile 'io.philarios:philarios-concourse-v0:0.1.0'
 }
