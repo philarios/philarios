@@ -12,6 +12,8 @@
       <module name="philarios-core-v0_test" target="1.8" />
       <module name="philarios-gradle-v0_main" target="1.8" />
       <module name="philarios-gradle-v0_test" target="1.8" />
+      <module name="philarios-schema-v0_main" target="1.8" />
+      <module name="philarios-schema-v0_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

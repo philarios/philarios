@@ -10,5 +10,5 @@ apply from: "../gradle-v0/src/main/groovy/kotlinjvm/build.gradle"
 apply from: "../gradle-v0/src/main/groovy/bintray/build.gradle"
 
 dependencies {
-    compile project(":philarios-codegen-v0")
+    compile project(":philarios-schema-v0")
 }

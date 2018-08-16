@@ -2,7 +2,7 @@ def proj = "philarios"
 def modules = [
         "gradle-v0",
         "core-v0",
-        "codegen-v0",
+        "schema-v0",
         "concourse-v0",
         "concourse-example-v0",
 ]
