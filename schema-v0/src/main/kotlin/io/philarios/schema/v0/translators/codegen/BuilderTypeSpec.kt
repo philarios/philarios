@@ -137,6 +137,7 @@ private object StructBuilderTypeSpec {
                 )
             }
             is RefType -> parameterFunction(type, Field(field.name, typeRefs[fieldType]!!), typeRefs)
+            is OptionType -> parameterFunction(type, Field(field.name, fieldType.type), typeRefs)
             else -> listOf(setParameterFunction(type, field))
         }
     }

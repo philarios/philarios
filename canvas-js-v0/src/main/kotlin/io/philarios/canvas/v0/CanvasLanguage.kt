@@ -18,8 +18,12 @@ data class CanvasRoot(val tree: CanvasTree?) {
 
 @DslBuilder
 class CanvasRootBuilder<out C>(val context: C, private var tree: CanvasTree? = null) : Builder<CanvasRoot> {
-    fun <C> CanvasRootBuilder<C>.tree(tree: CanvasTree?) {
-        this.tree = tree
+    fun <C> CanvasRootBuilder<C>.tree(spec: CanvasNodeSpec<C>) {
+        this.tree = CanvasNodeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> CanvasRootBuilder<C>.tree(spec: CanvasLeafSpec<C>) {
+        this.tree = CanvasLeafTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> CanvasRootBuilder<C>.include(context: C2, body: CanvasRootBuilder<C2>.() -> Unit) {
@@ -95,8 +99,12 @@ class CanvasNodeBuilder<out C>(
         private var transform: Transform? = null,
         private var children: List<CanvasTree>? = emptyList()
 ) : Builder<CanvasNode> {
-    fun <C> CanvasNodeBuilder<C>.transform(transform: Transform?) {
-        this.transform = transform
+    fun <C> CanvasNodeBuilder<C>.transform(body: TransformBuilder<C>.() -> Unit) {
+        this.transform = TransformTranslator<C>(body).translate(context)
+    }
+
+    fun <C> CanvasNodeBuilder<C>.transform(spec: TransformSpec<C>) {
+        this.transform = TransformTranslator<C>(spec).translate(context)
     }
 
     fun <C> CanvasNodeBuilder<C>.children(spec: CanvasNodeSpec<C>) {
@@ -151,8 +159,12 @@ class CanvasLeafBuilder<out C>(
         private var transform: Transform? = null,
         private var canvas: Canvas? = null
 ) : Builder<CanvasLeaf> {
-    fun <C> CanvasLeafBuilder<C>.transform(transform: Transform?) {
-        this.transform = transform
+    fun <C> CanvasLeafBuilder<C>.transform(body: TransformBuilder<C>.() -> Unit) {
+        this.transform = TransformTranslator<C>(body).translate(context)
+    }
+
+    fun <C> CanvasLeafBuilder<C>.transform(spec: TransformSpec<C>) {
+        this.transform = TransformTranslator<C>(spec).translate(context)
     }
 
     fun <C> CanvasLeafBuilder<C>.canvas(body: CanvasBuilder<C>.() -> Unit) {
@@ -314,8 +326,12 @@ class TransformedPathBuilder<out C>(
         private var transform: Transform? = null,
         private var path: Path? = null
 ) : Builder<TransformedPath> {
-    fun <C> TransformedPathBuilder<C>.transform(transform: Transform?) {
-        this.transform = transform
+    fun <C> TransformedPathBuilder<C>.transform(body: TransformBuilder<C>.() -> Unit) {
+        this.transform = TransformTranslator<C>(body).translate(context)
+    }
+
+    fun <C> TransformedPathBuilder<C>.transform(spec: TransformSpec<C>) {
+        this.transform = TransformTranslator<C>(spec).translate(context)
     }
 
     fun <C> TransformedPathBuilder<C>.path(body: PathBuilder<C>.() -> Unit) {
