@@ -6,6 +6,7 @@ def modules = [
         "concourse-v0",
         "concourse-example-v0",
         "canvas-v0",
+        "canvas-js-v0",
 ]
 
 modules.each {

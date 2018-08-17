@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/philarios.iml" filepath="$PROJECT_DIR$/philarios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0.iml" group="philarios-canvas-js-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0_main.iml" group="philarios-canvas-js-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-js-v0/philarios-canvas-js-v0_test.iml" group="philarios-canvas-js-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0.iml" group="philarios-canvas-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0_main.iml" group="philarios-canvas-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/canvas-v0/philarios-canvas-v0_test.iml" group="philarios-canvas-v0" />

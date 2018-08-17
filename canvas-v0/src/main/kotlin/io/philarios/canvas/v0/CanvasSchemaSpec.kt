@@ -10,8 +10,10 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
         name("CanvasRoot")
         field(Field {
             name("tree")
-            type(RefType {
-                name("CanvasTree")
+            type(OptionType {
+                type(RefType {
+                    name("CanvasTree")
+                })
             })
         })
     })
@@ -22,8 +24,10 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
             name("CanvasNode")
             field(Field {
                 name("transform")
-                type(RefType {
-                    name("Transform")
+                type(OptionType {
+                    type(RefType {
+                        name("Transform")
+                    })
                 })
             })
             field(Field {
@@ -39,8 +43,10 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
             name("CanvasLeaf")
             field(Field {
                 name("transform")
-                type(RefType {
-                    name("Transform")
+                type(OptionType {
+                    type(RefType {
+                        name("Transform")
+                    })
                 })
             })
             field(Field {
@@ -68,8 +74,10 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
         name("TransformedPath")
         field(Field {
             name("transform")
-            type(RefType {
-                name("Transform")
+            type(OptionType {
+                type(RefType {
+                    name("Transform")
+                })
             })
         })
         field(Field {
@@ -193,7 +201,7 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
                 type(DoubleType {})
             })
             field(Field {
-                name("anticlockwise ")
+                name("anticlockwise")
                 type(BooleanType {})
             })
         })

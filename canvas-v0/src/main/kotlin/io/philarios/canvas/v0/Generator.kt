@@ -5,7 +5,9 @@ import io.philarios.schema.v0.SchemaTranslator
 import io.philarios.schema.v0.translators.codegen.SchemaCodegen
 
 fun main(args: Array<kotlin.String>) {
-    emptyContext()
+    val schemaContext = emptyContext()
             .translate(SchemaTranslator(CanvasSchemaSpec))
-            .translate(SchemaCodegen("./src/generated/kotlin"))
+
+    schemaContext.translate(SchemaCodegen("./src/generated/kotlin"))
+    schemaContext.translate(SchemaCodegen("../canvas-js-v0/src/main/kotlin"))
 }
