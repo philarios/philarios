@@ -1,7 +1,5 @@
 package io.philarios.core.v0
 
-annotation class DslSpec
-
 @DslMarker
 annotation class DslBuilder
 
@@ -17,9 +15,37 @@ interface Spec<in B : Builder<T>, out T> {
     fun B.body()
 }
 
+interface TranslatorFactory<in C, out T> {
+    fun create(): Translator<C, T>
+}
+
 interface Translator<in C, out T> {
     fun translate(context: C): T
 }
+
+interface Context<out C> {
+    val value: C
+
+    fun <T> translate(translatorFactory: TranslatorFactory<C, T>): Context<T> {
+        return translatorFactory.create()
+                .let { translate(it) }
+    }
+
+    fun <T> translate(translator: Translator<C, T>): Context<T> {
+        return translator.translate(value)
+                .let { ValueContext(it) }
+    }
+}
+
+fun emptyContext() = EmptyContext
+
+object EmptyContext: Context<Nothing?> {
+    override val value: Nothing? = null
+}
+
+fun <C> contextOf(value: C) = ValueContext(value)
+
+class ValueContext<out C>(override val value: C) : Context<C>
 
 class BuilderFactorySpecTranslator<in C, B : Builder<T>, out T>(
         private val builderFactory: BuilderFactory<C, B, T>,
@@ -44,28 +70,4 @@ class BuilderSpecTranslator<in C, B : Builder<T>, out T>(
             }
         }
     }
-}
-
-inline fun <C, T> C.translate(translate: (C) -> T): T {
-    return translate(this)
-}
-
-fun <C, T> C.translate(translator: Translator<C, T>): T {
-    return translator.translate(this)
-}
-
-fun <C, B : Builder<T>, T> C.translate(builderFactory: BuilderFactory<C, B, T>, spec: Spec<B, T>): T {
-    return BuilderFactorySpecTranslator(builderFactory, spec).translate(this)
-}
-
-fun <T> translate(translate: () -> T): T {
-    return translate()
-}
-
-fun <T> translate(translator: Translator<Any?, T>): T {
-    return translator.translate(null)
-}
-
-fun <B : Builder<T>, T> translate(builderFactory: BuilderFactory<Any?, B, T>, spec: Spec<B, T>): T {
-    return BuilderFactorySpecTranslator(builderFactory, spec).translate(null)
 }
