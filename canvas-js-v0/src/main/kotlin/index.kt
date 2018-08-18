@@ -1,8 +1,10 @@
-import io.philarios.canvas.examle.v0.ExampleCanvasRoot
+import io.philarios.canvas.examle.v0.ExampleDiagram
 import io.philarios.canvas.v0.CanvasRootTranslator
 import io.philarios.canvas.v0.translators.js.CanvasDrawer
 import io.philarios.canvas.v0.translators.js.DebugTranslator
 import io.philarios.core.v0.emptyContext
+import io.philarios.diagram.v0.DiagramTranslator
+import io.philarios.diagram.v0.specs.DiagramCanvasRootSpec
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import kotlin.browser.document
@@ -15,8 +17,9 @@ fun main(args: Array<String>) {
     console.log("test")
 
     emptyContext()
+            .translate(DiagramTranslator(ExampleDiagram))
             .translate(DebugTranslator())
-            .translate(CanvasRootTranslator(ExampleCanvasRoot))
+            .translate(CanvasRootTranslator(DiagramCanvasRootSpec))
             .translate(DebugTranslator())
             .translate(canvasDrawer)
 }
