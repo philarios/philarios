@@ -124,17 +124,25 @@ private object StructBuilderTypeSpec {
             is MapType -> {
                 val keyType = fieldType.keyType
                 val valueType = fieldType.valueType
-                // TODO clean this up a bit
-                if (keyType is Struct || keyType is Union) {
-                    emptyList<FunSpec>()
+                when {
+                    keyType is RefType || valueType is RefType ->
+                        parameterFunction(type, Field(field.name, MapType(
+                                (keyType as? RefType)?.let { typeRefs[it]!! } ?: keyType,
+                                (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
+                        )), typeRefs)
+                    keyType is Struct || keyType is Union -> emptyList()
+                    valueType is Struct -> listOf(
+                            putKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
+                            putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType)
+                    )
+                    valueType is Union -> valueType.shapes.map {
+                        putKeyValueParameterFunctionWithSpec(type, field, keyType, it)
+                    }
+                    else -> listOf(
+                            putKeyValueParameterFunction(type, field, keyType, valueType),
+                            putPairParameterFunction(type, field, keyType, valueType)
+                    )
                 }
-                if (valueType is Struct || valueType is Union) {
-                    emptyList<FunSpec>()
-                }
-                listOf(
-                        putKeyValueParameterFunction(type, field, keyType, valueType),
-                        putPairParameterFunction(type, field, keyType, valueType)
-                )
             }
             is RefType -> parameterFunction(type, Field(field.name, typeRefs[fieldType]!!), typeRefs)
             is OptionType -> parameterFunction(type, Field(field.name, fieldType.type), typeRefs)
@@ -176,6 +184,30 @@ private object StructBuilderTypeSpec {
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(ParameterSpec.builder("value", valueClassName).build())
                 .addStatement("this.%L = this.%L.orEmpty() + Pair(%L,%L)", name, name, "key", "value")
+                .build()
+    }
+
+    private fun putKeyValueParameterFunctionWithBody(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
+        val keyClassName = keyType.className
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder("key", keyClassName).build())
+                .addParameter(valueType.bodyParameterSpec)
+                .addStatement("this.%L = this.%L.orEmpty() + Pair(%L,%T(body).translate(context))", name, name, "key", valueType.translatorClassName)
+                .build()
+    }
+
+    private fun putKeyValueParameterFunctionWithSpec(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
+        val keyClassName = keyType.className
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(ParameterSpec.builder("key", keyClassName).build())
+                .addParameter(valueType.specParameterSpec)
+                .addStatement("this.%L = this.%L.orEmpty() + Pair(%L,%T(spec).translate(context))", name, name, "key", valueType.translatorClassName)
                 .build()
     }
 

@@ -1,0 +1,89 @@
+package io.philarios.layout.v0
+
+import io.philarios.schema.v0.*
+
+object LayoutSchemaSpec : SchemaSpec<Any?>({
+    name("Layout")
+    pkg("io.philarios.layout.v0")
+
+    type(Struct {
+        name("Box")
+        field(Field {
+            name("key")
+            type(StringType {})
+        })
+        field(Field {
+            name("children")
+            type(ListType {
+                type(RefType {
+                    name("Box")
+                })
+            })
+        })
+        field(Field {
+            name("constraints")
+            type(MapType {
+                keyType(RefType {
+                    name("ConstraintType")
+                })
+                valueType(RefType {
+                    name("ConstraintValue")
+                })
+            })
+        })
+    })
+
+    type(EnumType {
+        name("ConstraintType")
+        value("LEFT")
+        value("CENTER")
+        value("RIGHT")
+        value("WIDTH")
+        value("TOP")
+        value("MIDDLE")
+        value("BOTTOM")
+        value("HEIGHT")
+
+        value("TRANSLATE_X")
+        value("TRANSLATE_Y")
+        value("SCALE_X")
+        value("SCALE_Y")
+    })
+
+    type(Union {
+        name("ConstraintValue")
+        shape(Struct {
+            name("Scalar")
+            field(Field {
+                name("value")
+                type(DoubleType {})
+            })
+        })
+        shape(Struct {
+            name("Linear")
+            field(Field {
+                name("partner")
+                type(StringType {})
+            })
+            field(Field {
+                name("type")
+                type(RefType {
+                    name("ConstraintType")
+                })
+            })
+            field(Field {
+                name("offset")
+                type(OptionType {
+                    type(DoubleType {})
+                })
+            })
+            field(Field {
+                name("multiplier")
+                type(OptionType {
+                    type(DoubleType {})
+                })
+            })
+        })
+    })
+
+})
