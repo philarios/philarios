@@ -1,29 +1,57 @@
 package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.FileSpec
-import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addTypes
 import io.philarios.schema.v0.*
+import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addTypes
 
 object SchemaFileSpec {
 
     fun build(schema: Schema): FileSpec {
-        val typeRefs = buildTypeRefs(schema)
-        return FileSpec.builder(schema.pkg, "${schema.name}Language")
-                .addTypes(schema.types.flatMap { TypeTypeSpec.build(it, typeRefs) })
+        val schemaWithPkg = schema.propagatePkg()
+        val typeRefs = schemaWithPkg.buildTypeRefs()
+
+        return FileSpec.builder(schemaWithPkg.pkg, "${schemaWithPkg.name}Language")
+                .addTypes(schemaWithPkg.types.flatMap { TypeTypeSpec.build(it, typeRefs) })
                 .build()
     }
 
-    private fun buildTypeRefs(schema: Schema): Map<RefType, Type> {
-        return schema.types
-                .flatMap { buildTypeRefs(it) }
-                .toMap()
+    // TODO decide on how hacky this is?
+    private fun Schema.propagatePkg(): Schema {
+        return copy(
+                types = types.map { it.propagatePkg(pkg) },
+                references = references.map { it.propagatePkg() }
+        )
     }
 
-    private fun buildTypeRefs(type: Type): List<Pair<RefType, Type>> {
-        return when (type) {
-            is Struct -> listOf(Pair(RefType(type.name), type))
-            is Union -> type.shapes.flatMap { buildTypeRefs(it) } + Pair(RefType(type.name), type)
-            is EnumType -> listOf(Pair(RefType(type.name), type))
+    private fun <T : Type> T.propagatePkg(pkg: String): T {
+        return when (this) {
+            is Struct -> this.copy(pkg = this.pkg ?: pkg, fields = fields.map { it.copy(type = it.type.propagatePkg(pkg)) }) as T
+            is Union -> this.copy(pkg = this.pkg ?: pkg, shapes = shapes.map { it.propagatePkg(pkg) }) as T
+            is EnumType -> this.copy(pkg = this.pkg ?: pkg) as T
+            is RefType -> this.copy(pkg = this.pkg ?: pkg) as T
+            is OptionType -> this.copy(type = type.propagatePkg(pkg)) as T
+            is ListType -> this.copy(type = type.propagatePkg(pkg)) as T
+            is MapType -> this.copy(keyType = keyType.propagatePkg(pkg), valueType = valueType.propagatePkg(pkg)) as T
+            else -> this
+        }
+    }
+
+    private fun Schema.buildTypeRefs(): Map<RefType, Type> {
+        return types
+                .flatMap { it.buildTypeRefs() }
+                .toMap()
+                .let {
+                    references.fold(it) { typeRefs, referencedSchema ->
+                        typeRefs + referencedSchema.buildTypeRefs()
+                    }
+                }
+    }
+
+    private fun Type.buildTypeRefs(): List<Pair<RefType, Type>> {
+        return when (this) {
+            is Struct -> listOf(Pair(RefType(pkg, name), this))
+            is Union -> shapes.flatMap { it.buildTypeRefs() } + Pair(RefType(pkg, name), this)
+            is EnumType -> listOf(Pair(RefType(pkg, name), this))
             else -> emptyList()
         }
     }

@@ -40,6 +40,10 @@ object TestBox : BoxSpec<Any?>({
         value(700.0)
     })
 
+    include(Color(255.0, 0.0, 0.0, 0.0)) {
+        canvas(RectangleCanvas)
+    }
+
     children {
         key("child")
 

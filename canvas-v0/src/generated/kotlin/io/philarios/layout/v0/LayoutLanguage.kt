@@ -1,5 +1,9 @@
 package io.philarios.layout.v0
 
+import io.philarios.canvas.v0.Canvas
+import io.philarios.canvas.v0.CanvasBuilder
+import io.philarios.canvas.v0.CanvasSpec
+import io.philarios.canvas.v0.CanvasTranslator
 import io.philarios.core.v0.Builder
 import io.philarios.core.v0.BuilderSpecTranslator
 import io.philarios.core.v0.DslBuilder
@@ -14,7 +18,8 @@ import kotlin.collections.Map
 data class Box(
         val key: String,
         val children: List<Box>,
-        val constraints: Map<ConstraintType, ConstraintValue>
+        val constraints: Map<ConstraintType, ConstraintValue>,
+        val canvas: Canvas
 ) {
     companion object {
         operator fun <C> invoke(body: BoxBuilder<C>.() -> Unit): BoxSpec<C> = BoxSpec<C>(body)
@@ -26,7 +31,8 @@ class BoxBuilder<out C>(
         val context: C,
         private var key: String? = null,
         private var children: List<Box>? = emptyList(),
-        private var constraints: Map<ConstraintType, ConstraintValue>? = emptyMap()
+        private var constraints: Map<ConstraintType, ConstraintValue>? = emptyMap(),
+        private var canvas: Canvas? = null
 ) : Builder<Box> {
     fun <C> BoxBuilder<C>.key(key: String) {
         this.key = key
@@ -46,6 +52,14 @@ class BoxBuilder<out C>(
 
     fun <C> BoxBuilder<C>.constraints(key: ConstraintType, spec: LinearSpec<C>) {
         this.constraints = this.constraints.orEmpty() + Pair(key,LinearTranslator<C>(spec).translate(context))
+    }
+
+    fun <C> BoxBuilder<C>.canvas(body: CanvasBuilder<C>.() -> Unit) {
+        this.canvas = CanvasTranslator<C>(body).translate(context)
+    }
+
+    fun <C> BoxBuilder<C>.canvas(spec: CanvasSpec<C>) {
+        this.canvas = CanvasTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> BoxBuilder<C>.include(context: C2, body: BoxBuilder<C2>.() -> Unit) {
@@ -76,15 +90,16 @@ class BoxBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): BoxBuilder<C2> = BoxBuilder(context,key,children,constraints)
+    private fun <C2> split(context: C2): BoxBuilder<C2> = BoxBuilder(context,key,children,constraints,canvas)
 
     private fun <C2> merge(other: BoxBuilder<C2>) {
         this.key = other.key
         this.children = other.children
         this.constraints = other.constraints
+        this.canvas = other.canvas
     }
 
-    override fun build(): Box = Box(key!!,children!!,constraints!!)
+    override fun build(): Box = Box(key!!,children!!,constraints!!,canvas!!)
 }
 
 open class BoxSpec<in C>(internal val body: BoxBuilder<C>.() -> Unit) : Spec<BoxBuilder<C>, Box> {
@@ -94,7 +109,7 @@ open class BoxSpec<in C>(internal val body: BoxBuilder<C>.() -> Unit) : Spec<Box
 }
 
 open class BoxTranslator<in C>(private val spec: BoxSpec<C>) : Translator<C, Box> {
-    constructor(body: BoxBuilder<C>.() -> Unit) : this(BoxSpec<C>(body))
+    constructor(body: BoxBuilder<C>.() -> Unit) : this(io.philarios.layout.v0.BoxSpec<C>(body))
 
     override fun translate(context: C): Box {
         val builder = BoxBuilder(context)
@@ -268,7 +283,7 @@ open class LinearSpec<in C>(internal val body: LinearBuilder<C>.() -> Unit) : Sp
 }
 
 open class ScalarTranslator<in C>(private val spec: ScalarSpec<C>) : Translator<C, Scalar> {
-    constructor(body: ScalarBuilder<C>.() -> Unit) : this(ScalarSpec<C>(body))
+    constructor(body: ScalarBuilder<C>.() -> Unit) : this(io.philarios.layout.v0.ScalarSpec<C>(body))
 
     override fun translate(context: C): Scalar {
         val builder = ScalarBuilder(context)
@@ -278,7 +293,7 @@ open class ScalarTranslator<in C>(private val spec: ScalarSpec<C>) : Translator<
 }
 
 open class LinearTranslator<in C>(private val spec: LinearSpec<C>) : Translator<C, Linear> {
-    constructor(body: LinearBuilder<C>.() -> Unit) : this(LinearSpec<C>(body))
+    constructor(body: LinearBuilder<C>.() -> Unit) : this(io.philarios.layout.v0.LinearSpec<C>(body))
 
     override fun translate(context: C): Linear {
         val builder = LinearBuilder(context)

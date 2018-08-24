@@ -13,9 +13,10 @@ val builderClassName
 
 val Type.typeName: TypeName
     get() = when (this) {
-        is Struct -> ClassName("", name)
-        is Union -> ClassName("", name)
-        is EnumType -> ClassName("", name)
+        is Struct -> ClassName(pkg ?: "", name)
+        is Union -> ClassName(pkg ?: "", name)
+        is EnumType -> ClassName(pkg ?: "", name)
+        is RefType -> ClassName(pkg ?: "", name)
         is OptionType -> type.nullableTypeName
         is BooleanType -> ClassName.bestGuess("kotlin.Boolean")
         is DoubleType -> ClassName.bestGuess("kotlin.Double")
@@ -29,7 +30,6 @@ val Type.typeName: TypeName
         is AnyType -> ClassName.bestGuess("kotlin.Any")
         is ListType -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), type.typeName)
         is MapType -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.Map"), keyType.typeName, valueType.typeName)
-        is RefType -> ClassName("", name)
     }
 
 val Type.nullableTypeName
@@ -37,9 +37,10 @@ val Type.nullableTypeName
 
 val Type.className: ClassName
     get() = when (this) {
-        is Struct -> ClassName("", name)
-        is Union -> ClassName("", name)
-        is EnumType -> ClassName("", name)
+        is Struct -> ClassName(pkg ?: "", name)
+        is Union -> ClassName(pkg ?: "", name)
+        is EnumType -> ClassName(pkg ?: "", name)
+        is RefType -> ClassName(pkg ?: "", name)
         is OptionType -> type.nullableClassName
         is BooleanType -> ClassName.bestGuess("kotlin.Boolean")
         is DoubleType -> ClassName.bestGuess("kotlin.Double")
@@ -53,16 +54,16 @@ val Type.className: ClassName
         is AnyType -> ClassName.bestGuess("kotlin.Any")
         is ListType -> ClassName.bestGuess("kotlin.collections.List")
         is MapType -> ClassName.bestGuess("kotlin.collections.Map")
-        is RefType -> ClassName("", name)
     }
 
 val Type.nullableClassName
     get() = className.asNullable()
 
 fun Type.className(suffix: String) = when (this) {
-    is Struct ->  ClassName("", "$name$suffix")
-    is Union ->  ClassName("", "$name$suffix")
-    is RefType ->  ClassName("", "$name$suffix")
+    is Struct ->  ClassName(pkg ?: "", "$name$suffix")
+    is Union ->  ClassName(pkg ?: "", "$name$suffix")
+    is EnumType ->  ClassName(pkg ?: "", "$name$suffix")
+    is RefType ->  ClassName(pkg ?: "", "$name$suffix")
     else -> className
 }
 

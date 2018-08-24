@@ -12,7 +12,8 @@ import kotlin.collections.List
 data class Schema(
         val name: String,
         val pkg: String,
-        val types: List<Type>
+        val types: List<Type>,
+        val references: List<Schema>
 ) {
     companion object {
         operator fun <C> invoke(body: SchemaBuilder<C>.() -> Unit): SchemaSpec<C> = SchemaSpec<C>(body)
@@ -24,7 +25,8 @@ class SchemaBuilder<out C>(
         val context: C,
         private var name: String? = null,
         private var pkg: String? = null,
-        private var types: List<Type>? = emptyList()
+        private var types: List<Type>? = emptyList(),
+        private var references: List<Schema>? = emptyList()
 ) : Builder<Schema> {
     fun <C> SchemaBuilder<C>.name(name: String) {
         this.name = name
@@ -44,6 +46,10 @@ class SchemaBuilder<out C>(
 
     fun <C> SchemaBuilder<C>.type(spec: EnumTypeSpec<C>) {
         this.types = this.types.orEmpty() + EnumTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> SchemaBuilder<C>.type(spec: RefTypeSpec<C>) {
+        this.types = this.types.orEmpty() + RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C> SchemaBuilder<C>.type(spec: OptionTypeSpec<C>) {
@@ -98,8 +104,12 @@ class SchemaBuilder<out C>(
         this.types = this.types.orEmpty() + AnyTypeTranslator<C>(spec).translate(context)
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: RefTypeSpec<C>) {
-        this.types = this.types.orEmpty() + RefTypeTranslator<C>(spec).translate(context)
+    fun <C> SchemaBuilder<C>.reference(body: SchemaBuilder<C>.() -> Unit) {
+        this.references = this.references.orEmpty() + SchemaTranslator<C>(body).translate(context)
+    }
+
+    fun <C> SchemaBuilder<C>.reference(spec: SchemaSpec<C>) {
+        this.references = this.references.orEmpty() + SchemaTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> SchemaBuilder<C>.include(context: C2, body: SchemaBuilder<C2>.() -> Unit) {
@@ -130,15 +140,16 @@ class SchemaBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): SchemaBuilder<C2> = SchemaBuilder(context,name,pkg,types)
+    private fun <C2> split(context: C2): SchemaBuilder<C2> = SchemaBuilder(context,name,pkg,types,references)
 
     private fun <C2> merge(other: SchemaBuilder<C2>) {
         this.name = other.name
         this.pkg = other.pkg
         this.types = other.types
+        this.references = other.references
     }
 
-    override fun build(): Schema = Schema(name!!,pkg!!,types!!)
+    override fun build(): Schema = Schema(name!!,pkg!!,types!!,references!!)
 }
 
 open class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit) : Spec<SchemaBuilder<C>, Schema> {
@@ -159,21 +170,39 @@ open class SchemaTranslator<in C>(private val spec: SchemaSpec<C>) : Translator<
 
 sealed class Type
 
-data class Struct(val name: String, val fields: List<Field>) : Type() {
+data class Struct(
+        val pkg: String?,
+        val name: String,
+        val fields: List<Field>
+) : Type() {
     companion object {
         operator fun <C> invoke(body: StructBuilder<C>.() -> Unit): StructSpec<C> = StructSpec<C>(body)
     }
 }
 
-data class Union(val name: String, val shapes: List<Struct>) : Type() {
+data class Union(
+        val pkg: String?,
+        val name: String,
+        val shapes: List<Struct>
+) : Type() {
     companion object {
         operator fun <C> invoke(body: UnionBuilder<C>.() -> Unit): UnionSpec<C> = UnionSpec<C>(body)
     }
 }
 
-data class EnumType(val name: String, val values: List<String>) : Type() {
+data class EnumType(
+        val pkg: String?,
+        val name: String,
+        val values: List<String>
+) : Type() {
     companion object {
         operator fun <C> invoke(body: EnumTypeBuilder<C>.() -> Unit): EnumTypeSpec<C> = EnumTypeSpec<C>(body)
+    }
+}
+
+data class RefType(val pkg: String?, val name: String) : Type() {
+    companion object {
+        operator fun <C> invoke(body: RefTypeBuilder<C>.() -> Unit): RefTypeSpec<C> = RefTypeSpec<C>(body)
     }
 }
 
@@ -235,18 +264,17 @@ object AnyType : Type() {
     operator fun <C> invoke(body: AnyTypeBuilder<C>.() -> Unit): AnyTypeSpec<C> = AnyTypeSpec<C>(body)
 }
 
-data class RefType(val name: String) : Type() {
-    companion object {
-        operator fun <C> invoke(body: RefTypeBuilder<C>.() -> Unit): RefTypeSpec<C> = RefTypeSpec<C>(body)
-    }
-}
-
 @DslBuilder
 class StructBuilder<out C>(
         val context: C,
+        private var pkg: String? = null,
         private var name: String? = null,
         private var fields: List<Field>? = emptyList()
 ) : Builder<Struct> {
+    fun <C> StructBuilder<C>.pkg(pkg: String) {
+        this.pkg = pkg
+    }
+
     fun <C> StructBuilder<C>.name(name: String) {
         this.name = name
     }
@@ -287,22 +315,28 @@ class StructBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): StructBuilder<C2> = StructBuilder(context,name,fields)
+    private fun <C2> split(context: C2): StructBuilder<C2> = StructBuilder(context,pkg,name,fields)
 
     private fun <C2> merge(other: StructBuilder<C2>) {
+        this.pkg = other.pkg
         this.name = other.name
         this.fields = other.fields
     }
 
-    override fun build(): Struct = Struct(name!!,fields!!)
+    override fun build(): Struct = Struct(pkg,name!!,fields!!)
 }
 
 @DslBuilder
 class UnionBuilder<out C>(
         val context: C,
+        private var pkg: String? = null,
         private var name: String? = null,
         private var shapes: List<Struct>? = emptyList()
 ) : Builder<Union> {
+    fun <C> UnionBuilder<C>.pkg(pkg: String) {
+        this.pkg = pkg
+    }
+
     fun <C> UnionBuilder<C>.name(name: String) {
         this.name = name
     }
@@ -343,22 +377,28 @@ class UnionBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): UnionBuilder<C2> = UnionBuilder(context,name,shapes)
+    private fun <C2> split(context: C2): UnionBuilder<C2> = UnionBuilder(context,pkg,name,shapes)
 
     private fun <C2> merge(other: UnionBuilder<C2>) {
+        this.pkg = other.pkg
         this.name = other.name
         this.shapes = other.shapes
     }
 
-    override fun build(): Union = Union(name!!,shapes!!)
+    override fun build(): Union = Union(pkg,name!!,shapes!!)
 }
 
 @DslBuilder
 class EnumTypeBuilder<out C>(
         val context: C,
+        private var pkg: String? = null,
         private var name: String? = null,
         private var values: List<String>? = emptyList()
 ) : Builder<EnumType> {
+    fun <C> EnumTypeBuilder<C>.pkg(pkg: String) {
+        this.pkg = pkg
+    }
+
     fun <C> EnumTypeBuilder<C>.name(name: String) {
         this.name = name
     }
@@ -399,14 +439,67 @@ class EnumTypeBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): EnumTypeBuilder<C2> = EnumTypeBuilder(context,name,values)
+    private fun <C2> split(context: C2): EnumTypeBuilder<C2> = EnumTypeBuilder(context,pkg,name,values)
 
     private fun <C2> merge(other: EnumTypeBuilder<C2>) {
+        this.pkg = other.pkg
         this.name = other.name
         this.values = other.values
     }
 
-    override fun build(): EnumType = EnumType(name!!,values!!)
+    override fun build(): EnumType = EnumType(pkg,name!!,values!!)
+}
+
+@DslBuilder
+class RefTypeBuilder<out C>(
+        val context: C,
+        private var pkg: String? = null,
+        private var name: String? = null
+) : Builder<RefType> {
+    fun <C> RefTypeBuilder<C>.pkg(pkg: String) {
+        this.pkg = pkg
+    }
+
+    fun <C> RefTypeBuilder<C>.name(name: String) {
+        this.name = name
+    }
+
+    fun <C, C2> RefTypeBuilder<C>.include(context: C2, body: RefTypeBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    fun <C, C2> RefTypeBuilder<C>.include(context: C2, spec: RefTypeSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> RefTypeBuilder<C>.include(body: RefTypeBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> RefTypeBuilder<C>.include(spec: RefTypeSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): RefTypeBuilder<C2> = RefTypeBuilder(context,pkg,name)
+
+    private fun <C2> merge(other: RefTypeBuilder<C2>) {
+        this.pkg = other.pkg
+        this.name = other.name
+    }
+
+    override fun build(): RefType = RefType(pkg,name!!)
 }
 
 @DslBuilder
@@ -421,6 +514,10 @@ class OptionTypeBuilder<out C>(val context: C, private var type: Type? = null) :
 
     fun <C> OptionTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
         this.type = EnumTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> OptionTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
+        this.type = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
@@ -475,10 +572,6 @@ class OptionTypeBuilder<out C>(val context: C, private var type: Type? = null) :
         this.type = AnyTypeTranslator<C>(spec).translate(context)
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        this.type = RefTypeTranslator<C>(spec).translate(context)
-    }
-
     fun <C, C2> OptionTypeBuilder<C>.include(context: C2, body: OptionTypeBuilder<C2>.() -> Unit) {
         val builder = split(context)
         builder.apply(body)
@@ -528,6 +621,10 @@ class ListTypeBuilder<out C>(val context: C, private var type: Type? = null) : B
 
     fun <C> ListTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
         this.type = EnumTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> ListTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
+        this.type = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
@@ -580,10 +677,6 @@ class ListTypeBuilder<out C>(val context: C, private var type: Type? = null) : B
 
     fun <C> ListTypeBuilder<C>.type(spec: AnyTypeSpec<C>) {
         this.type = AnyTypeTranslator<C>(spec).translate(context)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        this.type = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> ListTypeBuilder<C>.include(context: C2, body: ListTypeBuilder<C2>.() -> Unit) {
@@ -641,6 +734,10 @@ class MapTypeBuilder<out C>(
         this.keyType = EnumTypeTranslator<C>(spec).translate(context)
     }
 
+    fun <C> MapTypeBuilder<C>.keyType(spec: RefTypeSpec<C>) {
+        this.keyType = RefTypeTranslator<C>(spec).translate(context)
+    }
+
     fun <C> MapTypeBuilder<C>.keyType(spec: OptionTypeSpec<C>) {
         this.keyType = OptionTypeTranslator<C>(spec).translate(context)
     }
@@ -693,10 +790,6 @@ class MapTypeBuilder<out C>(
         this.keyType = AnyTypeTranslator<C>(spec).translate(context)
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: RefTypeSpec<C>) {
-        this.keyType = RefTypeTranslator<C>(spec).translate(context)
-    }
-
     fun <C> MapTypeBuilder<C>.valueType(spec: StructSpec<C>) {
         this.valueType = StructTranslator<C>(spec).translate(context)
     }
@@ -707,6 +800,10 @@ class MapTypeBuilder<out C>(
 
     fun <C> MapTypeBuilder<C>.valueType(spec: EnumTypeSpec<C>) {
         this.valueType = EnumTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> MapTypeBuilder<C>.valueType(spec: RefTypeSpec<C>) {
+        this.valueType = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: OptionTypeSpec<C>) {
@@ -759,10 +856,6 @@ class MapTypeBuilder<out C>(
 
     fun <C> MapTypeBuilder<C>.valueType(spec: AnyTypeSpec<C>) {
         this.valueType = AnyTypeTranslator<C>(spec).translate(context)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: RefTypeSpec<C>) {
-        this.valueType = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> MapTypeBuilder<C>.include(context: C2, body: MapTypeBuilder<C2>.() -> Unit) {
@@ -853,49 +946,6 @@ class AnyTypeBuilder<out C>(val context: C) : Builder<AnyType> {
     override fun build(): AnyType = AnyType
 }
 
-@DslBuilder
-class RefTypeBuilder<out C>(val context: C, private var name: String? = null) : Builder<RefType> {
-    fun <C> RefTypeBuilder<C>.name(name: String) {
-        this.name = name
-    }
-
-    fun <C, C2> RefTypeBuilder<C>.include(context: C2, body: RefTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    fun <C, C2> RefTypeBuilder<C>.include(context: C2, spec: RefTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    fun <C> RefTypeBuilder<C>.include(body: RefTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    fun <C> RefTypeBuilder<C>.include(spec: RefTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RefTypeBuilder<C2> = RefTypeBuilder(context,name)
-
-    private fun <C2> merge(other: RefTypeBuilder<C2>) {
-        this.name = other.name
-    }
-
-    override fun build(): RefType = RefType(name!!)
-}
-
 open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Spec<StructBuilder<C>, Struct> {
     override fun StructBuilder<C>.body() {
         this@StructSpec.body.invoke(this)
@@ -911,6 +961,12 @@ open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : Spec
 open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) : Spec<EnumTypeBuilder<C>, EnumType> {
     override fun EnumTypeBuilder<C>.body() {
         this@EnumTypeSpec.body.invoke(this)
+    }
+}
+
+open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : Spec<RefTypeBuilder<C>, RefType> {
+    override fun RefTypeBuilder<C>.body() {
+        this@RefTypeSpec.body.invoke(this)
     }
 }
 
@@ -992,12 +1048,6 @@ open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit) : 
     }
 }
 
-open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : Spec<RefTypeBuilder<C>, RefType> {
-    override fun RefTypeBuilder<C>.body() {
-        this@RefTypeSpec.body.invoke(this)
-    }
-}
-
 open class StructTranslator<in C>(private val spec: StructSpec<C>) : Translator<C, Struct> {
     constructor(body: StructBuilder<C>.() -> Unit) : this(StructSpec<C>(body))
 
@@ -1024,6 +1074,16 @@ open class EnumTypeTranslator<in C>(private val spec: EnumTypeSpec<C>) : Transla
     override fun translate(context: C): EnumType {
         val builder = EnumTypeBuilder(context)
         val translator = BuilderSpecTranslator<C, EnumTypeBuilder<C>, EnumType>(builder, spec)
+        return translator.translate(context)
+    }
+}
+
+open class RefTypeTranslator<in C>(private val spec: RefTypeSpec<C>) : Translator<C, RefType> {
+    constructor(body: RefTypeBuilder<C>.() -> Unit) : this(RefTypeSpec<C>(body))
+
+    override fun translate(context: C): RefType {
+        val builder = RefTypeBuilder(context)
+        val translator = BuilderSpecTranslator<C, RefTypeBuilder<C>, RefType>(builder, spec)
         return translator.translate(context)
     }
 }
@@ -1158,16 +1218,6 @@ open class AnyTypeTranslator<in C>(private val spec: AnyTypeSpec<C>) : Translato
     }
 }
 
-open class RefTypeTranslator<in C>(private val spec: RefTypeSpec<C>) : Translator<C, RefType> {
-    constructor(body: RefTypeBuilder<C>.() -> Unit) : this(RefTypeSpec<C>(body))
-
-    override fun translate(context: C): RefType {
-        val builder = RefTypeBuilder(context)
-        val translator = BuilderSpecTranslator<C, RefTypeBuilder<C>, RefType>(builder, spec)
-        return translator.translate(context)
-    }
-}
-
 data class Field(val name: String, val type: Type) {
     companion object {
         operator fun <C> invoke(body: FieldBuilder<C>.() -> Unit): FieldSpec<C> = FieldSpec<C>(body)
@@ -1194,6 +1244,10 @@ class FieldBuilder<out C>(
 
     fun <C> FieldBuilder<C>.type(spec: EnumTypeSpec<C>) {
         this.type = EnumTypeTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> FieldBuilder<C>.type(spec: RefTypeSpec<C>) {
+        this.type = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C> FieldBuilder<C>.type(spec: OptionTypeSpec<C>) {
@@ -1246,10 +1300,6 @@ class FieldBuilder<out C>(
 
     fun <C> FieldBuilder<C>.type(spec: AnyTypeSpec<C>) {
         this.type = AnyTypeTranslator<C>(spec).translate(context)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: RefTypeSpec<C>) {
-        this.type = RefTypeTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> FieldBuilder<C>.include(context: C2, body: FieldBuilder<C2>.() -> Unit) {

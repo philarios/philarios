@@ -1,10 +1,13 @@
 package io.philarios.layout.v0
 
+import io.philarios.canvas.v0.CanvasSchemaSpec
 import io.philarios.schema.v0.*
 
 object LayoutSchemaSpec : SchemaSpec<Any?>({
     name("Layout")
     pkg("io.philarios.layout.v0")
+
+    reference(CanvasSchemaSpec)
 
     type(Struct {
         name("Box")
@@ -29,6 +32,13 @@ object LayoutSchemaSpec : SchemaSpec<Any?>({
                 valueType(RefType {
                     name("ConstraintValue")
                 })
+            })
+        })
+        field(Field {
+            name("canvas")
+            type(RefType {
+                pkg("io.philarios.canvas.v0")
+                name("Canvas")
             })
         })
     })
