@@ -104,6 +104,12 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
                 })
             })
         })
+        field(Field {
+            name("method")
+            type(RefType {
+                name("Method")
+            })
+        })
     })
 
     type(Struct {
@@ -151,6 +157,20 @@ object CanvasSchemaSpec : SchemaSpec<Any?>({
         field(Field {
             name("f")
             type(DoubleType {})
+        })
+    })
+
+    type(Union {
+        name("Method")
+        shape(Struct {
+            name("Fill")
+        })
+        shape(Struct {
+            name("Stroke")
+            field(Field {
+                name("lineWidth")
+                type(DoubleType {})
+            })
         })
     })
 

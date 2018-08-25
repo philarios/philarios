@@ -90,7 +90,7 @@ object TestBox : BoxSpec<Any?>({
                 type(ConstraintType.WIDTH)
             })
 
-            include(Color(255.0, 255.0, 255.0, 0.0)) {
+            include(Color(0.0, 0.0, 0.0, 0.0)) {
                 canvas(RectangleCanvas)
             }
 
@@ -419,6 +419,9 @@ object RectangleCanvas : CanvasSpec<Color>({
             verb(LineTo {
                 x(0.0)
                 y(0.0)
+            })
+            method(Stroke {
+                lineWidth(5.0)
             })
         }
     }

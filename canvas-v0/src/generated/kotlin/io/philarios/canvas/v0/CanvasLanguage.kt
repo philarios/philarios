@@ -424,7 +424,11 @@ open class TransformedPathTranslator<in C>(private val spec: TransformedPathSpec
     }
 }
 
-data class Path(val color: Color, val verbs: List<Verb>) {
+data class Path(
+        val color: Color,
+        val verbs: List<Verb>,
+        val method: Method
+) {
     companion object {
         operator fun <C> invoke(body: PathBuilder<C>.() -> Unit): PathSpec<C> = PathSpec<C>(body)
     }
@@ -434,7 +438,8 @@ data class Path(val color: Color, val verbs: List<Verb>) {
 class PathBuilder<out C>(
         val context: C,
         private var color: Color? = null,
-        private var verbs: List<Verb>? = emptyList()
+        private var verbs: List<Verb>? = emptyList(),
+        private var method: Method? = null
 ) : Builder<Path> {
     fun <C> PathBuilder<C>.color(body: ColorBuilder<C>.() -> Unit) {
         this.color = ColorTranslator<C>(body).translate(context)
@@ -462,6 +467,14 @@ class PathBuilder<out C>(
 
     fun <C> PathBuilder<C>.verb(spec: ArcToSpec<C>) {
         this.verbs = this.verbs.orEmpty() + ArcToTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> PathBuilder<C>.method(spec: FillSpec<C>) {
+        this.method = FillTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> PathBuilder<C>.method(spec: StrokeSpec<C>) {
+        this.method = StrokeTranslator<C>(spec).translate(context)
     }
 
     fun <C, C2> PathBuilder<C>.include(context: C2, body: PathBuilder<C2>.() -> Unit) {
@@ -492,14 +505,15 @@ class PathBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): PathBuilder<C2> = PathBuilder(context,color,verbs)
+    private fun <C2> split(context: C2): PathBuilder<C2> = PathBuilder(context,color,verbs,method)
 
     private fun <C2> merge(other: PathBuilder<C2>) {
         this.color = other.color
         this.verbs = other.verbs
+        this.method = other.method
     }
 
-    override fun build(): Path = Path(color!!,verbs!!)
+    override fun build(): Path = Path(color!!,verbs!!,method!!)
 }
 
 open class PathSpec<in C>(internal val body: PathBuilder<C>.() -> Unit) : Spec<PathBuilder<C>, Path> {
@@ -710,6 +724,98 @@ open class TransformTranslator<in C>(private val spec: TransformSpec<C>) : Trans
     override fun translate(context: C): Transform {
         val builder = TransformBuilder(context)
         val translator = BuilderSpecTranslator<C, TransformBuilder<C>, Transform>(builder, spec)
+        return translator.translate(context)
+    }
+}
+
+sealed class Method
+
+object Fill : Method() {
+    operator fun <C> invoke(body: FillBuilder<C>.() -> Unit): FillSpec<C> = FillSpec<C>(body)
+}
+
+data class Stroke(val lineWidth: Double) : Method() {
+    companion object {
+        operator fun <C> invoke(body: StrokeBuilder<C>.() -> Unit): StrokeSpec<C> = StrokeSpec<C>(body)
+    }
+}
+
+@DslBuilder
+class FillBuilder<out C>(val context: C) : Builder<Fill> {
+    override fun build(): Fill = Fill
+}
+
+@DslBuilder
+class StrokeBuilder<out C>(val context: C, private var lineWidth: Double? = null) : Builder<Stroke> {
+    fun <C> StrokeBuilder<C>.lineWidth(lineWidth: Double) {
+        this.lineWidth = lineWidth
+    }
+
+    fun <C, C2> StrokeBuilder<C>.include(context: C2, body: StrokeBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    fun <C, C2> StrokeBuilder<C>.include(context: C2, spec: StrokeSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> StrokeBuilder<C>.include(body: StrokeBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> StrokeBuilder<C>.include(spec: StrokeSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> StrokeBuilder<C>.includeForEach(context: Iterable<C2>, body: StrokeBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> StrokeBuilder<C>.includeForEach(context: Iterable<C2>, spec: StrokeSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): StrokeBuilder<C2> = StrokeBuilder(context,lineWidth)
+
+    private fun <C2> merge(other: StrokeBuilder<C2>) {
+        this.lineWidth = other.lineWidth
+    }
+
+    override fun build(): Stroke = Stroke(lineWidth!!)
+}
+
+open class FillSpec<in C>(internal val body: FillBuilder<C>.() -> Unit) : Spec<FillBuilder<C>, Fill> {
+    override fun FillBuilder<C>.body() {
+        this@FillSpec.body.invoke(this)
+    }
+}
+
+open class StrokeSpec<in C>(internal val body: StrokeBuilder<C>.() -> Unit) : Spec<StrokeBuilder<C>, Stroke> {
+    override fun StrokeBuilder<C>.body() {
+        this@StrokeSpec.body.invoke(this)
+    }
+}
+
+open class FillTranslator<in C>(private val spec: FillSpec<C>) : Translator<C, Fill> {
+    constructor(body: FillBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.FillSpec<C>(body))
+
+    override fun translate(context: C): Fill {
+        val builder = FillBuilder(context)
+        val translator = BuilderSpecTranslator<C, FillBuilder<C>, Fill>(builder, spec)
+        return translator.translate(context)
+    }
+}
+
+open class StrokeTranslator<in C>(private val spec: StrokeSpec<C>) : Translator<C, Stroke> {
+    constructor(body: StrokeBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.StrokeSpec<C>(body))
+
+    override fun translate(context: C): Stroke {
+        val builder = StrokeBuilder(context)
+        val translator = BuilderSpecTranslator<C, StrokeBuilder<C>, Stroke>(builder, spec)
         return translator.translate(context)
     }
 }
