@@ -40,6 +40,10 @@ object TestBox : BoxSpec<Any?>({
         value(700.0)
     })
 
+    include(Color(255.0, 0.0, 0.0, 0.0)) {
+        canvas(RectangleCanvas)
+    }
+
     children {
         key("child")
 
@@ -58,6 +62,10 @@ object TestBox : BoxSpec<Any?>({
         constraints(ConstraintType.HEIGHT, Scalar {
             value(300.0)
         })
+
+        include(Color(255.0, 255.0, 0.0, 0.0)) {
+            canvas(RectangleCanvas)
+        }
 
         children {
             key("test")
@@ -81,6 +89,10 @@ object TestBox : BoxSpec<Any?>({
                 partner("test")
                 type(ConstraintType.WIDTH)
             })
+
+            include(Color(255.0, 255.0, 255.0, 0.0)) {
+                canvas(RectangleCanvas)
+            }
 
         }
 
@@ -108,6 +120,10 @@ object TestBox : BoxSpec<Any?>({
             value(300.0)
         })
 
+        include(Color(0.0, 255.0, 0.0, 0.0)) {
+            canvas(RectangleCanvas)
+        }
+
     }
 
     children {
@@ -132,6 +148,10 @@ object TestBox : BoxSpec<Any?>({
             partner("square")
             type(ConstraintType.WIDTH)
         })
+
+        include(Color(0.0, 0.0, 255.0, 0.0)) {
+            canvas(RectangleCanvas)
+        }
 
     }
 
@@ -347,10 +367,12 @@ object BoxCanvasNodeSpec : CanvasNodeSpec<Box>({
         e((context.constraints[ConstraintType.TRANSLATE_X]!! as Scalar).value)
         f((context.constraints[ConstraintType.TRANSLATE_Y]!! as Scalar).value)
     }
-    rectangle(
-            (context.constraints[ConstraintType.SCALE_Y]!! as Scalar).value * 255,
-            (context.constraints[ConstraintType.TRANSLATE_X]!! as Scalar).value * 255,
-            (context.constraints[ConstraintType.TRANSLATE_Y]!! as Scalar).value * 255)
+    children(CanvasLeaf {
+        transform {
+            a(1.0);b(0.0);c(0.0);d(1.0);e(0.0);f(0.0)
+        }
+        canvas(context.canvas)
+    })
 
     context.children.forEach {
         include(it) {

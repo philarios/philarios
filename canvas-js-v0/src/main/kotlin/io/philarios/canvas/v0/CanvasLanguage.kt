@@ -70,7 +70,7 @@ open class CanvasRootSpec<in C>(internal val body: CanvasRootBuilder<C>.() -> Un
 }
 
 open class CanvasRootTranslator<in C>(private val spec: CanvasRootSpec<C>) : Translator<C, CanvasRoot> {
-    constructor(body: CanvasRootBuilder<C>.() -> Unit) : this(CanvasRootSpec<C>(body))
+    constructor(body: CanvasRootBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.CanvasRootSpec<C>(body))
 
     override fun translate(context: C): CanvasRoot {
         val builder = CanvasRootBuilder(context)
@@ -105,6 +105,10 @@ class CanvasNodeBuilder<out C>(
 
     fun <C> CanvasNodeBuilder<C>.transform(spec: TransformSpec<C>) {
         this.transform = TransformTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> CanvasNodeBuilder<C>.transform(transform: Transform) {
+        this.transform = transform
     }
 
     fun <C> CanvasNodeBuilder<C>.children(spec: CanvasNodeSpec<C>) {
@@ -167,12 +171,20 @@ class CanvasLeafBuilder<out C>(
         this.transform = TransformTranslator<C>(spec).translate(context)
     }
 
+    fun <C> CanvasLeafBuilder<C>.transform(transform: Transform) {
+        this.transform = transform
+    }
+
     fun <C> CanvasLeafBuilder<C>.canvas(body: CanvasBuilder<C>.() -> Unit) {
         this.canvas = CanvasTranslator<C>(body).translate(context)
     }
 
     fun <C> CanvasLeafBuilder<C>.canvas(spec: CanvasSpec<C>) {
         this.canvas = CanvasTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> CanvasLeafBuilder<C>.canvas(canvas: Canvas) {
+        this.canvas = canvas
     }
 
     fun <C, C2> CanvasLeafBuilder<C>.include(context: C2, body: CanvasLeafBuilder<C2>.() -> Unit) {
@@ -226,7 +238,7 @@ open class CanvasLeafSpec<in C>(internal val body: CanvasLeafBuilder<C>.() -> Un
 }
 
 open class CanvasNodeTranslator<in C>(private val spec: CanvasNodeSpec<C>) : Translator<C, CanvasNode> {
-    constructor(body: CanvasNodeBuilder<C>.() -> Unit) : this(CanvasNodeSpec<C>(body))
+    constructor(body: CanvasNodeBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.CanvasNodeSpec<C>(body))
 
     override fun translate(context: C): CanvasNode {
         val builder = CanvasNodeBuilder(context)
@@ -236,7 +248,7 @@ open class CanvasNodeTranslator<in C>(private val spec: CanvasNodeSpec<C>) : Tra
 }
 
 open class CanvasLeafTranslator<in C>(private val spec: CanvasLeafSpec<C>) : Translator<C, CanvasLeaf> {
-    constructor(body: CanvasLeafBuilder<C>.() -> Unit) : this(CanvasLeafSpec<C>(body))
+    constructor(body: CanvasLeafBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.CanvasLeafSpec<C>(body))
 
     override fun translate(context: C): CanvasLeaf {
         val builder = CanvasLeafBuilder(context)
@@ -259,6 +271,14 @@ class CanvasBuilder<out C>(val context: C, private var paths: List<TransformedPa
 
     fun <C> CanvasBuilder<C>.path(spec: TransformedPathSpec<C>) {
         this.paths = this.paths.orEmpty() + TransformedPathTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> CanvasBuilder<C>.path(path: TransformedPath) {
+        this.paths = this.paths.orEmpty() + path
+    }
+
+    fun <C> CanvasBuilder<C>.paths(paths: List<TransformedPath>) {
+        this.paths = this.paths.orEmpty() + paths
     }
 
     fun <C, C2> CanvasBuilder<C>.include(context: C2, body: CanvasBuilder<C2>.() -> Unit) {
@@ -305,7 +325,7 @@ open class CanvasSpec<in C>(internal val body: CanvasBuilder<C>.() -> Unit) : Sp
 }
 
 open class CanvasTranslator<in C>(private val spec: CanvasSpec<C>) : Translator<C, Canvas> {
-    constructor(body: CanvasBuilder<C>.() -> Unit) : this(CanvasSpec<C>(body))
+    constructor(body: CanvasBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.CanvasSpec<C>(body))
 
     override fun translate(context: C): Canvas {
         val builder = CanvasBuilder(context)
@@ -334,12 +354,20 @@ class TransformedPathBuilder<out C>(
         this.transform = TransformTranslator<C>(spec).translate(context)
     }
 
+    fun <C> TransformedPathBuilder<C>.transform(transform: Transform) {
+        this.transform = transform
+    }
+
     fun <C> TransformedPathBuilder<C>.path(body: PathBuilder<C>.() -> Unit) {
         this.path = PathTranslator<C>(body).translate(context)
     }
 
     fun <C> TransformedPathBuilder<C>.path(spec: PathSpec<C>) {
         this.path = PathTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> TransformedPathBuilder<C>.path(path: Path) {
+        this.path = path
     }
 
     fun <C, C2> TransformedPathBuilder<C>.include(context: C2, body: TransformedPathBuilder<C2>.() -> Unit) {
@@ -387,7 +415,7 @@ open class TransformedPathSpec<in C>(internal val body: TransformedPathBuilder<C
 }
 
 open class TransformedPathTranslator<in C>(private val spec: TransformedPathSpec<C>) : Translator<C, TransformedPath> {
-    constructor(body: TransformedPathBuilder<C>.() -> Unit) : this(TransformedPathSpec<C>(body))
+    constructor(body: TransformedPathBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.TransformedPathSpec<C>(body))
 
     override fun translate(context: C): TransformedPath {
         val builder = TransformedPathBuilder(context)
@@ -414,6 +442,10 @@ class PathBuilder<out C>(
 
     fun <C> PathBuilder<C>.color(spec: ColorSpec<C>) {
         this.color = ColorTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> PathBuilder<C>.color(color: Color) {
+        this.color = color
     }
 
     fun <C> PathBuilder<C>.verb(spec: MoveToSpec<C>) {
@@ -477,7 +509,7 @@ open class PathSpec<in C>(internal val body: PathBuilder<C>.() -> Unit) : Spec<P
 }
 
 open class PathTranslator<in C>(private val spec: PathSpec<C>) : Translator<C, Path> {
-    constructor(body: PathBuilder<C>.() -> Unit) : this(PathSpec<C>(body))
+    constructor(body: PathBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.PathSpec<C>(body))
 
     override fun translate(context: C): Path {
         val builder = PathBuilder(context)
@@ -568,7 +600,7 @@ open class ColorSpec<in C>(internal val body: ColorBuilder<C>.() -> Unit) : Spec
 }
 
 open class ColorTranslator<in C>(private val spec: ColorSpec<C>) : Translator<C, Color> {
-    constructor(body: ColorBuilder<C>.() -> Unit) : this(ColorSpec<C>(body))
+    constructor(body: ColorBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.ColorSpec<C>(body))
 
     override fun translate(context: C): Color {
         val builder = ColorBuilder(context)
@@ -673,7 +705,7 @@ open class TransformSpec<in C>(internal val body: TransformBuilder<C>.() -> Unit
 }
 
 open class TransformTranslator<in C>(private val spec: TransformSpec<C>) : Translator<C, Transform> {
-    constructor(body: TransformBuilder<C>.() -> Unit) : this(TransformSpec<C>(body))
+    constructor(body: TransformBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.TransformSpec<C>(body))
 
     override fun translate(context: C): Transform {
         val builder = TransformBuilder(context)
@@ -996,7 +1028,7 @@ open class ArcToSpec<in C>(internal val body: ArcToBuilder<C>.() -> Unit) : Spec
 }
 
 open class MoveToTranslator<in C>(private val spec: MoveToSpec<C>) : Translator<C, MoveTo> {
-    constructor(body: MoveToBuilder<C>.() -> Unit) : this(MoveToSpec<C>(body))
+    constructor(body: MoveToBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.MoveToSpec<C>(body))
 
     override fun translate(context: C): MoveTo {
         val builder = MoveToBuilder(context)
@@ -1006,7 +1038,7 @@ open class MoveToTranslator<in C>(private val spec: MoveToSpec<C>) : Translator<
 }
 
 open class LineToTranslator<in C>(private val spec: LineToSpec<C>) : Translator<C, LineTo> {
-    constructor(body: LineToBuilder<C>.() -> Unit) : this(LineToSpec<C>(body))
+    constructor(body: LineToBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.LineToSpec<C>(body))
 
     override fun translate(context: C): LineTo {
         val builder = LineToBuilder(context)
@@ -1016,7 +1048,7 @@ open class LineToTranslator<in C>(private val spec: LineToSpec<C>) : Translator<
 }
 
 open class ArcTranslator<in C>(private val spec: ArcSpec<C>) : Translator<C, Arc> {
-    constructor(body: ArcBuilder<C>.() -> Unit) : this(ArcSpec<C>(body))
+    constructor(body: ArcBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.ArcSpec<C>(body))
 
     override fun translate(context: C): Arc {
         val builder = ArcBuilder(context)
@@ -1026,7 +1058,7 @@ open class ArcTranslator<in C>(private val spec: ArcSpec<C>) : Translator<C, Arc
 }
 
 open class ArcToTranslator<in C>(private val spec: ArcToSpec<C>) : Translator<C, ArcTo> {
-    constructor(body: ArcToBuilder<C>.() -> Unit) : this(ArcToSpec<C>(body))
+    constructor(body: ArcToBuilder<C>.() -> Unit) : this(io.philarios.canvas.v0.ArcToSpec<C>(body))
 
     override fun translate(context: C): ArcTo {
         val builder = ArcToBuilder(context)

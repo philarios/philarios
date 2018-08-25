@@ -46,6 +46,14 @@ class BoxBuilder<out C>(
         this.children = this.children.orEmpty() + BoxTranslator<C>(spec).translate(context)
     }
 
+    fun <C> BoxBuilder<C>.children(children: Box) {
+        this.children = this.children.orEmpty() + children
+    }
+
+    fun <C> BoxBuilder<C>.children(children: List<Box>) {
+        this.children = this.children.orEmpty() + children
+    }
+
     fun <C> BoxBuilder<C>.constraints(key: ConstraintType, spec: ScalarSpec<C>) {
         this.constraints = this.constraints.orEmpty() + Pair(key,ScalarTranslator<C>(spec).translate(context))
     }
@@ -60,6 +68,10 @@ class BoxBuilder<out C>(
 
     fun <C> BoxBuilder<C>.canvas(spec: CanvasSpec<C>) {
         this.canvas = CanvasTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> BoxBuilder<C>.canvas(canvas: Canvas) {
+        this.canvas = canvas
     }
 
     fun <C, C2> BoxBuilder<C>.include(context: C2, body: BoxBuilder<C2>.() -> Unit) {

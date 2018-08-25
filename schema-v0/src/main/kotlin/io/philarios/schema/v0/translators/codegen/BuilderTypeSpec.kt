@@ -98,7 +98,8 @@ private object StructBuilderTypeSpec {
         return when (fieldType) {
             is Struct -> listOf(
                     setParameterFunctionWithBody(type, field, fieldType),
-                    setParameterFunctionWithSpec(type, field, fieldType)
+                    setParameterFunctionWithSpec(type, field, fieldType),
+                    setParameterFunction(type, field)
             )
             is Union -> fieldType.shapes.map {
                 setParameterFunctionWithSpec(type, field, it)
@@ -108,7 +109,9 @@ private object StructBuilderTypeSpec {
                 when (listType) {
                     is Struct -> listOf(
                             addParameterFunctionWithBody(type, field, listType),
-                            addParameterFunctionWithSpec(type, field, listType)
+                            addParameterFunctionWithSpec(type, field, listType),
+                            addParameterFunction(type, field, listType),
+                            addAllParameterFunction(type, field)
                     )
                     is Union -> listType.shapes.map {
                         addParameterFunctionWithSpec(type, field, it)
@@ -133,14 +136,17 @@ private object StructBuilderTypeSpec {
                     keyType is Struct || keyType is Union -> emptyList()
                     valueType is Struct -> listOf(
                             putKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
-                            putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType)
+                            putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType),
+                            putKeyValueParameterFunction(type, field, keyType, valueType),
+                            putPairParameterFunction(type, field, keyType, valueType)
                     )
                     valueType is Union -> valueType.shapes.map {
                         putKeyValueParameterFunctionWithSpec(type, field, keyType, it)
                     }
                     else -> listOf(
                             putKeyValueParameterFunction(type, field, keyType, valueType),
-                            putPairParameterFunction(type, field, keyType, valueType)
+                            putPairParameterFunction(type, field, keyType, valueType),
+                            addAllParameterFunction(type, field)
                     )
                 }
             }
