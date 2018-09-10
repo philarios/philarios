@@ -34,6 +34,7 @@ kotlinFrontend {
         contentPath = file('src/main/web')
         mode = 'development'
     }
+    define "PRODUCTION", false
 }
 
 sourceSets {

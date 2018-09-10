@@ -2,6 +2,10 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="philarios-canvas-js-v0_main" target="1.8" />
+      <module name="philarios-canvas-js-v0_test" target="1.8" />
+      <module name="philarios-canvas-v0_main" target="1.8" />
+      <module name="philarios-canvas-v0_test" target="1.8" />
       <module name="philarios-codegen-v0_main" target="1.8" />
       <module name="philarios-codegen-v0_test" target="1.8" />
       <module name="philarios-concourse-example-v0_main" target="1.8" />

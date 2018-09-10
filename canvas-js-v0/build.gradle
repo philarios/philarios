@@ -1,0 +1,5 @@
+buildscript {
+    apply from: "../gradle-v0/src/main/groovy/kotlinjs/buildscript.gradle", to: buildscript
+}
+
+apply from: "../gradle-v0/src/main/groovy/kotlinjs/build.gradle"

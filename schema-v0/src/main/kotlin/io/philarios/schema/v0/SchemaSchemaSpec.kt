@@ -22,12 +22,26 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
                 })
             })
         })
+        field(Field {
+            name("references")
+            type(ListType {
+                type(RefType{
+                    name("Schema")
+                })
+            })
+        })
     })
 
     type(Union {
         name("Type")
         shape(Struct {
             name("Struct")
+            field(Field {
+                name("pkg")
+                type(OptionType {
+                    type(StringType {})
+                })
+            })
             field(Field {
                 name("name")
                 type(StringType {})
@@ -44,6 +58,12 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
         shape(Struct {
             name("Union")
             field(Field {
+                name("pkg")
+                type(OptionType {
+                    type(StringType {})
+                })
+            })
+            field(Field {
                 name("name")
                 type(StringType {})
             })
@@ -59,6 +79,12 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
         shape(Struct {
             name("EnumType")
             field(Field {
+                name("pkg")
+                type(OptionType {
+                    type(StringType {})
+                })
+            })
+            field(Field {
                 name("name")
                 type(StringType {})
             })
@@ -67,6 +93,19 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
                 type(ListType {
                     type(StringType {})
                 })
+            })
+        })
+        shape(Struct {
+            name("RefType")
+            field(Field {
+                name("pkg")
+                type(OptionType {
+                    type(StringType {})
+                })
+            })
+            field(Field {
+                name("name")
+                type(StringType {})
             })
         })
         shape(Struct {
@@ -131,13 +170,6 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
         })
         shape(Struct {
             name("AnyType")
-        })
-        shape(Struct {
-            name("RefType")
-            field(Field {
-                name("name")
-                type(StringType {})
-            })
         })
     })
 
