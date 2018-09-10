@@ -40,8 +40,8 @@ object TestBox : BoxSpec<Any?>({
         value(700.0)
     })
 
-    include(Color(255.0, 0.0, 0.0, 0.0)) {
-        canvas(RectangleCanvas)
+    background {
+        color(Color(255.0, 0.0, 0.0, 0.0))
     }
 
     children {
@@ -63,8 +63,8 @@ object TestBox : BoxSpec<Any?>({
             value(300.0)
         })
 
-        include(Color(255.0, 255.0, 0.0, 0.0)) {
-            canvas(RectangleCanvas)
+        background {
+            color(Color(255.0, 255.0, 0.0, 0.0))
         }
 
         children {
@@ -90,8 +90,12 @@ object TestBox : BoxSpec<Any?>({
                 type(ConstraintType.WIDTH)
             })
 
-            include(Color(255.0, 255.0, 255.0, 0.0)) {
-                canvas(RectangleCanvas)
+            background {
+                color(Color(255.0, 255.0, 255.0, 0.0))
+            }
+
+            text {
+                color(Color(0.0, 0.0, 0.0, 0.0))
             }
 
         }
@@ -120,8 +124,8 @@ object TestBox : BoxSpec<Any?>({
             value(300.0)
         })
 
-        include(Color(0.0, 255.0, 0.0, 0.0)) {
-            canvas(RectangleCanvas)
+        background {
+            color(Color(0.0, 255.0, 0.0, 0.0))
         }
 
     }
@@ -149,8 +153,8 @@ object TestBox : BoxSpec<Any?>({
             type(ConstraintType.WIDTH)
         })
 
-        include(Color(0.0, 0.0, 255.0, 0.0)) {
-            canvas(RectangleCanvas)
+        background {
+            color(Color(0.0, 0.0, 255.0, 0.0))
         }
 
     }
@@ -367,12 +371,7 @@ object BoxCanvasNodeSpec : CanvasNodeSpec<Box>({
         e((context.constraints[ConstraintType.TRANSLATE_X]!! as Scalar).value)
         f((context.constraints[ConstraintType.TRANSLATE_Y]!! as Scalar).value)
     }
-    children(CanvasLeaf {
-        transform {
-            a(1.0);b(0.0);c(0.0);d(1.0);e(0.0);f(0.0)
-        }
-        canvas(context.canvas)
-    })
+    context.background?.let { rectangle(it.color) }
 
     context.children.forEach {
         include(it) {
@@ -382,12 +381,12 @@ object BoxCanvasNodeSpec : CanvasNodeSpec<Box>({
 
 })
 
-fun CanvasNodeBuilder<*>.rectangle(red: Double, green: Double, blue: Double) {
+fun CanvasNodeBuilder<*>.rectangle(color: Color) {
     children(CanvasLeaf {
         transform {
             a(1.0);b(0.0);c(0.0);d(1.0);e(0.0);f(0.0)
         }
-        include(Color(red, green, blue, 255.0)) { canvas(RectangleCanvas) }
+        include(color) { canvas(RectangleCanvas) }
     })
 }
 
@@ -420,6 +419,7 @@ object RectangleCanvas : CanvasSpec<Color>({
                 x(0.0)
                 y(0.0)
             })
+            method(Fill {})
         }
     }
 })

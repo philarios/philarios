@@ -35,10 +35,41 @@ object LayoutSchemaSpec : SchemaSpec<Any?>({
             })
         })
         field(Field {
-            name("canvas")
+            name("background")
+            type(OptionType {
+                type(RefType {
+                    name("BoxBackground")
+                })
+            })
+        })
+        field(Field {
+            name("text")
+            type(OptionType {
+                type(RefType {
+                    name("BoxText")
+                })
+            })
+        })
+    })
+
+    type(Struct {
+        name("BoxBackground")
+        field(Field {
+            name("color")
             type(RefType {
                 pkg("io.philarios.canvas.v0")
-                name("Canvas")
+                name("Color")
+            })
+        })
+    })
+
+    type(Struct {
+        name("BoxText")
+        field(Field {
+            name("color")
+            type(RefType {
+                pkg("io.philarios.canvas.v0")
+                name("Color")
             })
         })
     })

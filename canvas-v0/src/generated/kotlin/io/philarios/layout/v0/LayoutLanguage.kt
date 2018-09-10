@@ -1,9 +1,9 @@
 package io.philarios.layout.v0
 
-import io.philarios.canvas.v0.Canvas
-import io.philarios.canvas.v0.CanvasBuilder
-import io.philarios.canvas.v0.CanvasSpec
-import io.philarios.canvas.v0.CanvasTranslator
+import io.philarios.canvas.v0.Color
+import io.philarios.canvas.v0.ColorBuilder
+import io.philarios.canvas.v0.ColorSpec
+import io.philarios.canvas.v0.ColorTranslator
 import io.philarios.core.v0.Builder
 import io.philarios.core.v0.BuilderSpecTranslator
 import io.philarios.core.v0.DslBuilder
@@ -19,7 +19,8 @@ data class Box(
         val key: String,
         val children: List<Box>,
         val constraints: Map<ConstraintType, ConstraintValue>,
-        val canvas: Canvas
+        val background: BoxBackground?,
+        val text: BoxText?
 ) {
     companion object {
         operator fun <C> invoke(body: BoxBuilder<C>.() -> Unit): BoxSpec<C> = BoxSpec<C>(body)
@@ -32,7 +33,8 @@ class BoxBuilder<out C>(
         private var key: String? = null,
         private var children: List<Box>? = emptyList(),
         private var constraints: Map<ConstraintType, ConstraintValue>? = emptyMap(),
-        private var canvas: Canvas? = null
+        private var background: BoxBackground? = null,
+        private var text: BoxText? = null
 ) : Builder<Box> {
     fun <C> BoxBuilder<C>.key(key: String) {
         this.key = key
@@ -62,16 +64,28 @@ class BoxBuilder<out C>(
         this.constraints = this.constraints.orEmpty() + Pair(key,LinearTranslator<C>(spec).translate(context))
     }
 
-    fun <C> BoxBuilder<C>.canvas(body: CanvasBuilder<C>.() -> Unit) {
-        this.canvas = CanvasTranslator<C>(body).translate(context)
+    fun <C> BoxBuilder<C>.background(body: BoxBackgroundBuilder<C>.() -> Unit) {
+        this.background = BoxBackgroundTranslator<C>(body).translate(context)
     }
 
-    fun <C> BoxBuilder<C>.canvas(spec: CanvasSpec<C>) {
-        this.canvas = CanvasTranslator<C>(spec).translate(context)
+    fun <C> BoxBuilder<C>.background(spec: BoxBackgroundSpec<C>) {
+        this.background = BoxBackgroundTranslator<C>(spec).translate(context)
     }
 
-    fun <C> BoxBuilder<C>.canvas(canvas: Canvas) {
-        this.canvas = canvas
+    fun <C> BoxBuilder<C>.background(background: BoxBackground) {
+        this.background = background
+    }
+
+    fun <C> BoxBuilder<C>.text(body: BoxTextBuilder<C>.() -> Unit) {
+        this.text = BoxTextTranslator<C>(body).translate(context)
+    }
+
+    fun <C> BoxBuilder<C>.text(spec: BoxTextSpec<C>) {
+        this.text = BoxTextTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> BoxBuilder<C>.text(text: BoxText) {
+        this.text = text
     }
 
     fun <C, C2> BoxBuilder<C>.include(context: C2, body: BoxBuilder<C2>.() -> Unit) {
@@ -102,16 +116,17 @@ class BoxBuilder<out C>(
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): BoxBuilder<C2> = BoxBuilder(context,key,children,constraints,canvas)
+    private fun <C2> split(context: C2): BoxBuilder<C2> = BoxBuilder(context,key,children,constraints,background,text)
 
     private fun <C2> merge(other: BoxBuilder<C2>) {
         this.key = other.key
         this.children = other.children
         this.constraints = other.constraints
-        this.canvas = other.canvas
+        this.background = other.background
+        this.text = other.text
     }
 
-    override fun build(): Box = Box(key!!,children!!,constraints!!,canvas!!)
+    override fun build(): Box = Box(key!!,children!!,constraints!!,background,text)
 }
 
 open class BoxSpec<in C>(internal val body: BoxBuilder<C>.() -> Unit) : Spec<BoxBuilder<C>, Box> {
@@ -126,6 +141,152 @@ open class BoxTranslator<in C>(private val spec: BoxSpec<C>) : Translator<C, Box
     override fun translate(context: C): Box {
         val builder = BoxBuilder(context)
         val translator = BuilderSpecTranslator<C, BoxBuilder<C>, Box>(builder, spec)
+        return translator.translate(context)
+    }
+}
+
+data class BoxBackground(val color: Color) {
+    companion object {
+        operator fun <C> invoke(body: BoxBackgroundBuilder<C>.() -> Unit): BoxBackgroundSpec<C> = BoxBackgroundSpec<C>(body)
+    }
+}
+
+@DslBuilder
+class BoxBackgroundBuilder<out C>(val context: C, private var color: Color? = null) : Builder<BoxBackground> {
+    fun <C> BoxBackgroundBuilder<C>.color(body: ColorBuilder<C>.() -> Unit) {
+        this.color = ColorTranslator<C>(body).translate(context)
+    }
+
+    fun <C> BoxBackgroundBuilder<C>.color(spec: ColorSpec<C>) {
+        this.color = ColorTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> BoxBackgroundBuilder<C>.color(color: Color) {
+        this.color = color
+    }
+
+    fun <C, C2> BoxBackgroundBuilder<C>.include(context: C2, body: BoxBackgroundBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    fun <C, C2> BoxBackgroundBuilder<C>.include(context: C2, spec: BoxBackgroundSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> BoxBackgroundBuilder<C>.include(body: BoxBackgroundBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> BoxBackgroundBuilder<C>.include(spec: BoxBackgroundSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> BoxBackgroundBuilder<C>.includeForEach(context: Iterable<C2>, body: BoxBackgroundBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> BoxBackgroundBuilder<C>.includeForEach(context: Iterable<C2>, spec: BoxBackgroundSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): BoxBackgroundBuilder<C2> = BoxBackgroundBuilder(context,color)
+
+    private fun <C2> merge(other: BoxBackgroundBuilder<C2>) {
+        this.color = other.color
+    }
+
+    override fun build(): BoxBackground = BoxBackground(color!!)
+}
+
+open class BoxBackgroundSpec<in C>(internal val body: BoxBackgroundBuilder<C>.() -> Unit) : Spec<BoxBackgroundBuilder<C>, BoxBackground> {
+    override fun BoxBackgroundBuilder<C>.body() {
+        this@BoxBackgroundSpec.body.invoke(this)
+    }
+}
+
+open class BoxBackgroundTranslator<in C>(private val spec: BoxBackgroundSpec<C>) : Translator<C, BoxBackground> {
+    constructor(body: BoxBackgroundBuilder<C>.() -> Unit) : this(io.philarios.layout.v0.BoxBackgroundSpec<C>(body))
+
+    override fun translate(context: C): BoxBackground {
+        val builder = BoxBackgroundBuilder(context)
+        val translator = BuilderSpecTranslator<C, BoxBackgroundBuilder<C>, BoxBackground>(builder, spec)
+        return translator.translate(context)
+    }
+}
+
+data class BoxText(val color: Color) {
+    companion object {
+        operator fun <C> invoke(body: BoxTextBuilder<C>.() -> Unit): BoxTextSpec<C> = BoxTextSpec<C>(body)
+    }
+}
+
+@DslBuilder
+class BoxTextBuilder<out C>(val context: C, private var color: Color? = null) : Builder<BoxText> {
+    fun <C> BoxTextBuilder<C>.color(body: ColorBuilder<C>.() -> Unit) {
+        this.color = ColorTranslator<C>(body).translate(context)
+    }
+
+    fun <C> BoxTextBuilder<C>.color(spec: ColorSpec<C>) {
+        this.color = ColorTranslator<C>(spec).translate(context)
+    }
+
+    fun <C> BoxTextBuilder<C>.color(color: Color) {
+        this.color = color
+    }
+
+    fun <C, C2> BoxTextBuilder<C>.include(context: C2, body: BoxTextBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    fun <C, C2> BoxTextBuilder<C>.include(context: C2, spec: BoxTextSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C> BoxTextBuilder<C>.include(body: BoxTextBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> BoxTextBuilder<C>.include(spec: BoxTextSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> BoxTextBuilder<C>.includeForEach(context: Iterable<C2>, body: BoxTextBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> BoxTextBuilder<C>.includeForEach(context: Iterable<C2>, spec: BoxTextSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): BoxTextBuilder<C2> = BoxTextBuilder(context,color)
+
+    private fun <C2> merge(other: BoxTextBuilder<C2>) {
+        this.color = other.color
+    }
+
+    override fun build(): BoxText = BoxText(color!!)
+}
+
+open class BoxTextSpec<in C>(internal val body: BoxTextBuilder<C>.() -> Unit) : Spec<BoxTextBuilder<C>, BoxText> {
+    override fun BoxTextBuilder<C>.body() {
+        this@BoxTextSpec.body.invoke(this)
+    }
+}
+
+open class BoxTextTranslator<in C>(private val spec: BoxTextSpec<C>) : Translator<C, BoxText> {
+    constructor(body: BoxTextBuilder<C>.() -> Unit) : this(io.philarios.layout.v0.BoxTextSpec<C>(body))
+
+    override fun translate(context: C): BoxText {
+        val builder = BoxTextBuilder(context)
+        val translator = BuilderSpecTranslator<C, BoxTextBuilder<C>, BoxText>(builder, spec)
         return translator.translate(context)
     }
 }

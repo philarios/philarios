@@ -4,7 +4,6 @@ import io.philarios.canvas.v0.*
 import io.philarios.core.v0.Translator
 import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
-import kotlin.math.max
 
 class CanvasDrawer(private val canvas: HTMLCanvasElement) : Translator<CanvasRoot, Unit> {
     private val canvasContext: CanvasRenderingContext2D
@@ -47,7 +46,7 @@ class CanvasDrawer(private val canvas: HTMLCanvasElement) : Translator<CanvasRoo
                         canvasContext.fill()
                     }
                     is Stroke -> {
-                        canvasContext.lineWidth = path.method.lineWidth  / max(canvasContext.getTransform().a, canvasContext.getTransform().d)
+                        canvasContext.lineWidth = path.method.lineWidth
                         canvasContext.strokeStyle = "rgb(${path.color.red},${path.color.green},${path.color.blue})"
                         canvasContext.stroke()
                     }
@@ -62,7 +61,6 @@ private inline fun CanvasRenderingContext2D.withTransform(transform: Transform?,
         body()
         return
     }
-
     save()
     transform(transform)
     body()
