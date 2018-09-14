@@ -31,11 +31,11 @@
     <output url="file://$MODULE_DIR$/../../../canvas-js-v0/out/production/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../canvas-js-v0/src/generated">
-      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/generated/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/generated/kotlin" type="kotlin-source" />
     </content>
     <content url="file://$MODULE_DIR$/../../../canvas-js-v0/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/main/kotlin" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/main/kotlin" type="kotlin-source" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/main/resources" type="kotlin-resource" />
     </content>
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />

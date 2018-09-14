@@ -29,8 +29,8 @@
     <output-test url="file://$MODULE_DIR$/../../../canvas-js-v0/out/test/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../canvas-js-v0/src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/test/kotlin" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/test/kotlin" type="kotlin-test" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../canvas-js-v0/src/test/resources" type="kotlin-test-resource" />
     </content>
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
