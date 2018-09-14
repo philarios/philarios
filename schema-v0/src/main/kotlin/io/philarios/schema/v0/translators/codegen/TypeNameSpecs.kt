@@ -111,4 +111,7 @@ val Type.otherListBodyLambdaTypeName
     get() = LambdaTypeName.get(otherListBuilderClassName, emptyList(), ClassName("", "Unit"))
 
 val Field.singularName
-    get() = name.removeSuffix("s")
+    get() = when {
+        name.endsWith("ies") -> name.removeSuffix("ies").plus("y")
+        else -> name.removeSuffix("s")
+    }

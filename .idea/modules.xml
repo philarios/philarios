@@ -18,6 +18,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0.iml" group="philarios-core-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_main.iml" group="philarios-core-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core-v0/philarios-core-v0_test.iml" group="philarios-core-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0.iml" group="philarios-filesystem-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0_main.iml" group="philarios-filesystem-v0" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/filesystem-v0/philarios-filesystem-v0_test.iml" group="philarios-filesystem-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0.iml" group="philarios-gradle-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_main.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_main.iml" group="philarios-gradle-v0" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_test.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle-v0/philarios-gradle-v0_test.iml" group="philarios-gradle-v0" />
