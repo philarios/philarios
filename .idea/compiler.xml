@@ -2,24 +2,30 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="philarios-canvas-js-v0_main" target="1.8" />
-      <module name="philarios-canvas-js-v0_test" target="1.8" />
-      <module name="philarios-canvas-v0_main" target="1.8" />
-      <module name="philarios-canvas-v0_test" target="1.8" />
-      <module name="philarios-codegen-v0_main" target="1.8" />
-      <module name="philarios-codegen-v0_test" target="1.8" />
-      <module name="philarios-concourse-example-v0_main" target="1.8" />
-      <module name="philarios-concourse-example-v0_test" target="1.8" />
-      <module name="philarios-concourse-v0_main" target="1.8" />
-      <module name="philarios-concourse-v0_test" target="1.8" />
-      <module name="philarios-core-v0_main" target="1.8" />
-      <module name="philarios-core-v0_test" target="1.8" />
-      <module name="philarios-filesystem-v0_main" target="1.8" />
-      <module name="philarios-filesystem-v0_test" target="1.8" />
-      <module name="philarios-gradle-v0_main" target="1.8" />
-      <module name="philarios-gradle-v0_test" target="1.8" />
-      <module name="philarios-schema-v0_main" target="1.8" />
-      <module name="philarios-schema-v0_test" target="1.8" />
+      <module name="philarios-canvas-v0-browser_main" target="1.8" />
+      <module name="philarios-canvas-v0-browser_test" target="1.8" />
+      <module name="philarios-canvas-v0-common_main" target="1.8" />
+      <module name="philarios-canvas-v0-common_test" target="1.8" />
+      <module name="philarios-canvas-v0-js_main" target="1.8" />
+      <module name="philarios-canvas-v0-js_test" target="1.8" />
+      <module name="philarios-canvas-v0-jvm_main" target="1.8" />
+      <module name="philarios-canvas-v0-jvm_test" target="1.8" />
+      <module name="philarios-concourse-v0-common_main" target="1.8" />
+      <module name="philarios-concourse-v0-common_test" target="1.8" />
+      <module name="philarios-concourse-v0-jvm_main" target="1.8" />
+      <module name="philarios-concourse-v0-jvm_test" target="1.8" />
+      <module name="philarios-core-v0-common_main" target="1.8" />
+      <module name="philarios-core-v0-common_test" target="1.8" />
+      <module name="philarios-core-v0-jvm_main" target="1.8" />
+      <module name="philarios-core-v0-jvm_test" target="1.8" />
+      <module name="philarios-filesystem-v0-common_main" target="1.8" />
+      <module name="philarios-filesystem-v0-common_test" target="1.8" />
+      <module name="philarios-filesystem-v0-jvm_main" target="1.8" />
+      <module name="philarios-filesystem-v0-jvm_test" target="1.8" />
+      <module name="philarios-schema-v0-common_main" target="1.8" />
+      <module name="philarios-schema-v0-common_test" target="1.8" />
+      <module name="philarios-schema-v0-jvm_main" target="1.8" />
+      <module name="philarios-schema-v0-jvm_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

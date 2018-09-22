@@ -1,16 +1,68 @@
-def proj = "philarios"
-def modules = [
-        "gradle-v0",
-        "core-v0",
-        "schema-v0",
-        "concourse-v0",
-        "concourse-example-v0",
-        "canvas-v0",
-        "canvas-js-v0",
-        "filesystem-v0",
-]
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlin-platform-common") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
 
-modules.each {
-    include(it)
-    project(":$it").name = "$proj-${it.replaceAll("/", "-")}"
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-common") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-common") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-common") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-js") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-js") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+        }
+    }
 }
+rootProject.name = 'philarios-main'
+
+include "philarios-core-v0-common"
+include "philarios-core-v0-jvm"
+include "philarios-schema-v0-common"
+include "philarios-schema-v0-jvm"
+include "philarios-filesystem-v0-common"
+include "philarios-filesystem-v0-jvm"
+include "philarios-concourse-v0-common"
+include "philarios-concourse-v0-jvm"
+include "philarios-canvas-v0-common"
+include "philarios-canvas-v0-jvm"
+include "philarios-canvas-v0-js"
+include "philarios-canvas-v0-browser"
+

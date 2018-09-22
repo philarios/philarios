@@ -1,9 +1,0 @@
-
-new Properties().with {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+"
-    }
-}
