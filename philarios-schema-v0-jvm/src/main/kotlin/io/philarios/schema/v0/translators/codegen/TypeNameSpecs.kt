@@ -3,6 +3,8 @@ package io.philarios.schema.v0.translators.codegen
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
+import io.philarios.core.v0.Scaffold
+import io.philarios.core.v0.Wrapper
 import io.philarios.schema.v0.*
 
 val dslBuilderClassName
@@ -10,6 +12,12 @@ val dslBuilderClassName
 
 val builderClassName
     get() = ClassName.bestGuess(Builder::class.qualifiedName!!)
+
+val scaffoldClassName
+    get() = ClassName.bestGuess(Scaffold::class.qualifiedName!!)
+
+val wrapperClassName
+    get() = ClassName.bestGuess(Wrapper::class.qualifiedName!!)
 
 val Type.typeName: TypeName
     get() = when (this) {
@@ -80,8 +88,26 @@ val Type.translatorClassName
 val Type.translatorListClassName
     get() = ParameterizedTypeName.get(className("ListTranslator"), TypeVariableName("C", KModifier.IN))
 
+val Type.templateClassName
+    get() = ParameterizedTypeName.get(className("Template"), TypeVariableName("C", KModifier.IN))
+
 val Type.specClassName
     get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C", KModifier.IN))
+
+val Type.shellClassName
+    get() = className("Shell")
+
+val Type.parameterizedScaffoldClassName: ParameterizedTypeName
+    get() = ParameterizedTypeName.get(io.philarios.schema.v0.translators.codegen.scaffoldClassName, className)
+
+val ClassName.parameterizedScaffoldClassName: ParameterizedTypeName
+    get() = ParameterizedTypeName.get(io.philarios.schema.v0.translators.codegen.scaffoldClassName, this)
+
+val Type.refClassName
+    get() = className("Ref")
+
+//val Type.templateClassName
+//    get() = className("Template")
 
 val Type.otherSpecClassName
     get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C2", KModifier.IN))

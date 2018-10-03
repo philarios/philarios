@@ -1,18 +1,39 @@
-plugins {
-    id 'kotlin-platform-common' version '1.2.61'
+
+buildscript {
+    ext {
+        kotlin_version = '1.2.61'
+        coroutines_version = '0.26.1'
+        spek_version = '2.0.0-alpha.1'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
+
+apply plugin: 'kotlin-platform-common'
 
 group 'io.philarios'
 version '0.0.0'
 
 repositories {
     mavenCentral()
+    maven {
+        url  "https://dl.bintray.com/spekframework/spek-dev"
+    }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+    testCompile "org.spekframework.spek2:spek-dsl-common:$spek_version"
 }
 
 dependencies {

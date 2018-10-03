@@ -4,184 +4,195 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
     name("Schema")
     pkg("io.philarios.schema.v0")
 
-    type(Struct {
+    type(StructSpec {
         name("Schema")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            key(true)
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("pkg")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("types")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Type")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("references")
-            type(ListType {
-                type(RefType{
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Schema")
                 })
             })
         })
     })
 
-    type(Union {
+    type(UnionSpec {
         name("Type")
-        shape(Struct {
+        shape(StructSpec {
             name("Struct")
-            field(Field {
+            field(FieldSpec {
                 name("pkg")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                key(true)
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("fields")
-                type(ListType {
-                    type(RefType {
+                type(ListTypeSpec {
+                    type(RefTypeSpec {
                         name("Field")
                     })
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Union")
-            field(Field {
+            field(FieldSpec {
                 name("pkg")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                key(true)
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("shapes")
-                type(ListType {
-                    type(RefType {
+                type(ListTypeSpec {
+                    type(RefTypeSpec {
                         name("Struct")
                     })
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("EnumType")
-            field(Field {
+            field(FieldSpec {
                 name("pkg")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                key(true)
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("values")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("RefType")
-            field(Field {
+            field(FieldSpec {
                 name("pkg")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                key(true)
+                type(StringTypeSpec {})
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("OptionType")
-            field(Field {
+            field(FieldSpec {
                 name("type")
-                type(RefType {
+                type(RefTypeSpec {
                     name("Type")
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("ListType")
-            field(Field {
+            field(FieldSpec {
                 name("type")
-                type(RefType {
+                type(RefTypeSpec {
                     name("Type")
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("MapType")
-            field(Field {
+            field(FieldSpec {
                 name("keyType")
-                type(RefType {
+                type(RefTypeSpec {
                     name("Type")
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("valueType")
-                type(RefType {
+                type(RefTypeSpec {
                     name("Type")
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("BooleanType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("DoubleType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("FloatType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("LongType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("IntType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("ShortType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("ByteType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("CharacterType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("StringType")
         })
-        shape(Struct {
+        shape(StructSpec {
             name("AnyType")
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Field")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
+            name("key")
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
+            })
+        })
+        field(FieldSpec {
             name("type")
-            type(RefType {
+            type(RefTypeSpec {
                 name("Type")
             })
         })

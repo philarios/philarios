@@ -34,22 +34,26 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../philarios-concourse-v0-jvm/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../philarios-concourse-v0-jvm/src/main/resources" type="java-resource" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="philarios-concourse-v0-common_main" />
-    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
     <orderEntry type="module" module-name="philarios-schema-v0-jvm_main" />
-    <orderEntry type="module" module-name="philarios-core-v0-common_main" />
     <orderEntry type="module" module-name="philarios-core-v0-jvm_main" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.61" level="project" />
     <orderEntry type="module" module-name="philarios-concourse-v0-common_main" />
+    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
+    <orderEntry type="module" module-name="philarios-core-v0-common_main" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.26.1" level="project" />
+    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.61" level="project" />
+    <orderEntry type="module" module-name="philarios-concourse-v0-common_main" />
     <orderEntry type="library" name="Gradle: com.squareup:kotlinpoet:0.7.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jre7:1.2.21" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.21" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.2.61" level="project" />
-    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
     <orderEntry type="module" module-name="philarios-core-v0-common_main" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:0.26.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:atomicfu-common:0.11.5" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.2.61" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
   </component>

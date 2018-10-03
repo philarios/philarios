@@ -6,867 +6,867 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
     name("Concourse")
     pkg("io.philarios.concourse.v0")
 
-    type(Struct {
+    type(StructSpec {
         name("Concourse")
-        field(Field {
+        field(FieldSpec {
             name("teams")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Team")
                 })
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Team")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("pipelines")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Pipeline")
                 })
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Pipeline")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("jobs")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Job")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("resources")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Resource")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("resource_types")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("ResourceType")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("groups")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Group")
                 })
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Job")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("plan")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("serial")
-            type(OptionType {
-                type(BooleanType {})
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("build_logs_to_retain")
-            type(OptionType {
-                type(IntType {})
+            type(OptionTypeSpec {
+                type(IntTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("serial_groups")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("max_in_flight")
-            type(OptionType {
-                type(IntType {})
+            type(OptionTypeSpec {
+                type(IntTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("public")
-            type(OptionType {
-                type(BooleanType {})
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("disable_manual_trigger")
-            type(OptionType {
-                type(BooleanType {})
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("interruptible")
-            type(OptionType {
-                type(BooleanType {})
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("on_success")
-            type(OptionType {
-                type(RefType {
+            type(OptionTypeSpec {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("on_failure")
-            type(OptionType {
-                type(RefType {
+            type(OptionTypeSpec {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("on_abort")
-            type(OptionType {
-                type(RefType {
+            type(OptionTypeSpec {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("ensure")
-            type(OptionType {
-                type(RefType {
+            type(OptionTypeSpec {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
         })
     })
 
-    type(Union {
+    type(UnionSpec {
         name("Step")
-        shape(Struct {
+        shape(StructSpec {
             name("Get")
-            field(Field {
+            field(FieldSpec {
                 name("get")
-                type(StringType {})
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("resource")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("version")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("passed")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("params")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(AnyType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(AnyTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("trigger")
-                type(OptionType {
-                    type(BooleanType {})
+                type(OptionTypeSpec {
+                    type(BooleanTypeSpec {})
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Put")
-            field(Field {
+            field(FieldSpec {
                 name("put")
-                type(StringType {})
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("resource")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("params")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(AnyType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(AnyTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("get_params")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(AnyType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(AnyTypeSpec {})
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Task")
-            field(Field {
+            field(FieldSpec {
                 name("task")
-                type(StringType {})
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("config")
-                type(RefType {
+                type(RefTypeSpec {
                     name("TaskConfig")
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("file")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("privileged")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("params")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(AnyType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(AnyTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("image")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("input_mapping")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(StringType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("output_mapping")
-                type(MapType {
-                    keyType(StringType {})
-                    valueType(StringType {})
+                type(MapTypeSpec {
+                    keyType(StringTypeSpec {})
+                    valueType(StringTypeSpec {})
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Aggregate")
-            field(Field {
+            field(FieldSpec {
                 name("aggregate") // TODO fix reserved words
-                type(ListType {
-                    type(RefType {
+                type(ListTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Do")
-            field(Field {
+            field(FieldSpec {
                 name("doIt") // TODO fix reserved words
-                type(ListType {
-                    type(RefType {
+                type(ListTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("Try")
-            field(Field {
+            field(FieldSpec {
                 name("tryIt") // TODO fix reserved words
-                type(RefType {
+                type(RefTypeSpec {
                     name("Step")
                 })
             })
 
-            field(Field {
+            field(FieldSpec {
                 name("on_success")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_failure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("on_abort")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("ensure")
-                type(OptionType {
-                    type(RefType {
+                type(OptionTypeSpec {
+                    type(RefTypeSpec {
                         name("Step")
                     })
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("tags")
-                type(ListType {
-                    type(StringType {})
+                type(ListTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("timeout")
-                type(OptionType {
-                    type(StringType {})
+                type(OptionTypeSpec {
+                    type(StringTypeSpec {})
                 })
             })
-            field(Field {
+            field(FieldSpec {
                 name("attempts")
-                type(OptionType {
-                    type(IntType {})
+                type(OptionTypeSpec {
+                    type(IntTypeSpec {})
                 })
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskConfig")
-        field(Field {
+        field(FieldSpec {
             name("platform")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("image_resource")
-            type(RefType {
+            type(RefTypeSpec {
                 name("TaskResource")
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("rootfs_uri")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("inputs")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("TaskInput")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("outputs")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("TaskOutput")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("caches")
-            type(ListType {
-                type(RefType {
+            type(ListTypeSpec {
+                type(RefTypeSpec {
                     name("TaskCache")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("run")
-            type(OptionType {
-                type(RefType {
+            type(OptionTypeSpec {
+                type(RefTypeSpec {
                     name("TaskRunConfig")
                 })
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("params")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskResource")
-        field(Field {
+        field(FieldSpec {
             name("type")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("source")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("params")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("version")
-            type(MapType {
-                keyType(StringType {})
-                valueType(StringType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(StringTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskInput")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("path")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("optional")
-            type(BooleanType {})
+            type(BooleanTypeSpec {})
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskOutput")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("path")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskCache")
-        field(Field {
+        field(FieldSpec {
             name("path")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("TaskRunConfig")
-        field(Field {
+        field(FieldSpec {
             name("path")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("args")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("dir")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("user")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Resource")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("type")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("source")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("check_every")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("tags")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("webhook_token")
-            type(OptionType {
-                type(StringType {})
+            type(OptionTypeSpec {
+                type(StringTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("ResourceType")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("type")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("source")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("privileged")
-            type(OptionType {
-                type(BooleanType {})
+            type(OptionTypeSpec {
+                type(BooleanTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("params")
-            type(MapType {
-                keyType(StringType {})
-                valueType(AnyType {})
+            type(MapTypeSpec {
+                keyType(StringTypeSpec {})
+                valueType(AnyTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("tags")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
     })
 
-    type(Struct {
+    type(StructSpec {
         name("Group")
-        field(Field {
+        field(FieldSpec {
             name("name")
-            type(StringType {})
+            type(StringTypeSpec {})
         })
-        field(Field {
+        field(FieldSpec {
             name("jobs")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
-        field(Field {
+        field(FieldSpec {
             name("resources")
-            type(ListType {
-                type(StringType {})
+            type(ListTypeSpec {
+                type(StringTypeSpec {})
             })
         })
     })

@@ -26,6 +26,11 @@ val Type.specParameterSpec
             .builder("spec", specClassName)
             .build()
 
+val Type.refParameterSpec
+    get() = ParameterSpec
+            .builder("ref", refClassName)
+            .build()
+
 val Type.otherSpecParameterSpec
     get() = ParameterSpec
             .builder("spec", otherSpecClassName)
