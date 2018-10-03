@@ -1,0 +1,38 @@
+
+apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'application'
+apply from: "../bintray.gradle"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
+}
+
+dependencies {
+    expectedBy project(":philarios-domain-v0-common")
+    compile project(":philarios-schema-v0-jvm")
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+sourceCompatibility = "1.8"
+
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
+}
+
+mainClassName = "io.philarios.domain.v0.GeneratorKt"

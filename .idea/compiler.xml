@@ -18,6 +18,10 @@
       <module name="philarios-core-v0-common_test" target="1.8" />
       <module name="philarios-core-v0-jvm_main" target="1.8" />
       <module name="philarios-core-v0-jvm_test" target="1.8" />
+      <module name="philarios-domain-v0-common_main" target="1.8" />
+      <module name="philarios-domain-v0-common_test" target="1.8" />
+      <module name="philarios-domain-v0-jvm_main" target="1.8" />
+      <module name="philarios-domain-v0-jvm_test" target="1.8" />
       <module name="philarios-filesystem-v0-common_main" target="1.8" />
       <module name="philarios-filesystem-v0-common_test" target="1.8" />
       <module name="philarios-filesystem-v0-jvm_main" target="1.8" />
