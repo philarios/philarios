@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-browser/philarios-canvas-v0-browser.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-browser/philarios-canvas-v0-browser.iml" group="philarios-canvas-v0-browser" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-common/philarios-canvas-v0-common.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-common/philarios-canvas-v0-common.iml" group="philarios-canvas-v0-common" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-js/philarios-canvas-v0-js.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-js/philarios-canvas-v0-js.iml" group="philarios-canvas-v0-js" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-jvm/philarios-canvas-v0-jvm.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-canvas-v0-jvm/philarios-canvas-v0-jvm.iml" group="philarios-canvas-v0-jvm" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common.iml" group="philarios-concourse-v0-common" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common_main.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common_main.iml" group="philarios-concourse-v0-common" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common_test.iml" filepath="$PROJECT_DIR$/.idea/modules/philarios-concourse-v0-common/philarios-concourse-v0-common_test.iml" group="philarios-concourse-v0-common" />
