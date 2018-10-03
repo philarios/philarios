@@ -9,42 +9,6 @@ pluginManagement {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
 
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-common") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-common") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-common") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
-            if (requested.id.id == "kotlin-platform-js") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-
             if (requested.id.id == "kotlin-platform-js") {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
@@ -61,8 +25,4 @@ include "philarios-filesystem-v0-common"
 include "philarios-filesystem-v0-jvm"
 include "philarios-concourse-v0-common"
 include "philarios-concourse-v0-jvm"
-include "philarios-canvas-v0-common"
-include "philarios-canvas-v0-jvm"
-include "philarios-canvas-v0-js"
-include "philarios-canvas-v0-browser"
 

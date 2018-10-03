@@ -6,28 +6,28 @@ object FileSystemSchemaSpec : SchemaSpec<Any?>({
     name("FileSystem")
     pkg("io.philarios.filesystem.v0")
 
-    type(Union {
+    type(UnionSpec {
         name("Entry")
-        shape(Struct {
+        shape(StructSpec {
             name("Directory")
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                type(StringTypeSpec {})
             })
-            field(Field {
+            field(FieldSpec {
                 name("entries")
-                type(ListType {
-                    type(RefType {
+                type(ListTypeSpec {
+                    type(RefTypeSpec {
                         name("Entry")
                     })
                 })
             })
         })
-        shape(Struct {
+        shape(StructSpec {
             name("File")
-            field(Field {
+            field(FieldSpec {
                 name("name")
-                type(StringType {})
+                type(StringTypeSpec {})
             })
         })
     })

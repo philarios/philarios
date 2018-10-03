@@ -2,6 +2,7 @@ package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.FileSpec
 import io.philarios.schema.v0.*
+import io.philarios.schema.v0.translators.codegen.typespecs.TypeTypeSpec
 import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addTypes
 
 object SchemaFileSpec {

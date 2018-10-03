@@ -1,20 +1,47 @@
-plugins {
-    id 'kotlin-platform-jvm' version '1.2.61'
+
+buildscript {
+    ext {
+        kotlin_version = '1.2.61'
+        coroutines_version = '0.26.1'
+        spek_version = '2.0.0-alpha.1'
+    }
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
 }
+
+apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'application'
 
 group 'io.philarios'
 version '0.0.0'
 
 repositories {
     mavenCentral()
+    maven {
+        url  "https://dl.bintray.com/spekframework/spek-dev"
+    }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version"
+
     compile "com.squareup:kotlinpoet:0.7.0"
-    testCompile "junit:junit:4.12"
-    testCompile "org.jetbrains.kotlin:kotlin-test"
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
+}
+
+dependencies {
+    expectedBy project(":philarios-schema-v0-common")
+    compile project(":philarios-core-v0-jvm")
 }
 
 compileKotlin {
@@ -25,7 +52,13 @@ compileTestKotlin {
 }
 sourceCompatibility = "1.8"
 
-dependencies {
-    expectedBy project(":philarios-schema-v0-common")
-    compile project(":philarios-core-v0-jvm")
+test {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+    }
 }
+
+mainClassName = "io.philarios.schema.v0.GeneratorKt"
