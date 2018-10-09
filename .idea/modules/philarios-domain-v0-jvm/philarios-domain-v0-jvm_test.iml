@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":philarios-domain-v0-jvm:test" external.linked.project.path="$MODULE_DIR$/../../../philarios-domain-v0-jvm" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="io.philarios" external.system.module.type="sourceSet" external.system.module.version="0.4.0" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":philarios-domain-v0-jvm:test" external.linked.project.path="$MODULE_DIR$/../../../philarios-domain-v0-jvm" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="io.philarios" external.system.module.type="sourceSet" external.system.module.version="0.5.0" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JVM 1.8" useProjectSettings="false">
@@ -39,17 +39,17 @@
     <orderEntry type="module" module-name="philarios-domain-v0-jvm_main" />
     <orderEntry type="module" module-name="philarios-schema-v0-common_test" />
     <orderEntry type="module" module-name="philarios-domain-v0-common_test" />
-    <orderEntry type="module" module-name="philarios-domain-v0-common_main" />
     <orderEntry type="module" module-name="philarios-core-v0-common_test" />
     <orderEntry type="module" module-name="philarios-schema-v0-jvm_main" />
     <orderEntry type="module" module-name="philarios-core-v0-jvm_main" />
     <orderEntry type="library" name="Gradle: org.spekframework.spek2:spek-dsl-jvm:2.0.0-alpha.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.61" level="project" />
     <orderEntry type="module" module-name="philarios-domain-v0-common_main" />
-    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
-    <orderEntry type="module" module-name="philarios-core-v0-common_main" />
+    <orderEntry type="module" module-name="philarios-domain-v0-common_main" />
     <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.spekframework.spek2:spek-runner-junit5:2.0.0-alpha.1" level="project" />
+    <orderEntry type="module" module-name="philarios-schema-v0-common_main" />
+    <orderEntry type="module" module-name="philarios-core-v0-common_main" />
     <orderEntry type="module" module-name="philarios-core-v0-common_main" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.spekframework.spek2:spek-runtime-jvm:2.0.0-alpha.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:0.26.1" level="project" />

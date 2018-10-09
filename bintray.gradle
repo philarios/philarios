@@ -88,8 +88,8 @@ bintray {
         licenses = ["MIT"]
         vcsUrl = "https://github.com/philarios/philarios"
         version {
-            name = version
-            desc = version
+            name = project.version
+            desc = project.version
             released  = new Date()
         }
     }
