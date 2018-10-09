@@ -6,16 +6,17 @@ import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
 import io.philarios.core.v0.Translator
 import io.philarios.core.v0.Wrapper
-import kotlinx.coroutines.experimental.launch
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
 
 data class Domain(val entities: List<Entity>, val relationships: List<Relationship>)
 
 data class DomainShell(var entities: List<Scaffold<Entity>> = emptyList(), var relationships: List<Scaffold<Relationship>> = emptyList()) : Scaffold<Domain> {
     override suspend fun resolve(registry: Registry): Domain {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	entities.forEach { launch { it.resolve(registry) } }
         	relationships.forEach { launch { it.resolve(registry) } }
         }
@@ -129,7 +130,7 @@ data class Entity(val name: String, val attributes: List<Attribute>)
 
 data class EntityShell(var name: String? = null, var attributes: List<Scaffold<Attribute>> = emptyList()) : Scaffold<Entity> {
     override suspend fun resolve(registry: Registry): Entity {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	attributes.forEach { launch { it.resolve(registry) } }
         }
         val value = Entity(name!!,attributes.map { it.resolve(registry) })
@@ -237,7 +238,7 @@ data class RelationshipShell(
         var attributes: List<Scaffold<Attribute>> = emptyList()
 ) : Scaffold<Relationship> {
     override suspend fun resolve(registry: Registry): Relationship {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { from!!.resolve(registry) }
         	launch { to!!.resolve(registry) }
         	attributes.forEach { launch { it.resolve(registry) } }
@@ -367,12 +368,9 @@ open class RelationshipTranslator<in C>(private val spec: RelationshipSpec<C>, p
 
 data class Attribute(val name: String, val type: Type)
 
-data class AttributeShell(var name: String? = null, var type: Scaffold<Type>? = null) : Scaffold<Attribute> {
+data class AttributeShell(var name: String? = null, var type: Type? = null) : Scaffold<Attribute> {
     override suspend fun resolve(registry: Registry): Attribute {
-        kotlinx.coroutines.experimental.coroutineScope {
-        	launch { type!!.resolve(registry) }
-        }
-        val value = Attribute(name!!,type!!.resolve(registry))
+        val value = Attribute(name!!,type!!)
         return value
     }
 }
@@ -398,7 +396,7 @@ class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell
     }
 
     fun <C> AttributeBuilder<C>.type(type: Type) {
-        shell = shell.copy(type = Wrapper(type))
+        shell = shell.copy(type = type)
     }
 
     fun <C> AttributeBuilder<C>.include(body: AttributeBuilder<C>.() -> Unit) {

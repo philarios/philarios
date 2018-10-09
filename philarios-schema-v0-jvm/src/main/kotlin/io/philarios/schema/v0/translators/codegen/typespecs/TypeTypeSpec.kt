@@ -9,7 +9,7 @@ object TypeTypeSpec {
 
     fun build(type: Type, typeRefs: Map<RefType, Type>): List<TypeSpec> {
         return DataTypeSpec.build(type) +
-                ShellTypeSpec.build(type) +
+                ShellTypeSpec.build(type, typeRefs) +
                 RefTypeSpec.build(type) +
                 TemplateTypeSpec.build(type) +
                 SpecTypeSpec.build(type) +

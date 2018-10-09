@@ -9,10 +9,10 @@ import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addStatements
 
 object ShellTypeSpec {
 
-    fun build(type: Type): List<TypeSpec> {
+    fun build(type: Type, typeRefs: Map<RefType, Type>): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructShellTypeSpec.build(type)
-            is Union -> UnionShellTypeSpec.build(type)
+            is Struct -> StructShellTypeSpec.build(type, typeRefs)
+            is Union -> UnionShellTypeSpec.build(type, typeRefs)
             else -> emptyList()
         }
     }
@@ -21,15 +21,15 @@ object ShellTypeSpec {
 
 private object StructShellTypeSpec {
 
-    fun build(type: Struct, superclass: ClassName? = null): List<TypeSpec> {
-        return listOf(buildOne(type, superclass))
+    fun build(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): List<TypeSpec> {
+        return listOf(buildOne(type, typeRefs, superclass))
     }
 
-    private fun buildOne(type: Struct, superclass: ClassName? = null): TypeSpec {
+    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec {
         if (type.fields.isEmpty()) {
             return buildObject(type, superclass)
         }
-        return buildDataClass(type, superclass)
+        return buildDataClass(type, typeRefs, superclass)
     }
 
     private fun buildObject(type: Struct, superclass: ClassName? = null): TypeSpec {
@@ -38,18 +38,18 @@ private object StructShellTypeSpec {
                 .build()
     }
 
-    private fun buildDataClass(type: Struct, superclass: ClassName? = null): TypeSpec {
+    private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec {
 
-        fun Field.scaffoldType() = when (this.type) {
+        fun Field.scaffoldType(): TypeName = when (this.type) {
             is Struct -> this.type.parameterizedScaffoldClassName.asNullable()
             is Union -> this.type.parameterizedScaffoldClassName.asNullable()
-            is RefType -> this.type.parameterizedScaffoldClassName.asNullable()
+            is RefType -> this.copy(type = typeRefs[this.type]!!).scaffoldType()
             is OptionType -> {
                 val optionType = this.type.type
                 when (optionType) {
                     is Struct -> this.type.className.asNonNullable().parameterizedScaffoldClassName.asNullable()
                     is Union -> this.type.className.asNonNullable().parameterizedScaffoldClassName.asNullable()
-                    is RefType -> this.type.className.asNonNullable().parameterizedScaffoldClassName.asNullable()
+                    is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).scaffoldType()
                     else -> this.type.nullableTypeName
                 }
             }
@@ -58,7 +58,7 @@ private object StructShellTypeSpec {
                 when (listType) {
                     is Struct -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), listType.parameterizedScaffoldClassName)
                     is Union -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), listType.parameterizedScaffoldClassName)
-                    is RefType -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), listType.parameterizedScaffoldClassName)
+                    is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).scaffoldType()
                     else -> this.type.typeName
                 }
             }
@@ -87,11 +87,11 @@ private object StructShellTypeSpec {
                             .initializer(field.name)
                             .build()
                 })
-                .addFunction(resolveFunction(type))
+                .addFunction(resolveFunction(type, typeRefs))
                 .build()
     }
 
-    private fun resolveFunction(type: Struct): FunSpec {
+    private fun resolveFunction(type: Struct, typeRefs: Map<RefType, Type>): FunSpec {
         val className = type.className
         val fields = type.fields
         val keyField = fields.find { it.key == true }
@@ -102,16 +102,16 @@ private object StructShellTypeSpec {
             else -> "%L!!"
         }
 
-        fun Field.resolved() = when (this.type) {
+        fun Field.resolved(): String = when (this.type) {
             is Struct -> "${unwrappedPlaceholder()}.resolve(registry)"
             is Union -> "${unwrappedPlaceholder()}.resolve(registry)"
-            is RefType -> "${unwrappedPlaceholder()}.resolve(registry)"
+            is RefType -> this.copy(type = typeRefs[this.type]!!).resolved()
             is OptionType -> {
                 val optionType = this.type.type
                 when (optionType) {
                     is Struct -> "%L?.resolve(registry)"
                     is Union -> "%L?.resolve(registry)"
-                    is RefType -> "%L?.resolve(registry)"
+                    is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).resolved()
                     else -> unwrappedPlaceholder()
                 }
             }
@@ -120,23 +120,23 @@ private object StructShellTypeSpec {
                 when (listType) {
                     is Struct -> "${unwrappedPlaceholder()}.map { it.resolve(registry) }"
                     is Union -> "${unwrappedPlaceholder()}.map { it.resolve(registry) }"
-                    is RefType -> "${unwrappedPlaceholder()}.map { it.resolve(registry) }"
+                    is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).resolved()
                     else -> unwrappedPlaceholder()
                 }
             }
             else -> unwrappedPlaceholder()
         }
 
-        fun Field.resolveJob() = when (this.type) {
+        fun Field.resolveJob(): String? = when (this.type) {
             is Struct -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
             is Union -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
-            is RefType -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
+            is RefType -> this.copy(type = typeRefs[this.type]!!).resolveJob()
             is OptionType -> {
                 val optionType = this.type.type
                 when (optionType) {
                     is Struct -> "launch { %L?.resolve(registry) }"
                     is Union -> "launch { %L?.resolve(registry) }"
-                    is RefType -> "launch { %L?.resolve(registry) }"
+                    is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).resolveJob()
                     else -> null
                 }
             }
@@ -145,7 +145,7 @@ private object StructShellTypeSpec {
                 when (listType) {
                     is Struct -> "${unwrappedPlaceholder()}.forEach { launch { it.resolve(registry) } }"
                     is Union -> "${unwrappedPlaceholder()}.forEach { launch { it.resolve(registry) } }"
-                    is RefType -> "${unwrappedPlaceholder()}.forEach { launch { it.resolve(registry) } }"
+                    is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).resolveJob()
                     else -> null
                 }
             }
@@ -196,8 +196,8 @@ private object StructShellTypeSpec {
 
 private object UnionShellTypeSpec {
 
-    fun build(type: Union): List<TypeSpec> {
-        return listOf(buildSuperclass(type)) + buildShapes(type)
+    fun build(type: Union, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+        return listOf(buildSuperclass(type)) + buildShapes(type, typeRefs)
     }
 
     private fun buildSuperclass(type: Union): TypeSpec {
@@ -206,8 +206,8 @@ private object UnionShellTypeSpec {
                 .build()
     }
 
-    private fun buildShapes(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { StructShellTypeSpec.build(it, type.shellClassName) }
+    private fun buildShapes(type: Union, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+        return type.shapes.flatMap { StructShellTypeSpec.build(it, typeRefs, type.shellClassName) }
     }
 
 }

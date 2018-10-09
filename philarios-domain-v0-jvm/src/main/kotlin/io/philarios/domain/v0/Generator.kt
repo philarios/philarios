@@ -9,7 +9,7 @@ import kotlinx.coroutines.experimental.runBlocking
 
 fun main(args: Array<kotlin.String>) {
     runBlocking {
-                emptyContext()
+        emptyContext()
                 .map(SchemaTranslator(DomainSchemaSpec))
                 .unwrap(SchemaCodegen("../philarios-domain-v0-common/src/generated/kotlin"))
     }
