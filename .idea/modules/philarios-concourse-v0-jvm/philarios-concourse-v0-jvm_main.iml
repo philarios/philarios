@@ -34,7 +34,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../philarios-concourse-v0-jvm/src/main/kotlin" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../philarios-concourse-v0-jvm/src/main/resources" type="java-resource" />
     </content>
-    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="philarios-schema-v0-jvm_main" />
     <orderEntry type="module" module-name="philarios-core-v0-jvm_main" />

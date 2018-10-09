@@ -169,7 +169,7 @@ private object StructShellTypeSpec {
                                     builder
                                 } else {
                                     builder.addStatements(
-                                            listOf(Statement("kotlinx.coroutines.experimental.coroutineScope {")) + it + Statement("}") // TODO function import
+                                            listOf(Statement("coroutineScope {")) + it + Statement("}") // TODO function import
                                     )
                                 }
                             }

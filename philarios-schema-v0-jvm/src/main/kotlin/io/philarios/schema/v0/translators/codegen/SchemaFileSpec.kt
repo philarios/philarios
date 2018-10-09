@@ -12,6 +12,7 @@ object SchemaFileSpec {
         val typeRefs = schemaWithPkg.buildTypeRefs()
 
         return FileSpec.builder(schemaWithPkg.pkg, "${schemaWithPkg.name}Language")
+                .addStaticImport("kotlinx.coroutines.experimental", "coroutineScope", "launch")
                 .addTypes(schemaWithPkg.types.flatMap { TypeTypeSpec.build(it, typeRefs) })
                 .build()
     }

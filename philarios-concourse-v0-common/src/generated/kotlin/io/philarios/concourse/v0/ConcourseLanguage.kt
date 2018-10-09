@@ -6,7 +6,6 @@ import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
 import io.philarios.core.v0.Translator
 import io.philarios.core.v0.Wrapper
-import kotlinx.coroutines.experimental.launch
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
@@ -15,12 +14,14 @@ import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
 
 data class Concourse(val teams: List<Team>)
 
 data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaffold<Concourse> {
     override suspend fun resolve(registry: Registry): Concourse {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	teams.forEach { launch { it.resolve(registry) } }
         }
         val value = Concourse(teams.map { it.resolve(registry) })
@@ -113,7 +114,7 @@ data class Team(val name: String, val pipelines: List<Pipeline>)
 
 data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
     override suspend fun resolve(registry: Registry): Team {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	pipelines.forEach { launch { it.resolve(registry) } }
         }
         val value = Team(name!!,pipelines.map { it.resolve(registry) })
@@ -222,7 +223,7 @@ data class PipelineShell(
         var groups: List<Scaffold<Group>> = emptyList()
 ) : Scaffold<Pipeline> {
     override suspend fun resolve(registry: Registry): Pipeline {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	jobs.forEach { launch { it.resolve(registry) } }
         	resources.forEach { launch { it.resolve(registry) } }
         	resource_types.forEach { launch { it.resolve(registry) } }
@@ -410,7 +411,7 @@ data class JobShell(
         var ensure: Scaffold<Step>? = null
 ) : Scaffold<Job> {
     override suspend fun resolve(registry: Registry): Job {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	plan.forEach { launch { it.resolve(registry) } }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -860,7 +861,7 @@ data class GetShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Get> {
     override suspend fun resolve(registry: Registry): Get {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
         	launch { on_abort?.resolve(registry) }
@@ -885,7 +886,7 @@ data class PutShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Put> {
     override suspend fun resolve(registry: Registry): Put {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
         	launch { on_abort?.resolve(registry) }
@@ -914,7 +915,7 @@ data class TaskShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Task> {
     override suspend fun resolve(registry: Registry): Task {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { config!!.resolve(registry) }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -937,7 +938,7 @@ data class AggregateShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Aggregate> {
     override suspend fun resolve(registry: Registry): Aggregate {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	aggregate.forEach { launch { it.resolve(registry) } }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -960,7 +961,7 @@ data class DoShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Do> {
     override suspend fun resolve(registry: Registry): Do {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	doIt.forEach { launch { it.resolve(registry) } }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -983,7 +984,7 @@ data class TryShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Try> {
     override suspend fun resolve(registry: Registry): Try {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { tryIt!!.resolve(registry) }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -2911,7 +2912,7 @@ data class TaskConfigShell(
         var params: Map<String, Any>? = emptyMap()
 ) : Scaffold<TaskConfig> {
     override suspend fun resolve(registry: Registry): TaskConfig {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { image_resource!!.resolve(registry) }
         	inputs.forEach { launch { it.resolve(registry) } }
         	outputs.forEach { launch { it.resolve(registry) } }
