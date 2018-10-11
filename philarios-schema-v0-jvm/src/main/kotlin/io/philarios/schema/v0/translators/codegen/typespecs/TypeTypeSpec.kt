@@ -11,10 +11,10 @@ object TypeTypeSpec {
         return DataTypeSpec.build(type) +
                 ShellTypeSpec.build(type, typeRefs) +
                 RefTypeSpec.build(type) +
-                TemplateTypeSpec.build(type) +
+//                TemplateTypeSpec.build(type) +
                 SpecTypeSpec.build(type) +
-                BuilderTypeSpec.build(type, typeRefs) +
-                TranslatorTypeSpec.build(type)
+                BuilderTypeSpec.build(type, typeRefs)
+//                TranslatorTypeSpec.build(type)
     }
 
 }

@@ -220,7 +220,7 @@ private object StructBuilderTypeSpec {
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%T(body, context).scaffold()))", name, name, "key", valueType.templateClassName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%T(body).connect(context)))", name, name, "key", valueType.specClassName)
                 .build()
     }
 
@@ -232,7 +232,7 @@ private object StructBuilderTypeSpec {
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = this.%L.orEmpty() + Pair(%L,%T(spec, context).scaffold()))", name, name, "key", valueType.templateClassName)
+                .addStatement("shell = shell.copy(%L = this.%L.orEmpty() + Pair(%L,spec.connect(context)))", name, name, "key")
                 .build()
     }
 
@@ -289,7 +289,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(fieldType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(body, context).scaffold())", name, fieldType.templateClassName)
+                .addStatement("shell = shell.copy(%L = %T(body).connect(context))", name, fieldType.specClassName)
                 .build()
     }
 
@@ -300,7 +300,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(fieldType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(spec, context).scaffold())", name, fieldType.templateClassName)
+                .addStatement("shell = shell.copy(%L = spec.connect(context))", name)
                 .build()
     }
 
@@ -323,7 +323,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(listType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(body, context).scaffold())", name, name, listType.templateClassName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(body).connect(context))", name, name, listType.specClassName)
                 .build()
     }
 
@@ -335,7 +335,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(listType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(spec, context).scaffold())", name, name, listType.templateClassName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + spec.connect(context))", name, name)
                 .build()
     }
 

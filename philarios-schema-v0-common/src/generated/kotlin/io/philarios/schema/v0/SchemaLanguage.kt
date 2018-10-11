@@ -1,15 +1,16 @@
 package io.philarios.schema.v0
 
-import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Translator
+import io.philarios.core.v0.Template
 import io.philarios.core.v0.Wrapper
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
 
 data class Schema(
         val name: String,
@@ -25,7 +26,11 @@ data class SchemaShell(
         var references: List<Scaffold<Schema>> = emptyList()
 ) : Scaffold<Schema> {
     override suspend fun resolve(registry: Registry): Schema {
-        val value = Schema(name!!,pkg!!,types!!.map { it.resolve(registry) },references!!.map { it.resolve(registry) })
+        coroutineScope {
+        	types.forEach { launch { it.resolve(registry) } }
+        	references.forEach { launch { it.resolve(registry) } }
+        }
+        val value = Schema(name!!,pkg!!,types.map { it.resolve(registry) },references.map { it.resolve(registry) })
         registry.put(Schema::class, name!!, value)
         return value
     }
@@ -33,17 +38,13 @@ data class SchemaShell(
 
 class SchemaRef(key: String) : Scaffold<Schema> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Schema::class, key)
 
-class SchemaTemplate<in C>(private val spec: SchemaSpec<C>, private val context: C) : Builder<Schema> {
-    constructor(body: SchemaBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.SchemaSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Schema> {
+open class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit) : Template<C, Schema> {
+    override fun connect(context: C): Scaffold<Schema> {
         val builder = SchemaBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit)
 
 @DslBuilder
 class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = SchemaShell()) {
@@ -56,7 +57,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: StructRef) {
@@ -64,7 +65,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: UnionRef) {
@@ -72,7 +73,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: EnumTypeRef) {
@@ -80,7 +81,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: RefTypeRef) {
@@ -88,7 +89,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: OptionTypeRef) {
@@ -96,7 +97,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: ListTypeRef) {
@@ -104,7 +105,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: MapTypeRef) {
@@ -112,7 +113,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: BooleanTypeRef) {
@@ -120,7 +121,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: DoubleTypeRef) {
@@ -128,7 +129,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: FloatTypeRef) {
@@ -136,7 +137,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: LongTypeRef) {
@@ -144,7 +145,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: IntTypeRef) {
@@ -152,7 +153,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: ShortTypeRef) {
@@ -160,7 +161,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: ByteTypeRef) {
@@ -168,7 +169,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: CharacterTypeRef) {
@@ -176,7 +177,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: StringTypeRef) {
@@ -184,7 +185,7 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.type(ref: AnyTypeRef) {
@@ -192,15 +193,23 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
     }
 
     fun <C> SchemaBuilder<C>.reference(body: SchemaBuilder<C>.() -> Unit) {
-        shell = shell.copy(references = shell.references.orEmpty() + SchemaTemplate<C>(body, context).scaffold())
+        shell = shell.copy(references = shell.references.orEmpty() + SchemaSpec<C>(body).connect(context))
     }
 
     fun <C> SchemaBuilder<C>.reference(spec: SchemaSpec<C>) {
-        shell = shell.copy(references = shell.references.orEmpty() + SchemaTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(references = shell.references.orEmpty() + spec.connect(context))
     }
 
     fun <C> SchemaBuilder<C>.reference(ref: SchemaRef) {
         shell = shell.copy(references = shell.references.orEmpty() + ref)
+    }
+
+    fun <C> SchemaBuilder<C>.reference(reference: Schema) {
+        shell = shell.copy(references = shell.references.orEmpty() + Wrapper(reference))
+    }
+
+    fun <C> SchemaBuilder<C>.references(references: List<Schema>) {
+        shell = shell.copy(references = shell.references.orEmpty() + references.map { Wrapper(it) })
     }
 
     fun <C> SchemaBuilder<C>.include(body: SchemaBuilder<C>.() -> Unit) {
@@ -235,16 +244,6 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
 
     private fun <C2> merge(other: SchemaBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class SchemaTranslator<in C>(private val spec: SchemaSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Schema> {
-    constructor(body: SchemaBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.SchemaSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Schema {
-        val builder = SchemaTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }
 
@@ -304,7 +303,10 @@ data class StructShell(
         var fields: List<Scaffold<Field>> = emptyList()
 ) : TypeShell(), Scaffold<Struct> {
     override suspend fun resolve(registry: Registry): Struct {
-        val value = Struct(pkg,name!!,fields!!.map { it.resolve(registry) })
+        coroutineScope {
+        	fields.forEach { launch { it.resolve(registry) } }
+        }
+        val value = Struct(pkg,name!!,fields.map { it.resolve(registry) })
         registry.put(Struct::class, name!!, value)
         return value
     }
@@ -316,7 +318,10 @@ data class UnionShell(
         var shapes: List<Scaffold<Struct>> = emptyList()
 ) : TypeShell(), Scaffold<Union> {
     override suspend fun resolve(registry: Registry): Union {
-        val value = Union(pkg,name!!,shapes!!.map { it.resolve(registry) })
+        coroutineScope {
+        	shapes.forEach { launch { it.resolve(registry) } }
+        }
+        val value = Union(pkg,name!!,shapes.map { it.resolve(registry) })
         registry.put(Union::class, name!!, value)
         return value
     }
@@ -325,10 +330,10 @@ data class UnionShell(
 data class EnumTypeShell(
         var pkg: String? = null,
         var name: String? = null,
-        var values: List<String>? = emptyList()
+        var values: List<String> = emptyList()
 ) : TypeShell(), Scaffold<EnumType> {
     override suspend fun resolve(registry: Registry): EnumType {
-        val value = EnumType(pkg,name!!,values!!)
+        val value = EnumType(pkg,name!!,values)
         registry.put(EnumType::class, name!!, value)
         return value
     }
@@ -345,6 +350,9 @@ data class RefTypeShell(var pkg: String? = null, var name: String? = null) : Typ
 
 data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<OptionType> {
     override suspend fun resolve(registry: Registry): OptionType {
+        coroutineScope {
+        	launch { type!!.resolve(registry) }
+        }
         val value = OptionType(type!!.resolve(registry))
         return value
     }
@@ -352,6 +360,9 @@ data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaf
 
 data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<ListType> {
     override suspend fun resolve(registry: Registry): ListType {
+        coroutineScope {
+        	launch { type!!.resolve(registry) }
+        }
         val value = ListType(type!!.resolve(registry))
         return value
     }
@@ -360,6 +371,10 @@ data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffo
 data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeShell(),
         Scaffold<MapType> {
     override suspend fun resolve(registry: Registry): MapType {
+        coroutineScope {
+        	launch { keyType!!.resolve(registry) }
+        	launch { valueType!!.resolve(registry) }
+        }
         val value = MapType(keyType!!.resolve(registry),valueType!!.resolve(registry))
         return value
     }
@@ -419,169 +434,101 @@ class StringTypeRef(key: String) : Scaffold<StringType> by io.philarios.core.v0.
 
 class AnyTypeRef(key: String) : Scaffold<AnyType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.AnyType::class, key)
 
-class StructTemplate<in C>(private val spec: StructSpec<C>, private val context: C) : Builder<Struct> {
-    constructor(body: StructBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.StructSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Struct> {
+open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Template<C, Struct> {
+    override fun connect(context: C): Scaffold<Struct> {
         val builder = StructBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class UnionTemplate<in C>(private val spec: UnionSpec<C>, private val context: C) : Builder<Union> {
-    constructor(body: UnionBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.UnionSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Union> {
+open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : Template<C, Union> {
+    override fun connect(context: C): Scaffold<Union> {
         val builder = UnionBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class EnumTypeTemplate<in C>(private val spec: EnumTypeSpec<C>, private val context: C) : Builder<EnumType> {
-    constructor(body: EnumTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.EnumTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<EnumType> {
+open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) : Template<C, EnumType> {
+    override fun connect(context: C): Scaffold<EnumType> {
         val builder = EnumTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class RefTypeTemplate<in C>(private val spec: RefTypeSpec<C>, private val context: C) : Builder<RefType> {
-    constructor(body: RefTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.RefTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<RefType> {
+open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : Template<C, RefType> {
+    override fun connect(context: C): Scaffold<RefType> {
         val builder = RefTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class OptionTypeTemplate<in C>(private val spec: OptionTypeSpec<C>, private val context: C) : Builder<OptionType> {
-    constructor(body: OptionTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.OptionTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<OptionType> {
+open class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Unit) : Template<C, OptionType> {
+    override fun connect(context: C): Scaffold<OptionType> {
         val builder = OptionTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class ListTypeTemplate<in C>(private val spec: ListTypeSpec<C>, private val context: C) : Builder<ListType> {
-    constructor(body: ListTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.ListTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<ListType> {
+open class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit) : Template<C, ListType> {
+    override fun connect(context: C): Scaffold<ListType> {
         val builder = ListTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class MapTypeTemplate<in C>(private val spec: MapTypeSpec<C>, private val context: C) : Builder<MapType> {
-    constructor(body: MapTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.MapTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<MapType> {
+open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : Template<C, MapType> {
+    override fun connect(context: C): Scaffold<MapType> {
         val builder = MapTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class BooleanTypeTemplate<in C>(private val spec: BooleanTypeSpec<C>, private val context: C) : Builder<BooleanType> {
-    constructor(body: BooleanTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.BooleanTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<BooleanType> = Wrapper(BooleanType)
+open class BooleanTypeSpec<in C>(internal val body: BooleanTypeBuilder<C>.() -> Unit) : Template<C, BooleanType> {
+    override fun connect(context: C): Scaffold<BooleanType> = Wrapper(BooleanType)
 }
 
-class DoubleTypeTemplate<in C>(private val spec: DoubleTypeSpec<C>, private val context: C) : Builder<DoubleType> {
-    constructor(body: DoubleTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.DoubleTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<DoubleType> = Wrapper(DoubleType)
+open class DoubleTypeSpec<in C>(internal val body: DoubleTypeBuilder<C>.() -> Unit) : Template<C, DoubleType> {
+    override fun connect(context: C): Scaffold<DoubleType> = Wrapper(DoubleType)
 }
 
-class FloatTypeTemplate<in C>(private val spec: FloatTypeSpec<C>, private val context: C) : Builder<FloatType> {
-    constructor(body: FloatTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.FloatTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<FloatType> = Wrapper(FloatType)
+open class FloatTypeSpec<in C>(internal val body: FloatTypeBuilder<C>.() -> Unit) : Template<C, FloatType> {
+    override fun connect(context: C): Scaffold<FloatType> = Wrapper(FloatType)
 }
 
-class LongTypeTemplate<in C>(private val spec: LongTypeSpec<C>, private val context: C) : Builder<LongType> {
-    constructor(body: LongTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.LongTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<LongType> = Wrapper(LongType)
+open class LongTypeSpec<in C>(internal val body: LongTypeBuilder<C>.() -> Unit) : Template<C, LongType> {
+    override fun connect(context: C): Scaffold<LongType> = Wrapper(LongType)
 }
 
-class IntTypeTemplate<in C>(private val spec: IntTypeSpec<C>, private val context: C) : Builder<IntType> {
-    constructor(body: IntTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.IntTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<IntType> = Wrapper(IntType)
+open class IntTypeSpec<in C>(internal val body: IntTypeBuilder<C>.() -> Unit) : Template<C, IntType> {
+    override fun connect(context: C): Scaffold<IntType> = Wrapper(IntType)
 }
 
-class ShortTypeTemplate<in C>(private val spec: ShortTypeSpec<C>, private val context: C) : Builder<ShortType> {
-    constructor(body: ShortTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.ShortTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<ShortType> = Wrapper(ShortType)
+open class ShortTypeSpec<in C>(internal val body: ShortTypeBuilder<C>.() -> Unit) : Template<C, ShortType> {
+    override fun connect(context: C): Scaffold<ShortType> = Wrapper(ShortType)
 }
 
-class ByteTypeTemplate<in C>(private val spec: ByteTypeSpec<C>, private val context: C) : Builder<ByteType> {
-    constructor(body: ByteTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.ByteTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<ByteType> = Wrapper(ByteType)
+open class ByteTypeSpec<in C>(internal val body: ByteTypeBuilder<C>.() -> Unit) : Template<C, ByteType> {
+    override fun connect(context: C): Scaffold<ByteType> = Wrapper(ByteType)
 }
 
-class CharacterTypeTemplate<in C>(private val spec: CharacterTypeSpec<C>, private val context: C) : Builder<CharacterType> {
-    constructor(body: CharacterTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.CharacterTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<CharacterType> = Wrapper(CharacterType)
+open class CharacterTypeSpec<in C>(internal val body: CharacterTypeBuilder<C>.() -> Unit) : Template<C, CharacterType> {
+    override fun connect(context: C): Scaffold<CharacterType> = Wrapper(CharacterType)
 }
 
-class StringTypeTemplate<in C>(private val spec: StringTypeSpec<C>, private val context: C) : Builder<StringType> {
-    constructor(body: StringTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.StringTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<StringType> = Wrapper(StringType)
+open class StringTypeSpec<in C>(internal val body: StringTypeBuilder<C>.() -> Unit) : Template<C, StringType> {
+    override fun connect(context: C): Scaffold<StringType> = Wrapper(StringType)
 }
 
-class AnyTypeTemplate<in C>(private val spec: AnyTypeSpec<C>, private val context: C) : Builder<AnyType> {
-    constructor(body: AnyTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.AnyTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<AnyType> = Wrapper(AnyType)
+open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit) : Template<C, AnyType> {
+    override fun connect(context: C): Scaffold<AnyType> = Wrapper(AnyType)
 }
-
-open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit)
-
-open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit)
-
-open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit)
-
-open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit)
-
-open class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Unit)
-
-open class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit)
-
-open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit)
-
-open class BooleanTypeSpec<in C>(internal val body: BooleanTypeBuilder<C>.() -> Unit)
-
-open class DoubleTypeSpec<in C>(internal val body: DoubleTypeBuilder<C>.() -> Unit)
-
-open class FloatTypeSpec<in C>(internal val body: FloatTypeBuilder<C>.() -> Unit)
-
-open class LongTypeSpec<in C>(internal val body: LongTypeBuilder<C>.() -> Unit)
-
-open class IntTypeSpec<in C>(internal val body: IntTypeBuilder<C>.() -> Unit)
-
-open class ShortTypeSpec<in C>(internal val body: ShortTypeBuilder<C>.() -> Unit)
-
-open class ByteTypeSpec<in C>(internal val body: ByteTypeBuilder<C>.() -> Unit)
-
-open class CharacterTypeSpec<in C>(internal val body: CharacterTypeBuilder<C>.() -> Unit)
-
-open class StringTypeSpec<in C>(internal val body: StringTypeBuilder<C>.() -> Unit)
-
-open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit)
 
 @DslBuilder
 class StructBuilder<out C>(val context: C, internal var shell: StructShell = StructShell()) {
@@ -594,15 +541,23 @@ class StructBuilder<out C>(val context: C, internal var shell: StructShell = Str
     }
 
     fun <C> StructBuilder<C>.field(body: FieldBuilder<C>.() -> Unit) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldTemplate<C>(body, context).scaffold())
+        shell = shell.copy(fields = shell.fields.orEmpty() + FieldSpec<C>(body).connect(context))
     }
 
     fun <C> StructBuilder<C>.field(spec: FieldSpec<C>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(fields = shell.fields.orEmpty() + spec.connect(context))
     }
 
     fun <C> StructBuilder<C>.field(ref: FieldRef) {
         shell = shell.copy(fields = shell.fields.orEmpty() + ref)
+    }
+
+    fun <C> StructBuilder<C>.field(field: Field) {
+        shell = shell.copy(fields = shell.fields.orEmpty() + Wrapper(field))
+    }
+
+    fun <C> StructBuilder<C>.fields(fields: List<Field>) {
+        shell = shell.copy(fields = shell.fields.orEmpty() + fields.map { Wrapper(it) })
     }
 
     fun <C> StructBuilder<C>.include(body: StructBuilder<C>.() -> Unit) {
@@ -651,15 +606,23 @@ class UnionBuilder<out C>(val context: C, internal var shell: UnionShell = Union
     }
 
     fun <C> UnionBuilder<C>.shape(body: StructBuilder<C>.() -> Unit) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructTemplate<C>(body, context).scaffold())
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructSpec<C>(body).connect(context))
     }
 
     fun <C> UnionBuilder<C>.shape(spec: StructSpec<C>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + spec.connect(context))
     }
 
     fun <C> UnionBuilder<C>.shape(ref: StructRef) {
         shell = shell.copy(shapes = shell.shapes.orEmpty() + ref)
+    }
+
+    fun <C> UnionBuilder<C>.shape(shape: Struct) {
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + Wrapper(shape))
+    }
+
+    fun <C> UnionBuilder<C>.shapes(shapes: List<Struct>) {
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + shapes.map { Wrapper(it) })
     }
 
     fun <C> UnionBuilder<C>.include(body: UnionBuilder<C>.() -> Unit) {
@@ -798,7 +761,7 @@ class RefTypeBuilder<out C>(val context: C, internal var shell: RefTypeShell = R
 @DslBuilder
 class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) {
     fun <C> OptionTypeBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: StructRef) {
@@ -806,7 +769,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: UnionRef) {
@@ -814,7 +777,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: EnumTypeRef) {
@@ -822,7 +785,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: RefTypeRef) {
@@ -830,7 +793,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: OptionTypeRef) {
@@ -838,7 +801,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: ListTypeRef) {
@@ -846,7 +809,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: MapTypeRef) {
@@ -854,7 +817,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: BooleanTypeRef) {
@@ -862,7 +825,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: DoubleTypeRef) {
@@ -870,7 +833,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: FloatTypeRef) {
@@ -878,7 +841,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: LongTypeRef) {
@@ -886,7 +849,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: IntTypeRef) {
@@ -894,7 +857,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: ShortTypeRef) {
@@ -902,7 +865,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: ByteTypeRef) {
@@ -910,7 +873,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: CharacterTypeRef) {
@@ -918,7 +881,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: StringTypeRef) {
@@ -926,7 +889,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
     }
 
     fun <C> OptionTypeBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> OptionTypeBuilder<C>.type(ref: AnyTypeRef) {
@@ -971,7 +934,7 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
 @DslBuilder
 class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell = ListTypeShell()) {
     fun <C> ListTypeBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: StructRef) {
@@ -979,7 +942,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: UnionRef) {
@@ -987,7 +950,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: EnumTypeRef) {
@@ -995,7 +958,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: RefTypeRef) {
@@ -1003,7 +966,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: OptionTypeRef) {
@@ -1011,7 +974,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: ListTypeRef) {
@@ -1019,7 +982,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: MapTypeRef) {
@@ -1027,7 +990,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: BooleanTypeRef) {
@@ -1035,7 +998,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: DoubleTypeRef) {
@@ -1043,7 +1006,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: FloatTypeRef) {
@@ -1051,7 +1014,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: LongTypeRef) {
@@ -1059,7 +1022,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: IntTypeRef) {
@@ -1067,7 +1030,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: ShortTypeRef) {
@@ -1075,7 +1038,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: ByteTypeRef) {
@@ -1083,7 +1046,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: CharacterTypeRef) {
@@ -1091,7 +1054,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: StringTypeRef) {
@@ -1099,7 +1062,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
     }
 
     fun <C> ListTypeBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> ListTypeBuilder<C>.type(ref: AnyTypeRef) {
@@ -1144,7 +1107,7 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
 @DslBuilder
 class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = MapTypeShell()) {
     fun <C> MapTypeBuilder<C>.keyType(spec: StructSpec<C>) {
-        shell = shell.copy(keyType = StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: StructRef) {
@@ -1152,7 +1115,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: UnionSpec<C>) {
-        shell = shell.copy(keyType = UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: UnionRef) {
@@ -1160,7 +1123,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(keyType = EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: EnumTypeRef) {
@@ -1168,7 +1131,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(keyType = RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: RefTypeRef) {
@@ -1176,7 +1139,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(keyType = OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: OptionTypeRef) {
@@ -1184,7 +1147,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(keyType = ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: ListTypeRef) {
@@ -1192,7 +1155,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(keyType = MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: MapTypeRef) {
@@ -1200,7 +1163,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(keyType = BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: BooleanTypeRef) {
@@ -1208,7 +1171,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(keyType = DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: DoubleTypeRef) {
@@ -1216,7 +1179,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(keyType = FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: FloatTypeRef) {
@@ -1224,7 +1187,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: LongTypeSpec<C>) {
-        shell = shell.copy(keyType = LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: LongTypeRef) {
@@ -1232,7 +1195,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: IntTypeSpec<C>) {
-        shell = shell.copy(keyType = IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: IntTypeRef) {
@@ -1240,7 +1203,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(keyType = ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: ShortTypeRef) {
@@ -1248,7 +1211,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(keyType = ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: ByteTypeRef) {
@@ -1256,7 +1219,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(keyType = CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: CharacterTypeRef) {
@@ -1264,7 +1227,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: StringTypeSpec<C>) {
-        shell = shell.copy(keyType = StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: StringTypeRef) {
@@ -1272,7 +1235,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.keyType(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(keyType = AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(keyType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.keyType(ref: AnyTypeRef) {
@@ -1280,7 +1243,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: StructSpec<C>) {
-        shell = shell.copy(valueType = StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: StructRef) {
@@ -1288,7 +1251,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: UnionSpec<C>) {
-        shell = shell.copy(valueType = UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: UnionRef) {
@@ -1296,7 +1259,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(valueType = EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: EnumTypeRef) {
@@ -1304,7 +1267,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(valueType = RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: RefTypeRef) {
@@ -1312,7 +1275,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(valueType = OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: OptionTypeRef) {
@@ -1320,7 +1283,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(valueType = ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: ListTypeRef) {
@@ -1328,7 +1291,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(valueType = MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: MapTypeRef) {
@@ -1336,7 +1299,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(valueType = BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: BooleanTypeRef) {
@@ -1344,7 +1307,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(valueType = DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: DoubleTypeRef) {
@@ -1352,7 +1315,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(valueType = FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: FloatTypeRef) {
@@ -1360,7 +1323,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: LongTypeSpec<C>) {
-        shell = shell.copy(valueType = LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: LongTypeRef) {
@@ -1368,7 +1331,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: IntTypeSpec<C>) {
-        shell = shell.copy(valueType = IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: IntTypeRef) {
@@ -1376,7 +1339,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(valueType = ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: ShortTypeRef) {
@@ -1384,7 +1347,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(valueType = ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: ByteTypeRef) {
@@ -1392,7 +1355,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(valueType = CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: CharacterTypeRef) {
@@ -1400,7 +1363,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: StringTypeSpec<C>) {
-        shell = shell.copy(valueType = StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: StringTypeRef) {
@@ -1408,7 +1371,7 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(valueType = AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(valueType = spec.connect(context))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(ref: AnyTypeRef) {
@@ -1480,176 +1443,6 @@ class StringTypeBuilder<out C>(val context: C)
 @DslBuilder
 class AnyTypeBuilder<out C>(val context: C)
 
-open class StructTranslator<in C>(private val spec: StructSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Struct> {
-    constructor(body: StructBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.StructSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Struct {
-        val builder = StructTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class UnionTranslator<in C>(private val spec: UnionSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Union> {
-    constructor(body: UnionBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.UnionSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Union {
-        val builder = UnionTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class EnumTypeTranslator<in C>(private val spec: EnumTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, EnumType> {
-    constructor(body: EnumTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.EnumTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): EnumType {
-        val builder = EnumTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class RefTypeTranslator<in C>(private val spec: RefTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, RefType> {
-    constructor(body: RefTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.RefTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): RefType {
-        val builder = RefTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class OptionTypeTranslator<in C>(private val spec: OptionTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, OptionType> {
-    constructor(body: OptionTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.OptionTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): OptionType {
-        val builder = OptionTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class ListTypeTranslator<in C>(private val spec: ListTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, ListType> {
-    constructor(body: ListTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.ListTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): ListType {
-        val builder = ListTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class MapTypeTranslator<in C>(private val spec: MapTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, MapType> {
-    constructor(body: MapTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.MapTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): MapType {
-        val builder = MapTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class BooleanTypeTranslator<in C>(private val spec: BooleanTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, BooleanType> {
-    constructor(body: BooleanTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.BooleanTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): BooleanType {
-        val builder = BooleanTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class DoubleTypeTranslator<in C>(private val spec: DoubleTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, DoubleType> {
-    constructor(body: DoubleTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.DoubleTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): DoubleType {
-        val builder = DoubleTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class FloatTypeTranslator<in C>(private val spec: FloatTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, FloatType> {
-    constructor(body: FloatTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.FloatTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): FloatType {
-        val builder = FloatTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class LongTypeTranslator<in C>(private val spec: LongTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, LongType> {
-    constructor(body: LongTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.LongTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): LongType {
-        val builder = LongTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class IntTypeTranslator<in C>(private val spec: IntTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, IntType> {
-    constructor(body: IntTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.IntTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): IntType {
-        val builder = IntTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class ShortTypeTranslator<in C>(private val spec: ShortTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, ShortType> {
-    constructor(body: ShortTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.ShortTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): ShortType {
-        val builder = ShortTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class ByteTypeTranslator<in C>(private val spec: ByteTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, ByteType> {
-    constructor(body: ByteTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.ByteTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): ByteType {
-        val builder = ByteTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class CharacterTypeTranslator<in C>(private val spec: CharacterTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, CharacterType> {
-    constructor(body: CharacterTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.CharacterTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): CharacterType {
-        val builder = CharacterTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class StringTypeTranslator<in C>(private val spec: StringTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, StringType> {
-    constructor(body: StringTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.StringTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): StringType {
-        val builder = StringTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class AnyTypeTranslator<in C>(private val spec: AnyTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, AnyType> {
-    constructor(body: AnyTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.AnyTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): AnyType {
-        val builder = AnyTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Field(
         val name: String,
         val key: Boolean?,
@@ -1662,6 +1455,9 @@ data class FieldShell(
         var type: Scaffold<Type>? = null
 ) : Scaffold<Field> {
     override suspend fun resolve(registry: Registry): Field {
+        coroutineScope {
+        	launch { type!!.resolve(registry) }
+        }
         val value = Field(name!!,key,type!!.resolve(registry))
         return value
     }
@@ -1669,17 +1465,13 @@ data class FieldShell(
 
 class FieldRef(key: String) : Scaffold<Field> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Field::class, key)
 
-class FieldTemplate<in C>(private val spec: FieldSpec<C>, private val context: C) : Builder<Field> {
-    constructor(body: FieldBuilder<C>.() -> Unit, context: C) : this(io.philarios.schema.v0.FieldSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Field> {
+open class FieldSpec<in C>(internal val body: FieldBuilder<C>.() -> Unit) : Template<C, Field> {
+    override fun connect(context: C): Scaffold<Field> {
         val builder = FieldBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class FieldSpec<in C>(internal val body: FieldBuilder<C>.() -> Unit)
 
 @DslBuilder
 class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = FieldShell()) {
@@ -1692,7 +1484,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = StructTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: StructRef) {
@@ -1700,7 +1492,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = UnionTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: UnionRef) {
@@ -1708,7 +1500,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = EnumTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: EnumTypeRef) {
@@ -1716,7 +1508,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = RefTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: RefTypeRef) {
@@ -1724,7 +1516,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = OptionTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: OptionTypeRef) {
@@ -1732,7 +1524,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = ListTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: ListTypeRef) {
@@ -1740,7 +1532,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = MapTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: MapTypeRef) {
@@ -1748,7 +1540,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = BooleanTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: BooleanTypeRef) {
@@ -1756,7 +1548,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = DoubleTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: DoubleTypeRef) {
@@ -1764,7 +1556,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = FloatTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: FloatTypeRef) {
@@ -1772,7 +1564,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = LongTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: LongTypeRef) {
@@ -1780,7 +1572,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = IntTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: IntTypeRef) {
@@ -1788,7 +1580,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = ShortTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: ShortTypeRef) {
@@ -1796,7 +1588,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = ByteTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: ByteTypeRef) {
@@ -1804,7 +1596,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = CharacterTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: CharacterTypeRef) {
@@ -1812,7 +1604,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = StringTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: StringTypeRef) {
@@ -1820,7 +1612,7 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
     }
 
     fun <C> FieldBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = AnyTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(type = spec.connect(context))
     }
 
     fun <C> FieldBuilder<C>.type(ref: AnyTypeRef) {
@@ -1859,15 +1651,5 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
 
     private fun <C2> merge(other: FieldBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class FieldTranslator<in C>(private val spec: FieldSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Field> {
-    constructor(body: FieldBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.schema.v0.FieldSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Field {
-        val builder = FieldTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }
