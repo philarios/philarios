@@ -1,15 +1,15 @@
 package io.philarios.test.v0
 
-import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Translator
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
-import kotlinx.coroutines.experimental.launch
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
 
 data class Foo(val name: String)
 
@@ -23,17 +23,13 @@ data class FooShell(var name: String? = null) : Scaffold<Foo> {
 
 class FooRef(key: String) : Scaffold<Foo> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Foo::class, key)
 
-class FooTemplate<in C>(private val spec: FooSpec<C>, private val context: C) : Builder<Foo> {
-    constructor(body: FooBuilder<C>.() -> Unit, context: C) : this(io.philarios.test.v0.FooSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Foo> {
+open class FooSpec<in C>(internal val body: FooBuilder<C>.() -> Unit) : Spec<C, Foo> {
+    override fun connect(context: C): Scaffold<Foo> {
         val builder = FooBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class FooSpec<in C>(internal val body: FooBuilder<C>.() -> Unit)
 
 @DslBuilder
 class FooBuilder<out C>(val context: C, internal var shell: FooShell = FooShell()) {
@@ -76,21 +72,11 @@ class FooBuilder<out C>(val context: C, internal var shell: FooShell = FooShell(
     }
 }
 
-open class FooTranslator<in C>(private val spec: FooSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Foo> {
-    constructor(body: FooBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.test.v0.FooSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Foo {
-        val builder = FooTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Bar(val name: String, val foo: Foo)
 
 data class BarShell(var name: String? = null, var foo: Scaffold<Foo>? = null) : Scaffold<Bar> {
     override suspend fun resolve(registry: Registry): Bar {
-        kotlinx.coroutines.experimental.coroutineScope {
+        coroutineScope {
         	launch { foo!!.resolve(registry) }
         }
         val value = Bar(name!!,foo!!.resolve(registry))
@@ -101,17 +87,13 @@ data class BarShell(var name: String? = null, var foo: Scaffold<Foo>? = null) : 
 
 class BarRef(key: String) : Scaffold<Bar> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Bar::class, key)
 
-class BarTemplate<in C>(private val spec: BarSpec<C>, private val context: C) : Builder<Bar> {
-    constructor(body: BarBuilder<C>.() -> Unit, context: C) : this(io.philarios.test.v0.BarSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Bar> {
+open class BarSpec<in C>(internal val body: BarBuilder<C>.() -> Unit) : Spec<C, Bar> {
+    override fun connect(context: C): Scaffold<Bar> {
         val builder = BarBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class BarSpec<in C>(internal val body: BarBuilder<C>.() -> Unit)
 
 @DslBuilder
 class BarBuilder<out C>(val context: C, internal var shell: BarShell = BarShell()) {
@@ -120,11 +102,11 @@ class BarBuilder<out C>(val context: C, internal var shell: BarShell = BarShell(
     }
 
     fun <C> BarBuilder<C>.foo(body: FooBuilder<C>.() -> Unit) {
-        shell = shell.copy(foo = FooTemplate<C>(body, context).scaffold())
+        shell = shell.copy(foo = FooSpec<C>(body).connect(context))
     }
 
     fun <C> BarBuilder<C>.foo(spec: FooSpec<C>) {
-        shell = shell.copy(foo = FooTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(foo = spec.connect(context))
     }
 
     fun <C> BarBuilder<C>.foo(ref: FooRef) {
@@ -170,51 +152,37 @@ class BarBuilder<out C>(val context: C, internal var shell: BarShell = BarShell(
     }
 }
 
-open class BarTranslator<in C>(private val spec: BarSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Bar> {
-    constructor(body: BarBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.test.v0.BarSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Bar {
-        val builder = BarTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Test(val bars: List<Bar>, val foos: List<Foo>)
 
 data class TestShell(var bars: List<Scaffold<Bar>> = emptyList(), var foos: List<Scaffold<Foo>> = emptyList()) : Scaffold<Test> {
     override suspend fun resolve(registry: Registry): Test {
-        kotlinx.coroutines.experimental.coroutineScope {
-        	bars!!.forEach { launch { it.resolve(registry) } }
-        	foos!!.forEach { launch { it.resolve(registry) } }
+        coroutineScope {
+        	bars.forEach { launch { it.resolve(registry) } }
+        	foos.forEach { launch { it.resolve(registry) } }
         }
-        val value = Test(bars!!.map { it.resolve(registry) },foos!!.map { it.resolve(registry) })
+        val value = Test(bars.map { it.resolve(registry) },foos.map { it.resolve(registry) })
         return value
     }
 }
 
 class TestRef(key: String) : Scaffold<Test> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Test::class, key)
 
-class TestTemplate<in C>(private val spec: TestSpec<C>, private val context: C) : Builder<Test> {
-    constructor(body: TestBuilder<C>.() -> Unit, context: C) : this(io.philarios.test.v0.TestSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Test> {
+open class TestSpec<in C>(internal val body: TestBuilder<C>.() -> Unit) : Spec<C, Test> {
+    override fun connect(context: C): Scaffold<Test> {
         val builder = TestBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-open class TestSpec<in C>(internal val body: TestBuilder<C>.() -> Unit)
-
 @DslBuilder
 class TestBuilder<out C>(val context: C, internal var shell: TestShell = TestShell()) {
     fun <C> TestBuilder<C>.bar(body: BarBuilder<C>.() -> Unit) {
-        shell = shell.copy(bars = shell.bars.orEmpty() + BarTemplate<C>(body, context).scaffold())
+        shell = shell.copy(bars = shell.bars.orEmpty() + BarSpec<C>(body).connect(context))
     }
 
     fun <C> TestBuilder<C>.bar(spec: BarSpec<C>) {
-        shell = shell.copy(bars = shell.bars.orEmpty() + BarTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(bars = shell.bars.orEmpty() + spec.connect(context))
     }
 
     fun <C> TestBuilder<C>.bar(ref: BarRef) {
@@ -230,11 +198,11 @@ class TestBuilder<out C>(val context: C, internal var shell: TestShell = TestShe
     }
 
     fun <C> TestBuilder<C>.foo(body: FooBuilder<C>.() -> Unit) {
-        shell = shell.copy(foos = shell.foos.orEmpty() + FooTemplate<C>(body, context).scaffold())
+        shell = shell.copy(foos = shell.foos.orEmpty() + FooSpec<C>(body).connect(context))
     }
 
     fun <C> TestBuilder<C>.foo(spec: FooSpec<C>) {
-        shell = shell.copy(foos = shell.foos.orEmpty() + FooTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(foos = shell.foos.orEmpty() + spec.connect(context))
     }
 
     fun <C> TestBuilder<C>.foo(ref: FooRef) {
@@ -281,15 +249,5 @@ class TestBuilder<out C>(val context: C, internal var shell: TestShell = TestShe
 
     private fun <C2> merge(other: TestBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class TestTranslator<in C>(private val spec: TestSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Test> {
-    constructor(body: TestBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.test.v0.TestSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Test {
-        val builder = TestTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }

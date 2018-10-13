@@ -1,10 +1,9 @@
 package io.philarios.domain.v0
 
-import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Translator
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.String
 import kotlin.collections.Iterable
@@ -27,26 +26,22 @@ data class DomainShell(var entities: List<Scaffold<Entity>> = emptyList(), var r
 
 class DomainRef(key: String) : Scaffold<Domain> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Domain::class, key)
 
-class DomainTemplate<in C>(private val spec: DomainSpec<C>, private val context: C) : Builder<Domain> {
-    constructor(body: DomainBuilder<C>.() -> Unit, context: C) : this(io.philarios.domain.v0.DomainSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Domain> {
+open class DomainSpec<in C>(internal val body: DomainBuilder<C>.() -> Unit) : Spec<C, Domain> {
+    override fun connect(context: C): Scaffold<Domain> {
         val builder = DomainBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-open class DomainSpec<in C>(internal val body: DomainBuilder<C>.() -> Unit)
-
 @DslBuilder
 class DomainBuilder<out C>(val context: C, internal var shell: DomainShell = DomainShell()) {
     fun <C> DomainBuilder<C>.entity(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + EntityTemplate<C>(body, context).scaffold())
+        shell = shell.copy(entities = shell.entities.orEmpty() + EntitySpec<C>(body).connect(context))
     }
 
     fun <C> DomainBuilder<C>.entity(spec: EntitySpec<C>) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + EntityTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(entities = shell.entities.orEmpty() + spec.connect(context))
     }
 
     fun <C> DomainBuilder<C>.entity(ref: EntityRef) {
@@ -62,11 +57,11 @@ class DomainBuilder<out C>(val context: C, internal var shell: DomainShell = Dom
     }
 
     fun <C> DomainBuilder<C>.relationship(body: RelationshipBuilder<C>.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipTemplate<C>(body, context).scaffold())
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipSpec<C>(body).connect(context))
     }
 
     fun <C> DomainBuilder<C>.relationship(spec: RelationshipSpec<C>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + spec.connect(context))
     }
 
     fun <C> DomainBuilder<C>.relationship(ref: RelationshipRef) {
@@ -116,16 +111,6 @@ class DomainBuilder<out C>(val context: C, internal var shell: DomainShell = Dom
     }
 }
 
-open class DomainTranslator<in C>(private val spec: DomainSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Domain> {
-    constructor(body: DomainBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.domain.v0.DomainSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Domain {
-        val builder = DomainTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Entity(val name: String, val attributes: List<Attribute>)
 
 data class EntityShell(var name: String? = null, var attributes: List<Scaffold<Attribute>> = emptyList()) : Scaffold<Entity> {
@@ -141,17 +126,13 @@ data class EntityShell(var name: String? = null, var attributes: List<Scaffold<A
 
 class EntityRef(key: String) : Scaffold<Entity> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Entity::class, key)
 
-class EntityTemplate<in C>(private val spec: EntitySpec<C>, private val context: C) : Builder<Entity> {
-    constructor(body: EntityBuilder<C>.() -> Unit, context: C) : this(io.philarios.domain.v0.EntitySpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Entity> {
+open class EntitySpec<in C>(internal val body: EntityBuilder<C>.() -> Unit) : Spec<C, Entity> {
+    override fun connect(context: C): Scaffold<Entity> {
         val builder = EntityBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class EntitySpec<in C>(internal val body: EntityBuilder<C>.() -> Unit)
 
 @DslBuilder
 class EntityBuilder<out C>(val context: C, internal var shell: EntityShell = EntityShell()) {
@@ -160,11 +141,11 @@ class EntityBuilder<out C>(val context: C, internal var shell: EntityShell = Ent
     }
 
     fun <C> EntityBuilder<C>.attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeTemplate<C>(body, context).scaffold())
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
     }
 
     fun <C> EntityBuilder<C>.attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
     }
 
     fun <C> EntityBuilder<C>.attribute(ref: AttributeRef) {
@@ -214,16 +195,6 @@ class EntityBuilder<out C>(val context: C, internal var shell: EntityShell = Ent
     }
 }
 
-open class EntityTranslator<in C>(private val spec: EntitySpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Entity> {
-    constructor(body: EntityBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.domain.v0.EntitySpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Entity {
-        val builder = EntityTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Relationship(
         val name: String,
         val from: Entity,
@@ -251,17 +222,13 @@ data class RelationshipShell(
 
 class RelationshipRef(key: String) : Scaffold<Relationship> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Relationship::class, key)
 
-class RelationshipTemplate<in C>(private val spec: RelationshipSpec<C>, private val context: C) : Builder<Relationship> {
-    constructor(body: RelationshipBuilder<C>.() -> Unit, context: C) : this(io.philarios.domain.v0.RelationshipSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Relationship> {
+open class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -> Unit) : Spec<C, Relationship> {
+    override fun connect(context: C): Scaffold<Relationship> {
         val builder = RelationshipBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -> Unit)
 
 @DslBuilder
 class RelationshipBuilder<out C>(val context: C, internal var shell: RelationshipShell = RelationshipShell()) {
@@ -270,11 +237,11 @@ class RelationshipBuilder<out C>(val context: C, internal var shell: Relationshi
     }
 
     fun <C> RelationshipBuilder<C>.from(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(from = EntityTemplate<C>(body, context).scaffold())
+        shell = shell.copy(from = EntitySpec<C>(body).connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.from(spec: EntitySpec<C>) {
-        shell = shell.copy(from = EntityTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(from = spec.connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.from(ref: EntityRef) {
@@ -286,11 +253,11 @@ class RelationshipBuilder<out C>(val context: C, internal var shell: Relationshi
     }
 
     fun <C> RelationshipBuilder<C>.to(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(to = EntityTemplate<C>(body, context).scaffold())
+        shell = shell.copy(to = EntitySpec<C>(body).connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.to(spec: EntitySpec<C>) {
-        shell = shell.copy(to = EntityTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(to = spec.connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.to(ref: EntityRef) {
@@ -302,11 +269,11 @@ class RelationshipBuilder<out C>(val context: C, internal var shell: Relationshi
     }
 
     fun <C> RelationshipBuilder<C>.attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeTemplate<C>(body, context).scaffold())
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
     }
 
     fun <C> RelationshipBuilder<C>.attribute(ref: AttributeRef) {
@@ -356,16 +323,6 @@ class RelationshipBuilder<out C>(val context: C, internal var shell: Relationshi
     }
 }
 
-open class RelationshipTranslator<in C>(private val spec: RelationshipSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Relationship> {
-    constructor(body: RelationshipBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.domain.v0.RelationshipSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Relationship {
-        val builder = RelationshipTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Attribute(val name: String, val type: Type)
 
 data class AttributeShell(var name: String? = null, var type: Type? = null) : Scaffold<Attribute> {
@@ -377,17 +334,13 @@ data class AttributeShell(var name: String? = null, var type: Type? = null) : Sc
 
 class AttributeRef(key: String) : Scaffold<Attribute> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Attribute::class, key)
 
-class AttributeTemplate<in C>(private val spec: AttributeSpec<C>, private val context: C) : Builder<Attribute> {
-    constructor(body: AttributeBuilder<C>.() -> Unit, context: C) : this(io.philarios.domain.v0.AttributeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Attribute> {
+open class AttributeSpec<in C>(internal val body: AttributeBuilder<C>.() -> Unit) : Spec<C, Attribute> {
+    override fun connect(context: C): Scaffold<Attribute> {
         val builder = AttributeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class AttributeSpec<in C>(internal val body: AttributeBuilder<C>.() -> Unit)
 
 @DslBuilder
 class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell = AttributeShell()) {
@@ -431,16 +384,6 @@ class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell
 
     private fun <C2> merge(other: AttributeBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class AttributeTranslator<in C>(private val spec: AttributeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Attribute> {
-    constructor(body: AttributeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.domain.v0.AttributeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Attribute {
-        val builder = AttributeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }
 

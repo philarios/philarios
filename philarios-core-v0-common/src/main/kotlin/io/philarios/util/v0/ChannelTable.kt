@@ -6,7 +6,7 @@ import kotlin.coroutines.experimental.CoroutineContext
 
 internal class ChannelTable<K, V> : Table<K, V>, CoroutineScope {
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + receiveJob
+        get() = Dispatchers.Default
 
     private val receiveJob: Job
     private val messageChannel = Channel<Message<K, V>>()

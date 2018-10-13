@@ -1,10 +1,9 @@
 package io.philarios.concourse.v0
 
-import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Translator
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.Any
 import kotlin.Boolean
@@ -31,26 +30,22 @@ data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaff
 
 class ConcourseRef(key: String) : Scaffold<Concourse> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Concourse::class, key)
 
-class ConcourseTemplate<in C>(private val spec: ConcourseSpec<C>, private val context: C) : Builder<Concourse> {
-    constructor(body: ConcourseBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.ConcourseSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Concourse> {
+open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit) : Spec<C, Concourse> {
+    override fun connect(context: C): Scaffold<Concourse> {
         val builder = ConcourseBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit)
-
 @DslBuilder
 class ConcourseBuilder<out C>(val context: C, internal var shell: ConcourseShell = ConcourseShell()) {
     fun <C> ConcourseBuilder<C>.team(body: TeamBuilder<C>.() -> Unit) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + TeamTemplate<C>(body, context).scaffold())
+        shell = shell.copy(teams = shell.teams.orEmpty() + TeamSpec<C>(body).connect(context))
     }
 
     fun <C> ConcourseBuilder<C>.team(spec: TeamSpec<C>) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + TeamTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(teams = shell.teams.orEmpty() + spec.connect(context))
     }
 
     fun <C> ConcourseBuilder<C>.team(ref: TeamRef) {
@@ -100,16 +95,6 @@ class ConcourseBuilder<out C>(val context: C, internal var shell: ConcourseShell
     }
 }
 
-open class ConcourseTranslator<in C>(private val spec: ConcourseSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Concourse> {
-    constructor(body: ConcourseBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.ConcourseSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Concourse {
-        val builder = ConcourseTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Team(val name: String, val pipelines: List<Pipeline>)
 
 data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
@@ -124,17 +109,13 @@ data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipe
 
 class TeamRef(key: String) : Scaffold<Team> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Team::class, key)
 
-class TeamTemplate<in C>(private val spec: TeamSpec<C>, private val context: C) : Builder<Team> {
-    constructor(body: TeamBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TeamSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Team> {
+open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit) : Spec<C, Team> {
+    override fun connect(context: C): Scaffold<Team> {
         val builder = TeamBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TeamBuilder<out C>(val context: C, internal var shell: TeamShell = TeamShell()) {
@@ -143,11 +124,11 @@ class TeamBuilder<out C>(val context: C, internal var shell: TeamShell = TeamShe
     }
 
     fun <C> TeamBuilder<C>.pipeline(body: PipelineBuilder<C>.() -> Unit) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + PipelineTemplate<C>(body, context).scaffold())
+        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + PipelineSpec<C>(body).connect(context))
     }
 
     fun <C> TeamBuilder<C>.pipeline(spec: PipelineSpec<C>) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + PipelineTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + spec.connect(context))
     }
 
     fun <C> TeamBuilder<C>.pipeline(ref: PipelineRef) {
@@ -197,16 +178,6 @@ class TeamBuilder<out C>(val context: C, internal var shell: TeamShell = TeamShe
     }
 }
 
-open class TeamTranslator<in C>(private val spec: TeamSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Team> {
-    constructor(body: TeamBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TeamSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Team {
-        val builder = TeamTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Pipeline(
         val name: String,
         val jobs: List<Job>,
@@ -236,17 +207,13 @@ data class PipelineShell(
 
 class PipelineRef(key: String) : Scaffold<Pipeline> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Pipeline::class, key)
 
-class PipelineTemplate<in C>(private val spec: PipelineSpec<C>, private val context: C) : Builder<Pipeline> {
-    constructor(body: PipelineBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.PipelineSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Pipeline> {
+open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit) : Spec<C, Pipeline> {
+    override fun connect(context: C): Scaffold<Pipeline> {
         val builder = PipelineBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit)
 
 @DslBuilder
 class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell = PipelineShell()) {
@@ -255,11 +222,11 @@ class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell =
     }
 
     fun <C> PipelineBuilder<C>.job(body: JobBuilder<C>.() -> Unit) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + JobTemplate<C>(body, context).scaffold())
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + JobSpec<C>(body).connect(context))
     }
 
     fun <C> PipelineBuilder<C>.job(spec: JobSpec<C>) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + JobTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + spec.connect(context))
     }
 
     fun <C> PipelineBuilder<C>.job(ref: JobRef) {
@@ -275,11 +242,11 @@ class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell =
     }
 
     fun <C> PipelineBuilder<C>.resource(body: ResourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceTemplate<C>(body, context).scaffold())
+        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceSpec<C>(body).connect(context))
     }
 
     fun <C> PipelineBuilder<C>.resource(spec: ResourceSpec<C>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(resources = shell.resources.orEmpty() + spec.connect(context))
     }
 
     fun <C> PipelineBuilder<C>.resource(ref: ResourceRef) {
@@ -295,11 +262,11 @@ class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell =
     }
 
     fun <C> PipelineBuilder<C>.resource_type(body: ResourceTypeBuilder<C>.() -> Unit) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ResourceTypeTemplate<C>(body, context).scaffold())
+        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ResourceTypeSpec<C>(body).connect(context))
     }
 
     fun <C> PipelineBuilder<C>.resource_type(spec: ResourceTypeSpec<C>) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ResourceTypeTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + spec.connect(context))
     }
 
     fun <C> PipelineBuilder<C>.resource_type(ref: ResourceTypeRef) {
@@ -315,11 +282,11 @@ class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell =
     }
 
     fun <C> PipelineBuilder<C>.group(body: GroupBuilder<C>.() -> Unit) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + GroupTemplate<C>(body, context).scaffold())
+        shell = shell.copy(groups = shell.groups.orEmpty() + GroupSpec<C>(body).connect(context))
     }
 
     fun <C> PipelineBuilder<C>.group(spec: GroupSpec<C>) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + GroupTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(groups = shell.groups.orEmpty() + spec.connect(context))
     }
 
     fun <C> PipelineBuilder<C>.group(ref: GroupRef) {
@@ -369,16 +336,6 @@ class PipelineBuilder<out C>(val context: C, internal var shell: PipelineShell =
     }
 }
 
-open class PipelineTranslator<in C>(private val spec: PipelineSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Pipeline> {
-    constructor(body: PipelineBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.PipelineSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Pipeline {
-        val builder = PipelineTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Job(
         val name: String,
         val plan: List<Step>,
@@ -425,17 +382,13 @@ data class JobShell(
 
 class JobRef(key: String) : Scaffold<Job> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Job::class, key)
 
-class JobTemplate<in C>(private val spec: JobSpec<C>, private val context: C) : Builder<Job> {
-    constructor(body: JobBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.JobSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Job> {
+open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit) : Spec<C, Job> {
+    override fun connect(context: C): Scaffold<Job> {
         val builder = JobBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit)
 
 @DslBuilder
 class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell()) {
@@ -444,7 +397,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: GetSpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: GetRef) {
@@ -452,7 +405,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: PutSpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: PutRef) {
@@ -460,7 +413,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: TaskSpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: TaskRef) {
@@ -468,7 +421,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: AggregateSpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: AggregateRef) {
@@ -476,7 +429,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: DoSpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: DoRef) {
@@ -484,7 +437,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.plan(spec: TrySpec<C>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(plan = shell.plan.orEmpty() + spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.plan(ref: TryRef) {
@@ -524,7 +477,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: GetRef) {
@@ -532,7 +485,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: PutRef) {
@@ -540,7 +493,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: TaskRef) {
@@ -548,7 +501,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: AggregateRef) {
@@ -556,7 +509,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: DoRef) {
@@ -564,7 +517,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_success(ref: TryRef) {
@@ -572,7 +525,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: GetRef) {
@@ -580,7 +533,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: PutRef) {
@@ -588,7 +541,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: TaskRef) {
@@ -596,7 +549,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: AggregateRef) {
@@ -604,7 +557,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: DoRef) {
@@ -612,7 +565,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_failure(ref: TryRef) {
@@ -620,7 +573,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: GetRef) {
@@ -628,7 +581,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: PutRef) {
@@ -636,7 +589,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: TaskRef) {
@@ -644,7 +597,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: AggregateRef) {
@@ -652,7 +605,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: DoRef) {
@@ -660,7 +613,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.on_abort(ref: TryRef) {
@@ -668,7 +621,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: GetRef) {
@@ -676,7 +629,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: PutRef) {
@@ -684,7 +637,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: TaskRef) {
@@ -692,7 +645,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: AggregateRef) {
@@ -700,7 +653,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: DoRef) {
@@ -708,7 +661,7 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
     }
 
     fun <C> JobBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> JobBuilder<C>.ensure(ref: TryRef) {
@@ -747,16 +700,6 @@ class JobBuilder<out C>(val context: C, internal var shell: JobShell = JobShell(
 
     private fun <C2> merge(other: JobBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class JobTranslator<in C>(private val spec: JobSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Job> {
-    constructor(body: JobBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.JobSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Job {
-        val builder = JobTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }
 
@@ -1008,77 +951,53 @@ class DoRef(key: String) : Scaffold<Do> by io.philarios.core.v0.RegistryRef(io.p
 
 class TryRef(key: String) : Scaffold<Try> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Try::class, key)
 
-class GetTemplate<in C>(private val spec: GetSpec<C>, private val context: C) : Builder<Get> {
-    constructor(body: GetBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.GetSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Get> {
+open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : Spec<C, Get> {
+    override fun connect(context: C): Scaffold<Get> {
         val builder = GetBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class PutTemplate<in C>(private val spec: PutSpec<C>, private val context: C) : Builder<Put> {
-    constructor(body: PutBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.PutSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Put> {
+open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : Spec<C, Put> {
+    override fun connect(context: C): Scaffold<Put> {
         val builder = PutBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class TaskTemplate<in C>(private val spec: TaskSpec<C>, private val context: C) : Builder<Task> {
-    constructor(body: TaskBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Task> {
+open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : Spec<C, Task> {
+    override fun connect(context: C): Scaffold<Task> {
         val builder = TaskBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class AggregateTemplate<in C>(private val spec: AggregateSpec<C>, private val context: C) : Builder<Aggregate> {
-    constructor(body: AggregateBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.AggregateSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Aggregate> {
+open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit) : Spec<C, Aggregate> {
+    override fun connect(context: C): Scaffold<Aggregate> {
         val builder = AggregateBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class DoTemplate<in C>(private val spec: DoSpec<C>, private val context: C) : Builder<Do> {
-    constructor(body: DoBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.DoSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Do> {
+open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : Spec<C, Do> {
+    override fun connect(context: C): Scaffold<Do> {
         val builder = DoBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class TryTemplate<in C>(private val spec: TrySpec<C>, private val context: C) : Builder<Try> {
-    constructor(body: TryBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TrySpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Try> {
+open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit) : Spec<C, Try> {
+    override fun connect(context: C): Scaffold<Try> {
         val builder = TryBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit)
-
-open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit)
-
-open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit)
-
-open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit)
-
-open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit)
-
-open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit)
 
 @DslBuilder
 class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell()) {
@@ -1119,7 +1038,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: GetRef) {
@@ -1127,7 +1046,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: PutRef) {
@@ -1135,7 +1054,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: TaskRef) {
@@ -1143,7 +1062,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: AggregateRef) {
@@ -1151,7 +1070,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: DoRef) {
@@ -1159,7 +1078,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_success(ref: TryRef) {
@@ -1167,7 +1086,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: GetRef) {
@@ -1175,7 +1094,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: PutRef) {
@@ -1183,7 +1102,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: TaskRef) {
@@ -1191,7 +1110,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: AggregateRef) {
@@ -1199,7 +1118,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: DoRef) {
@@ -1207,7 +1126,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_failure(ref: TryRef) {
@@ -1215,7 +1134,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: GetRef) {
@@ -1223,7 +1142,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: PutRef) {
@@ -1231,7 +1150,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: TaskRef) {
@@ -1239,7 +1158,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: AggregateRef) {
@@ -1247,7 +1166,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: DoRef) {
@@ -1255,7 +1174,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.on_abort(ref: TryRef) {
@@ -1263,7 +1182,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: GetRef) {
@@ -1271,7 +1190,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: PutRef) {
@@ -1279,7 +1198,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: TaskRef) {
@@ -1287,7 +1206,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: AggregateRef) {
@@ -1295,7 +1214,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: DoRef) {
@@ -1303,7 +1222,7 @@ class GetBuilder<out C>(val context: C, internal var shell: GetShell = GetShell(
     }
 
     fun <C> GetBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> GetBuilder<C>.ensure(ref: TryRef) {
@@ -1396,7 +1315,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: GetRef) {
@@ -1404,7 +1323,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: PutRef) {
@@ -1412,7 +1331,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: TaskRef) {
@@ -1420,7 +1339,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: AggregateRef) {
@@ -1428,7 +1347,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: DoRef) {
@@ -1436,7 +1355,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_success(ref: TryRef) {
@@ -1444,7 +1363,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: GetRef) {
@@ -1452,7 +1371,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: PutRef) {
@@ -1460,7 +1379,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: TaskRef) {
@@ -1468,7 +1387,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: AggregateRef) {
@@ -1476,7 +1395,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: DoRef) {
@@ -1484,7 +1403,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_failure(ref: TryRef) {
@@ -1492,7 +1411,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: GetRef) {
@@ -1500,7 +1419,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: PutRef) {
@@ -1508,7 +1427,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: TaskRef) {
@@ -1516,7 +1435,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: AggregateRef) {
@@ -1524,7 +1443,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: DoRef) {
@@ -1532,7 +1451,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.on_abort(ref: TryRef) {
@@ -1540,7 +1459,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: GetRef) {
@@ -1548,7 +1467,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: PutRef) {
@@ -1556,7 +1475,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: TaskRef) {
@@ -1564,7 +1483,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: AggregateRef) {
@@ -1572,7 +1491,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: DoRef) {
@@ -1580,7 +1499,7 @@ class PutBuilder<out C>(val context: C, internal var shell: PutShell = PutShell(
     }
 
     fun <C> PutBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> PutBuilder<C>.ensure(ref: TryRef) {
@@ -1645,11 +1564,11 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.config(body: TaskConfigBuilder<C>.() -> Unit) {
-        shell = shell.copy(config = TaskConfigTemplate<C>(body, context).scaffold())
+        shell = shell.copy(config = TaskConfigSpec<C>(body).connect(context))
     }
 
     fun <C> TaskBuilder<C>.config(spec: TaskConfigSpec<C>) {
-        shell = shell.copy(config = TaskConfigTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(config = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.config(ref: TaskConfigRef) {
@@ -1709,7 +1628,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: GetRef) {
@@ -1717,7 +1636,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: PutRef) {
@@ -1725,7 +1644,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: TaskRef) {
@@ -1733,7 +1652,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: AggregateRef) {
@@ -1741,7 +1660,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: DoRef) {
@@ -1749,7 +1668,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_success(ref: TryRef) {
@@ -1757,7 +1676,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: GetRef) {
@@ -1765,7 +1684,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: PutRef) {
@@ -1773,7 +1692,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: TaskRef) {
@@ -1781,7 +1700,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: AggregateRef) {
@@ -1789,7 +1708,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: DoRef) {
@@ -1797,7 +1716,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_failure(ref: TryRef) {
@@ -1805,7 +1724,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: GetRef) {
@@ -1813,7 +1732,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: PutRef) {
@@ -1821,7 +1740,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: TaskRef) {
@@ -1829,7 +1748,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: AggregateRef) {
@@ -1837,7 +1756,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: DoRef) {
@@ -1845,7 +1764,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.on_abort(ref: TryRef) {
@@ -1853,7 +1772,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: GetRef) {
@@ -1861,7 +1780,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: PutRef) {
@@ -1869,7 +1788,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: TaskRef) {
@@ -1877,7 +1796,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: AggregateRef) {
@@ -1885,7 +1804,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: DoRef) {
@@ -1893,7 +1812,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
     }
 
     fun <C> TaskBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TaskBuilder<C>.ensure(ref: TryRef) {
@@ -1954,7 +1873,7 @@ class TaskBuilder<out C>(val context: C, internal var shell: TaskShell = TaskShe
 @DslBuilder
 class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell = AggregateShell()) {
     fun <C> AggregateBuilder<C>.aggregate(spec: GetSpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: GetRef) {
@@ -1962,7 +1881,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.aggregate(spec: PutSpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: PutRef) {
@@ -1970,7 +1889,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.aggregate(spec: TaskSpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: TaskRef) {
@@ -1978,7 +1897,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.aggregate(spec: AggregateSpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: AggregateRef) {
@@ -1986,7 +1905,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.aggregate(spec: DoSpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: DoRef) {
@@ -1994,7 +1913,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.aggregate(spec: TrySpec<C>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.aggregate(ref: TryRef) {
@@ -2002,7 +1921,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: GetRef) {
@@ -2010,7 +1929,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: PutRef) {
@@ -2018,7 +1937,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: TaskRef) {
@@ -2026,7 +1945,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: AggregateRef) {
@@ -2034,7 +1953,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: DoRef) {
@@ -2042,7 +1961,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_success(ref: TryRef) {
@@ -2050,7 +1969,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: GetRef) {
@@ -2058,7 +1977,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: PutRef) {
@@ -2066,7 +1985,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: TaskRef) {
@@ -2074,7 +1993,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: AggregateRef) {
@@ -2082,7 +2001,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: DoRef) {
@@ -2090,7 +2009,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_failure(ref: TryRef) {
@@ -2098,7 +2017,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: GetRef) {
@@ -2106,7 +2025,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: PutRef) {
@@ -2114,7 +2033,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: TaskRef) {
@@ -2122,7 +2041,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: AggregateRef) {
@@ -2130,7 +2049,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: DoRef) {
@@ -2138,7 +2057,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.on_abort(ref: TryRef) {
@@ -2146,7 +2065,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: GetRef) {
@@ -2154,7 +2073,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: PutRef) {
@@ -2162,7 +2081,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: TaskRef) {
@@ -2170,7 +2089,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: AggregateRef) {
@@ -2178,7 +2097,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: DoRef) {
@@ -2186,7 +2105,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
     }
 
     fun <C> AggregateBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> AggregateBuilder<C>.ensure(ref: TryRef) {
@@ -2247,7 +2166,7 @@ class AggregateBuilder<out C>(val context: C, internal var shell: AggregateShell
 @DslBuilder
 class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) {
     fun <C> DoBuilder<C>.doIt(spec: GetSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: GetRef) {
@@ -2255,7 +2174,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.doIt(spec: PutSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: PutRef) {
@@ -2263,7 +2182,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.doIt(spec: TaskSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: TaskRef) {
@@ -2271,7 +2190,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.doIt(spec: AggregateSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: AggregateRef) {
@@ -2279,7 +2198,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.doIt(spec: DoSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: DoRef) {
@@ -2287,7 +2206,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.doIt(spec: TrySpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.doIt(ref: TryRef) {
@@ -2295,7 +2214,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: GetRef) {
@@ -2303,7 +2222,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: PutRef) {
@@ -2311,7 +2230,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: TaskRef) {
@@ -2319,7 +2238,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: AggregateRef) {
@@ -2327,7 +2246,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: DoRef) {
@@ -2335,7 +2254,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_success(ref: TryRef) {
@@ -2343,7 +2262,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: GetRef) {
@@ -2351,7 +2270,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: PutRef) {
@@ -2359,7 +2278,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: TaskRef) {
@@ -2367,7 +2286,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: AggregateRef) {
@@ -2375,7 +2294,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: DoRef) {
@@ -2383,7 +2302,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_failure(ref: TryRef) {
@@ -2391,7 +2310,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: GetRef) {
@@ -2399,7 +2318,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: PutRef) {
@@ -2407,7 +2326,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: TaskRef) {
@@ -2415,7 +2334,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: AggregateRef) {
@@ -2423,7 +2342,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: DoRef) {
@@ -2431,7 +2350,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.on_abort(ref: TryRef) {
@@ -2439,7 +2358,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: GetRef) {
@@ -2447,7 +2366,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: PutRef) {
@@ -2455,7 +2374,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: TaskRef) {
@@ -2463,7 +2382,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: AggregateRef) {
@@ -2471,7 +2390,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: DoRef) {
@@ -2479,7 +2398,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
     }
 
     fun <C> DoBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> DoBuilder<C>.ensure(ref: TryRef) {
@@ -2540,7 +2459,7 @@ class DoBuilder<out C>(val context: C, internal var shell: DoShell = DoShell()) 
 @DslBuilder
 class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell()) {
     fun <C> TryBuilder<C>.tryIt(spec: GetSpec<C>) {
-        shell = shell.copy(tryIt = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: GetRef) {
@@ -2548,7 +2467,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.tryIt(spec: PutSpec<C>) {
-        shell = shell.copy(tryIt = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: PutRef) {
@@ -2556,7 +2475,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.tryIt(spec: TaskSpec<C>) {
-        shell = shell.copy(tryIt = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: TaskRef) {
@@ -2564,7 +2483,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.tryIt(spec: AggregateSpec<C>) {
-        shell = shell.copy(tryIt = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: AggregateRef) {
@@ -2572,7 +2491,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.tryIt(spec: DoSpec<C>) {
-        shell = shell.copy(tryIt = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: DoRef) {
@@ -2580,7 +2499,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.tryIt(spec: TrySpec<C>) {
-        shell = shell.copy(tryIt = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(tryIt = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.tryIt(ref: TryRef) {
@@ -2588,7 +2507,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: GetSpec<C>) {
-        shell = shell.copy(on_success = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: GetRef) {
@@ -2596,7 +2515,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: PutSpec<C>) {
-        shell = shell.copy(on_success = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: PutRef) {
@@ -2604,7 +2523,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: TaskSpec<C>) {
-        shell = shell.copy(on_success = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: TaskRef) {
@@ -2612,7 +2531,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_success = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: AggregateRef) {
@@ -2620,7 +2539,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: DoSpec<C>) {
-        shell = shell.copy(on_success = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: DoRef) {
@@ -2628,7 +2547,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_success(spec: TrySpec<C>) {
-        shell = shell.copy(on_success = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_success = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_success(ref: TryRef) {
@@ -2636,7 +2555,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: GetSpec<C>) {
-        shell = shell.copy(on_failure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: GetRef) {
@@ -2644,7 +2563,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: PutSpec<C>) {
-        shell = shell.copy(on_failure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: PutRef) {
@@ -2652,7 +2571,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: TaskSpec<C>) {
-        shell = shell.copy(on_failure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: TaskRef) {
@@ -2660,7 +2579,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_failure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: AggregateRef) {
@@ -2668,7 +2587,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: DoSpec<C>) {
-        shell = shell.copy(on_failure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: DoRef) {
@@ -2676,7 +2595,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_failure(spec: TrySpec<C>) {
-        shell = shell.copy(on_failure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_failure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_failure(ref: TryRef) {
@@ -2684,7 +2603,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: GetSpec<C>) {
-        shell = shell.copy(on_abort = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: GetRef) {
@@ -2692,7 +2611,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: PutSpec<C>) {
-        shell = shell.copy(on_abort = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: PutRef) {
@@ -2700,7 +2619,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: TaskSpec<C>) {
-        shell = shell.copy(on_abort = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: TaskRef) {
@@ -2708,7 +2627,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: AggregateSpec<C>) {
-        shell = shell.copy(on_abort = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: AggregateRef) {
@@ -2716,7 +2635,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: DoSpec<C>) {
-        shell = shell.copy(on_abort = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: DoRef) {
@@ -2724,7 +2643,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.on_abort(spec: TrySpec<C>) {
-        shell = shell.copy(on_abort = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(on_abort = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.on_abort(ref: TryRef) {
@@ -2732,7 +2651,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: GetSpec<C>) {
-        shell = shell.copy(ensure = GetTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: GetRef) {
@@ -2740,7 +2659,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: PutSpec<C>) {
-        shell = shell.copy(ensure = PutTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: PutRef) {
@@ -2748,7 +2667,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: TaskSpec<C>) {
-        shell = shell.copy(ensure = TaskTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: TaskRef) {
@@ -2756,7 +2675,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: AggregateSpec<C>) {
-        shell = shell.copy(ensure = AggregateTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: AggregateRef) {
@@ -2764,7 +2683,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: DoSpec<C>) {
-        shell = shell.copy(ensure = DoTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: DoRef) {
@@ -2772,7 +2691,7 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 
     fun <C> TryBuilder<C>.ensure(spec: TrySpec<C>) {
-        shell = shell.copy(ensure = TryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(ensure = spec.connect(context))
     }
 
     fun <C> TryBuilder<C>.ensure(ref: TryRef) {
@@ -2830,66 +2749,6 @@ class TryBuilder<out C>(val context: C, internal var shell: TryShell = TryShell(
     }
 }
 
-open class GetTranslator<in C>(private val spec: GetSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Get> {
-    constructor(body: GetBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.GetSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Get {
-        val builder = GetTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class PutTranslator<in C>(private val spec: PutSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Put> {
-    constructor(body: PutBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.PutSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Put {
-        val builder = PutTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class TaskTranslator<in C>(private val spec: TaskSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Task> {
-    constructor(body: TaskBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Task {
-        val builder = TaskTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class AggregateTranslator<in C>(private val spec: AggregateSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Aggregate> {
-    constructor(body: AggregateBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.AggregateSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Aggregate {
-        val builder = AggregateTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class DoTranslator<in C>(private val spec: DoSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Do> {
-    constructor(body: DoBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.DoSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Do {
-        val builder = DoTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class TryTranslator<in C>(private val spec: TrySpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Try> {
-    constructor(body: TryBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TrySpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Try {
-        val builder = TryTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskConfig(
         val platform: String,
         val image_resource: TaskResource,
@@ -2926,17 +2785,13 @@ data class TaskConfigShell(
 
 class TaskConfigRef(key: String) : Scaffold<TaskConfig> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskConfig::class, key)
 
-class TaskConfigTemplate<in C>(private val spec: TaskConfigSpec<C>, private val context: C) : Builder<TaskConfig> {
-    constructor(body: TaskConfigBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskConfigSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskConfig> {
+open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit) : Spec<C, TaskConfig> {
+    override fun connect(context: C): Scaffold<TaskConfig> {
         val builder = TaskConfigBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShell = TaskConfigShell()) {
@@ -2945,11 +2800,11 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 
     fun <C> TaskConfigBuilder<C>.image_resource(body: TaskResourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(image_resource = TaskResourceTemplate<C>(body, context).scaffold())
+        shell = shell.copy(image_resource = TaskResourceSpec<C>(body).connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.image_resource(spec: TaskResourceSpec<C>) {
-        shell = shell.copy(image_resource = TaskResourceTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(image_resource = spec.connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.image_resource(ref: TaskResourceRef) {
@@ -2965,11 +2820,11 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 
     fun <C> TaskConfigBuilder<C>.input(body: TaskInputBuilder<C>.() -> Unit) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + TaskInputTemplate<C>(body, context).scaffold())
+        shell = shell.copy(inputs = shell.inputs.orEmpty() + TaskInputSpec<C>(body).connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.input(spec: TaskInputSpec<C>) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + TaskInputTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(inputs = shell.inputs.orEmpty() + spec.connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.input(ref: TaskInputRef) {
@@ -2985,11 +2840,11 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 
     fun <C> TaskConfigBuilder<C>.output(body: TaskOutputBuilder<C>.() -> Unit) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + TaskOutputTemplate<C>(body, context).scaffold())
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + TaskOutputSpec<C>(body).connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.output(spec: TaskOutputSpec<C>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + TaskOutputTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + spec.connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.output(ref: TaskOutputRef) {
@@ -3005,11 +2860,11 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 
     fun <C> TaskConfigBuilder<C>.cache(body: TaskCacheBuilder<C>.() -> Unit) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + TaskCacheTemplate<C>(body, context).scaffold())
+        shell = shell.copy(caches = shell.caches.orEmpty() + TaskCacheSpec<C>(body).connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.cache(spec: TaskCacheSpec<C>) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + TaskCacheTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(caches = shell.caches.orEmpty() + spec.connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.cache(ref: TaskCacheRef) {
@@ -3025,11 +2880,11 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 
     fun <C> TaskConfigBuilder<C>.run(body: TaskRunConfigBuilder<C>.() -> Unit) {
-        shell = shell.copy(run = TaskRunConfigTemplate<C>(body, context).scaffold())
+        shell = shell.copy(run = TaskRunConfigSpec<C>(body).connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.run(spec: TaskRunConfigSpec<C>) {
-        shell = shell.copy(run = TaskRunConfigTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(run = spec.connect(context))
     }
 
     fun <C> TaskConfigBuilder<C>.run(ref: TaskRunConfigRef) {
@@ -3087,16 +2942,6 @@ class TaskConfigBuilder<out C>(val context: C, internal var shell: TaskConfigShe
     }
 }
 
-open class TaskConfigTranslator<in C>(private val spec: TaskConfigSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskConfig> {
-    constructor(body: TaskConfigBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskConfigSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskConfig {
-        val builder = TaskConfigTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskResource(
         val type: String,
         val source: Map<String, Any>,
@@ -3118,17 +2963,13 @@ data class TaskResourceShell(
 
 class TaskResourceRef(key: String) : Scaffold<TaskResource> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskResource::class, key)
 
-class TaskResourceTemplate<in C>(private val spec: TaskResourceSpec<C>, private val context: C) : Builder<TaskResource> {
-    constructor(body: TaskResourceBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskResourceSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskResource> {
+open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit) : Spec<C, TaskResource> {
+    override fun connect(context: C): Scaffold<TaskResource> {
         val builder = TaskResourceBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskResourceBuilder<out C>(val context: C, internal var shell: TaskResourceShell = TaskResourceShell()) {
@@ -3207,16 +3048,6 @@ class TaskResourceBuilder<out C>(val context: C, internal var shell: TaskResourc
     }
 }
 
-open class TaskResourceTranslator<in C>(private val spec: TaskResourceSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskResource> {
-    constructor(body: TaskResourceBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskResourceSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskResource {
-        val builder = TaskResourceTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskInput(
         val name: String,
         val path: String?,
@@ -3236,17 +3067,13 @@ data class TaskInputShell(
 
 class TaskInputRef(key: String) : Scaffold<TaskInput> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskInput::class, key)
 
-class TaskInputTemplate<in C>(private val spec: TaskInputSpec<C>, private val context: C) : Builder<TaskInput> {
-    constructor(body: TaskInputBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskInputSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskInput> {
+open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit) : Spec<C, TaskInput> {
+    override fun connect(context: C): Scaffold<TaskInput> {
         val builder = TaskInputBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskInputBuilder<out C>(val context: C, internal var shell: TaskInputShell = TaskInputShell()) {
@@ -3297,16 +3124,6 @@ class TaskInputBuilder<out C>(val context: C, internal var shell: TaskInputShell
     }
 }
 
-open class TaskInputTranslator<in C>(private val spec: TaskInputSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskInput> {
-    constructor(body: TaskInputBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskInputSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskInput {
-        val builder = TaskInputTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskOutput(val name: String, val path: String?)
 
 data class TaskOutputShell(var name: String? = null, var path: String? = null) : Scaffold<TaskOutput> {
@@ -3318,17 +3135,13 @@ data class TaskOutputShell(var name: String? = null, var path: String? = null) :
 
 class TaskOutputRef(key: String) : Scaffold<TaskOutput> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskOutput::class, key)
 
-class TaskOutputTemplate<in C>(private val spec: TaskOutputSpec<C>, private val context: C) : Builder<TaskOutput> {
-    constructor(body: TaskOutputBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskOutputSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskOutput> {
+open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit) : Spec<C, TaskOutput> {
+    override fun connect(context: C): Scaffold<TaskOutput> {
         val builder = TaskOutputBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskOutputBuilder<out C>(val context: C, internal var shell: TaskOutputShell = TaskOutputShell()) {
@@ -3375,16 +3188,6 @@ class TaskOutputBuilder<out C>(val context: C, internal var shell: TaskOutputShe
     }
 }
 
-open class TaskOutputTranslator<in C>(private val spec: TaskOutputSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskOutput> {
-    constructor(body: TaskOutputBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskOutputSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskOutput {
-        val builder = TaskOutputTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskCache(val path: String)
 
 data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
@@ -3396,17 +3199,13 @@ data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
 
 class TaskCacheRef(key: String) : Scaffold<TaskCache> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskCache::class, key)
 
-class TaskCacheTemplate<in C>(private val spec: TaskCacheSpec<C>, private val context: C) : Builder<TaskCache> {
-    constructor(body: TaskCacheBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskCacheSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskCache> {
+open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit) : Spec<C, TaskCache> {
+    override fun connect(context: C): Scaffold<TaskCache> {
         val builder = TaskCacheBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskCacheBuilder<out C>(val context: C, internal var shell: TaskCacheShell = TaskCacheShell()) {
@@ -3449,16 +3248,6 @@ class TaskCacheBuilder<out C>(val context: C, internal var shell: TaskCacheShell
     }
 }
 
-open class TaskCacheTranslator<in C>(private val spec: TaskCacheSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskCache> {
-    constructor(body: TaskCacheBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskCacheSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskCache {
-        val builder = TaskCacheTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class TaskRunConfig(
         val path: String,
         val args: List<String>,
@@ -3480,17 +3269,13 @@ data class TaskRunConfigShell(
 
 class TaskRunConfigRef(key: String) : Scaffold<TaskRunConfig> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskRunConfig::class, key)
 
-class TaskRunConfigTemplate<in C>(private val spec: TaskRunConfigSpec<C>, private val context: C) : Builder<TaskRunConfig> {
-    constructor(body: TaskRunConfigBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.TaskRunConfigSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<TaskRunConfig> {
+open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit) : Spec<C, TaskRunConfig> {
+    override fun connect(context: C): Scaffold<TaskRunConfig> {
         val builder = TaskRunConfigBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit)
 
 @DslBuilder
 class TaskRunConfigBuilder<out C>(val context: C, internal var shell: TaskRunConfigShell = TaskRunConfigShell()) {
@@ -3549,16 +3334,6 @@ class TaskRunConfigBuilder<out C>(val context: C, internal var shell: TaskRunCon
     }
 }
 
-open class TaskRunConfigTranslator<in C>(private val spec: TaskRunConfigSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, TaskRunConfig> {
-    constructor(body: TaskRunConfigBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.TaskRunConfigSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): TaskRunConfig {
-        val builder = TaskRunConfigTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Resource(
         val name: String,
         val type: String,
@@ -3584,17 +3359,13 @@ data class ResourceShell(
 
 class ResourceRef(key: String) : Scaffold<Resource> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Resource::class, key)
 
-class ResourceTemplate<in C>(private val spec: ResourceSpec<C>, private val context: C) : Builder<Resource> {
-    constructor(body: ResourceBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.ResourceSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Resource> {
+open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit) : Spec<C, Resource> {
+    override fun connect(context: C): Scaffold<Resource> {
         val builder = ResourceBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit)
 
 @DslBuilder
 class ResourceBuilder<out C>(val context: C, internal var shell: ResourceShell = ResourceShell()) {
@@ -3669,16 +3440,6 @@ class ResourceBuilder<out C>(val context: C, internal var shell: ResourceShell =
     }
 }
 
-open class ResourceTranslator<in C>(private val spec: ResourceSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Resource> {
-    constructor(body: ResourceBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.ResourceSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Resource {
-        val builder = ResourceTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class ResourceType(
         val name: String,
         val type: String,
@@ -3704,17 +3465,13 @@ data class ResourceTypeShell(
 
 class ResourceTypeRef(key: String) : Scaffold<ResourceType> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.ResourceType::class, key)
 
-class ResourceTypeTemplate<in C>(private val spec: ResourceTypeSpec<C>, private val context: C) : Builder<ResourceType> {
-    constructor(body: ResourceTypeBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.ResourceTypeSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<ResourceType> {
+open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit) : Spec<C, ResourceType> {
+    override fun connect(context: C): Scaffold<ResourceType> {
         val builder = ResourceTypeBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit)
 
 @DslBuilder
 class ResourceTypeBuilder<out C>(val context: C, internal var shell: ResourceTypeShell = ResourceTypeShell()) {
@@ -3797,16 +3554,6 @@ class ResourceTypeBuilder<out C>(val context: C, internal var shell: ResourceTyp
     }
 }
 
-open class ResourceTypeTranslator<in C>(private val spec: ResourceTypeSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, ResourceType> {
-    constructor(body: ResourceTypeBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.ResourceTypeSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): ResourceType {
-        val builder = ResourceTypeTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
 data class Group(
         val name: String,
         val jobs: List<String>,
@@ -3826,17 +3573,13 @@ data class GroupShell(
 
 class GroupRef(key: String) : Scaffold<Group> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Group::class, key)
 
-class GroupTemplate<in C>(private val spec: GroupSpec<C>, private val context: C) : Builder<Group> {
-    constructor(body: GroupBuilder<C>.() -> Unit, context: C) : this(io.philarios.concourse.v0.GroupSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Group> {
+open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit) : Spec<C, Group> {
+    override fun connect(context: C): Scaffold<Group> {
         val builder = GroupBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit)
 
 @DslBuilder
 class GroupBuilder<out C>(val context: C, internal var shell: GroupShell = GroupShell()) {
@@ -3892,15 +3635,5 @@ class GroupBuilder<out C>(val context: C, internal var shell: GroupShell = Group
 
     private fun <C2> merge(other: GroupBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class GroupTranslator<in C>(private val spec: GroupSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Group> {
-    constructor(body: GroupBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.concourse.v0.GroupSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Group {
-        val builder = GroupTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }

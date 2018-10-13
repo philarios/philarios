@@ -1,14 +1,14 @@
 package io.philarios.filesystem.v0
 
-import io.philarios.core.v0.Builder
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Translator
-import kotlinx.coroutines.experimental.launch
+import io.philarios.core.v0.Spec
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
+import kotlinx.coroutines.experimental.coroutineScope
+import kotlinx.coroutines.experimental.launch
 
 sealed class Entry
 
@@ -21,10 +21,10 @@ sealed class EntryShell
 data class DirectoryShell(var name: String? = null, var entries: List<Scaffold<Entry>> = emptyList()) : EntryShell(),
         Scaffold<Directory> {
     override suspend fun resolve(registry: Registry): Directory {
-        kotlinx.coroutines.experimental.coroutineScope {
-        	entries!!.forEach { launch { it.resolve(registry) } }
+        coroutineScope {
+        	entries.forEach { launch { it.resolve(registry) } }
         }
-        val value = Directory(name!!,entries!!.map { it.resolve(registry) })
+        val value = Directory(name!!,entries.map { it.resolve(registry) })
         return value
     }
 }
@@ -40,29 +40,21 @@ class DirectoryRef(key: String) : Scaffold<Directory> by io.philarios.core.v0.Re
 
 class FileRef(key: String) : Scaffold<File> by io.philarios.core.v0.RegistryRef(io.philarios.filesystem.v0.File::class, key)
 
-class DirectoryTemplate<in C>(private val spec: DirectorySpec<C>, private val context: C) : Builder<Directory> {
-    constructor(body: DirectoryBuilder<C>.() -> Unit, context: C) : this(io.philarios.filesystem.v0.DirectorySpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<Directory> {
+open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit) : Spec<C, Directory> {
+    override fun connect(context: C): Scaffold<Directory> {
         val builder = DirectoryBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
 
-class FileTemplate<in C>(private val spec: FileSpec<C>, private val context: C) : Builder<File> {
-    constructor(body: FileBuilder<C>.() -> Unit, context: C) : this(io.philarios.filesystem.v0.FileSpec<C>(body), context)
-
-    override fun scaffold(): Scaffold<File> {
+open class FileSpec<in C>(internal val body: FileBuilder<C>.() -> Unit) : Spec<C, File> {
+    override fun connect(context: C): Scaffold<File> {
         val builder = FileBuilder<C>(context)
-        builder.apply(spec.body)
+        builder.apply(body)
         return builder.shell
     }
 }
-
-open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit)
-
-open class FileSpec<in C>(internal val body: FileBuilder<C>.() -> Unit)
 
 @DslBuilder
 class DirectoryBuilder<out C>(val context: C, internal var shell: DirectoryShell = DirectoryShell()) {
@@ -71,7 +63,7 @@ class DirectoryBuilder<out C>(val context: C, internal var shell: DirectoryShell
     }
 
     fun <C> DirectoryBuilder<C>.entry(spec: DirectorySpec<C>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + DirectoryTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(entries = shell.entries.orEmpty() + spec.connect(context))
     }
 
     fun <C> DirectoryBuilder<C>.entry(ref: DirectoryRef) {
@@ -79,7 +71,7 @@ class DirectoryBuilder<out C>(val context: C, internal var shell: DirectoryShell
     }
 
     fun <C> DirectoryBuilder<C>.entry(spec: FileSpec<C>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + FileTemplate<C>(spec, context).scaffold())
+        shell = shell.copy(entries = shell.entries.orEmpty() + spec.connect(context))
     }
 
     fun <C> DirectoryBuilder<C>.entry(ref: FileRef) {
@@ -159,25 +151,5 @@ class FileBuilder<out C>(val context: C, internal var shell: FileShell = FileShe
 
     private fun <C2> merge(other: FileBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-open class DirectoryTranslator<in C>(private val spec: DirectorySpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, Directory> {
-    constructor(body: DirectoryBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.filesystem.v0.DirectorySpec<C>(body), registry)
-
-    override suspend fun translate(context: C): Directory {
-        val builder = DirectoryTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
-    }
-}
-
-open class FileTranslator<in C>(private val spec: FileSpec<C>, private val registry: Registry = io.philarios.core.v0.emptyRegistry()) : Translator<C, File> {
-    constructor(body: FileBuilder<C>.() -> Unit, registry: Registry = io.philarios.core.v0.emptyRegistry()) : this(io.philarios.filesystem.v0.FileSpec<C>(body), registry)
-
-    override suspend fun translate(context: C): File {
-        val builder = FileTemplate<C>(spec, context)
-        val scaffold = builder.scaffold()
-        return scaffold.resolve(registry)
     }
 }
