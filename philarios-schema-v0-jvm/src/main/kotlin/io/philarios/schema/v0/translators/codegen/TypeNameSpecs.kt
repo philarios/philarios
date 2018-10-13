@@ -1,17 +1,11 @@
 package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.*
-import io.philarios.core.v0.*
+import io.philarios.core.v0.Scaffold
 import io.philarios.schema.v0.*
+import kotlin.reflect.KClass
 
-val dslBuilderClassName
-    get() = ClassName.bestGuess(DslBuilder::class.qualifiedName!!)
-
-val scaffoldClassName
-    get() = ClassName.bestGuess(Scaffold::class.qualifiedName!!)
-
-val wrapperClassName
-    get() = ClassName.bestGuess(Wrapper::class.qualifiedName!!)
+internal val KClass<*>.className get() = ClassName.bestGuess(qualifiedName!!)
 
 val Type.typeName: TypeName
     get() = when (this) {
@@ -20,18 +14,18 @@ val Type.typeName: TypeName
         is EnumType -> ClassName(pkg ?: "", name)
         is RefType -> ClassName(pkg ?: "", name)
         is OptionType -> type.nullableTypeName
-        is BooleanType -> ClassName.bestGuess("kotlin.Boolean")
-        is DoubleType -> ClassName.bestGuess("kotlin.Double")
-        is FloatType -> ClassName.bestGuess("kotlin.Float")
-        is LongType -> ClassName.bestGuess("kotlin.Long")
-        is IntType -> ClassName.bestGuess("kotlin.Int")
-        is ShortType -> ClassName.bestGuess("kotlin.Short")
-        is ByteType -> ClassName.bestGuess("kotlin.Byte")
-        is CharacterType -> ClassName.bestGuess("kotlin.Character")
-        is StringType -> ClassName.bestGuess("kotlin.String")
-        is AnyType -> ClassName.bestGuess("kotlin.Any")
-        is ListType -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), type.typeName)
-        is MapType -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.Map"), keyType.typeName, valueType.typeName)
+        is BooleanType -> Boolean::class.className
+        is DoubleType -> Double::class.className
+        is FloatType -> Float::class.className
+        is LongType -> Long::class.className
+        is IntType -> Int::class.className
+        is ShortType -> Short::class.className
+        is ByteType -> Byte::class.className
+        is CharacterType -> Character::class.className
+        is StringType -> String::class.className
+        is AnyType -> Any::class.className
+        is ListType -> ParameterizedTypeName.get(List::class.className, type.typeName)
+        is MapType -> ParameterizedTypeName.get(Map::class.className, keyType.typeName, valueType.typeName)
     }
 
 val Type.nullableTypeName
@@ -44,45 +38,45 @@ val Type.className: ClassName
         is EnumType -> ClassName(pkg ?: "", name)
         is RefType -> ClassName(pkg ?: "", name)
         is OptionType -> type.nullableClassName
-        is BooleanType -> ClassName.bestGuess("kotlin.Boolean")
-        is DoubleType -> ClassName.bestGuess("kotlin.Double")
-        is FloatType -> ClassName.bestGuess("kotlin.Float")
-        is LongType -> ClassName.bestGuess("kotlin.Long")
-        is IntType -> ClassName.bestGuess("kotlin.Int")
-        is ShortType -> ClassName.bestGuess("kotlin.Short")
-        is ByteType -> ClassName.bestGuess("kotlin.Byte")
-        is CharacterType -> ClassName.bestGuess("kotlin.Character")
-        is StringType -> ClassName.bestGuess("kotlin.String")
-        is AnyType -> ClassName.bestGuess("kotlin.Any")
-        is ListType -> ClassName.bestGuess("kotlin.collections.List")
-        is MapType -> ClassName.bestGuess("kotlin.collections.Map")
+        is BooleanType -> Boolean::class.className
+        is DoubleType -> Double::class.className
+        is FloatType -> Float::class.className
+        is LongType -> Long::class.className
+        is IntType -> Int::class.className
+        is ShortType -> Short::class.className
+        is ByteType -> Byte::class.className
+        is CharacterType -> Character::class.className
+        is StringType -> String::class.className
+        is AnyType -> Any::class.className
+        is ListType -> List::class.className
+        is MapType -> Map::class.className
     }
 
 val Type.nullableClassName
     get() = className.asNullable()
 
 fun Type.className(suffix: String) = when (this) {
-    is Struct ->  ClassName(pkg ?: "", "$name$suffix")
-    is Union ->  ClassName(pkg ?: "", "$name$suffix")
-    is EnumType ->  ClassName(pkg ?: "", "$name$suffix")
-    is RefType ->  ClassName(pkg ?: "", "$name$suffix")
+    is Struct -> ClassName(pkg ?: "", "$name$suffix")
+    is Union -> ClassName(pkg ?: "", "$name$suffix")
+    is EnumType -> ClassName(pkg ?: "", "$name$suffix")
+    is RefType -> ClassName(pkg ?: "", "$name$suffix")
     else -> className
 }
-
-val Type.specClassName
-    get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C", KModifier.IN))
 
 val Type.shellClassName
     get() = className("Shell")
 
-val Type.parameterizedScaffoldClassName: ParameterizedTypeName
-    get() = ParameterizedTypeName.get(io.philarios.schema.v0.translators.codegen.scaffoldClassName, className)
+val Type.scaffoldClassName: ParameterizedTypeName
+    get() = className.scaffoldClassName
 
-val ClassName.parameterizedScaffoldClassName: ParameterizedTypeName
-    get() = ParameterizedTypeName.get(io.philarios.schema.v0.translators.codegen.scaffoldClassName, this)
+val ClassName.scaffoldClassName: ParameterizedTypeName
+    get() = ParameterizedTypeName.get(Scaffold::class.className, this)
 
 val Type.refClassName
     get() = className("Ref")
+
+val Type.specClassName
+    get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C", KModifier.IN))
 
 val Type.otherSpecClassName
     get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C2", KModifier.IN))
@@ -93,23 +87,11 @@ val Type.builderClassName
 val Type.otherBuilderClassName
     get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C2"))
 
-val Type.listBuilderClassName
-    get() = ParameterizedTypeName.get(className("ListBuilder"), TypeVariableName("C"))
-
-val Type.otherListBuilderClassName
-    get() = ParameterizedTypeName.get(className("ListBuilder"), TypeVariableName("C2"))
-
 val Type.bodyLambdaTypeName
     get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))
 
 val Type.otherBodyLambdaTypeName
     get() = LambdaTypeName.get(otherBuilderClassName, emptyList(), ClassName("", "Unit"))
-
-val Type.listBodyLambdaTypeName
-    get() = LambdaTypeName.get(listBuilderClassName, emptyList(), ClassName("", "Unit"))
-
-val Type.otherListBodyLambdaTypeName
-    get() = LambdaTypeName.get(otherListBuilderClassName, emptyList(), ClassName("", "Unit"))
 
 val Field.singularName
     get() = when {

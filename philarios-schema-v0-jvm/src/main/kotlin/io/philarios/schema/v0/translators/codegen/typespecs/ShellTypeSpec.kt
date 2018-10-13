@@ -41,14 +41,14 @@ private object StructShellTypeSpec {
     private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec {
 
         fun Field.scaffoldType(): TypeName = when (this.type) {
-            is Struct -> this.type.parameterizedScaffoldClassName.asNullable()
-            is Union -> this.type.parameterizedScaffoldClassName.asNullable()
+            is Struct -> this.type.scaffoldClassName.asNullable()
+            is Union -> this.type.scaffoldClassName.asNullable()
             is RefType -> this.copy(type = typeRefs[this.type]!!).scaffoldType()
             is OptionType -> {
                 val optionType = this.type.type
                 when (optionType) {
-                    is Struct -> this.type.className.asNonNullable().parameterizedScaffoldClassName.asNullable()
-                    is Union -> this.type.className.asNonNullable().parameterizedScaffoldClassName.asNullable()
+                    is Struct -> this.type.className.asNonNullable().scaffoldClassName.asNullable()
+                    is Union -> this.type.className.asNonNullable().scaffoldClassName.asNullable()
                     is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).scaffoldType()
                     else -> this.type.nullableTypeName
                 }
@@ -56,8 +56,8 @@ private object StructShellTypeSpec {
             is ListType -> {
                 val listType = this.type.type
                 when (listType) {
-                    is Struct -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), listType.parameterizedScaffoldClassName)
-                    is Union -> ParameterizedTypeName.get(ClassName.bestGuess("kotlin.collections.List"), listType.parameterizedScaffoldClassName)
+                    is Struct -> ParameterizedTypeName.get(List::class.className, listType.scaffoldClassName)
+                    is Union -> ParameterizedTypeName.get(List::class.className, listType.scaffoldClassName)
                     is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).scaffoldType()
                     else -> this.type.typeName
                 }
@@ -66,7 +66,7 @@ private object StructShellTypeSpec {
         }
 
         return TypeSpec.classBuilder(type.shellClassName)
-                .addSuperinterface(type.parameterizedScaffoldClassName)
+                .addSuperinterface(type.scaffoldClassName)
                 .let { builder -> superclass?.let { builder.superclass(it) } ?: builder }
                 .addModifiers(KModifier.DATA)
                 .primaryConstructor(FunSpec.constructorBuilder()
@@ -156,7 +156,7 @@ private object StructShellTypeSpec {
                 .addModifiers(KModifier.OVERRIDE)
                 .addModifiers(KModifier.SUSPEND)
                 .addParameter(ParameterSpec
-                        .builder("registry", ClassName.bestGuess(Registry::class.qualifiedName!!))
+                        .builder("registry", Registry::class.className)
                         .build())
                 .returns(className)
                 .let { builder ->

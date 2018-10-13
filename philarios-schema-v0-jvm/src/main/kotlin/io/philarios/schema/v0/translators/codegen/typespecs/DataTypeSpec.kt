@@ -94,7 +94,7 @@ private object EnumTypeDataTypeSpec {
 
     private fun buildOne(type: EnumType): TypeSpec {
         return TypeSpec.enumBuilder(type.name)
-                .let { type.values.fold(it, { builder, value -> builder.addEnumConstant(value) }) }
+                .let { type.values.fold(it) { builder, value -> builder.addEnumConstant(value) } }
                 .build()
     }
 

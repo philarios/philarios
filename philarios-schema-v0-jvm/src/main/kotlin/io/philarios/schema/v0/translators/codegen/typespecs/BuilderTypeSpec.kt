@@ -1,6 +1,8 @@
 package io.philarios.schema.v0.translators.codegen.typespecs
 
 import com.squareup.kotlinpoet.*
+import io.philarios.core.v0.DslBuilder
+import io.philarios.core.v0.Wrapper
 import io.philarios.schema.v0.*
 import io.philarios.schema.v0.translators.codegen.*
 
@@ -32,7 +34,7 @@ private object StructBuilderTypeSpec {
 
     private fun buildObject(type: Struct): TypeSpec {
         return TypeSpec.classBuilder(type.builderClassName.rawType)
-                .addAnnotation(dslBuilderClassName)
+                .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
                 .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
                         .initializer("context")
@@ -46,7 +48,7 @@ private object StructBuilderTypeSpec {
     private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
         val fields = type.fields
         return TypeSpec.classBuilder(type.builderClassName.rawType)
-                .addAnnotation(dslBuilderClassName)
+                .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
                 .primaryConstructor(constructor(type))
                 .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
@@ -169,7 +171,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("shell = shell.copy(%L = %T(%L))", name, wrapperClassName, name)
+                .addStatement("shell = shell.copy(%L = %T(%L))", name, Wrapper::class.className, name)
                 .build()
     }
 
@@ -195,7 +197,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder(singularName, listTypeName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%L))", name, name, wrapperClassName, singularName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%L))", name, name, Wrapper::class.className, singularName)
                 .build()
     }
 
@@ -255,7 +257,7 @@ private object StructBuilderTypeSpec {
         return FunSpec.builder(name)
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
-                .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(ClassName.bestGuess(Pair::class.qualifiedName!!), keyClassName, valueClassName)).build())
+                .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
                 .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%L))", name, name, "pair.first", "pair.second")
                 .build()
     }
@@ -278,7 +280,7 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { %T(it) })", name, name, name, wrapperClassName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
                 .build()
     }
 
@@ -445,14 +447,6 @@ private object StructBuilderTypeSpec {
                 .addTypeVariable(TypeVariableName("C2"))
                 .addParameter("other", type.otherBuilderClassName)
                 .addStatement("this.shell = other.shell")
-                .build()
-    }
-
-    private fun scaffoldFunction(type: Struct): FunSpec {
-        return FunSpec.builder("scaffold")
-                .addModifiers(KModifier.OVERRIDE)
-                .returns(type.parameterizedScaffoldClassName)
-                .addStatement("return shell")
                 .build()
     }
 

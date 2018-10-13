@@ -10,7 +10,7 @@ import io.philarios.schema.v0.Type
 import io.philarios.schema.v0.Union
 import io.philarios.schema.v0.translators.codegen.className
 import io.philarios.schema.v0.translators.codegen.refClassName
-import io.philarios.schema.v0.translators.codegen.parameterizedScaffoldClassName
+import io.philarios.schema.v0.translators.codegen.scaffoldClassName
 
 object RefTypeSpec {
 
@@ -26,20 +26,18 @@ object RefTypeSpec {
 
 object StructRefTypeSpec {
 
-    fun build(type: Struct, superclass: ClassName? = null): List<TypeSpec> {
-        return listOf(buildOne(type, superclass))
+    fun build(type: Struct): List<TypeSpec> {
+        return listOf(buildOne(type))
     }
 
-    fun buildOne(type: Struct, superclass: ClassName? = null) : TypeSpec {
-        val className = type.className
-
+    private fun buildOne(type: Struct): TypeSpec {
         return TypeSpec.classBuilder(type.refClassName)
                 .addSuperinterface(
-                        type.parameterizedScaffoldClassName,
+                        type.scaffoldClassName,
                         CodeBlock.of(
                                 "%T(%T::class, %L)",
-                                ClassName.bestGuess(RegistryRef::class.qualifiedName!!),
-                                className,
+                                RegistryRef::class.className,
+                                type.className,
                                 "key"
                         )
                 )
@@ -58,7 +56,7 @@ private object UnionRefTypeSpec {
     }
 
     private fun buildShapes(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { StructRefTypeSpec.build(it, type.className) }
+        return type.shapes.flatMap { StructRefTypeSpec.build(it) }
     }
 
 }

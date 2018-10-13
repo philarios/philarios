@@ -9,6 +9,7 @@ fun FunSpec.Builder.addStatements(statements: List<Statement>): FunSpec.Builder 
         builder.addStatement(statement.format, *statement.args.toTypedArray())
     }
 }
+
 fun FunSpec.Builder.addStatements(vararg statements: Statement): FunSpec.Builder {
     return addStatements(statements.toList())
 }

@@ -40,7 +40,7 @@ private object StructSpecTypeSpec {
         return TypeSpec.classBuilder(type.specClassName.rawType)
                 .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addModifiers(KModifier.OPEN)
-                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Spec::class.qualifiedName!!), TypeVariableName("C"), type.className))
+                .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, TypeVariableName("C"), type.className))
                 .addProperty(PropertySpec
                         .builder("body", type.bodyLambdaTypeName)
                         .addModifiers(KModifier.INTERNAL)
@@ -52,8 +52,8 @@ private object StructSpecTypeSpec {
                 .addFunction(FunSpec.builder("connect")
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(contextParameterSpec)
-                        .returns(type.parameterizedScaffoldClassName)
-                        .addStatement("return %T(%T)", ClassName.bestGuess(Wrapper::class.qualifiedName!!), type.className)
+                        .returns(type.scaffoldClassName)
+                        .addStatement("return %T(%T)", Wrapper::class.className, type.className)
                         .build())
                 .build()
     }
@@ -62,7 +62,7 @@ private object StructSpecTypeSpec {
         return TypeSpec.classBuilder(type.specClassName.rawType)
                 .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addModifiers(KModifier.OPEN)
-                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Spec::class.qualifiedName!!), TypeVariableName("C"), type.className))
+                .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, TypeVariableName("C"), type.className))
                 .addProperty(PropertySpec
                         .builder("body", type.bodyLambdaTypeName)
                         .addModifiers(KModifier.INTERNAL)
@@ -74,7 +74,7 @@ private object StructSpecTypeSpec {
                 .addFunction(FunSpec.builder("connect")
                         .addModifiers(KModifier.OVERRIDE)
                         .addParameter(contextParameterSpec)
-                        .returns(type.parameterizedScaffoldClassName)
+                        .returns(type.scaffoldClassName)
                         .addStatements(
                                 Statement("val builder = %T(context)", listOf(type.builderClassName)),
                                 Statement("builder.apply(body)"),
