@@ -1,35 +1,12 @@
 package io.philarios.test.v0
 
 import io.philarios.core.v0.DslBuilder
-import io.philarios.core.v0.Registry
-import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.launch
-
-data class Foo(val name: String)
-
-data class FooShell(var name: String? = null) : Scaffold<Foo> {
-    override suspend fun resolve(registry: Registry): Foo {
-        val value = Foo(name!!)
-        registry.put(Foo::class, name!!, value)
-        return value
-    }
-}
-
-class FooRef(key: String) : Scaffold<Foo> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Foo::class, key)
-
-open class FooSpec<in C>(internal val body: FooBuilder<C>.() -> Unit) : Spec<C, Foo> {
-    override fun connect(context: C): Scaffold<Foo> {
-        val builder = FooBuilder<C>(context)
-        builder.apply(body)
-        return builder.shell
-    }
-}
 
 @DslBuilder
 class FooBuilder<out C>(val context: C, internal var shell: FooShell = FooShell()) {
@@ -69,29 +46,6 @@ class FooBuilder<out C>(val context: C, internal var shell: FooShell = FooShell(
 
     private fun <C2> merge(other: FooBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-data class Bar(val name: String, val foo: Foo)
-
-data class BarShell(var name: String? = null, var foo: Scaffold<Foo>? = null) : Scaffold<Bar> {
-    override suspend fun resolve(registry: Registry): Bar {
-        coroutineScope {
-        	launch { foo!!.resolve(registry) }
-        }
-        val value = Bar(name!!,foo!!.resolve(registry))
-        registry.put(Bar::class, name!!, value)
-        return value
-    }
-}
-
-class BarRef(key: String) : Scaffold<Bar> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Bar::class, key)
-
-open class BarSpec<in C>(internal val body: BarBuilder<C>.() -> Unit) : Spec<C, Bar> {
-    override fun connect(context: C): Scaffold<Bar> {
-        val builder = BarBuilder<C>(context)
-        builder.apply(body)
-        return builder.shell
     }
 }
 
@@ -149,29 +103,6 @@ class BarBuilder<out C>(val context: C, internal var shell: BarShell = BarShell(
 
     private fun <C2> merge(other: BarBuilder<C2>) {
         this.shell = other.shell
-    }
-}
-
-data class Test(val bars: List<Bar>, val foos: List<Foo>)
-
-data class TestShell(var bars: List<Scaffold<Bar>> = emptyList(), var foos: List<Scaffold<Foo>> = emptyList()) : Scaffold<Test> {
-    override suspend fun resolve(registry: Registry): Test {
-        coroutineScope {
-        	bars.forEach { launch { it.resolve(registry) } }
-        	foos.forEach { launch { it.resolve(registry) } }
-        }
-        val value = Test(bars.map { it.resolve(registry) },foos.map { it.resolve(registry) })
-        return value
-    }
-}
-
-class TestRef(key: String) : Scaffold<Test> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Test::class, key)
-
-open class TestSpec<in C>(internal val body: TestBuilder<C>.() -> Unit) : Spec<C, Test> {
-    override fun connect(context: C): Scaffold<Test> {
-        val builder = TestBuilder<C>(context)
-        builder.apply(body)
-        return builder.shell
     }
 }
 

@@ -10,6 +10,6 @@ fun main(args: Array<kotlin.String>) {
     runBlocking {
         emptyContext()
                 .map(FileSystemSchemaSpec)
-                .unwrap(SchemaCodegen("./philarios-filesystem-v0-common/src/generated/kotlin"))
+                .unwrap(SchemaCodegen("../philarios-filesystem-v0-common/src/generated/kotlin"))
     }
 }
