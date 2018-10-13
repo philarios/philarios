@@ -3,7 +3,7 @@ package io.philarios.concourse.v0
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Template
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.Any
 import kotlin.Boolean
@@ -30,7 +30,7 @@ data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaff
 
 class ConcourseRef(key: String) : Scaffold<Concourse> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Concourse::class, key)
 
-open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit) : Template<C, Concourse> {
+open class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit) : Spec<C, Concourse> {
     override fun connect(context: C): Scaffold<Concourse> {
         val builder = ConcourseBuilder<C>(context)
         builder.apply(body)
@@ -109,7 +109,7 @@ data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipe
 
 class TeamRef(key: String) : Scaffold<Team> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Team::class, key)
 
-open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit) : Template<C, Team> {
+open class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit) : Spec<C, Team> {
     override fun connect(context: C): Scaffold<Team> {
         val builder = TeamBuilder<C>(context)
         builder.apply(body)
@@ -207,7 +207,7 @@ data class PipelineShell(
 
 class PipelineRef(key: String) : Scaffold<Pipeline> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Pipeline::class, key)
 
-open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit) : Template<C, Pipeline> {
+open class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit) : Spec<C, Pipeline> {
     override fun connect(context: C): Scaffold<Pipeline> {
         val builder = PipelineBuilder<C>(context)
         builder.apply(body)
@@ -382,7 +382,7 @@ data class JobShell(
 
 class JobRef(key: String) : Scaffold<Job> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Job::class, key)
 
-open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit) : Template<C, Job> {
+open class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit) : Spec<C, Job> {
     override fun connect(context: C): Scaffold<Job> {
         val builder = JobBuilder<C>(context)
         builder.apply(body)
@@ -951,7 +951,7 @@ class DoRef(key: String) : Scaffold<Do> by io.philarios.core.v0.RegistryRef(io.p
 
 class TryRef(key: String) : Scaffold<Try> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Try::class, key)
 
-open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : Template<C, Get> {
+open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : Spec<C, Get> {
     override fun connect(context: C): Scaffold<Get> {
         val builder = GetBuilder<C>(context)
         builder.apply(body)
@@ -959,7 +959,7 @@ open class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : Template
     }
 }
 
-open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : Template<C, Put> {
+open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : Spec<C, Put> {
     override fun connect(context: C): Scaffold<Put> {
         val builder = PutBuilder<C>(context)
         builder.apply(body)
@@ -967,7 +967,7 @@ open class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : Template
     }
 }
 
-open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : Template<C, Task> {
+open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : Spec<C, Task> {
     override fun connect(context: C): Scaffold<Task> {
         val builder = TaskBuilder<C>(context)
         builder.apply(body)
@@ -975,7 +975,7 @@ open class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : Templa
     }
 }
 
-open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit) : Template<C, Aggregate> {
+open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit) : Spec<C, Aggregate> {
     override fun connect(context: C): Scaffold<Aggregate> {
         val builder = AggregateBuilder<C>(context)
         builder.apply(body)
@@ -983,7 +983,7 @@ open class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit
     }
 }
 
-open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : Template<C, Do> {
+open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : Spec<C, Do> {
     override fun connect(context: C): Scaffold<Do> {
         val builder = DoBuilder<C>(context)
         builder.apply(body)
@@ -991,7 +991,7 @@ open class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : Template<C
     }
 }
 
-open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit) : Template<C, Try> {
+open class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit) : Spec<C, Try> {
     override fun connect(context: C): Scaffold<Try> {
         val builder = TryBuilder<C>(context)
         builder.apply(body)
@@ -2785,7 +2785,7 @@ data class TaskConfigShell(
 
 class TaskConfigRef(key: String) : Scaffold<TaskConfig> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskConfig::class, key)
 
-open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit) : Template<C, TaskConfig> {
+open class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit) : Spec<C, TaskConfig> {
     override fun connect(context: C): Scaffold<TaskConfig> {
         val builder = TaskConfigBuilder<C>(context)
         builder.apply(body)
@@ -2963,7 +2963,7 @@ data class TaskResourceShell(
 
 class TaskResourceRef(key: String) : Scaffold<TaskResource> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskResource::class, key)
 
-open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit) : Template<C, TaskResource> {
+open class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit) : Spec<C, TaskResource> {
     override fun connect(context: C): Scaffold<TaskResource> {
         val builder = TaskResourceBuilder<C>(context)
         builder.apply(body)
@@ -3067,7 +3067,7 @@ data class TaskInputShell(
 
 class TaskInputRef(key: String) : Scaffold<TaskInput> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskInput::class, key)
 
-open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit) : Template<C, TaskInput> {
+open class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit) : Spec<C, TaskInput> {
     override fun connect(context: C): Scaffold<TaskInput> {
         val builder = TaskInputBuilder<C>(context)
         builder.apply(body)
@@ -3135,7 +3135,7 @@ data class TaskOutputShell(var name: String? = null, var path: String? = null) :
 
 class TaskOutputRef(key: String) : Scaffold<TaskOutput> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskOutput::class, key)
 
-open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit) : Template<C, TaskOutput> {
+open class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit) : Spec<C, TaskOutput> {
     override fun connect(context: C): Scaffold<TaskOutput> {
         val builder = TaskOutputBuilder<C>(context)
         builder.apply(body)
@@ -3199,7 +3199,7 @@ data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
 
 class TaskCacheRef(key: String) : Scaffold<TaskCache> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskCache::class, key)
 
-open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit) : Template<C, TaskCache> {
+open class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit) : Spec<C, TaskCache> {
     override fun connect(context: C): Scaffold<TaskCache> {
         val builder = TaskCacheBuilder<C>(context)
         builder.apply(body)
@@ -3269,7 +3269,7 @@ data class TaskRunConfigShell(
 
 class TaskRunConfigRef(key: String) : Scaffold<TaskRunConfig> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.TaskRunConfig::class, key)
 
-open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit) : Template<C, TaskRunConfig> {
+open class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit) : Spec<C, TaskRunConfig> {
     override fun connect(context: C): Scaffold<TaskRunConfig> {
         val builder = TaskRunConfigBuilder<C>(context)
         builder.apply(body)
@@ -3359,7 +3359,7 @@ data class ResourceShell(
 
 class ResourceRef(key: String) : Scaffold<Resource> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Resource::class, key)
 
-open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit) : Template<C, Resource> {
+open class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit) : Spec<C, Resource> {
     override fun connect(context: C): Scaffold<Resource> {
         val builder = ResourceBuilder<C>(context)
         builder.apply(body)
@@ -3465,7 +3465,7 @@ data class ResourceTypeShell(
 
 class ResourceTypeRef(key: String) : Scaffold<ResourceType> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.ResourceType::class, key)
 
-open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit) : Template<C, ResourceType> {
+open class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit) : Spec<C, ResourceType> {
     override fun connect(context: C): Scaffold<ResourceType> {
         val builder = ResourceTypeBuilder<C>(context)
         builder.apply(body)
@@ -3573,7 +3573,7 @@ data class GroupShell(
 
 class GroupRef(key: String) : Scaffold<Group> by io.philarios.core.v0.RegistryRef(io.philarios.concourse.v0.Group::class, key)
 
-open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit) : Template<C, Group> {
+open class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit) : Spec<C, Group> {
     override fun connect(context: C): Scaffold<Group> {
         val builder = GroupBuilder<C>(context)
         builder.apply(body)

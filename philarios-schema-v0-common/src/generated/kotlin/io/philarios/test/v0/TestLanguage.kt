@@ -3,7 +3,7 @@ package io.philarios.test.v0
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Template
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.String
 import kotlin.collections.Iterable
@@ -23,7 +23,7 @@ data class FooShell(var name: String? = null) : Scaffold<Foo> {
 
 class FooRef(key: String) : Scaffold<Foo> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Foo::class, key)
 
-open class FooSpec<in C>(internal val body: FooBuilder<C>.() -> Unit) : Template<C, Foo> {
+open class FooSpec<in C>(internal val body: FooBuilder<C>.() -> Unit) : Spec<C, Foo> {
     override fun connect(context: C): Scaffold<Foo> {
         val builder = FooBuilder<C>(context)
         builder.apply(body)
@@ -87,7 +87,7 @@ data class BarShell(var name: String? = null, var foo: Scaffold<Foo>? = null) : 
 
 class BarRef(key: String) : Scaffold<Bar> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Bar::class, key)
 
-open class BarSpec<in C>(internal val body: BarBuilder<C>.() -> Unit) : Template<C, Bar> {
+open class BarSpec<in C>(internal val body: BarBuilder<C>.() -> Unit) : Spec<C, Bar> {
     override fun connect(context: C): Scaffold<Bar> {
         val builder = BarBuilder<C>(context)
         builder.apply(body)
@@ -167,7 +167,7 @@ data class TestShell(var bars: List<Scaffold<Bar>> = emptyList(), var foos: List
 
 class TestRef(key: String) : Scaffold<Test> by io.philarios.core.v0.RegistryRef(io.philarios.test.v0.Test::class, key)
 
-open class TestSpec<in C>(internal val body: TestBuilder<C>.() -> Unit) : Template<C, Test> {
+open class TestSpec<in C>(internal val body: TestBuilder<C>.() -> Unit) : Spec<C, Test> {
     override fun connect(context: C): Scaffold<Test> {
         val builder = TestBuilder<C>(context)
         builder.apply(body)

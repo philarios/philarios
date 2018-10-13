@@ -3,7 +3,7 @@ package io.philarios.schema.v0
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Template
+import io.philarios.core.v0.Spec
 import io.philarios.core.v0.Wrapper
 import kotlin.Boolean
 import kotlin.String
@@ -38,7 +38,7 @@ data class SchemaShell(
 
 class SchemaRef(key: String) : Scaffold<Schema> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Schema::class, key)
 
-open class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit) : Template<C, Schema> {
+open class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit) : Spec<C, Schema> {
     override fun connect(context: C): Scaffold<Schema> {
         val builder = SchemaBuilder<C>(context)
         builder.apply(body)
@@ -434,7 +434,7 @@ class StringTypeRef(key: String) : Scaffold<StringType> by io.philarios.core.v0.
 
 class AnyTypeRef(key: String) : Scaffold<AnyType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.AnyType::class, key)
 
-open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Template<C, Struct> {
+open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Spec<C, Struct> {
     override fun connect(context: C): Scaffold<Struct> {
         val builder = StructBuilder<C>(context)
         builder.apply(body)
@@ -442,7 +442,7 @@ open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Te
     }
 }
 
-open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : Template<C, Union> {
+open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : Spec<C, Union> {
     override fun connect(context: C): Scaffold<Union> {
         val builder = UnionBuilder<C>(context)
         builder.apply(body)
@@ -450,7 +450,7 @@ open class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : Temp
     }
 }
 
-open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) : Template<C, EnumType> {
+open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) : Spec<C, EnumType> {
     override fun connect(context: C): Scaffold<EnumType> {
         val builder = EnumTypeBuilder<C>(context)
         builder.apply(body)
@@ -458,7 +458,7 @@ open class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) 
     }
 }
 
-open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : Template<C, RefType> {
+open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : Spec<C, RefType> {
     override fun connect(context: C): Scaffold<RefType> {
         val builder = RefTypeBuilder<C>(context)
         builder.apply(body)
@@ -466,7 +466,7 @@ open class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : 
     }
 }
 
-open class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Unit) : Template<C, OptionType> {
+open class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Unit) : Spec<C, OptionType> {
     override fun connect(context: C): Scaffold<OptionType> {
         val builder = OptionTypeBuilder<C>(context)
         builder.apply(body)
@@ -474,7 +474,7 @@ open class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Un
     }
 }
 
-open class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit) : Template<C, ListType> {
+open class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit) : Spec<C, ListType> {
     override fun connect(context: C): Scaffold<ListType> {
         val builder = ListTypeBuilder<C>(context)
         builder.apply(body)
@@ -482,7 +482,7 @@ open class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit) 
     }
 }
 
-open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : Template<C, MapType> {
+open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : Spec<C, MapType> {
     override fun connect(context: C): Scaffold<MapType> {
         val builder = MapTypeBuilder<C>(context)
         builder.apply(body)
@@ -490,43 +490,43 @@ open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : 
     }
 }
 
-open class BooleanTypeSpec<in C>(internal val body: BooleanTypeBuilder<C>.() -> Unit) : Template<C, BooleanType> {
+open class BooleanTypeSpec<in C>(internal val body: BooleanTypeBuilder<C>.() -> Unit) : Spec<C, BooleanType> {
     override fun connect(context: C): Scaffold<BooleanType> = Wrapper(BooleanType)
 }
 
-open class DoubleTypeSpec<in C>(internal val body: DoubleTypeBuilder<C>.() -> Unit) : Template<C, DoubleType> {
+open class DoubleTypeSpec<in C>(internal val body: DoubleTypeBuilder<C>.() -> Unit) : Spec<C, DoubleType> {
     override fun connect(context: C): Scaffold<DoubleType> = Wrapper(DoubleType)
 }
 
-open class FloatTypeSpec<in C>(internal val body: FloatTypeBuilder<C>.() -> Unit) : Template<C, FloatType> {
+open class FloatTypeSpec<in C>(internal val body: FloatTypeBuilder<C>.() -> Unit) : Spec<C, FloatType> {
     override fun connect(context: C): Scaffold<FloatType> = Wrapper(FloatType)
 }
 
-open class LongTypeSpec<in C>(internal val body: LongTypeBuilder<C>.() -> Unit) : Template<C, LongType> {
+open class LongTypeSpec<in C>(internal val body: LongTypeBuilder<C>.() -> Unit) : Spec<C, LongType> {
     override fun connect(context: C): Scaffold<LongType> = Wrapper(LongType)
 }
 
-open class IntTypeSpec<in C>(internal val body: IntTypeBuilder<C>.() -> Unit) : Template<C, IntType> {
+open class IntTypeSpec<in C>(internal val body: IntTypeBuilder<C>.() -> Unit) : Spec<C, IntType> {
     override fun connect(context: C): Scaffold<IntType> = Wrapper(IntType)
 }
 
-open class ShortTypeSpec<in C>(internal val body: ShortTypeBuilder<C>.() -> Unit) : Template<C, ShortType> {
+open class ShortTypeSpec<in C>(internal val body: ShortTypeBuilder<C>.() -> Unit) : Spec<C, ShortType> {
     override fun connect(context: C): Scaffold<ShortType> = Wrapper(ShortType)
 }
 
-open class ByteTypeSpec<in C>(internal val body: ByteTypeBuilder<C>.() -> Unit) : Template<C, ByteType> {
+open class ByteTypeSpec<in C>(internal val body: ByteTypeBuilder<C>.() -> Unit) : Spec<C, ByteType> {
     override fun connect(context: C): Scaffold<ByteType> = Wrapper(ByteType)
 }
 
-open class CharacterTypeSpec<in C>(internal val body: CharacterTypeBuilder<C>.() -> Unit) : Template<C, CharacterType> {
+open class CharacterTypeSpec<in C>(internal val body: CharacterTypeBuilder<C>.() -> Unit) : Spec<C, CharacterType> {
     override fun connect(context: C): Scaffold<CharacterType> = Wrapper(CharacterType)
 }
 
-open class StringTypeSpec<in C>(internal val body: StringTypeBuilder<C>.() -> Unit) : Template<C, StringType> {
+open class StringTypeSpec<in C>(internal val body: StringTypeBuilder<C>.() -> Unit) : Spec<C, StringType> {
     override fun connect(context: C): Scaffold<StringType> = Wrapper(StringType)
 }
 
-open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit) : Template<C, AnyType> {
+open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit) : Spec<C, AnyType> {
     override fun connect(context: C): Scaffold<AnyType> = Wrapper(AnyType)
 }
 
@@ -1465,7 +1465,7 @@ data class FieldShell(
 
 class FieldRef(key: String) : Scaffold<Field> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Field::class, key)
 
-open class FieldSpec<in C>(internal val body: FieldBuilder<C>.() -> Unit) : Template<C, Field> {
+open class FieldSpec<in C>(internal val body: FieldBuilder<C>.() -> Unit) : Spec<C, Field> {
     override fun connect(context: C): Scaffold<Field> {
         val builder = FieldBuilder<C>(context)
         builder.apply(body)

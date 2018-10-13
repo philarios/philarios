@@ -3,7 +3,7 @@ package io.philarios.filesystem.v0
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
-import io.philarios.core.v0.Template
+import io.philarios.core.v0.Spec
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -40,7 +40,7 @@ class DirectoryRef(key: String) : Scaffold<Directory> by io.philarios.core.v0.Re
 
 class FileRef(key: String) : Scaffold<File> by io.philarios.core.v0.RegistryRef(io.philarios.filesystem.v0.File::class, key)
 
-open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit) : Template<C, Directory> {
+open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit) : Spec<C, Directory> {
     override fun connect(context: C): Scaffold<Directory> {
         val builder = DirectoryBuilder<C>(context)
         builder.apply(body)
@@ -48,7 +48,7 @@ open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit
     }
 }
 
-open class FileSpec<in C>(internal val body: FileBuilder<C>.() -> Unit) : Template<C, File> {
+open class FileSpec<in C>(internal val body: FileBuilder<C>.() -> Unit) : Spec<C, File> {
     override fun connect(context: C): Scaffold<File> {
         val builder = FileBuilder<C>(context)
         builder.apply(body)

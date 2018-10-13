@@ -2,7 +2,6 @@ package io.philarios.schema.v0.translators.codegen.typespecs
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.Spec
-import io.philarios.core.v0.Template
 import io.philarios.core.v0.Wrapper
 import io.philarios.schema.v0.Struct
 import io.philarios.schema.v0.Type
@@ -41,7 +40,7 @@ private object StructSpecTypeSpec {
         return TypeSpec.classBuilder(type.specClassName.rawType)
                 .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addModifiers(KModifier.OPEN)
-                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Template::class.qualifiedName!!), TypeVariableName("C"), type.className))
+                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Spec::class.qualifiedName!!), TypeVariableName("C"), type.className))
                 .addProperty(PropertySpec
                         .builder("body", type.bodyLambdaTypeName)
                         .addModifiers(KModifier.INTERNAL)
@@ -63,7 +62,7 @@ private object StructSpecTypeSpec {
         return TypeSpec.classBuilder(type.specClassName.rawType)
                 .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addModifiers(KModifier.OPEN)
-                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Template::class.qualifiedName!!), TypeVariableName("C"), type.className))
+                .addSuperinterface(ParameterizedTypeName.get(ClassName.bestGuess(Spec::class.qualifiedName!!), TypeVariableName("C"), type.className))
                 .addProperty(PropertySpec
                         .builder("body", type.bodyLambdaTypeName)
                         .addModifiers(KModifier.INTERNAL)
