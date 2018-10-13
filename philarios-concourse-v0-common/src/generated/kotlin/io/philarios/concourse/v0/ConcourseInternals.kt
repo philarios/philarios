@@ -393,7 +393,7 @@ data class TaskInputShell(
         var optional: Boolean? = null
 ) : Scaffold<TaskInput> {
     override suspend fun resolve(registry: Registry): TaskInput {
-        val value = TaskInput(name!!,path,optional!!)
+        val value = TaskInput(name!!,path,optional)
         return value
     }
 }

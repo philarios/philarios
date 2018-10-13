@@ -141,7 +141,7 @@ data class TaskResource(
 data class TaskInput(
         val name: String,
         val path: String?,
-        val optional: Boolean
+        val optional: Boolean?
 )
 
 data class TaskOutput(val name: String, val path: String?)

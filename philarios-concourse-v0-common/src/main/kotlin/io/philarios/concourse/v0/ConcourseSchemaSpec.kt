@@ -724,7 +724,9 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         })
         field(FieldSpec {
             name("optional")
-            type(BooleanType)
+            type(OptionTypeSpec {
+                type(BooleanType)
+            })
         })
     })
 
