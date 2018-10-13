@@ -9,7 +9,7 @@ object TestSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("name")
             key(true)
-            type(StringTypeSpec {})
+            type(StringType)
         })
     })
 
@@ -18,7 +18,7 @@ object TestSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("name")
             key(true)
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field {
             name("foo")

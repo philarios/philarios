@@ -35,3 +35,9 @@ test {
 }
 
 mainClassName = "io.philarios.filesystem.v0.GeneratorKt"
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

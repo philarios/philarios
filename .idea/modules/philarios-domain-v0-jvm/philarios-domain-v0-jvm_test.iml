@@ -22,6 +22,7 @@
             <array />
           </option>
           <option name="multiPlatform" value="true" />
+          <option name="coroutinesState" value="enable" />
         </compilerArguments>
       </configuration>
     </facet>
@@ -38,8 +39,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="philarios-domain-v0-jvm_main" />
     <orderEntry type="module" module-name="philarios-schema-v0-common_test" />
-    <orderEntry type="module" module-name="philarios-domain-v0-common_test" />
     <orderEntry type="module" module-name="philarios-core-v0-common_test" />
+    <orderEntry type="module" module-name="philarios-domain-v0-common_test" />
     <orderEntry type="module" module-name="philarios-schema-v0-jvm_main" />
     <orderEntry type="module" module-name="philarios-core-v0-jvm_main" />
     <orderEntry type="library" name="Gradle: org.spekframework.spek2:spek-dsl-jvm:2.0.0-alpha.1" level="project" />

@@ -9,11 +9,11 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("name")
             key(true)
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("pkg")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("types")
@@ -40,13 +40,13 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("pkg")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("name")
                 key(true)
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("fields")
@@ -62,13 +62,13 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("pkg")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("name")
                 key(true)
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("shapes")
@@ -84,18 +84,18 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("pkg")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("name")
                 key(true)
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("values")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
         })
@@ -104,13 +104,13 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("pkg")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("name")
                 key(true)
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         shape(StructSpec {
@@ -182,12 +182,12 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
         name("Field")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("key")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {

@@ -22,26 +22,24 @@ object ShellTypeSpec {
 private object StructShellTypeSpec {
 
     fun build(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): List<TypeSpec> {
-        return listOf(buildOne(type, typeRefs, superclass))
+        return listOf(buildOne(type, typeRefs, superclass)).mapNotNull { it }
     }
 
-    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec {
+    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec? {
         if (type.fields.isEmpty()) {
-            return buildObject(type, superclass)
+            return null
         }
         return buildDataClass(type, typeRefs, superclass)
-    }
-
-    private fun buildObject(type: Struct, superclass: ClassName? = null): TypeSpec {
-        return TypeSpec.objectBuilder(type.shellClassName)
-                .let { builder -> superclass?.let { builder.superclass(it) } ?: builder }
-                .build()
     }
 
     private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>, superclass: ClassName? = null): TypeSpec {
 
         fun Field.scaffoldType(): TypeName = when (this.type) {
-            is Struct -> this.type.scaffoldClassName.asNullable()
+            is Struct -> if (this.type.fields.isEmpty()) {
+                this.type.nullableTypeName
+            } else {
+                this.type.scaffoldClassName.asNullable()
+            }
             is Union -> this.type.scaffoldClassName.asNullable()
             is RefType -> this.copy(type = typeRefs[this.type]!!).scaffoldType()
             is OptionType -> {
@@ -103,7 +101,11 @@ private object StructShellTypeSpec {
         }
 
         fun Field.resolved(): String = when (this.type) {
-            is Struct -> "${unwrappedPlaceholder()}.resolve(registry)"
+            is Struct -> if (this.type.fields.isEmpty()) {
+                unwrappedPlaceholder()
+            } else {
+                "${unwrappedPlaceholder()}.resolve(registry)"
+            }
             is Union -> "${unwrappedPlaceholder()}.resolve(registry)"
             is RefType -> this.copy(type = typeRefs[this.type]!!).resolved()
             is OptionType -> {
@@ -128,7 +130,11 @@ private object StructShellTypeSpec {
         }
 
         fun Field.resolveJob(): String? = when (this.type) {
-            is Struct -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
+            is Struct -> if (this.type.fields.isEmpty()) {
+                null
+            } else {
+                "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
+            }
             is Union -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
             is RefType -> this.copy(type = typeRefs[this.type]!!).resolveJob()
             is OptionType -> {

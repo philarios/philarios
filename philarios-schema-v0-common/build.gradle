@@ -19,3 +19,9 @@ dependencies {
 sourceSets {
     main.kotlin.srcDirs += "src/generated/kotlin"
 }
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

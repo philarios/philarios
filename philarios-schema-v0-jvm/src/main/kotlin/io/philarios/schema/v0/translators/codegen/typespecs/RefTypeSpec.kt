@@ -1,6 +1,5 @@
 package io.philarios.schema.v0.translators.codegen.typespecs
 
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -27,10 +26,17 @@ object RefTypeSpec {
 object StructRefTypeSpec {
 
     fun build(type: Struct): List<TypeSpec> {
-        return listOf(buildOne(type))
+        return listOf(buildOne(type)).mapNotNull { it }
     }
 
-    private fun buildOne(type: Struct): TypeSpec {
+    private fun buildOne(type: Struct): TypeSpec? {
+        if (type.fields.isEmpty()) {
+            return null
+        }
+        return buildDataClass(type)
+    }
+
+    private fun buildDataClass(type: Struct): TypeSpec {
         return TypeSpec.classBuilder(type.refClassName)
                 .addSuperinterface(
                         type.scaffoldClassName,

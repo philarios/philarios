@@ -3,7 +3,6 @@ package io.philarios.schema.v0
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
 import io.philarios.core.v0.Spec
-import io.philarios.core.v0.Wrapper
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.List
@@ -122,26 +121,6 @@ data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaf
     }
 }
 
-object BooleanTypeShell : TypeShell()
-
-object DoubleTypeShell : TypeShell()
-
-object FloatTypeShell : TypeShell()
-
-object LongTypeShell : TypeShell()
-
-object IntTypeShell : TypeShell()
-
-object ShortTypeShell : TypeShell()
-
-object ByteTypeShell : TypeShell()
-
-object CharacterTypeShell : TypeShell()
-
-object StringTypeShell : TypeShell()
-
-object AnyTypeShell : TypeShell()
-
 class StructRef(key: String) : Scaffold<Struct> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Struct::class, key)
 
 class UnionRef(key: String) : Scaffold<Union> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.Union::class, key)
@@ -155,26 +134,6 @@ class OptionTypeRef(key: String) : Scaffold<OptionType> by io.philarios.core.v0.
 class ListTypeRef(key: String) : Scaffold<ListType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.ListType::class, key)
 
 class MapTypeRef(key: String) : Scaffold<MapType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.MapType::class, key)
-
-class BooleanTypeRef(key: String) : Scaffold<BooleanType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.BooleanType::class, key)
-
-class DoubleTypeRef(key: String) : Scaffold<DoubleType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.DoubleType::class, key)
-
-class FloatTypeRef(key: String) : Scaffold<FloatType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.FloatType::class, key)
-
-class LongTypeRef(key: String) : Scaffold<LongType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.LongType::class, key)
-
-class IntTypeRef(key: String) : Scaffold<IntType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.IntType::class, key)
-
-class ShortTypeRef(key: String) : Scaffold<ShortType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.ShortType::class, key)
-
-class ByteTypeRef(key: String) : Scaffold<ByteType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.ByteType::class, key)
-
-class CharacterTypeRef(key: String) : Scaffold<CharacterType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.CharacterType::class, key)
-
-class StringTypeRef(key: String) : Scaffold<StringType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.StringType::class, key)
-
-class AnyTypeRef(key: String) : Scaffold<AnyType> by io.philarios.core.v0.RegistryRef(io.philarios.schema.v0.AnyType::class, key)
 
 open class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : Spec<C, Struct> {
     override fun connect(context: C): Scaffold<Struct> {
@@ -230,46 +189,6 @@ open class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : 
         builder.apply(body)
         return builder.shell
     }
-}
-
-open class BooleanTypeSpec<in C>(internal val body: BooleanTypeBuilder<C>.() -> Unit) : Spec<C, BooleanType> {
-    override fun connect(context: C): Scaffold<BooleanType> = Wrapper(BooleanType)
-}
-
-open class DoubleTypeSpec<in C>(internal val body: DoubleTypeBuilder<C>.() -> Unit) : Spec<C, DoubleType> {
-    override fun connect(context: C): Scaffold<DoubleType> = Wrapper(DoubleType)
-}
-
-open class FloatTypeSpec<in C>(internal val body: FloatTypeBuilder<C>.() -> Unit) : Spec<C, FloatType> {
-    override fun connect(context: C): Scaffold<FloatType> = Wrapper(FloatType)
-}
-
-open class LongTypeSpec<in C>(internal val body: LongTypeBuilder<C>.() -> Unit) : Spec<C, LongType> {
-    override fun connect(context: C): Scaffold<LongType> = Wrapper(LongType)
-}
-
-open class IntTypeSpec<in C>(internal val body: IntTypeBuilder<C>.() -> Unit) : Spec<C, IntType> {
-    override fun connect(context: C): Scaffold<IntType> = Wrapper(IntType)
-}
-
-open class ShortTypeSpec<in C>(internal val body: ShortTypeBuilder<C>.() -> Unit) : Spec<C, ShortType> {
-    override fun connect(context: C): Scaffold<ShortType> = Wrapper(ShortType)
-}
-
-open class ByteTypeSpec<in C>(internal val body: ByteTypeBuilder<C>.() -> Unit) : Spec<C, ByteType> {
-    override fun connect(context: C): Scaffold<ByteType> = Wrapper(ByteType)
-}
-
-open class CharacterTypeSpec<in C>(internal val body: CharacterTypeBuilder<C>.() -> Unit) : Spec<C, CharacterType> {
-    override fun connect(context: C): Scaffold<CharacterType> = Wrapper(CharacterType)
-}
-
-open class StringTypeSpec<in C>(internal val body: StringTypeBuilder<C>.() -> Unit) : Spec<C, StringType> {
-    override fun connect(context: C): Scaffold<StringType> = Wrapper(StringType)
-}
-
-open class AnyTypeSpec<in C>(internal val body: AnyTypeBuilder<C>.() -> Unit) : Spec<C, AnyType> {
-    override fun connect(context: C): Scaffold<AnyType> = Wrapper(AnyType)
 }
 
 data class FieldShell(

@@ -11,3 +11,9 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
     testCompile "org.spekframework.spek2:spek-dsl-common:$spek_version"
 }
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

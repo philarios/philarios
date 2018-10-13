@@ -22,27 +22,14 @@ object BuilderTypeSpec {
 private object StructBuilderTypeSpec {
 
     fun build(type: Struct, typeRefs: Map<RefType, Type>): List<TypeSpec> {
-        return listOf(buildOne(type, typeRefs))
+        return listOf(buildOne(type, typeRefs)).mapNotNull { it }
     }
 
-    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
+    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec? {
         if (type.fields.isEmpty()) {
-            return buildObject(type)
+            return null
         }
         return buildDataClass(type, typeRefs)
-    }
-
-    private fun buildObject(type: Struct): TypeSpec {
-        return TypeSpec.classBuilder(type.builderClassName.rawType)
-                .addAnnotation(DslBuilder::class.className)
-                .addTypeVariable(TypeVariableName("C", KModifier.OUT))
-                .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
-                        .initializer("context")
-                        .build())
-                .primaryConstructor(FunSpec.constructorBuilder()
-                        .addParameter(contextParameterSpec)
-                        .build())
-                .build()
     }
 
     private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
@@ -78,36 +65,56 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
+    // TODO this function is an admission of defeat
     private fun parameterFunction(type: Struct, field: Field, typeRefs: Map<RefType, Type>): List<FunSpec> {
         val fieldType = field.type
         return when (fieldType) {
-            is Struct -> listOf(
-                    setParameterFunctionWithBody(type, field, fieldType),
-                    setParameterFunctionWithSpec(type, field, fieldType),
-                    setParameterFunctionWithRef(type, field, fieldType),
-                    setParameterFunctionWithWrapper(type, field)
-            )
-            is Union -> fieldType.shapes.flatMap {
+            is Struct -> if (fieldType.fields.isEmpty()) {
+                listOf(setParameterFunction(type, field, fieldType))
+            } else {
                 listOf(
-                        setParameterFunctionWithSpec(type, field, it),
-                        setParameterFunctionWithRef(type, field, it)
+                        setParameterFunctionWithBody(type, field, fieldType),
+                        setParameterFunctionWithSpec(type, field, fieldType),
+                        setParameterFunctionWithRef(type, field, fieldType),
+                        setParameterFunctionWithWrapper(type, field, fieldType)
                 )
+            }
+            is Union -> fieldType.shapes.flatMap {
+                if (it.fields.isEmpty()) {
+                    listOf(setParameterFunctionWithWrapper(type, field, it))
+                } else {
+                    listOf(
+                            setParameterFunctionWithSpec(type, field, it),
+                            setParameterFunctionWithRef(type, field, it)
+                    )
+                }
             }
             is ListType -> {
                 val listType = fieldType.type
                 when (listType) {
-                    is Struct -> listOf(
-                            addParameterFunctionWithBody(type, field, listType),
-                            addParameterFunctionWithSpec(type, field, listType),
-                            addParameterFunctionWithRef(type, field, listType),
-                            addParameterFunctionWithWrapper(type, field, listType),
-                            addAllParameterFunctionWithWrapper(type, field)
-                    )
-                    is Union -> listType.shapes.flatMap {
+                    is Struct -> if (listType.fields.isEmpty()) {
                         listOf(
-                                addParameterFunctionWithSpec(type, field, it),
-                                addParameterFunctionWithRef(type, field, it)
+                                addParameterFunction(type, field, listType),
+                                addAllParameterFunction(type, field)
                         )
+                    } else {
+                        listOf(
+                                addParameterFunctionWithBody(type, field, listType),
+                                addParameterFunctionWithSpec(type, field, listType),
+                                addParameterFunctionWithRef(type, field, listType),
+                                addParameterFunctionWithWrapper(type, field, listType),
+                                addAllParameterFunctionWithWrapper(type, field)
+                        )
+                    }
+                    is Union -> listType.shapes.flatMap {
+                        if (it.fields.isEmpty()) {
+                            listOf(addParameterFunctionWithWrapper(type, field, it))
+                        } else {
+                            listOf(
+                                    addParameterFunctionWithSpec(type, field, it),
+                                    addParameterFunctionWithRef(type, field, it)
+                            )
+                        }
                     }
                     is ListType -> emptyList() // TODO no idea what to do here
                     is RefType -> parameterFunction(type, Field(field.name, field.key, ListType(typeRefs[listType]!!)), typeRefs)
@@ -127,18 +134,32 @@ private object StructBuilderTypeSpec {
                                 (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
                         )), typeRefs)
                     keyType is Struct || keyType is Union -> emptyList()
-                    valueType is Struct -> listOf(
-                            putKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
-                            putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType),
-                            putKeyValueParameterFunctionWithRef(type, field, keyType, valueType),
-                            putKeyValueParameterFunction(type, field, keyType, valueType),
-                            putPairParameterFunction(type, field, keyType, valueType)
-                    )
-                    valueType is Union -> valueType.shapes.flatMap {
+                    valueType is Struct -> if (valueType.fields.isEmpty()) {
                         listOf(
-                                putKeyValueParameterFunctionWithSpec(type, field, keyType, it),
-                                putKeyValueParameterFunctionWithRef(type, field, keyType, it)
+                                putKeyValueParameterFunction(type, field, keyType, valueType),
+                                putPairParameterFunction(type, field, keyType, valueType)
                         )
+                    } else {
+                        listOf(
+                                putKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
+                                putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType),
+                                putKeyValueParameterFunctionWithRef(type, field, keyType, valueType),
+                                putKeyValueParameterFunction(type, field, keyType, valueType),
+                                putPairParameterFunction(type, field, keyType, valueType)
+                        )
+                    }
+                    valueType is Union -> valueType.shapes.flatMap {
+                        if (it.fields.isEmpty()) {
+                            listOf(
+                                    putKeyValueParameterFunction(type, field, keyType, it),
+                                    putPairParameterFunction(type, field, keyType, it)
+                            )
+                        } else {
+                            listOf(
+                                    putKeyValueParameterFunctionWithSpec(type, field, keyType, it),
+                                    putKeyValueParameterFunctionWithRef(type, field, keyType, it)
+                            )
+                        }
                     }
                     else -> listOf(
                             putKeyValueParameterFunction(type, field, keyType, valueType),
@@ -149,13 +170,13 @@ private object StructBuilderTypeSpec {
             }
             is RefType -> parameterFunction(type, Field(field.name, field.key, typeRefs[fieldType]!!), typeRefs)
             is OptionType -> parameterFunction(type, Field(field.name, field.key, fieldType.type), typeRefs)
-            else -> listOf(setParameterFunction(type, field))
+            else -> listOf(setParameterFunction(type, field, fieldType))
         }
     }
 
-    private fun setParameterFunction(type: Struct, field: Field): FunSpec {
+    private fun setParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
         val name = field.name
-        val typeName = field.type.typeName
+        val typeName = fieldType.typeName
         return FunSpec.builder(name)
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
@@ -164,14 +185,44 @@ private object StructBuilderTypeSpec {
                 .build()
     }
 
-    private fun setParameterFunctionWithWrapper(type: Struct, field: Field): FunSpec {
+    private fun setParameterFunctionWithWrapper(type: Struct, field: Field, fieldType: Type): FunSpec {
         val name = field.name
-        val typeName = field.type.typeName
+        val typeName = fieldType.typeName
         return FunSpec.builder(name)
                 .addTypeVariable(TypeVariableName("C"))
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
                 .addStatement("shell = shell.copy(%L = %T(%L))", name, Wrapper::class.className, name)
+                .build()
+    }
+
+    private fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(fieldType.bodyParameterSpec)
+                .addStatement("shell = shell.copy(%L = %T(body).connect(context))", name, fieldType.specClassName)
+                .build()
+    }
+
+    private fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(fieldType.specParameterSpec)
+                .addStatement("shell = shell.copy(%L = spec.connect(context))", name)
+                .build()
+    }
+
+    private fun setParameterFunctionWithRef(type: Struct, field: Field, fieldType: Type): FunSpec {
+        val name = field.name
+        return FunSpec.builder(name)
+                .addTypeVariable(TypeVariableName("C"))
+                .receiver(type.builderClassName)
+                .addParameter(fieldType.refParameterSpec)
+                .addStatement("shell = shell.copy(%L = ref)", name)
                 .build()
     }
 
@@ -281,39 +332,6 @@ private object StructBuilderTypeSpec {
                 .receiver(type.builderClassName)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
                 .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
-                .build()
-    }
-
-    private fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
-        val name = field.name
-
-        return FunSpec.builder(name)
-                .addTypeVariable(TypeVariableName("C"))
-                .receiver(type.builderClassName)
-                .addParameter(fieldType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(body).connect(context))", name, fieldType.specClassName)
-                .build()
-    }
-
-    private fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
-        val name = field.name
-
-        return FunSpec.builder(name)
-                .addTypeVariable(TypeVariableName("C"))
-                .receiver(type.builderClassName)
-                .addParameter(fieldType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = spec.connect(context))", name)
-                .build()
-    }
-
-    private fun setParameterFunctionWithRef(type: Struct, field: Field, fieldType: Type): FunSpec {
-        val name = field.name
-
-        return FunSpec.builder(name)
-                .addTypeVariable(TypeVariableName("C"))
-                .receiver(type.builderClassName)
-                .addParameter(fieldType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = ref)", name)
                 .build()
     }
 

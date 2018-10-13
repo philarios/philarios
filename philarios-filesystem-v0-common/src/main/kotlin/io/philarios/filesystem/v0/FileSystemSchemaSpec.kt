@@ -12,7 +12,7 @@ object FileSystemSchemaSpec : SchemaSpec<Any?>({
             name("Directory")
             field(FieldSpec {
                 name("name")
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("entries")
@@ -27,7 +27,7 @@ object FileSystemSchemaSpec : SchemaSpec<Any?>({
             name("File")
             field(FieldSpec {
                 name("name")
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })

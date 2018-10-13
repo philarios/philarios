@@ -75,84 +75,44 @@ class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = Sch
         shell = shell.copy(types = shell.types.orEmpty() + ref)
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    fun <C> SchemaBuilder<C>.type(type: BooleanType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(ref: BooleanTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+    fun <C> SchemaBuilder<C>.type(type: DoubleType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    fun <C> SchemaBuilder<C>.type(type: FloatType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(ref: DoubleTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+    fun <C> SchemaBuilder<C>.type(type: LongType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    fun <C> SchemaBuilder<C>.type(type: IntType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(ref: FloatTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+    fun <C> SchemaBuilder<C>.type(type: ShortType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    fun <C> SchemaBuilder<C>.type(type: ByteType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(ref: LongTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+    fun <C> SchemaBuilder<C>.type(type: CharacterType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    fun <C> SchemaBuilder<C>.type(type: StringType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
-    fun <C> SchemaBuilder<C>.type(ref: IntTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    fun <C> SchemaBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    fun <C> SchemaBuilder<C>.type(ref: ShortTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    fun <C> SchemaBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    fun <C> SchemaBuilder<C>.type(ref: ByteTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    fun <C> SchemaBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    fun <C> SchemaBuilder<C>.type(ref: CharacterTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    fun <C> SchemaBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    fun <C> SchemaBuilder<C>.type(ref: StringTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    fun <C> SchemaBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    fun <C> SchemaBuilder<C>.type(ref: AnyTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+    fun <C> SchemaBuilder<C>.type(type: AnyType) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
     }
 
     fun <C> SchemaBuilder<C>.reference(body: SchemaBuilder<C>.() -> Unit) {
@@ -496,84 +456,44 @@ class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShe
         shell = shell.copy(type = ref)
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> OptionTypeBuilder<C>.type(type: BooleanType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(ref: BooleanTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> OptionTypeBuilder<C>.type(type: DoubleType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> OptionTypeBuilder<C>.type(type: FloatType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(ref: DoubleTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> OptionTypeBuilder<C>.type(type: LongType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> OptionTypeBuilder<C>.type(type: IntType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(ref: FloatTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> OptionTypeBuilder<C>.type(type: ShortType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> OptionTypeBuilder<C>.type(type: ByteType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(ref: LongTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> OptionTypeBuilder<C>.type(type: CharacterType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> OptionTypeBuilder<C>.type(type: StringType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> OptionTypeBuilder<C>.type(ref: IntTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(ref: ShortTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(ref: ByteTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(ref: CharacterTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(ref: StringTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> OptionTypeBuilder<C>.type(ref: AnyTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> OptionTypeBuilder<C>.type(type: AnyType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
     fun <C> OptionTypeBuilder<C>.include(body: OptionTypeBuilder<C>.() -> Unit) {
@@ -669,84 +589,44 @@ class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell =
         shell = shell.copy(type = ref)
     }
 
-    fun <C> ListTypeBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> ListTypeBuilder<C>.type(type: BooleanType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(ref: BooleanTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> ListTypeBuilder<C>.type(type: DoubleType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> ListTypeBuilder<C>.type(type: FloatType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(ref: DoubleTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> ListTypeBuilder<C>.type(type: LongType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> ListTypeBuilder<C>.type(type: IntType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(ref: FloatTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> ListTypeBuilder<C>.type(type: ShortType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> ListTypeBuilder<C>.type(type: ByteType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(ref: LongTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> ListTypeBuilder<C>.type(type: CharacterType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> ListTypeBuilder<C>.type(type: StringType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> ListTypeBuilder<C>.type(ref: IntTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> ListTypeBuilder<C>.type(ref: ShortTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> ListTypeBuilder<C>.type(ref: ByteTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> ListTypeBuilder<C>.type(ref: CharacterTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> ListTypeBuilder<C>.type(ref: StringTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> ListTypeBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> ListTypeBuilder<C>.type(ref: AnyTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> ListTypeBuilder<C>.type(type: AnyType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
     fun <C> ListTypeBuilder<C>.include(body: ListTypeBuilder<C>.() -> Unit) {
@@ -842,84 +722,44 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
         shell = shell.copy(keyType = ref)
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.keyType(keyType: BooleanType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: BooleanTypeRef) {
-        shell = shell.copy(keyType = ref)
+    fun <C> MapTypeBuilder<C>.keyType(keyType: DoubleType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.keyType(keyType: FloatType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: DoubleTypeRef) {
-        shell = shell.copy(keyType = ref)
+    fun <C> MapTypeBuilder<C>.keyType(keyType: LongType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.keyType(keyType: IntType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: FloatTypeRef) {
-        shell = shell.copy(keyType = ref)
+    fun <C> MapTypeBuilder<C>.keyType(keyType: ShortType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: LongTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.keyType(keyType: ByteType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: LongTypeRef) {
-        shell = shell.copy(keyType = ref)
+    fun <C> MapTypeBuilder<C>.keyType(keyType: CharacterType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: IntTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.keyType(keyType: StringType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: IntTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(ref: ShortTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(ref: ByteTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(ref: CharacterTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(spec: StringTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(ref: StringTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.keyType(ref: AnyTypeRef) {
-        shell = shell.copy(keyType = ref)
+    fun <C> MapTypeBuilder<C>.keyType(keyType: AnyType) {
+        shell = shell.copy(keyType = Wrapper(keyType))
     }
 
     fun <C> MapTypeBuilder<C>.valueType(spec: StructSpec<C>) {
@@ -978,84 +818,44 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
         shell = shell.copy(valueType = ref)
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.valueType(valueType: BooleanType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: BooleanTypeRef) {
-        shell = shell.copy(valueType = ref)
+    fun <C> MapTypeBuilder<C>.valueType(valueType: DoubleType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.valueType(valueType: FloatType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: DoubleTypeRef) {
-        shell = shell.copy(valueType = ref)
+    fun <C> MapTypeBuilder<C>.valueType(valueType: LongType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.valueType(valueType: IntType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: FloatTypeRef) {
-        shell = shell.copy(valueType = ref)
+    fun <C> MapTypeBuilder<C>.valueType(valueType: ShortType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: LongTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.valueType(valueType: ByteType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: LongTypeRef) {
-        shell = shell.copy(valueType = ref)
+    fun <C> MapTypeBuilder<C>.valueType(valueType: CharacterType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: IntTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
+    fun <C> MapTypeBuilder<C>.valueType(valueType: StringType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: IntTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(ref: ShortTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(ref: ByteTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(ref: CharacterTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: StringTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(ref: StringTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    fun <C> MapTypeBuilder<C>.valueType(ref: AnyTypeRef) {
-        shell = shell.copy(valueType = ref)
+    fun <C> MapTypeBuilder<C>.valueType(valueType: AnyType) {
+        shell = shell.copy(valueType = Wrapper(valueType))
     }
 
     fun <C> MapTypeBuilder<C>.include(body: MapTypeBuilder<C>.() -> Unit) {
@@ -1092,36 +892,6 @@ class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = M
         this.shell = other.shell
     }
 }
-
-@DslBuilder
-class BooleanTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class DoubleTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class FloatTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class LongTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class IntTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class ShortTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class ByteTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class CharacterTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class StringTypeBuilder<out C>(val context: C)
-
-@DslBuilder
-class AnyTypeBuilder<out C>(val context: C)
 
 @DslBuilder
 class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = FieldShell()) {
@@ -1189,84 +959,44 @@ class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = Field
         shell = shell.copy(type = ref)
     }
 
-    fun <C> FieldBuilder<C>.type(spec: BooleanTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> FieldBuilder<C>.type(type: BooleanType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(ref: BooleanTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> FieldBuilder<C>.type(type: DoubleType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(spec: DoubleTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> FieldBuilder<C>.type(type: FloatType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(ref: DoubleTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> FieldBuilder<C>.type(type: LongType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(spec: FloatTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> FieldBuilder<C>.type(type: IntType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(ref: FloatTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> FieldBuilder<C>.type(type: ShortType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(spec: LongTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> FieldBuilder<C>.type(type: ByteType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(ref: LongTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> FieldBuilder<C>.type(type: CharacterType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(spec: IntTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    fun <C> FieldBuilder<C>.type(type: StringType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
-    fun <C> FieldBuilder<C>.type(ref: IntTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: ShortTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> FieldBuilder<C>.type(ref: ShortTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: ByteTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> FieldBuilder<C>.type(ref: ByteTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: CharacterTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> FieldBuilder<C>.type(ref: CharacterTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: StringTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> FieldBuilder<C>.type(ref: StringTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    fun <C> FieldBuilder<C>.type(spec: AnyTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    fun <C> FieldBuilder<C>.type(ref: AnyTypeRef) {
-        shell = shell.copy(type = ref)
+    fun <C> FieldBuilder<C>.type(type: AnyType) {
+        shell = shell.copy(type = Wrapper(type))
     }
 
     fun <C> FieldBuilder<C>.include(body: FieldBuilder<C>.() -> Unit) {

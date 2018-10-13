@@ -2,7 +2,6 @@ package io.philarios.schema.v0.translators.codegen.typespecs
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.Spec
-import io.philarios.core.v0.Wrapper
 import io.philarios.schema.v0.Struct
 import io.philarios.schema.v0.Type
 import io.philarios.schema.v0.Union
@@ -26,36 +25,14 @@ object SpecTypeSpec {
 private object StructSpecTypeSpec {
 
     fun build(type: Struct): List<TypeSpec> {
-        return listOf(buildOne(type))
+        return listOf(buildOne(type)).mapNotNull { it }
     }
 
-    private fun buildOne(type: Struct): TypeSpec {
+    private fun buildOne(type: Struct): TypeSpec? {
         if (type.fields.isEmpty()) {
-            return buildObject(type)
+            return null
         }
         return buildDataClass(type)
-    }
-
-    private fun buildObject(type: Struct): TypeSpec {
-        return TypeSpec.classBuilder(type.specClassName.rawType)
-                .addTypeVariable(TypeVariableName("C", KModifier.IN))
-                .addModifiers(KModifier.OPEN)
-                .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, TypeVariableName("C"), type.className))
-                .addProperty(PropertySpec
-                        .builder("body", type.bodyLambdaTypeName)
-                        .addModifiers(KModifier.INTERNAL)
-                        .initializer("body")
-                        .build())
-                .primaryConstructor(FunSpec.constructorBuilder()
-                        .addParameter(type.bodyParameterSpec)
-                        .build())
-                .addFunction(FunSpec.builder("connect")
-                        .addModifiers(KModifier.OVERRIDE)
-                        .addParameter(contextParameterSpec)
-                        .returns(type.scaffoldClassName)
-                        .addStatement("return %T(%T)", Wrapper::class.className, type.className)
-                        .build())
-                .build()
     }
 
     private fun buildDataClass(type: Struct): TypeSpec {

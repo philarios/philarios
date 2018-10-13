@@ -22,7 +22,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("Team")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("pipelines")
@@ -38,7 +38,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("Pipeline")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("jobs")
@@ -78,7 +78,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("Job")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("plan")
@@ -91,43 +91,43 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("serial")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {
             name("build_logs_to_retain")
             type(OptionTypeSpec {
-                type(IntTypeSpec {})
+                type(IntType)
             })
         })
         field(FieldSpec {
             name("serial_groups")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("max_in_flight")
             type(OptionTypeSpec {
-                type(IntTypeSpec {})
+                type(IntType)
             })
         })
         field(FieldSpec {
             name("public")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {
             name("disable_manual_trigger")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {
             name("interruptible")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {
@@ -170,37 +170,37 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             name("Get")
             field(FieldSpec {
                 name("get")
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("resource")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("version")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("passed")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("params")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(AnyTypeSpec {})
+                    keyType(StringType)
+                    valueType(AnyType)
                 })
             })
             field(FieldSpec {
                 name("trigger")
                 type(OptionTypeSpec {
-                    type(BooleanTypeSpec {})
+                    type(BooleanType)
                 })
             })
 
@@ -239,19 +239,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -259,26 +259,26 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             name("Put")
             field(FieldSpec {
                 name("put")
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("resource")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("params")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(AnyTypeSpec {})
+                    keyType(StringType)
+                    valueType(AnyType)
                 })
             })
             field(FieldSpec {
                 name("get_params")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(AnyTypeSpec {})
+                    keyType(StringType)
+                    valueType(AnyType)
                 })
             })
 
@@ -317,19 +317,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -337,7 +337,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             name("Task")
             field(FieldSpec {
                 name("task")
-                type(StringTypeSpec {})
+                type(StringType)
             })
             field(FieldSpec {
                 name("config")
@@ -348,40 +348,40 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("file")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("privileged")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("params")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(AnyTypeSpec {})
+                    keyType(StringType)
+                    valueType(AnyType)
                 })
             })
             field(FieldSpec {
                 name("image")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("input_mapping")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(StringTypeSpec {})
+                    keyType(StringType)
+                    valueType(StringType)
                 })
             })
             field(FieldSpec {
                 name("output_mapping")
                 type(MapTypeSpec {
-                    keyType(StringTypeSpec {})
-                    valueType(StringTypeSpec {})
+                    keyType(StringType)
+                    valueType(StringType)
                 })
             })
 
@@ -420,19 +420,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -482,19 +482,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -544,19 +544,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -604,19 +604,19 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
             field(FieldSpec {
                 name("tags")
                 type(ListTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("timeout")
                 type(OptionTypeSpec {
-                    type(StringTypeSpec {})
+                    type(StringType)
                 })
             })
             field(FieldSpec {
                 name("attempts")
                 type(OptionTypeSpec {
-                    type(IntTypeSpec {})
+                    type(IntType)
                 })
             })
         })
@@ -626,7 +626,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskConfig")
         field(FieldSpec {
             name("platform")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("image_resource")
@@ -637,7 +637,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("rootfs_uri")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
@@ -675,8 +675,8 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         field(FieldSpec {
             name("params")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
     })
@@ -685,27 +685,27 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskResource")
         field(FieldSpec {
             name("type")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("source")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
         field(FieldSpec {
             name("params")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
         field(FieldSpec {
             name("version")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(StringTypeSpec {})
+                keyType(StringType)
+                valueType(StringType)
             })
         })
     })
@@ -714,17 +714,17 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskInput")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("path")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("optional")
-            type(BooleanTypeSpec {})
+            type(BooleanType)
         })
     })
 
@@ -732,12 +732,12 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskOutput")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("path")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })
@@ -746,7 +746,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskCache")
         field(FieldSpec {
             name("path")
-            type(StringTypeSpec {})
+            type(StringType)
         })
     })
 
@@ -754,24 +754,24 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("TaskRunConfig")
         field(FieldSpec {
             name("path")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("args")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("dir")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("user")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })
@@ -780,35 +780,35 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("Resource")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("type")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("source")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
         field(FieldSpec {
             name("check_every")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("tags")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("webhook_token")
             type(OptionTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })
@@ -817,36 +817,36 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("ResourceType")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("type")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("source")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
         field(FieldSpec {
             name("privileged")
             type(OptionTypeSpec {
-                type(BooleanTypeSpec {})
+                type(BooleanType)
             })
         })
         field(FieldSpec {
             name("params")
             type(MapTypeSpec {
-                keyType(StringTypeSpec {})
-                valueType(AnyTypeSpec {})
+                keyType(StringType)
+                valueType(AnyType)
             })
         })
         field(FieldSpec {
             name("tags")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })
@@ -855,18 +855,18 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         name("Group")
         field(FieldSpec {
             name("name")
-            type(StringTypeSpec {})
+            type(StringType)
         })
         field(FieldSpec {
             name("jobs")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
         field(FieldSpec {
             name("resources")
             type(ListTypeSpec {
-                type(StringTypeSpec {})
+                type(StringType)
             })
         })
     })

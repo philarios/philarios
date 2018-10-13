@@ -34,7 +34,7 @@ object DomainSchemaSpec : SchemaSpec<Any?>({
         field {
             name("name")
             key(true)
-            type(StringTypeSpec {  })
+            type(StringType)
         }
 
         field {
@@ -53,7 +53,7 @@ object DomainSchemaSpec : SchemaSpec<Any?>({
         field {
             name("name")
             key(true)
-            type(StringTypeSpec {  })
+            type(StringType)
         }
 
         field {
@@ -85,7 +85,7 @@ object DomainSchemaSpec : SchemaSpec<Any?>({
 
         field {
             name("name")
-            type(StringTypeSpec {  })
+            type(StringType)
         }
 
         field {
