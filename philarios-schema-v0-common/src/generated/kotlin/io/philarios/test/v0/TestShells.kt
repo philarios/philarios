@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.launch
 
 data class FooShell(var name: String? = null) : Scaffold<Foo> {
     override suspend fun resolve(registry: Registry): Foo {
+        checkNotNull(name) { "Foo is missing the name property" }
         val value = Foo(name!!)
         registry.put(Foo::class, name!!, value)
         return value
@@ -17,6 +18,8 @@ data class FooShell(var name: String? = null) : Scaffold<Foo> {
 
 data class BarShell(var name: String? = null, var foo: Scaffold<Foo>? = null) : Scaffold<Bar> {
     override suspend fun resolve(registry: Registry): Bar {
+        checkNotNull(name) { "Bar is missing the name property" }
+        checkNotNull(foo) { "Bar is missing the foo property" }
         coroutineScope {
         	launch { foo!!.resolve(registry) }
         }

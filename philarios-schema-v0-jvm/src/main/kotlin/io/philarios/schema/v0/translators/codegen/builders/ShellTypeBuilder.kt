@@ -105,11 +105,26 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
                             .builder("registry", Registry::class.className)
                             .build())
                     .returns(className)
+                    .checkChildren(type)
                     .resolveChildren(type)
                     .createValue(type)
                     .putIntoRegistry(type)
                     .addStatement("return value")
                     .build()
+        }
+
+        private fun FunSpec.Builder.checkChildren(type: Struct): FunSpec.Builder {
+            val className = type.className
+            return type.fields
+                    .filter { it.needsToBeCheckedForNull() }
+                    .map { Statement("checkNotNull(%L) { \"%T is missing the %L property\" }", listOf(it.name, className, it.name)) }
+                    .let {
+                        if (it.isEmpty()) {
+                            this
+                        } else {
+                            this.addStatements(it)
+                        }
+                    }
         }
 
         private fun FunSpec.Builder.resolveChildren(type: Struct): FunSpec.Builder {
@@ -210,10 +225,18 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
             else -> unwrappedPlaceholder()
         }
 
+        // TODO MapType should be included here
         private fun Field.unwrappedPlaceholder() = when (this.type) {
             is OptionType -> "%L"
             is ListType -> "%L"
             else -> "%L!!"
+        }
+
+        private fun Field.needsToBeCheckedForNull() = when (this.type) {
+            is OptionType -> false
+            is ListType -> false
+            is MapType -> false
+            else -> true
         }
     }
 

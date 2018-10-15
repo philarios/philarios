@@ -23,6 +23,7 @@ data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaff
 
 data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
     override suspend fun resolve(registry: Registry): Team {
+        checkNotNull(name) { "Team is missing the name property" }
         coroutineScope {
         	pipelines.forEach { launch { it.resolve(registry) } }
         }
@@ -39,6 +40,7 @@ data class PipelineShell(
         var groups: List<Scaffold<Group>> = emptyList()
 ) : Scaffold<Pipeline> {
     override suspend fun resolve(registry: Registry): Pipeline {
+        checkNotNull(name) { "Pipeline is missing the name property" }
         coroutineScope {
         	jobs.forEach { launch { it.resolve(registry) } }
         	resources.forEach { launch { it.resolve(registry) } }
@@ -66,6 +68,7 @@ data class JobShell(
         var ensure: Scaffold<Step>? = null
 ) : Scaffold<Job> {
     override suspend fun resolve(registry: Registry): Job {
+        checkNotNull(name) { "Job is missing the name property" }
         coroutineScope {
         	plan.forEach { launch { it.resolve(registry) } }
         	launch { on_success?.resolve(registry) }
@@ -96,6 +99,7 @@ data class GetShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Get> {
     override suspend fun resolve(registry: Registry): Get {
+        checkNotNull(get) { "Get is missing the get property" }
         coroutineScope {
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -121,6 +125,7 @@ data class PutShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Put> {
     override suspend fun resolve(registry: Registry): Put {
+        checkNotNull(put) { "Put is missing the put property" }
         coroutineScope {
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
@@ -150,6 +155,8 @@ data class TaskShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Task> {
     override suspend fun resolve(registry: Registry): Task {
+        checkNotNull(task) { "Task is missing the task property" }
+        checkNotNull(config) { "Task is missing the config property" }
         coroutineScope {
         	launch { config!!.resolve(registry) }
         	launch { on_success?.resolve(registry) }
@@ -219,6 +226,7 @@ data class TryShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Try> {
     override suspend fun resolve(registry: Registry): Try {
+        checkNotNull(tryIt) { "Try is missing the tryIt property" }
         coroutineScope {
         	launch { tryIt!!.resolve(registry) }
         	launch { on_success?.resolve(registry) }
@@ -242,6 +250,8 @@ data class TaskConfigShell(
         var params: Map<String, Any>? = emptyMap()
 ) : Scaffold<TaskConfig> {
     override suspend fun resolve(registry: Registry): TaskConfig {
+        checkNotNull(platform) { "TaskConfig is missing the platform property" }
+        checkNotNull(image_resource) { "TaskConfig is missing the image_resource property" }
         coroutineScope {
         	launch { image_resource!!.resolve(registry) }
         	inputs.forEach { launch { it.resolve(registry) } }
@@ -261,6 +271,7 @@ data class TaskResourceShell(
         var version: Map<String, String>? = emptyMap()
 ) : Scaffold<TaskResource> {
     override suspend fun resolve(registry: Registry): TaskResource {
+        checkNotNull(type) { "TaskResource is missing the type property" }
         val value = TaskResource(type!!,source!!,params!!,version!!)
         return value
     }
@@ -272,6 +283,7 @@ data class TaskInputShell(
         var optional: Boolean? = null
 ) : Scaffold<TaskInput> {
     override suspend fun resolve(registry: Registry): TaskInput {
+        checkNotNull(name) { "TaskInput is missing the name property" }
         val value = TaskInput(name!!,path,optional)
         return value
     }
@@ -279,6 +291,7 @@ data class TaskInputShell(
 
 data class TaskOutputShell(var name: String? = null, var path: String? = null) : Scaffold<TaskOutput> {
     override suspend fun resolve(registry: Registry): TaskOutput {
+        checkNotNull(name) { "TaskOutput is missing the name property" }
         val value = TaskOutput(name!!,path)
         return value
     }
@@ -286,6 +299,7 @@ data class TaskOutputShell(var name: String? = null, var path: String? = null) :
 
 data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
     override suspend fun resolve(registry: Registry): TaskCache {
+        checkNotNull(path) { "TaskCache is missing the path property" }
         val value = TaskCache(path!!)
         return value
     }
@@ -298,6 +312,7 @@ data class TaskRunConfigShell(
         var user: String? = null
 ) : Scaffold<TaskRunConfig> {
     override suspend fun resolve(registry: Registry): TaskRunConfig {
+        checkNotNull(path) { "TaskRunConfig is missing the path property" }
         val value = TaskRunConfig(path!!,args,dir,user)
         return value
     }
@@ -312,6 +327,8 @@ data class ResourceShell(
         var webhook_token: String? = null
 ) : Scaffold<Resource> {
     override suspend fun resolve(registry: Registry): Resource {
+        checkNotNull(name) { "Resource is missing the name property" }
+        checkNotNull(type) { "Resource is missing the type property" }
         val value = Resource(name!!,type!!,source!!,check_every,tags,webhook_token)
         return value
     }
@@ -326,6 +343,8 @@ data class ResourceTypeShell(
         var tags: List<String> = emptyList()
 ) : Scaffold<ResourceType> {
     override suspend fun resolve(registry: Registry): ResourceType {
+        checkNotNull(name) { "ResourceType is missing the name property" }
+        checkNotNull(type) { "ResourceType is missing the type property" }
         val value = ResourceType(name!!,type!!,source!!,privileged,params!!,tags)
         return value
     }
@@ -337,6 +356,7 @@ data class GroupShell(
         var resources: List<String> = emptyList()
 ) : Scaffold<Group> {
     override suspend fun resolve(registry: Registry): Group {
+        checkNotNull(name) { "Group is missing the name property" }
         val value = Group(name!!,jobs,resources)
         return value
     }

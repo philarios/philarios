@@ -15,6 +15,8 @@ data class SchemaShell(
         var references: List<Scaffold<Schema>> = emptyList()
 ) : Scaffold<Schema> {
     override suspend fun resolve(registry: Registry): Schema {
+        checkNotNull(name) { "Schema is missing the name property" }
+        checkNotNull(pkg) { "Schema is missing the pkg property" }
         coroutineScope {
         	types.forEach { launch { it.resolve(registry) } }
         	references.forEach { launch { it.resolve(registry) } }
@@ -33,6 +35,7 @@ data class StructShell(
         var fields: List<Scaffold<Field>> = emptyList()
 ) : TypeShell(), Scaffold<Struct> {
     override suspend fun resolve(registry: Registry): Struct {
+        checkNotNull(name) { "Struct is missing the name property" }
         coroutineScope {
         	fields.forEach { launch { it.resolve(registry) } }
         }
@@ -48,6 +51,7 @@ data class UnionShell(
         var shapes: List<Scaffold<Struct>> = emptyList()
 ) : TypeShell(), Scaffold<Union> {
     override suspend fun resolve(registry: Registry): Union {
+        checkNotNull(name) { "Union is missing the name property" }
         coroutineScope {
         	shapes.forEach { launch { it.resolve(registry) } }
         }
@@ -63,6 +67,7 @@ data class EnumTypeShell(
         var values: List<String> = emptyList()
 ) : TypeShell(), Scaffold<EnumType> {
     override suspend fun resolve(registry: Registry): EnumType {
+        checkNotNull(name) { "EnumType is missing the name property" }
         val value = EnumType(pkg,name!!,values)
         registry.put(EnumType::class, name!!, value)
         return value
@@ -72,6 +77,7 @@ data class EnumTypeShell(
 data class RefTypeShell(var pkg: String? = null, var name: String? = null) : TypeShell(),
         Scaffold<RefType> {
     override suspend fun resolve(registry: Registry): RefType {
+        checkNotNull(name) { "RefType is missing the name property" }
         val value = RefType(pkg,name!!)
         registry.put(RefType::class, name!!, value)
         return value
@@ -80,6 +86,7 @@ data class RefTypeShell(var pkg: String? = null, var name: String? = null) : Typ
 
 data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<OptionType> {
     override suspend fun resolve(registry: Registry): OptionType {
+        checkNotNull(type) { "OptionType is missing the type property" }
         coroutineScope {
         	launch { type!!.resolve(registry) }
         }
@@ -90,6 +97,7 @@ data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaf
 
 data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<ListType> {
     override suspend fun resolve(registry: Registry): ListType {
+        checkNotNull(type) { "ListType is missing the type property" }
         coroutineScope {
         	launch { type!!.resolve(registry) }
         }
@@ -101,6 +109,8 @@ data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffo
 data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeShell(),
         Scaffold<MapType> {
     override suspend fun resolve(registry: Registry): MapType {
+        checkNotNull(keyType) { "MapType is missing the keyType property" }
+        checkNotNull(valueType) { "MapType is missing the valueType property" }
         coroutineScope {
         	launch { keyType!!.resolve(registry) }
         	launch { valueType!!.resolve(registry) }
@@ -116,6 +126,8 @@ data class FieldShell(
         var type: Scaffold<Type>? = null
 ) : Scaffold<Field> {
     override suspend fun resolve(registry: Registry): Field {
+        checkNotNull(name) { "Field is missing the name property" }
+        checkNotNull(type) { "Field is missing the type property" }
         coroutineScope {
         	launch { type!!.resolve(registry) }
         }
