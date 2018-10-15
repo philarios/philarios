@@ -2,12 +2,14 @@ package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.FileSpec
 import io.philarios.schema.v0.*
-import io.philarios.schema.v0.translators.codegen.typespecs.BuilderTypeSpec
-import io.philarios.schema.v0.translators.codegen.typespecs.DataTypeSpec
-import io.philarios.schema.v0.translators.codegen.typespecs.InternalTypeSpec
+import io.philarios.schema.v0.translators.codegen.builders.BuilderTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.DataTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.RefTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.ShellTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.SpecTypeBuilder
 import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addTypes
 
-object SchemaFileSpec {
+object SchemaFileBuilder {
 
     fun build(schema: Schema): List<FileSpec> {
         val schemaWithPkg = schema.propagatePkg()
@@ -16,28 +18,40 @@ object SchemaFileSpec {
         return listOf(
                 buildBuilders(schemaWithPkg, typeRefs),
                 buildModel(schemaWithPkg),
-                buildInternal(schemaWithPkg, typeRefs)
+                buildShells(schemaWithPkg, typeRefs),
+                buildRefs(schemaWithPkg),
+                buildSpecs(schemaWithPkg)
         )
     }
 
     private fun buildBuilders(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
         return FileSpec.builder(schema.pkg, "${schema.name}Builders")
-                .addStaticImport("kotlinx.coroutines.experimental", "coroutineScope", "launch")
-                .addTypes(schema.types.flatMap { BuilderTypeSpec.build(it, typeRefs) })
+                .addTypes(schema.types.flatMap { BuilderTypeBuilder.build(it, typeRefs) })
                 .build()
     }
 
     private fun buildModel(schema: Schema): FileSpec {
         return FileSpec.builder(schema.pkg, "${schema.name}Model")
-                .addStaticImport("kotlinx.coroutines.experimental", "coroutineScope", "launch")
-                .addTypes(schema.types.flatMap { DataTypeSpec.build(it) })
+                .addTypes(schema.types.flatMap { DataTypeBuilder.build(it) })
                 .build()
     }
 
-    private fun buildInternal(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
-        return FileSpec.builder(schema.pkg, "${schema.name}Internals")
+    private fun buildShells(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
+        return FileSpec.builder(schema.pkg, "${schema.name}Shells")
                 .addStaticImport("kotlinx.coroutines.experimental", "coroutineScope", "launch")
-                .addTypes(schema.types.flatMap { InternalTypeSpec.build(it, typeRefs) })
+                .addTypes(schema.types.flatMap { ShellTypeBuilder(typeRefs).build(it) })
+                .build()
+    }
+
+    private fun buildRefs(schema: Schema): FileSpec {
+        return FileSpec.builder(schema.pkg, "${schema.name}Refs")
+                .addTypes(schema.types.flatMap { RefTypeBuilder.build(it) })
+                .build()
+    }
+
+    private fun buildSpecs(schema: Schema): FileSpec {
+        return FileSpec.builder(schema.pkg, "${schema.name}Specs")
+                .addTypes(schema.types.flatMap { SpecTypeBuilder.build(it) })
                 .build()
     }
 

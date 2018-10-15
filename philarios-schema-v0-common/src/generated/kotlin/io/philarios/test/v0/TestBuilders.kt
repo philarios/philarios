@@ -5,8 +5,6 @@ import io.philarios.core.v0.Wrapper
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.launch
 
 @DslBuilder
 class FooBuilder<out C>(val context: C, internal var shell: FooShell = FooShell()) {

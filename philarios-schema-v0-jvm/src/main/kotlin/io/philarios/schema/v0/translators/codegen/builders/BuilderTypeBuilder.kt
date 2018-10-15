@@ -1,41 +1,41 @@
-package io.philarios.schema.v0.translators.codegen.typespecs
+package io.philarios.schema.v0.translators.codegen.builders
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Wrapper
 import io.philarios.schema.v0.*
 import io.philarios.schema.v0.translators.codegen.*
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddAllParameterFunSpecs.addAllParameterFunction
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddAllParameterFunSpecs.addAllParameterFunctionWithWrapper
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddParameterFunSpecs.addParameterFunction
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddParameterFunSpecs.addParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddParameterFunSpecs.addParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddParameterFunSpecs.addParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.AddParameterFunSpecs.addParameterFunctionWithWrapper
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.PutParameterFunSpecs.putKeyValueParameterFunction
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.PutParameterFunSpecs.putKeyValueParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.PutParameterFunSpecs.putKeyValueParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.PutParameterFunSpecs.putKeyValueParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.PutParameterFunSpecs.putPairParameterFunction
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.SetParameterFunSpecs.setParameterFunction
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.SetParameterFunSpecs.setParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.SetParameterFunSpecs.setParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.SetParameterFunSpecs.setParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.typespecs.StructBuilderTypeSpec.SetParameterFunSpecs.setParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putPairParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithWrapper
 
-object BuilderTypeSpec {
+object BuilderTypeBuilder {
 
     fun build(type: Type, typeRefs: Map<RefType, Type>): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructBuilderTypeSpec.build(type, typeRefs)
-            is Union -> UnionBuilderTypeSpec.build(type, typeRefs)
+            is Struct -> StructBuilderTypeBuilder.build(type, typeRefs)
+            is Union -> UnionBuilderTypeBuilder.build(type, typeRefs)
             else -> emptyList()
         }
     }
 
 }
 
-private object StructBuilderTypeSpec {
+private object StructBuilderTypeBuilder {
 
     fun build(type: Struct, typeRefs: Map<RefType, Type>): List<TypeSpec> {
         return listOf(buildOne(type, typeRefs)).mapNotNull { it }
@@ -555,10 +555,10 @@ private object StructBuilderTypeSpec {
 
 }
 
-private object UnionBuilderTypeSpec {
+private object UnionBuilderTypeBuilder {
 
     fun build(type: Union, typeRefs: Map<RefType, Type>): List<TypeSpec> {
-        return type.shapes.flatMap { StructBuilderTypeSpec.build(it, typeRefs) }
+        return type.shapes.flatMap { StructBuilderTypeBuilder.build(it, typeRefs) }
     }
 
 }

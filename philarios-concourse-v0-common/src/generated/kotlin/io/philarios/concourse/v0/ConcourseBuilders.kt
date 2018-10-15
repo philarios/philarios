@@ -10,8 +10,6 @@ import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.launch
 
 @DslBuilder
 class ConcourseBuilder<out C>(val context: C, internal var shell: ConcourseShell = ConcourseShell()) {

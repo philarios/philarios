@@ -7,7 +7,7 @@ import java.io.File
 class SchemaCodegen(private val outputDirectory: kotlin.String) : Translator<Schema, Unit> {
     override fun translate(context: Schema) {
         val directory = File(outputDirectory)
-        SchemaFileSpec.build(context)
+        SchemaFileBuilder.build(context)
                 .forEach { it.writeTo(directory) }
     }
 }

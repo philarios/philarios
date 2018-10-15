@@ -1,4 +1,4 @@
-package io.philarios.schema.v0.translators.codegen.typespecs
+package io.philarios.schema.v0.translators.codegen.builders
 
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -11,19 +11,19 @@ import io.philarios.schema.v0.translators.codegen.className
 import io.philarios.schema.v0.translators.codegen.refClassName
 import io.philarios.schema.v0.translators.codegen.scaffoldClassName
 
-object RefTypeSpec {
+object RefTypeBuilder {
 
     fun build(type: Type): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructRefTypeSpec.build(type)
-            is Union -> UnionRefTypeSpec.build(type)
+            is Struct -> StructRefTypeBuilder.build(type)
+            is Union -> UnionRefTypeBuilder.build(type)
             else -> emptyList()
         }
     }
 
 }
 
-object StructRefTypeSpec {
+private object StructRefTypeBuilder {
 
     fun build(type: Struct): List<TypeSpec> {
         return listOf(buildOne(type)).mapNotNull { it }
@@ -55,14 +55,14 @@ object StructRefTypeSpec {
 
 }
 
-private object UnionRefTypeSpec {
+private object UnionRefTypeBuilder {
 
     fun build(type: Union): List<TypeSpec> {
         return buildShapes(type)
     }
 
     private fun buildShapes(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { StructRefTypeSpec.build(it) }
+        return type.shapes.flatMap { StructRefTypeBuilder.build(it) }
     }
 
 }

@@ -1,4 +1,4 @@
-package io.philarios.schema.v0.translators.codegen.typespecs
+package io.philarios.schema.v0.translators.codegen.builders
 
 import com.squareup.kotlinpoet.*
 import io.philarios.schema.v0.EnumType
@@ -8,20 +8,20 @@ import io.philarios.schema.v0.Union
 import io.philarios.schema.v0.translators.codegen.className
 import io.philarios.schema.v0.translators.codegen.typeName
 
-object DataTypeSpec {
+object DataTypeBuilder {
 
     fun build(type: Type): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructDataTypeSpec.build(type)
-            is Union -> UnionDataTypeSpec.build(type)
-            is EnumType -> EnumTypeDataTypeSpec.build(type)
+            is Struct -> StructDataTypeBuilder.build(type)
+            is Union -> UnionDataTypeBuilder.build(type)
+            is EnumType -> EnumTypeDataTypeBuilder.build(type)
             else -> emptyList()
         }
     }
 
 }
 
-private object StructDataTypeSpec {
+private object StructDataTypeBuilder {
 
     fun build(type: Struct, superclass: ClassName? = null): List<TypeSpec> {
         return listOf(buildOne(type, superclass))
@@ -65,7 +65,7 @@ private object StructDataTypeSpec {
 
 }
 
-private object UnionDataTypeSpec {
+private object UnionDataTypeBuilder {
 
     fun build(type: Union): List<TypeSpec> {
         return listOf(buildSuperclass(type)) + buildShapes(type)
@@ -78,12 +78,12 @@ private object UnionDataTypeSpec {
     }
 
     private fun buildShapes(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { StructDataTypeSpec.build(it, type.className) }
+        return type.shapes.flatMap { StructDataTypeBuilder.build(it, type.className) }
     }
 
 }
 
-private object EnumTypeDataTypeSpec {
+private object EnumTypeDataTypeBuilder {
 
     fun build(type: EnumType): List<TypeSpec> {
         if (type.values.isEmpty()) {

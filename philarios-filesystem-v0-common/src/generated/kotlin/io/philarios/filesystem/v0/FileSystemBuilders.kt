@@ -3,8 +3,6 @@ package io.philarios.filesystem.v0
 import io.philarios.core.v0.DslBuilder
 import kotlin.String
 import kotlin.collections.Iterable
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.launch
 
 @DslBuilder
 class DirectoryBuilder<out C>(val context: C, internal var shell: DirectoryShell = DirectoryShell()) {

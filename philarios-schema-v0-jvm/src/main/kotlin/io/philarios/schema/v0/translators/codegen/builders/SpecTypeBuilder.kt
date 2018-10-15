@@ -1,4 +1,4 @@
-package io.philarios.schema.v0.translators.codegen.typespecs
+package io.philarios.schema.v0.translators.codegen.builders
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.Spec
@@ -10,19 +10,19 @@ import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.Statement
 import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addStatements
 
 
-object SpecTypeSpec {
+object SpecTypeBuilder {
 
     fun build(type: Type): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructSpecTypeSpec.build(type)
-            is Union -> UnionSpecTypeSpec.build(type)
+            is Struct -> StructSpecTypeBuilder.build(type)
+            is Union -> UnionSpecTypeBuilder.build(type)
             else -> emptyList()
         }
     }
 
 }
 
-private object StructSpecTypeSpec {
+private object StructSpecTypeBuilder {
 
     fun build(type: Struct): List<TypeSpec> {
         return listOf(buildOne(type)).mapNotNull { it }
@@ -63,10 +63,10 @@ private object StructSpecTypeSpec {
 
 }
 
-private object UnionSpecTypeSpec {
+private object UnionSpecTypeBuilder {
 
     fun build(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { StructSpecTypeSpec.build(it) }
+        return type.shapes.flatMap { StructSpecTypeBuilder.build(it) }
     }
 
 }

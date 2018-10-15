@@ -6,8 +6,6 @@ import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.launch
 
 @DslBuilder
 class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = SchemaShell()) {

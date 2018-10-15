@@ -2,8 +2,6 @@ package io.philarios.domain.v0
 
 import kotlin.String
 import kotlin.collections.List
-import kotlinx.coroutines.experimental.coroutineScope
-import kotlinx.coroutines.experimental.launch
 
 data class Domain(val entities: List<Entity>, val relationships: List<Relationship>)
 
