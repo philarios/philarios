@@ -2,7 +2,7 @@ package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.FileSpec
 import io.philarios.schema.v0.*
-import io.philarios.schema.v0.translators.codegen.builders.BuilderTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.builder.BuilderTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.DataTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.RefTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.ShellTypeBuilder

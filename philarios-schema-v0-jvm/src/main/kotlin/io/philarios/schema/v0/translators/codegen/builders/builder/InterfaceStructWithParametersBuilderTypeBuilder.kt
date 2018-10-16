@@ -1,58 +1,32 @@
-package io.philarios.schema.v0.translators.codegen.builders
+package io.philarios.schema.v0.translators.codegen.builders.builder
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Wrapper
-import io.philarios.schema.v0.*
+import io.philarios.schema.v0.Field
+import io.philarios.schema.v0.Struct
+import io.philarios.schema.v0.Type
 import io.philarios.schema.v0.translators.codegen.*
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunction
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunctionWithWrapper
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunction
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithWrapper
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunction
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.PutParameterFunSpecs.putPairParameterFunction
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunction
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithBody
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithRef
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithSpec
-import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddAllParameterFunSpecs.addAllParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.AddParameterFunSpecs.addParameterFunctionWithWrapper
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.PutParameterFunSpecs.putKeyValueParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.PutParameterFunSpecs.putPairParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunction
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithBody
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithRef
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithSpec
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithWrapper
 
-class BuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
-
-    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
-    private val unionBuilder = UnionBuilderTypeBuilder(typeRefs)
-
-    fun build(type: Type): List<TypeSpec> {
-        return when (type) {
-            is Struct -> structBuilder.build(type)
-            is Union -> unionBuilder.build(type)
-            else -> emptyList()
-        }
-    }
-
-}
-
-private class StructBuilderTypeBuilder(private val typeRefs: Map<RefType, Type>) {
-
-    fun build(type: Struct): List<TypeSpec> {
-        return listOf(buildOne(type)).mapNotNull { it }
-    }
-
-    private fun buildOne(type: Struct): TypeSpec? {
-        if (type.fields.isEmpty()) {
-            return null
-        }
-        return buildDataClass(type)
-    }
-
-    private fun buildDataClass(type: Struct): TypeSpec {
-        val fields = type.fields
+class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuilderTypeBuilder {
+    override fun buildOneWithParameterFunctions(type: Struct, parameterFunctions: List<ParameterFunction>): TypeSpec {
         return TypeSpec.classBuilder(type.builderClassName.rawType)
                 .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
@@ -64,10 +38,7 @@ private class StructBuilderTypeBuilder(private val typeRefs: Map<RefType, Type>)
                         .initializer("shell")
                         .mutable(true)
                         .build())
-                .addFunctions(fields
-                        .map { parameterFunctions(type, it) }
-                        .flatMap { it }
-                )
+                .addFunctions(parameterFunctions.map { parameterFunction(it) })
                 .addFunctions(includeFunctions(type))
                 .addFunction(splitFunction(type))
                 .addFunction(mergeFunction(type))
@@ -77,186 +48,32 @@ private class StructBuilderTypeBuilder(private val typeRefs: Map<RefType, Type>)
     private fun constructor(type: Struct): FunSpec {
         return FunSpec.constructorBuilder()
                 .addParameter(contextParameterSpec)
-                .addParameter(ParameterSpec
-                        .builder("shell", type.shellClassName)
+                .addParameter(ParameterSpec.builder("shell", type.shellClassName)
                         .defaultValue("%T()", type.shellClassName)
                         .build())
                 .build()
     }
 
-    private fun parameterFunctions(type: Struct, field: Field): List<FunSpec> {
-        val fieldType = field.type
-        return when (fieldType) {
-            is Struct -> structParameterFunctions(type, field, fieldType)
-            is Union -> unionParameterFunctions(type, field, fieldType)
-            is ListType -> listParameterFunctions(type, field, fieldType)
-            is MapType -> mapParameterFunctions(type, field, fieldType)
-            is RefType -> refTypeParameterFunctions(type, field, fieldType)
-            is OptionType -> optionTypeParameterFunctions(type, field, fieldType)
-            else -> primitiveParameterFunctions(type, field)
+    private fun parameterFunction(parameterFunction: ParameterFunction): FunSpec {
+        return when (parameterFunction) {
+            is ParameterFunction.SetParameterFunction -> setParameterFunction(parameterFunction.type, parameterFunction.field, parameterFunction.fieldType)
+            is ParameterFunction.SetParameterFunctionWithWrapper -> setParameterFunctionWithWrapper(parameterFunction.type, parameterFunction.field, parameterFunction.fieldType)
+            is ParameterFunction.SetParameterFunctionWithBody -> setParameterFunctionWithBody(parameterFunction.type, parameterFunction.field, parameterFunction.fieldType)
+            is ParameterFunction.SetParameterFunctionWithSpec -> setParameterFunctionWithSpec(parameterFunction.type, parameterFunction.field, parameterFunction.fieldType)
+            is ParameterFunction.SetParameterFunctionWithRef -> setParameterFunctionWithRef(parameterFunction.type, parameterFunction.field, parameterFunction.fieldType)
+            is ParameterFunction.AddParameterFunction -> addParameterFunction(parameterFunction.type, parameterFunction.field, parameterFunction.listType)
+            is ParameterFunction.AddParameterFunctionWithWrapper -> addParameterFunctionWithWrapper(parameterFunction.type, parameterFunction.field, parameterFunction.listType)
+            is ParameterFunction.AddParameterFunctionWithBody -> addParameterFunctionWithBody(parameterFunction.type, parameterFunction.field, parameterFunction.listType)
+            is ParameterFunction.AddParameterFunctionWithSpec -> addParameterFunctionWithSpec(parameterFunction.type, parameterFunction.field, parameterFunction.listType)
+            is ParameterFunction.AddParameterFunctionWithRef -> addParameterFunctionWithRef(parameterFunction.type, parameterFunction.field, parameterFunction.listType)
+            is ParameterFunction.PutKeyValueParameterFunction -> putKeyValueParameterFunction(parameterFunction.type, parameterFunction.field, parameterFunction.keyType, parameterFunction.valueType)
+            is ParameterFunction.PutKeyValueParameterFunctionWithBody -> putKeyValueParameterFunctionWithBody(parameterFunction.type, parameterFunction.field, parameterFunction.keyType, parameterFunction.valueType)
+            is ParameterFunction.PutKeyValueParameterFunctionWithSpec -> putKeyValueParameterFunctionWithSpec(parameterFunction.type, parameterFunction.field, parameterFunction.keyType, parameterFunction.valueType)
+            is ParameterFunction.PutKeyValueParameterFunctionWithRef -> putKeyValueParameterFunctionWithRef(parameterFunction.type, parameterFunction.field, parameterFunction.keyType, parameterFunction.valueType)
+            is ParameterFunction.PutPairParameterFunction -> putPairParameterFunction(parameterFunction.type, parameterFunction.field, parameterFunction.keyType, parameterFunction.valueType)
+            is ParameterFunction.AddAllParameterFunction -> addAllParameterFunction(parameterFunction.type, parameterFunction.field)
+            is ParameterFunction.AddAllParameterFunctionWithWrapper -> addAllParameterFunctionWithWrapper(parameterFunction.type, parameterFunction.field)
         }
-    }
-
-    private fun structParameterFunctions(type: Struct, field: Field, fieldType: Struct): List<FunSpec> {
-        return if (fieldType.fields.isEmpty()) {
-            listOf(
-                    setParameterFunction(type, field, fieldType)
-            )
-        } else {
-            listOf(
-                    setParameterFunctionWithBody(type, field, fieldType),
-                    setParameterFunctionWithSpec(type, field, fieldType),
-                    setParameterFunctionWithRef(type, field, fieldType),
-                    setParameterFunctionWithWrapper(type, field, fieldType)
-            )
-        }
-    }
-
-    private fun unionParameterFunctions(type: Struct, field: Field, fieldType: Union): List<FunSpec> {
-        return fieldType.shapes.flatMap {
-            if (it.fields.isEmpty()) {
-                listOf(
-                        setParameterFunctionWithWrapper(type, field, it)
-                )
-            } else {
-                listOf(
-                        setParameterFunctionWithSpec(type, field, it),
-                        setParameterFunctionWithRef(type, field, it)
-                )
-            }
-        }
-    }
-
-    private fun listParameterFunctions(type: Struct, field: Field, fieldType: ListType): List<FunSpec> {
-        val listType = fieldType.type
-        return when (listType) {
-            is Struct -> structListParameterFunctions(type, field, listType)
-            is Union -> unionListParameterFunctions(type, field, listType)
-            is ListType -> throw UnsupportedOperationException("Nested lists are not (yet) supported")
-            is MapType -> throw UnsupportedOperationException("Nested lists are not (yet) supported")
-            is RefType -> refListParameterFunctions(type, field, listType)
-            else -> primitiveListParameterFunction(type, field, listType)
-        }
-    }
-
-    private fun structListParameterFunctions(type: Struct, field: Field, listType: Struct): List<FunSpec> {
-        return if (listType.fields.isEmpty()) {
-            listOf(
-                    addParameterFunction(type, field, listType),
-                    addAllParameterFunction(type, field)
-            )
-        } else {
-            listOf(
-                    addParameterFunctionWithBody(type, field, listType),
-                    addParameterFunctionWithSpec(type, field, listType),
-                    addParameterFunctionWithRef(type, field, listType),
-                    addParameterFunctionWithWrapper(type, field, listType),
-                    addAllParameterFunctionWithWrapper(type, field)
-            )
-        }
-    }
-
-    private fun unionListParameterFunctions(type: Struct, field: Field, listType: Union): List<FunSpec> {
-        return listType.shapes.flatMap {
-            if (it.fields.isEmpty()) {
-                listOf(
-                        addParameterFunctionWithWrapper(type, field, it)
-                )
-            } else {
-                listOf(
-                        addParameterFunctionWithSpec(type, field, it),
-                        addParameterFunctionWithRef(type, field, it)
-                )
-            }
-        }
-    }
-
-    private fun refListParameterFunctions(type: Struct, field: Field, listType: RefType): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = ListType(typeRefs[listType]!!)))
-    }
-
-    private fun primitiveListParameterFunction(type: Struct, field: Field, listType: Type): List<FunSpec> {
-        return listOf(
-                addParameterFunction(type, field, listType),
-                addAllParameterFunction(type, field)
-        )
-    }
-
-    private fun mapParameterFunctions(type: Struct, field: Field, fieldType: MapType): List<FunSpec> {
-        val keyType = fieldType.keyType
-        val valueType = fieldType.valueType
-        return when {
-            keyType is RefType || valueType is RefType -> refMapParameterFunctions(type, field, keyType, valueType)
-            keyType is ListType || valueType is ListType -> throw UnsupportedOperationException("Nested maps are not (yet) supported")
-            keyType is MapType || valueType is MapType -> throw UnsupportedOperationException("Nested maps are not (yet) supported")
-            keyType is Struct -> throw UnsupportedOperationException("Structs as map keys are not (yet) supported")
-            keyType is Union -> throw UnsupportedOperationException("Unions as map keys are not (yet) supported")
-            valueType is Struct -> structValueMapParameterFunctions(type, field, keyType, valueType)
-            valueType is Union -> unionValueMapParameterFunctions(type, field, keyType, valueType)
-            else -> primitiveMapParameterFunctions(type, field, keyType, valueType)
-        }
-    }
-
-    fun structValueMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Struct): List<FunSpec> {
-        return if (valueType.fields.isEmpty()) {
-            listOf(
-                    putKeyValueParameterFunction(type, field, keyType, valueType),
-                    putPairParameterFunction(type, field, keyType, valueType)
-            )
-        } else {
-            listOf(
-                    putKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
-                    putKeyValueParameterFunctionWithSpec(type, field, keyType, valueType),
-                    putKeyValueParameterFunctionWithRef(type, field, keyType, valueType),
-                    putKeyValueParameterFunction(type, field, keyType, valueType),
-                    putPairParameterFunction(type, field, keyType, valueType)
-            )
-        }
-    }
-
-    fun unionValueMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Union): List<FunSpec> {
-        return valueType.shapes.flatMap {
-            if (it.fields.isEmpty()) {
-                listOf(
-                        putKeyValueParameterFunction(type, field, keyType, it),
-                        putPairParameterFunction(type, field, keyType, it)
-                )
-            } else {
-                listOf(
-                        putKeyValueParameterFunctionWithSpec(type, field, keyType, it),
-                        putKeyValueParameterFunctionWithRef(type, field, keyType, it)
-                )
-            }
-        }
-    }
-
-    fun refMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<FunSpec> {
-        return parameterFunctions(type, Field(field.name, field.key, MapType(
-                (keyType as? RefType)?.let { typeRefs[it]!! } ?: keyType,
-                (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
-        )))
-    }
-
-    fun primitiveMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<FunSpec> {
-        return listOf(
-                putKeyValueParameterFunction(type, field, keyType, valueType),
-                putPairParameterFunction(type, field, keyType, valueType),
-                addAllParameterFunction(type, field)
-        )
-    }
-
-    private fun refTypeParameterFunctions(type: Struct, field: Field, fieldType: RefType): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = typeRefs[fieldType]!!))
-    }
-
-    private fun optionTypeParameterFunctions(type: Struct, field: Field, fieldType: OptionType): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = fieldType.type))
-    }
-
-    private fun primitiveParameterFunctions(type: Struct, field: Field): List<FunSpec> {
-        return listOf(
-                setParameterFunction(type, field, field.type)
-        )
     }
 
     private object SetParameterFunSpecs {
@@ -554,16 +371,6 @@ private class StructBuilderTypeBuilder(private val typeRefs: Map<RefType, Type>)
                 .addParameter("other", type.otherBuilderClassName)
                 .addStatement("this.shell = other.shell")
                 .build()
-    }
-
-}
-
-private class UnionBuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
-
-    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
-
-    fun build(type: Union): List<TypeSpec> {
-        return type.shapes.flatMap { structBuilder.build(it) }
     }
 
 }
