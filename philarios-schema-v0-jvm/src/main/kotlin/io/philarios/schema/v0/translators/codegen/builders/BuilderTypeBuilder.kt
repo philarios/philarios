@@ -23,32 +23,35 @@ import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuil
 import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithSpec
 import io.philarios.schema.v0.translators.codegen.builders.StructBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithWrapper
 
-object BuilderTypeBuilder {
+class BuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
 
-    fun build(type: Type, typeRefs: Map<RefType, Type>): List<TypeSpec> {
+    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
+    private val unionBuilder = UnionBuilderTypeBuilder(typeRefs)
+
+    fun build(type: Type): List<TypeSpec> {
         return when (type) {
-            is Struct -> StructBuilderTypeBuilder.build(type, typeRefs)
-            is Union -> UnionBuilderTypeBuilder.build(type, typeRefs)
+            is Struct -> structBuilder.build(type)
+            is Union -> unionBuilder.build(type)
             else -> emptyList()
         }
     }
 
 }
 
-private object StructBuilderTypeBuilder {
+private class StructBuilderTypeBuilder(private val typeRefs: Map<RefType, Type>) {
 
-    fun build(type: Struct, typeRefs: Map<RefType, Type>): List<TypeSpec> {
-        return listOf(buildOne(type, typeRefs)).mapNotNull { it }
+    fun build(type: Struct): List<TypeSpec> {
+        return listOf(buildOne(type)).mapNotNull { it }
     }
 
-    private fun buildOne(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec? {
+    private fun buildOne(type: Struct): TypeSpec? {
         if (type.fields.isEmpty()) {
             return null
         }
-        return buildDataClass(type, typeRefs)
+        return buildDataClass(type)
     }
 
-    private fun buildDataClass(type: Struct, typeRefs: Map<RefType, Type>): TypeSpec {
+    private fun buildDataClass(type: Struct): TypeSpec {
         val fields = type.fields
         return TypeSpec.classBuilder(type.builderClassName.rawType)
                 .addAnnotation(DslBuilder::class.className)
@@ -62,7 +65,7 @@ private object StructBuilderTypeBuilder {
                         .mutable(true)
                         .build())
                 .addFunctions(fields
-                        .map { parameterFunctions(type, it, typeRefs) }
+                        .map { parameterFunctions(type, it) }
                         .flatMap { it }
                 )
                 .addFunctions(includeFunctions(type))
@@ -81,15 +84,15 @@ private object StructBuilderTypeBuilder {
                 .build()
     }
 
-    private fun parameterFunctions(type: Struct, field: Field, typeRefs: Map<RefType, Type>): List<FunSpec> {
+    private fun parameterFunctions(type: Struct, field: Field): List<FunSpec> {
         val fieldType = field.type
         return when (fieldType) {
             is Struct -> structParameterFunctions(type, field, fieldType)
             is Union -> unionParameterFunctions(type, field, fieldType)
-            is ListType -> listParameterFunctions(type, field, fieldType, typeRefs)
-            is MapType -> mapParameterFunctions(type, field, fieldType, typeRefs)
-            is RefType -> refTypeParameterFunctions(type, field, fieldType, typeRefs)
-            is OptionType -> optionTypeParameterFunctions(type, field, fieldType, typeRefs)
+            is ListType -> listParameterFunctions(type, field, fieldType)
+            is MapType -> mapParameterFunctions(type, field, fieldType)
+            is RefType -> refTypeParameterFunctions(type, field, fieldType)
+            is OptionType -> optionTypeParameterFunctions(type, field, fieldType)
             else -> primitiveParameterFunctions(type, field)
         }
     }
@@ -124,14 +127,14 @@ private object StructBuilderTypeBuilder {
         }
     }
 
-    private fun listParameterFunctions(type: Struct, field: Field, fieldType: ListType, typeRefs: Map<RefType, Type>): List<FunSpec> {
+    private fun listParameterFunctions(type: Struct, field: Field, fieldType: ListType): List<FunSpec> {
         val listType = fieldType.type
         return when (listType) {
             is Struct -> structListParameterFunctions(type, field, listType)
             is Union -> unionListParameterFunctions(type, field, listType)
             is ListType -> throw UnsupportedOperationException("Nested lists are not (yet) supported")
             is MapType -> throw UnsupportedOperationException("Nested lists are not (yet) supported")
-            is RefType -> refListParameterFunctions(type, field, listType, typeRefs)
+            is RefType -> refListParameterFunctions(type, field, listType)
             else -> primitiveListParameterFunction(type, field, listType)
         }
     }
@@ -168,8 +171,8 @@ private object StructBuilderTypeBuilder {
         }
     }
 
-    private fun refListParameterFunctions(type: Struct, field: Field, listType: RefType, typeRefs: Map<RefType, Type>): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = ListType(typeRefs[listType]!!)), typeRefs)
+    private fun refListParameterFunctions(type: Struct, field: Field, listType: RefType): List<FunSpec> {
+        return parameterFunctions(type, field.copy(type = ListType(typeRefs[listType]!!)))
     }
 
     private fun primitiveListParameterFunction(type: Struct, field: Field, listType: Type): List<FunSpec> {
@@ -179,11 +182,11 @@ private object StructBuilderTypeBuilder {
         )
     }
 
-    private fun mapParameterFunctions(type: Struct, field: Field, fieldType: MapType, typeRefs: Map<RefType, Type>): List<FunSpec> {
+    private fun mapParameterFunctions(type: Struct, field: Field, fieldType: MapType): List<FunSpec> {
         val keyType = fieldType.keyType
         val valueType = fieldType.valueType
         return when {
-            keyType is RefType || valueType is RefType -> refMapParameterFunctions(type, field, keyType, valueType, typeRefs)
+            keyType is RefType || valueType is RefType -> refMapParameterFunctions(type, field, keyType, valueType)
             keyType is ListType || valueType is ListType -> throw UnsupportedOperationException("Nested maps are not (yet) supported")
             keyType is MapType || valueType is MapType -> throw UnsupportedOperationException("Nested maps are not (yet) supported")
             keyType is Struct -> throw UnsupportedOperationException("Structs as map keys are not (yet) supported")
@@ -227,11 +230,11 @@ private object StructBuilderTypeBuilder {
         }
     }
 
-    fun refMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type, typeRefs: Map<RefType, Type>): List<FunSpec> {
+    fun refMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<FunSpec> {
         return parameterFunctions(type, Field(field.name, field.key, MapType(
                 (keyType as? RefType)?.let { typeRefs[it]!! } ?: keyType,
                 (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
-        )), typeRefs)
+        )))
     }
 
     fun primitiveMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<FunSpec> {
@@ -242,12 +245,12 @@ private object StructBuilderTypeBuilder {
         )
     }
 
-    private fun refTypeParameterFunctions(type: Struct, field: Field, fieldType: RefType, typeRefs: Map<RefType, Type>): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = typeRefs[fieldType]!!), typeRefs)
+    private fun refTypeParameterFunctions(type: Struct, field: Field, fieldType: RefType): List<FunSpec> {
+        return parameterFunctions(type, field.copy(type = typeRefs[fieldType]!!))
     }
 
-    private fun optionTypeParameterFunctions(type: Struct, field: Field, fieldType: OptionType, typeRefs: Map<RefType, Type>): List<FunSpec> {
-        return parameterFunctions(type, field.copy(type = fieldType.type), typeRefs)
+    private fun optionTypeParameterFunctions(type: Struct, field: Field, fieldType: OptionType): List<FunSpec> {
+        return parameterFunctions(type, field.copy(type = fieldType.type))
     }
 
     private fun primitiveParameterFunctions(type: Struct, field: Field): List<FunSpec> {
@@ -555,10 +558,12 @@ private object StructBuilderTypeBuilder {
 
 }
 
-private object UnionBuilderTypeBuilder {
+private class UnionBuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
 
-    fun build(type: Union, typeRefs: Map<RefType, Type>): List<TypeSpec> {
-        return type.shapes.flatMap { StructBuilderTypeBuilder.build(it, typeRefs) }
+    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
+
+    fun build(type: Union): List<TypeSpec> {
+        return type.shapes.flatMap { structBuilder.build(it) }
     }
 
 }

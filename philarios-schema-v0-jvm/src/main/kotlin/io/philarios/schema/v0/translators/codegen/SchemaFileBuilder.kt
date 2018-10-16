@@ -26,7 +26,7 @@ object SchemaFileBuilder {
 
     private fun buildBuilders(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
         return FileSpec.builder(schema.pkg, "${schema.name}Builders")
-                .addTypes(schema.types.flatMap { BuilderTypeBuilder.build(it, typeRefs) })
+                .addTypes(schema.types.flatMap { BuilderTypeBuilder(typeRefs).build(it) })
                 .build()
     }
 
