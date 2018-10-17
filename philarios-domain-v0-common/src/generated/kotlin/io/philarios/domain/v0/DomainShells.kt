@@ -2,6 +2,7 @@ package io.philarios.domain.v0
 
 import io.philarios.core.v0.Registry
 import io.philarios.core.v0.Scaffold
+import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.List
 import kotlinx.coroutines.experimental.coroutineScope
@@ -51,11 +52,22 @@ data class RelationshipShell(
     }
 }
 
-data class AttributeShell(var name: String? = null, var type: Type? = null) : Scaffold<Attribute> {
+data class AttributeShell(var name: String? = null, var type: Scaffold<Type>? = null) : Scaffold<Attribute> {
     override suspend fun resolve(registry: Registry): Attribute {
         checkNotNull(name) { "Attribute is missing the name property" }
         checkNotNull(type) { "Attribute is missing the type property" }
-        val value = Attribute(name!!,type!!)
+        coroutineScope {
+        	launch { type!!.resolve(registry) }
+        }
+        val value = Attribute(name!!,type!!.resolve(registry))
+        return value
+    }
+}
+
+data class TypeShell(var type: RawType? = null, var nullable: Boolean? = null) : Scaffold<Type> {
+    override suspend fun resolve(registry: Registry): Type {
+        checkNotNull(type) { "Type is missing the type property" }
+        val value = Type(type!!,nullable)
         return value
     }
 }

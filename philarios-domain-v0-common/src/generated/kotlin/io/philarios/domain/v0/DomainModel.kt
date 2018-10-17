@@ -1,5 +1,6 @@
 package io.philarios.domain.v0
 
+import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.List
 
@@ -16,7 +17,9 @@ data class Relationship(
 
 data class Attribute(val name: String, val type: Type)
 
-enum class Type {
+data class Type(val type: RawType, val nullable: Boolean?)
+
+enum class RawType {
     Boolean,
 
     Int,

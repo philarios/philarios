@@ -2,6 +2,7 @@ package io.philarios.domain.v0
 
 import io.philarios.core.v0.DslBuilder
 import io.philarios.core.v0.Wrapper
+import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -243,8 +244,20 @@ class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell
         shell = shell.copy(name = name)
     }
 
+    fun <C> AttributeBuilder<C>.type(body: TypeBuilder<C>.() -> Unit) {
+        shell = shell.copy(type = TypeSpec<C>(body).connect(context))
+    }
+
+    fun <C> AttributeBuilder<C>.type(spec: TypeSpec<C>) {
+        shell = shell.copy(type = spec.connect(context))
+    }
+
+    fun <C> AttributeBuilder<C>.type(ref: TypeRef) {
+        shell = shell.copy(type = ref)
+    }
+
     fun <C> AttributeBuilder<C>.type(type: Type) {
-        shell = shell.copy(type = type)
+        shell = shell.copy(type = Wrapper(type))
     }
 
     fun <C> AttributeBuilder<C>.include(body: AttributeBuilder<C>.() -> Unit) {
@@ -278,6 +291,51 @@ class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell
     private fun <C2> split(context: C2): AttributeBuilder<C2> = AttributeBuilder(context, shell)
 
     private fun <C2> merge(other: AttributeBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+class TypeBuilder<out C>(val context: C, internal var shell: TypeShell = TypeShell()) {
+    fun <C> TypeBuilder<C>.type(type: RawType) {
+        shell = shell.copy(type = type)
+    }
+
+    fun <C> TypeBuilder<C>.nullable(nullable: Boolean) {
+        shell = shell.copy(nullable = nullable)
+    }
+
+    fun <C> TypeBuilder<C>.include(body: TypeBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    fun <C> TypeBuilder<C>.include(spec: TypeSpec<C>) {
+        apply(spec.body)
+    }
+
+    fun <C, C2> TypeBuilder<C>.include(context: C2, body: TypeBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    fun <C, C2> TypeBuilder<C>.include(context: C2, spec: TypeSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    fun <C, C2> TypeBuilder<C>.includeForEach(context: Iterable<C2>, body: TypeBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    fun <C, C2> TypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: TypeSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): TypeBuilder<C2> = TypeBuilder(context, shell)
+
+    private fun <C2> merge(other: TypeBuilder<C2>) {
         this.shell = other.shell
     }
 }

@@ -96,8 +96,25 @@ object DomainSchemaSpec : SchemaSpec<Any?>({
         }
     })
 
-    type(EnumTypeSpec {
+    type(StructSpec {
         name("Type")
+
+        field {
+            name("type")
+            type(RefTypeSpec {
+                name("RawType")
+            })
+        }
+        field {
+            name("nullable")
+            type(OptionTypeSpec {
+                type(BooleanType)
+            })
+        }
+    })
+
+    type(EnumTypeSpec {
+        name("RawType")
         value("Boolean")
         value("Int")
         value("Long")

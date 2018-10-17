@@ -34,3 +34,11 @@ open class AttributeSpec<in C>(internal val body: AttributeBuilder<C>.() -> Unit
         return builder.shell
     }
 }
+
+open class TypeSpec<in C>(internal val body: TypeBuilder<C>.() -> Unit) : Spec<C, Type> {
+    override fun connect(context: C): Scaffold<Type> {
+        val builder = TypeBuilder<C>(context)
+        builder.apply(body)
+        return builder.shell
+    }
+}

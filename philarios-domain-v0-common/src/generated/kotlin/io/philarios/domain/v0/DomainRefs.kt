@@ -10,3 +10,5 @@ class EntityRef(key: String) : Scaffold<Entity> by io.philarios.core.v0.Registry
 class RelationshipRef(key: String) : Scaffold<Relationship> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Relationship::class, key)
 
 class AttributeRef(key: String) : Scaffold<Attribute> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Attribute::class, key)
+
+class TypeRef(key: String) : Scaffold<Type> by io.philarios.core.v0.RegistryRef(io.philarios.domain.v0.Type::class, key)
