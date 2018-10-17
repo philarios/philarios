@@ -53,7 +53,7 @@ private object StructSpecTypeBuilder {
                         .addParameter(contextParameterSpec)
                         .returns(type.scaffoldClassName)
                         .addStatements(
-                                Statement("val builder = %T(context)", listOf(type.builderClassName)),
+                                Statement("val builder = %T(context)", listOf(type.shellBuilderClassName)),
                                 Statement("builder.apply(body)"),
                                 Statement("return builder.shell")
                         )

@@ -87,6 +87,12 @@ val Type.builderClassName
 val Type.otherBuilderClassName
     get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C2"))
 
+val Type.shellBuilderClassName
+    get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C"))
+
+val Type.otherShellBuilderClassName
+    get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C2"))
+
 val Type.bodyLambdaTypeName
     get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))
 

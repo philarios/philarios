@@ -1,1033 +1,488 @@
 package io.philarios.schema.v0
 
 import io.philarios.core.v0.DslBuilder
-import io.philarios.core.v0.Wrapper
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 
 @DslBuilder
-class SchemaBuilder<out C>(val context: C, internal var shell: SchemaShell = SchemaShell()) {
-    fun <C> SchemaBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+interface SchemaBuilder<out C> {
+    fun name(name: String)
 
-    fun <C> SchemaBuilder<C>.pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
-    }
+    fun pkg(pkg: String)
 
-    fun <C> SchemaBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: StructSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: StructRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: StructRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: UnionSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: UnionRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: UnionRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: EnumTypeSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: EnumTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: EnumTypeRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: RefTypeSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: RefTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: RefTypeRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: OptionTypeSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: OptionTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: OptionTypeRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: ListTypeSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: ListTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: ListTypeRef)
 
-    fun <C> SchemaBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
+    fun type(spec: MapTypeSpec<C>)
 
-    fun <C> SchemaBuilder<C>.type(ref: MapTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
+    fun type(ref: MapTypeRef)
 
-    fun <C> SchemaBuilder<C>.type(type: BooleanType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: BooleanType)
 
-    fun <C> SchemaBuilder<C>.type(type: DoubleType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: DoubleType)
 
-    fun <C> SchemaBuilder<C>.type(type: FloatType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: FloatType)
 
-    fun <C> SchemaBuilder<C>.type(type: LongType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: LongType)
 
-    fun <C> SchemaBuilder<C>.type(type: IntType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: IntType)
 
-    fun <C> SchemaBuilder<C>.type(type: ShortType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: ShortType)
 
-    fun <C> SchemaBuilder<C>.type(type: ByteType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: ByteType)
 
-    fun <C> SchemaBuilder<C>.type(type: CharacterType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: CharacterType)
 
-    fun <C> SchemaBuilder<C>.type(type: StringType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: StringType)
 
-    fun <C> SchemaBuilder<C>.type(type: AnyType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
+    fun type(type: AnyType)
 
-    fun <C> SchemaBuilder<C>.reference(body: SchemaBuilder<C>.() -> Unit) {
-        shell = shell.copy(references = shell.references.orEmpty() + SchemaSpec<C>(body).connect(context))
-    }
+    fun reference(body: SchemaBuilder<C>.() -> Unit)
 
-    fun <C> SchemaBuilder<C>.reference(spec: SchemaSpec<C>) {
-        shell = shell.copy(references = shell.references.orEmpty() + spec.connect(context))
-    }
+    fun reference(spec: SchemaSpec<C>)
 
-    fun <C> SchemaBuilder<C>.reference(ref: SchemaRef) {
-        shell = shell.copy(references = shell.references.orEmpty() + ref)
-    }
+    fun reference(ref: SchemaRef)
 
-    fun <C> SchemaBuilder<C>.reference(reference: Schema) {
-        shell = shell.copy(references = shell.references.orEmpty() + Wrapper(reference))
-    }
+    fun reference(reference: Schema)
 
-    fun <C> SchemaBuilder<C>.references(references: List<Schema>) {
-        shell = shell.copy(references = shell.references.orEmpty() + references.map { Wrapper(it) })
-    }
+    fun references(references: List<Schema>)
 
-    fun <C> SchemaBuilder<C>.include(body: SchemaBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: SchemaBuilder<C>.() -> Unit)
 
-    fun <C> SchemaBuilder<C>.include(spec: SchemaSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: SchemaSpec<C>)
 
-    fun <C, C2> SchemaBuilder<C>.include(context: C2, body: SchemaBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: SchemaBuilder<C2>.() -> Unit)
 
-    fun <C, C2> SchemaBuilder<C>.include(context: C2, spec: SchemaSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: SchemaSpec<C2>)
 
-    fun <C, C2> SchemaBuilder<C>.includeForEach(context: Iterable<C2>, body: SchemaBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: SchemaBuilder<C2>.() -> Unit)
 
-    fun <C, C2> SchemaBuilder<C>.includeForEach(context: Iterable<C2>, spec: SchemaSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SchemaBuilder<C2> = SchemaBuilder(context, shell)
-
-    private fun <C2> merge(other: SchemaBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: SchemaSpec<C2>)
 }
 
 @DslBuilder
-class StructBuilder<out C>(val context: C, internal var shell: StructShell = StructShell()) {
-    fun <C> StructBuilder<C>.pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
-    }
+interface StructBuilder<out C> {
+    fun pkg(pkg: String)
 
-    fun <C> StructBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+    fun name(name: String)
 
-    fun <C> StructBuilder<C>.field(body: FieldBuilder<C>.() -> Unit) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldSpec<C>(body).connect(context))
-    }
+    fun field(body: FieldBuilder<C>.() -> Unit)
 
-    fun <C> StructBuilder<C>.field(spec: FieldSpec<C>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + spec.connect(context))
-    }
+    fun field(spec: FieldSpec<C>)
 
-    fun <C> StructBuilder<C>.field(ref: FieldRef) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + ref)
-    }
+    fun field(ref: FieldRef)
 
-    fun <C> StructBuilder<C>.field(field: Field) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + Wrapper(field))
-    }
+    fun field(field: Field)
 
-    fun <C> StructBuilder<C>.fields(fields: List<Field>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + fields.map { Wrapper(it) })
-    }
+    fun fields(fields: List<Field>)
 
-    fun <C> StructBuilder<C>.include(body: StructBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: StructBuilder<C>.() -> Unit)
 
-    fun <C> StructBuilder<C>.include(spec: StructSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: StructSpec<C>)
 
-    fun <C, C2> StructBuilder<C>.include(context: C2, body: StructBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: StructBuilder<C2>.() -> Unit)
 
-    fun <C, C2> StructBuilder<C>.include(context: C2, spec: StructSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: StructSpec<C2>)
 
-    fun <C, C2> StructBuilder<C>.includeForEach(context: Iterable<C2>, body: StructBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: StructBuilder<C2>.() -> Unit)
 
-    fun <C, C2> StructBuilder<C>.includeForEach(context: Iterable<C2>, spec: StructSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StructBuilder<C2> = StructBuilder(context, shell)
-
-    private fun <C2> merge(other: StructBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: StructSpec<C2>)
 }
 
 @DslBuilder
-class UnionBuilder<out C>(val context: C, internal var shell: UnionShell = UnionShell()) {
-    fun <C> UnionBuilder<C>.pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
-    }
+interface UnionBuilder<out C> {
+    fun pkg(pkg: String)
 
-    fun <C> UnionBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+    fun name(name: String)
 
-    fun <C> UnionBuilder<C>.shape(body: StructBuilder<C>.() -> Unit) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructSpec<C>(body).connect(context))
-    }
+    fun shape(body: StructBuilder<C>.() -> Unit)
 
-    fun <C> UnionBuilder<C>.shape(spec: StructSpec<C>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + spec.connect(context))
-    }
+    fun shape(spec: StructSpec<C>)
 
-    fun <C> UnionBuilder<C>.shape(ref: StructRef) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + ref)
-    }
+    fun shape(ref: StructRef)
 
-    fun <C> UnionBuilder<C>.shape(shape: Struct) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + Wrapper(shape))
-    }
+    fun shape(shape: Struct)
 
-    fun <C> UnionBuilder<C>.shapes(shapes: List<Struct>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + shapes.map { Wrapper(it) })
-    }
+    fun shapes(shapes: List<Struct>)
 
-    fun <C> UnionBuilder<C>.include(body: UnionBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: UnionBuilder<C>.() -> Unit)
 
-    fun <C> UnionBuilder<C>.include(spec: UnionSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: UnionSpec<C>)
 
-    fun <C, C2> UnionBuilder<C>.include(context: C2, body: UnionBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: UnionBuilder<C2>.() -> Unit)
 
-    fun <C, C2> UnionBuilder<C>.include(context: C2, spec: UnionSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: UnionSpec<C2>)
 
-    fun <C, C2> UnionBuilder<C>.includeForEach(context: Iterable<C2>, body: UnionBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: UnionBuilder<C2>.() -> Unit)
 
-    fun <C, C2> UnionBuilder<C>.includeForEach(context: Iterable<C2>, spec: UnionSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): UnionBuilder<C2> = UnionBuilder(context, shell)
-
-    private fun <C2> merge(other: UnionBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: UnionSpec<C2>)
 }
 
 @DslBuilder
-class EnumTypeBuilder<out C>(val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) {
-    fun <C> EnumTypeBuilder<C>.pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
-    }
+interface EnumTypeBuilder<out C> {
+    fun pkg(pkg: String)
 
-    fun <C> EnumTypeBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+    fun name(name: String)
 
-    fun <C> EnumTypeBuilder<C>.value(value: String) {
-        shell = shell.copy(values = shell.values.orEmpty() + value)
-    }
+    fun value(value: String)
 
-    fun <C> EnumTypeBuilder<C>.values(values: List<String>) {
-        shell = shell.copy(values = shell.values.orEmpty() + values)
-    }
+    fun values(values: List<String>)
 
-    fun <C> EnumTypeBuilder<C>.include(body: EnumTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: EnumTypeBuilder<C>.() -> Unit)
 
-    fun <C> EnumTypeBuilder<C>.include(spec: EnumTypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: EnumTypeSpec<C>)
 
-    fun <C, C2> EnumTypeBuilder<C>.include(context: C2, body: EnumTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: EnumTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> EnumTypeBuilder<C>.include(context: C2, spec: EnumTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: EnumTypeSpec<C2>)
 
-    fun <C, C2> EnumTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: EnumTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: EnumTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> EnumTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: EnumTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): EnumTypeBuilder<C2> = EnumTypeBuilder(context, shell)
-
-    private fun <C2> merge(other: EnumTypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: EnumTypeSpec<C2>)
 }
 
 @DslBuilder
-class RefTypeBuilder<out C>(val context: C, internal var shell: RefTypeShell = RefTypeShell()) {
-    fun <C> RefTypeBuilder<C>.pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
-    }
+interface RefTypeBuilder<out C> {
+    fun pkg(pkg: String)
 
-    fun <C> RefTypeBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+    fun name(name: String)
 
-    fun <C> RefTypeBuilder<C>.include(body: RefTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: RefTypeBuilder<C>.() -> Unit)
 
-    fun <C> RefTypeBuilder<C>.include(spec: RefTypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: RefTypeSpec<C>)
 
-    fun <C, C2> RefTypeBuilder<C>.include(context: C2, body: RefTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: RefTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> RefTypeBuilder<C>.include(context: C2, spec: RefTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: RefTypeSpec<C2>)
 
-    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> RefTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RefTypeBuilder<C2> = RefTypeBuilder(context, shell)
-
-    private fun <C2> merge(other: RefTypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>)
 }
 
 @DslBuilder
-class OptionTypeBuilder<out C>(val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) {
-    fun <C> OptionTypeBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+interface OptionTypeBuilder<out C> {
+    fun type(spec: StructSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: StructRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: StructRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: UnionSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: UnionRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: EnumTypeSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: EnumTypeRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: RefTypeSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: RefTypeRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: OptionTypeSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: OptionTypeRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: ListTypeSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: ListTypeRef)
 
-    fun <C> OptionTypeBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: MapTypeSpec<C>)
 
-    fun <C> OptionTypeBuilder<C>.type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: MapTypeRef)
 
-    fun <C> OptionTypeBuilder<C>.type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: BooleanType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: DoubleType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: FloatType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: LongType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: IntType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ShortType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ByteType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: CharacterType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: StringType)
 
-    fun <C> OptionTypeBuilder<C>.type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: AnyType)
 
-    fun <C> OptionTypeBuilder<C>.include(body: OptionTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: OptionTypeBuilder<C>.() -> Unit)
 
-    fun <C> OptionTypeBuilder<C>.include(spec: OptionTypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: OptionTypeSpec<C>)
 
-    fun <C, C2> OptionTypeBuilder<C>.include(context: C2, body: OptionTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: OptionTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> OptionTypeBuilder<C>.include(context: C2, spec: OptionTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: OptionTypeSpec<C2>)
 
-    fun <C, C2> OptionTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: OptionTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: OptionTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> OptionTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: OptionTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): OptionTypeBuilder<C2> = OptionTypeBuilder(context, shell)
-
-    private fun <C2> merge(other: OptionTypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: OptionTypeSpec<C2>)
 }
 
 @DslBuilder
-class ListTypeBuilder<out C>(val context: C, internal var shell: ListTypeShell = ListTypeShell()) {
-    fun <C> ListTypeBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+interface ListTypeBuilder<out C> {
+    fun type(spec: StructSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: StructRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: StructRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: UnionSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: UnionRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: EnumTypeSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: EnumTypeRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: RefTypeSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: RefTypeRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: OptionTypeSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: OptionTypeRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: ListTypeSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: ListTypeRef)
 
-    fun <C> ListTypeBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: MapTypeSpec<C>)
 
-    fun <C> ListTypeBuilder<C>.type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: MapTypeRef)
 
-    fun <C> ListTypeBuilder<C>.type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: BooleanType)
 
-    fun <C> ListTypeBuilder<C>.type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: DoubleType)
 
-    fun <C> ListTypeBuilder<C>.type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: FloatType)
 
-    fun <C> ListTypeBuilder<C>.type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: LongType)
 
-    fun <C> ListTypeBuilder<C>.type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: IntType)
 
-    fun <C> ListTypeBuilder<C>.type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ShortType)
 
-    fun <C> ListTypeBuilder<C>.type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ByteType)
 
-    fun <C> ListTypeBuilder<C>.type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: CharacterType)
 
-    fun <C> ListTypeBuilder<C>.type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: StringType)
 
-    fun <C> ListTypeBuilder<C>.type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: AnyType)
 
-    fun <C> ListTypeBuilder<C>.include(body: ListTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: ListTypeBuilder<C>.() -> Unit)
 
-    fun <C> ListTypeBuilder<C>.include(spec: ListTypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: ListTypeSpec<C>)
 
-    fun <C, C2> ListTypeBuilder<C>.include(context: C2, body: ListTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: ListTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> ListTypeBuilder<C>.include(context: C2, spec: ListTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: ListTypeSpec<C2>)
 
-    fun <C, C2> ListTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: ListTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: ListTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> ListTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: ListTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): ListTypeBuilder<C2> = ListTypeBuilder(context, shell)
-
-    private fun <C2> merge(other: ListTypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ListTypeSpec<C2>)
 }
 
 @DslBuilder
-class MapTypeBuilder<out C>(val context: C, internal var shell: MapTypeShell = MapTypeShell()) {
-    fun <C> MapTypeBuilder<C>.keyType(spec: StructSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+interface MapTypeBuilder<out C> {
+    fun keyType(spec: StructSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: StructRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: StructRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: UnionSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: UnionSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: UnionRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: UnionRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: EnumTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: EnumTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: EnumTypeRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: RefTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: RefTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: RefTypeRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: OptionTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: OptionTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: OptionTypeRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: ListTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: ListTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: ListTypeRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
+    fun keyType(spec: MapTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.keyType(ref: MapTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
+    fun keyType(ref: MapTypeRef)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: BooleanType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: BooleanType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: DoubleType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: DoubleType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: FloatType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: FloatType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: LongType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: LongType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: IntType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: IntType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: ShortType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: ShortType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: ByteType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: ByteType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: CharacterType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: CharacterType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: StringType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: StringType)
 
-    fun <C> MapTypeBuilder<C>.keyType(keyType: AnyType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
+    fun keyType(keyType: AnyType)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: StructSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: StructSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: StructRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: StructRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: UnionSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: UnionSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: UnionRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: UnionRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: EnumTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: EnumTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: EnumTypeRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: RefTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: RefTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: RefTypeRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: OptionTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: OptionTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: OptionTypeRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: ListTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: ListTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: ListTypeRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
+    fun valueType(spec: MapTypeSpec<C>)
 
-    fun <C> MapTypeBuilder<C>.valueType(ref: MapTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
+    fun valueType(ref: MapTypeRef)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: BooleanType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: BooleanType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: DoubleType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: DoubleType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: FloatType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: FloatType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: LongType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: LongType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: IntType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: IntType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: ShortType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: ShortType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: ByteType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: ByteType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: CharacterType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: CharacterType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: StringType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: StringType)
 
-    fun <C> MapTypeBuilder<C>.valueType(valueType: AnyType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
+    fun valueType(valueType: AnyType)
 
-    fun <C> MapTypeBuilder<C>.include(body: MapTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: MapTypeBuilder<C>.() -> Unit)
 
-    fun <C> MapTypeBuilder<C>.include(spec: MapTypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: MapTypeSpec<C>)
 
-    fun <C, C2> MapTypeBuilder<C>.include(context: C2, body: MapTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: MapTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> MapTypeBuilder<C>.include(context: C2, spec: MapTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: MapTypeSpec<C2>)
 
-    fun <C, C2> MapTypeBuilder<C>.includeForEach(context: Iterable<C2>, body: MapTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: MapTypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> MapTypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: MapTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): MapTypeBuilder<C2> = MapTypeBuilder(context, shell)
-
-    private fun <C2> merge(other: MapTypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: MapTypeSpec<C2>)
 }
 
 @DslBuilder
-class FieldBuilder<out C>(val context: C, internal var shell: FieldShell = FieldShell()) {
-    fun <C> FieldBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+interface FieldBuilder<out C> {
+    fun name(name: String)
 
-    fun <C> FieldBuilder<C>.key(key: Boolean) {
-        shell = shell.copy(key = key)
-    }
+    fun key(key: Boolean)
 
-    fun <C> FieldBuilder<C>.type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: StructSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: StructRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: StructRef)
 
-    fun <C> FieldBuilder<C>.type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: UnionSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: UnionRef)
 
-    fun <C> FieldBuilder<C>.type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: EnumTypeSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: EnumTypeRef)
 
-    fun <C> FieldBuilder<C>.type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: RefTypeSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: RefTypeRef)
 
-    fun <C> FieldBuilder<C>.type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: OptionTypeSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: OptionTypeRef)
 
-    fun <C> FieldBuilder<C>.type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: ListTypeSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: ListTypeRef)
 
-    fun <C> FieldBuilder<C>.type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(spec: MapTypeSpec<C>)
 
-    fun <C> FieldBuilder<C>.type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(ref: MapTypeRef)
 
-    fun <C> FieldBuilder<C>.type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: BooleanType)
 
-    fun <C> FieldBuilder<C>.type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: DoubleType)
 
-    fun <C> FieldBuilder<C>.type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: FloatType)
 
-    fun <C> FieldBuilder<C>.type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: LongType)
 
-    fun <C> FieldBuilder<C>.type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: IntType)
 
-    fun <C> FieldBuilder<C>.type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ShortType)
 
-    fun <C> FieldBuilder<C>.type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: ByteType)
 
-    fun <C> FieldBuilder<C>.type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: CharacterType)
 
-    fun <C> FieldBuilder<C>.type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: StringType)
 
-    fun <C> FieldBuilder<C>.type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(type: AnyType)
 
-    fun <C> FieldBuilder<C>.include(body: FieldBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun include(body: FieldBuilder<C>.() -> Unit)
 
-    fun <C> FieldBuilder<C>.include(spec: FieldSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(spec: FieldSpec<C>)
 
-    fun <C, C2> FieldBuilder<C>.include(context: C2, body: FieldBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: FieldBuilder<C2>.() -> Unit)
 
-    fun <C, C2> FieldBuilder<C>.include(context: C2, spec: FieldSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, spec: FieldSpec<C2>)
 
-    fun <C, C2> FieldBuilder<C>.includeForEach(context: Iterable<C2>, body: FieldBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: FieldBuilder<C2>.() -> Unit)
 
-    fun <C, C2> FieldBuilder<C>.includeForEach(context: Iterable<C2>, spec: FieldSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): FieldBuilder<C2> = FieldBuilder(context, shell)
-
-    private fun <C2> merge(other: FieldBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: FieldSpec<C2>)
 }

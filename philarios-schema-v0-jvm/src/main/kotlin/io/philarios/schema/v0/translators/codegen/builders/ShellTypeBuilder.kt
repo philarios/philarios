@@ -71,6 +71,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
         return TypeSpec.classBuilder(type.shellClassName)
                 .addSuperinterface(type.scaffoldClassName)
                 .let { builder -> superclass?.let { builder.superclass(it) } ?: builder }
+                .addModifiers(KModifier.INTERNAL)
                 .addModifiers(KModifier.DATA)
                 .primaryConstructor(FunSpec.constructorBuilder()
                         .addParameters(type.fields.map { field ->
@@ -252,6 +253,7 @@ private class UnionShellTypeBuilder(typeRefs: Map<RefType, Type>) {
 
     private fun buildSuperclass(type: Union): TypeSpec {
         return TypeSpec.classBuilder(type.shellClassName)
+                .addModifiers(KModifier.INTERNAL)
                 .addModifiers(KModifier.SEALED)
                 .build()
     }

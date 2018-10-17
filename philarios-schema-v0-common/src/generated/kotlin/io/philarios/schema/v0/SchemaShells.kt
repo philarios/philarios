@@ -8,7 +8,7 @@ import kotlin.collections.List
 import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.launch
 
-data class SchemaShell(
+internal data class SchemaShell(
         var name: String? = null,
         var pkg: String? = null,
         var types: List<Scaffold<Type>> = emptyList(),
@@ -27,9 +27,9 @@ data class SchemaShell(
     }
 }
 
-sealed class TypeShell
+internal sealed class TypeShell
 
-data class StructShell(
+internal data class StructShell(
         var pkg: String? = null,
         var name: String? = null,
         var fields: List<Scaffold<Field>> = emptyList()
@@ -45,7 +45,7 @@ data class StructShell(
     }
 }
 
-data class UnionShell(
+internal data class UnionShell(
         var pkg: String? = null,
         var name: String? = null,
         var shapes: List<Scaffold<Struct>> = emptyList()
@@ -61,7 +61,7 @@ data class UnionShell(
     }
 }
 
-data class EnumTypeShell(
+internal data class EnumTypeShell(
         var pkg: String? = null,
         var name: String? = null,
         var values: List<String> = emptyList()
@@ -74,7 +74,7 @@ data class EnumTypeShell(
     }
 }
 
-data class RefTypeShell(var pkg: String? = null, var name: String? = null) : TypeShell(),
+internal data class RefTypeShell(var pkg: String? = null, var name: String? = null) : TypeShell(),
         Scaffold<RefType> {
     override suspend fun resolve(registry: Registry): RefType {
         checkNotNull(name) { "RefType is missing the name property" }
@@ -84,7 +84,8 @@ data class RefTypeShell(var pkg: String? = null, var name: String? = null) : Typ
     }
 }
 
-data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<OptionType> {
+internal data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(),
+        Scaffold<OptionType> {
     override suspend fun resolve(registry: Registry): OptionType {
         checkNotNull(type) { "OptionType is missing the type property" }
         coroutineScope {
@@ -95,7 +96,8 @@ data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaf
     }
 }
 
-data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffold<ListType> {
+internal data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(),
+        Scaffold<ListType> {
     override suspend fun resolve(registry: Registry): ListType {
         checkNotNull(type) { "ListType is missing the type property" }
         coroutineScope {
@@ -106,7 +108,7 @@ data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(), Scaffo
     }
 }
 
-data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeShell(),
+internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeShell(),
         Scaffold<MapType> {
     override suspend fun resolve(registry: Registry): MapType {
         checkNotNull(keyType) { "MapType is missing the keyType property" }
@@ -120,7 +122,7 @@ data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaf
     }
 }
 
-data class FieldShell(
+internal data class FieldShell(
         var name: String? = null,
         var key: Boolean? = null,
         var type: Scaffold<Type>? = null
