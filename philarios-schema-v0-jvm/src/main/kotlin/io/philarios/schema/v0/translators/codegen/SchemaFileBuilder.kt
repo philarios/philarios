@@ -2,11 +2,14 @@ package io.philarios.schema.v0.translators.codegen
 
 import com.squareup.kotlinpoet.FileSpec
 import io.philarios.schema.v0.*
-import io.philarios.schema.v0.translators.codegen.builders.builder.BuilderTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.DataTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.RefTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.ShellTypeBuilder
 import io.philarios.schema.v0.translators.codegen.builders.SpecTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.builder.BuilderTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder
+import io.philarios.schema.v0.translators.codegen.builders.builder.ParameterFunctionResolver
+import io.philarios.schema.v0.translators.codegen.builders.builder.ShellStructWithParametersBuilderTypeBuilder
 import io.philarios.schema.v0.translators.codegen.util.kotlinpoet.addTypes
 
 object SchemaFileBuilder {
@@ -17,6 +20,7 @@ object SchemaFileBuilder {
 
         return listOf(
                 buildBuilders(schemaWithPkg, typeRefs),
+                buildShellBuilders(schemaWithPkg, typeRefs),
                 buildModel(schemaWithPkg),
                 buildShells(schemaWithPkg, typeRefs),
                 buildRefs(schemaWithPkg),
@@ -25,8 +29,22 @@ object SchemaFileBuilder {
     }
 
     private fun buildBuilders(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
+        val builderTypeBuilder = BuilderTypeBuilder(
+                ParameterFunctionResolver(typeRefs),
+                InterfaceStructWithParametersBuilderTypeBuilder
+        )
         return FileSpec.builder(schema.pkg, "${schema.name}Builders")
-                .addTypes(schema.types.flatMap { BuilderTypeBuilder(typeRefs).build(it) })
+                .addTypes(schema.types.flatMap { builderTypeBuilder.build(it) })
+                .build()
+    }
+
+    private fun buildShellBuilders(schema: Schema, typeRefs: Map<RefType, Type>): FileSpec {
+        val builderTypeBuilder = BuilderTypeBuilder(
+                ParameterFunctionResolver(typeRefs),
+                ShellStructWithParametersBuilderTypeBuilder
+        )
+        return FileSpec.builder(schema.pkg, "${schema.name}ShellBuilders")
+                .addTypes(schema.types.flatMap { builderTypeBuilder.build(it) })
                 .build()
     }
 

@@ -12,8 +12,8 @@ fun main(args: Array<kotlin.String>) {
                 .map(SchemaSchemaSpec)
                 .unwrap(SchemaCodegen("../philarios-schema-v0-common/src/generated/kotlin"))
 
-        emptyContext()
-                .map(TestSchemaSpec)
-                .unwrap(SchemaCodegen("../philarios-schema-v0-common/src/generated/kotlin"))
+//        emptyContext()
+//                .map(TestSchemaSpec)
+//                .unwrap(SchemaCodegen("../philarios-schema-v0-common/src/generated/kotlin"))
     }
 }

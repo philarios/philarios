@@ -1,12 +1,17 @@
 package io.philarios.schema.v0.translators.codegen.builders.builder
 
-import com.squareup.kotlinpoet.*
-import io.philarios.schema.v0.*
+import com.squareup.kotlinpoet.TypeSpec
+import io.philarios.schema.v0.Struct
+import io.philarios.schema.v0.Type
+import io.philarios.schema.v0.Union
 
-class BuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
+class BuilderTypeBuilder(
+        parameterFunctionResolver: ParameterFunctionResolver,
+        structWithParametersBuilderTypeBuilder: StructWithParametersBuilderTypeBuilder
+) {
 
-    private val unionBuilder = UnionBuilderTypeBuilder(typeRefs)
-    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
+    private val structBuilder = StructBuilderTypeBuilder(parameterFunctionResolver, structWithParametersBuilderTypeBuilder)
+    private val unionBuilder = UnionBuilderTypeBuilder(structBuilder)
 
     fun build(type: Type): List<TypeSpec> {
         return when (type) {
@@ -18,9 +23,7 @@ class BuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
 
 }
 
-private class UnionBuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
-
-    private val structBuilder = StructBuilderTypeBuilder(typeRefs)
+private class UnionBuilderTypeBuilder(private val structBuilder: StructBuilderTypeBuilder) {
 
     fun build(type: Union): List<TypeSpec> {
         return type.shapes.flatMap { structBuilder.build(it) }
@@ -28,11 +31,10 @@ private class UnionBuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
 
 }
 
-private class StructBuilderTypeBuilder(typeRefs: Map<RefType, Type>) {
-
-    private val parameterFunctionResolver = ParameterFunctionResolver(typeRefs)
-
-    private val structWithParametersBuilderTypeBuilder = ShellStructWithParametersBuilderTypeBuilder()
+private class StructBuilderTypeBuilder(
+        private val parameterFunctionResolver: ParameterFunctionResolver,
+        private val structWithParametersBuilderTypeBuilder: StructWithParametersBuilderTypeBuilder
+) {
 
     fun build(type: Struct): List<TypeSpec> {
         return listOf(buildOne(type)).mapNotNull { it }

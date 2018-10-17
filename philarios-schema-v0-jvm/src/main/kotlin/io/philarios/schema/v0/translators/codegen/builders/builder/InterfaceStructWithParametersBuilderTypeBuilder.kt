@@ -25,32 +25,13 @@ import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStru
 import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithSpec
 import io.philarios.schema.v0.translators.codegen.builders.builder.InterfaceStructWithParametersBuilderTypeBuilder.SetParameterFunSpecs.setParameterFunctionWithWrapper
 
-class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuilderTypeBuilder {
+object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuilderTypeBuilder {
     override fun buildOneWithParameterFunctions(type: Struct, parameterFunctions: List<ParameterFunction>): TypeSpec {
-        return TypeSpec.classBuilder(type.builderClassName.rawType)
+        return TypeSpec.interfaceBuilder(type.builderClassName.rawType)
                 .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
-                .primaryConstructor(constructor(type))
-                .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
-                        .initializer("context")
-                        .build())
-                .addProperty(PropertySpec.builder("shell", type.shellClassName, KModifier.INTERNAL)
-                        .initializer("shell")
-                        .mutable(true)
-                        .build())
                 .addFunctions(parameterFunctions.map { parameterFunction(it) })
                 .addFunctions(includeFunctions(type))
-                .addFunction(splitFunction(type))
-                .addFunction(mergeFunction(type))
-                .build()
-    }
-
-    private fun constructor(type: Struct): FunSpec {
-        return FunSpec.constructorBuilder()
-                .addParameter(contextParameterSpec)
-                .addParameter(ParameterSpec.builder("shell", type.shellClassName)
-                        .defaultValue("%T()", type.shellClassName)
-                        .build())
                 .build()
     }
 
@@ -81,10 +62,8 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val name = field.name
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(name, typeName).build())
-                    .addStatement("shell = shell.copy(%L = %L)", name, name)
                     .build()
         }
 
@@ -92,40 +71,32 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val name = field.name
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(name, typeName).build())
-                    .addStatement("shell = shell.copy(%L = %T(%L))", name, Wrapper::class.className, name)
                     .build()
         }
 
         fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.bodyParameterSpec)
-                    .addStatement("shell = shell.copy(%L = %T(body).connect(context))", name, fieldType.specClassName)
                     .build()
         }
 
         fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.specParameterSpec)
-                    .addStatement("shell = shell.copy(%L = spec.connect(context))", name)
                     .build()
         }
 
         fun setParameterFunctionWithRef(type: Struct, field: Field, fieldType: Type): FunSpec {
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.refParameterSpec)
-                    .addStatement("shell = shell.copy(%L = ref)", name)
                     .build()
         }
     }
@@ -133,58 +104,43 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
     private object AddParameterFunSpecs {
         fun addParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
             val listTypeName = listType.typeName
-            val name = field.name
             val singularName = field.singularName
             return FunSpec.builder(singularName)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(singularName, listTypeName).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L)", name, name, singularName)
                     .build()
         }
 
         fun addParameterFunctionWithWrapper(type: Struct, field: Field, listType: Type): FunSpec {
             val listTypeName = listType.typeName
-            val name = field.name
             val singularName = field.singularName
             return FunSpec.builder(singularName)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(singularName, listTypeName).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%L))", name, name, Wrapper::class.className, singularName)
                     .build()
         }
 
         fun addParameterFunctionWithBody(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
             val singularName = field.singularName
             return FunSpec.builder(singularName)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(listType.bodyParameterSpec)
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(body).connect(context))", name, name, listType.specClassName)
                     .build()
         }
 
         fun addParameterFunctionWithSpec(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
             val singularName = field.singularName
             return FunSpec.builder(singularName)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(listType.specParameterSpec)
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + spec.connect(context))", name, name)
                     .build()
         }
 
         fun addParameterFunctionWithRef(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
             val singularName = field.singularName
             return FunSpec.builder(singularName)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(listType.refParameterSpec)
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + ref)", name, name)
                     .build()
         }
     }
@@ -195,11 +151,9 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val valueClassName = valueType.className
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
                     .addParameter(ParameterSpec.builder("value", valueClassName).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%L))", name, name, "key", "value")
                     .build()
         }
 
@@ -207,11 +161,9 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val keyClassName = keyType.className
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
                     .addParameter(valueType.bodyParameterSpec)
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%T(body).connect(context)))", name, name, "key", valueType.specClassName)
                     .build()
         }
 
@@ -219,11 +171,9 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val keyClassName = keyType.className
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
                     .addParameter(valueType.specParameterSpec)
-                    .addStatement("shell = shell.copy(%L = this.%L.orEmpty() + Pair(%L,spec.connect(context)))", name, name, "key")
                     .build()
         }
 
@@ -231,11 +181,9 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val keyClassName = keyType.className
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
                     .addParameter(valueType.refParameterSpec)
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,ref))", name, name, "key")
                     .build()
         }
 
@@ -244,10 +192,8 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val valueClassName = valueType.className
             val name = field.name
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%L))", name, name, "pair.first", "pair.second")
                     .build()
         }
     }
@@ -257,10 +203,8 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val name = field.name
             val typeName = field.type.typeName
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(name, typeName).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L)", name, name, name)
                     .build()
         }
 
@@ -268,10 +212,8 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
             val name = field.name
             val typeName = field.type.typeName
             return FunSpec.builder(name)
-                    .addTypeVariable(TypeVariableName("C"))
-                    .receiver(type.builderClassName)
+                    .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder(name, typeName).build())
-                    .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
                     .build()
         }
     }
@@ -289,87 +231,51 @@ class InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBuil
 
     private fun includeFunctionWithBody(type: Struct): FunSpec {
         return FunSpec.builder("include")
-                .addTypeVariable(TypeVariableName("C"))
-                .receiver(type.builderClassName)
+                .addModifiers(KModifier.ABSTRACT)
                 .addParameter(type.bodyParameterSpec)
-                .addStatement("apply(body)")
                 .build()
     }
 
     private fun includeFunctionWithSpec(type: Struct): FunSpec {
         return FunSpec.builder("include")
-                .addTypeVariable(TypeVariableName("C"))
-                .receiver(type.builderClassName)
+                .addModifiers(KModifier.ABSTRACT)
                 .addParameter(type.specParameterSpec)
-                .addStatement("apply(spec.body)")
                 .build()
     }
 
     private fun includeFunctionWithContextAndBody(type: Struct): FunSpec {
         return FunSpec.builder("include")
-                .addTypeVariable(TypeVariableName("C"))
+                .addModifiers(KModifier.ABSTRACT)
                 .addTypeVariable(TypeVariableName("C2"))
-                .receiver(type.builderClassName)
                 .addParameter(otherContextParameterSpec)
                 .addParameter(type.otherBodyParameterSpec)
-                .addStatement("val builder = split(context)")
-                .addStatement("builder.apply(body)")
-                .addStatement("merge(builder)")
                 .build()
     }
 
     private fun includeFunctionWithContextAndSpec(type: Struct): FunSpec {
         return FunSpec.builder("include")
-                .addTypeVariable(TypeVariableName("C"))
+                .addModifiers(KModifier.ABSTRACT)
                 .addTypeVariable(TypeVariableName("C2"))
-                .receiver(type.builderClassName)
                 .addParameter(otherContextParameterSpec)
                 .addParameter(type.otherSpecParameterSpec)
-                .addStatement("val builder = split(context)")
-                .addStatement("builder.apply(spec.body)")
-                .addStatement("merge(builder)")
                 .build()
     }
 
     private fun includeForEachFunctionWithBody(type: Struct): FunSpec {
         return FunSpec.builder("includeForEach")
-                .addTypeVariable(TypeVariableName("C"))
+                .addModifiers(KModifier.ABSTRACT)
                 .addTypeVariable(TypeVariableName("C2"))
-                .receiver(type.builderClassName)
                 .addParameter(otherContextIterableParameterSpec)
                 .addParameter(type.otherBodyParameterSpec)
-                .addStatement("context.forEach { include(it, body) }")
                 .build()
     }
 
     private fun includeForEachFunctionWithSpec(type: Struct): FunSpec {
         return FunSpec.builder("includeForEach")
-                .addTypeVariable(TypeVariableName("C"))
+                .addModifiers(KModifier.ABSTRACT)
                 .addTypeVariable(TypeVariableName("C2"))
-                .receiver(type.builderClassName)
                 .addParameter(otherContextIterableParameterSpec)
                 .addParameter(type.otherSpecParameterSpec)
-                .addStatement("context.forEach { include(it, spec) }")
-                .build()
-    }
-
-    private fun splitFunction(type: Struct): FunSpec {
-        val builderClassNameAlternate = type.otherBuilderClassName
-        return FunSpec.builder("split")
-                .addModifiers(KModifier.PRIVATE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .returns(builderClassNameAlternate)
-                .addStatement("return %T(context, shell)", builderClassNameAlternate.rawType)
-                .build()
-    }
-
-    private fun mergeFunction(type: Struct): FunSpec {
-        return FunSpec.builder("merge")
-                .addModifiers(KModifier.PRIVATE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter("other", type.otherBuilderClassName)
-                .addStatement("this.shell = other.shell")
                 .build()
     }
 
