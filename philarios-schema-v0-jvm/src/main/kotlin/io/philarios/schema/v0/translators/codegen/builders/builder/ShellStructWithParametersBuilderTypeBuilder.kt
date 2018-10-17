@@ -28,6 +28,7 @@ import io.philarios.schema.v0.translators.codegen.builders.builder.ShellStructWi
 object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilderTypeBuilder {
     override fun buildOneWithParameterFunctions(type: Struct, parameterFunctions: List<ParameterFunction>): TypeSpec {
         return TypeSpec.classBuilder(type.shellBuilderClassName.rawType)
+                .addModifiers(KModifier.INTERNAL)
                 .addSuperinterface(type.builderClassName)
                 .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
