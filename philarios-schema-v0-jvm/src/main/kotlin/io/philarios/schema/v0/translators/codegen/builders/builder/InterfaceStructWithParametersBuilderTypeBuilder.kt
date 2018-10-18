@@ -30,6 +30,9 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         return TypeSpec.interfaceBuilder(type.builderClassName.rawType)
                 .addAnnotation(DslBuilder::class.className)
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
+                .addProperty(PropertySpec
+                        .builder("context", TypeVariableName("C"))
+                        .build())
                 .addFunctions(parameterFunctions.map { parameterFunction(it) })
                 .addFunctions(includeFunctions(type))
                 .build()

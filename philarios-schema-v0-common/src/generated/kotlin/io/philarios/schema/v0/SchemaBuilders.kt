@@ -8,6 +8,8 @@ import kotlin.collections.List
 
 @DslBuilder
 interface SchemaBuilder<out C> {
+    val context: C
+
     fun name(name: String)
 
     fun pkg(pkg: String)
@@ -85,6 +87,8 @@ interface SchemaBuilder<out C> {
 
 @DslBuilder
 interface StructBuilder<out C> {
+    val context: C
+
     fun pkg(pkg: String)
 
     fun name(name: String)
@@ -114,6 +118,8 @@ interface StructBuilder<out C> {
 
 @DslBuilder
 interface UnionBuilder<out C> {
+    val context: C
+
     fun pkg(pkg: String)
 
     fun name(name: String)
@@ -143,6 +149,8 @@ interface UnionBuilder<out C> {
 
 @DslBuilder
 interface EnumTypeBuilder<out C> {
+    val context: C
+
     fun pkg(pkg: String)
 
     fun name(name: String)
@@ -166,6 +174,8 @@ interface EnumTypeBuilder<out C> {
 
 @DslBuilder
 interface RefTypeBuilder<out C> {
+    val context: C
+
     fun pkg(pkg: String)
 
     fun name(name: String)
@@ -185,6 +195,8 @@ interface RefTypeBuilder<out C> {
 
 @DslBuilder
 interface OptionTypeBuilder<out C> {
+    val context: C
+
     fun type(spec: StructSpec<C>)
 
     fun type(ref: StructRef)
@@ -248,6 +260,8 @@ interface OptionTypeBuilder<out C> {
 
 @DslBuilder
 interface ListTypeBuilder<out C> {
+    val context: C
+
     fun type(spec: StructSpec<C>)
 
     fun type(ref: StructRef)
@@ -311,6 +325,8 @@ interface ListTypeBuilder<out C> {
 
 @DslBuilder
 interface MapTypeBuilder<out C> {
+    val context: C
+
     fun keyType(spec: StructSpec<C>)
 
     fun keyType(ref: StructRef)
@@ -422,6 +438,8 @@ interface MapTypeBuilder<out C> {
 
 @DslBuilder
 interface FieldBuilder<out C> {
+    val context: C
+
     fun name(name: String)
 
     fun key(key: Boolean)

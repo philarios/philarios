@@ -8,7 +8,7 @@ import kotlin.collections.Iterable
 import kotlin.collections.List
 
 @DslBuilder
-internal class SchemaShellBuilder<out C>(val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
+internal class SchemaShellBuilder<out C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
     override fun name(name: String) {
         shell = shell.copy(name = name)
     }
@@ -169,7 +169,7 @@ internal class SchemaShellBuilder<out C>(val context: C, internal var shell: Sch
 }
 
 @DslBuilder
-internal class StructShellBuilder<out C>(val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
+internal class StructShellBuilder<out C>(override val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
     override fun pkg(pkg: String) {
         shell = shell.copy(pkg = pkg)
     }
@@ -234,7 +234,7 @@ internal class StructShellBuilder<out C>(val context: C, internal var shell: Str
 }
 
 @DslBuilder
-internal class UnionShellBuilder<out C>(val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
+internal class UnionShellBuilder<out C>(override val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
     override fun pkg(pkg: String) {
         shell = shell.copy(pkg = pkg)
     }
@@ -299,7 +299,7 @@ internal class UnionShellBuilder<out C>(val context: C, internal var shell: Unio
 }
 
 @DslBuilder
-internal class EnumTypeShellBuilder<out C>(val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
+internal class EnumTypeShellBuilder<out C>(override val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
     override fun pkg(pkg: String) {
         shell = shell.copy(pkg = pkg)
     }
@@ -352,7 +352,7 @@ internal class EnumTypeShellBuilder<out C>(val context: C, internal var shell: E
 }
 
 @DslBuilder
-internal class RefTypeShellBuilder<out C>(val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
+internal class RefTypeShellBuilder<out C>(override val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
     override fun pkg(pkg: String) {
         shell = shell.copy(pkg = pkg)
     }
@@ -397,7 +397,7 @@ internal class RefTypeShellBuilder<out C>(val context: C, internal var shell: Re
 }
 
 @DslBuilder
-internal class OptionTypeShellBuilder<out C>(val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
+internal class OptionTypeShellBuilder<out C>(override val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
     override fun type(spec: StructSpec<C>) {
         shell = shell.copy(type = spec.connect(context))
     }
@@ -530,7 +530,7 @@ internal class OptionTypeShellBuilder<out C>(val context: C, internal var shell:
 }
 
 @DslBuilder
-internal class ListTypeShellBuilder<out C>(val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
+internal class ListTypeShellBuilder<out C>(override val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
     override fun type(spec: StructSpec<C>) {
         shell = shell.copy(type = spec.connect(context))
     }
@@ -663,7 +663,7 @@ internal class ListTypeShellBuilder<out C>(val context: C, internal var shell: L
 }
 
 @DslBuilder
-internal class MapTypeShellBuilder<out C>(val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
+internal class MapTypeShellBuilder<out C>(override val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
     override fun keyType(spec: StructSpec<C>) {
         shell = shell.copy(keyType = spec.connect(context))
     }
@@ -892,7 +892,7 @@ internal class MapTypeShellBuilder<out C>(val context: C, internal var shell: Ma
 }
 
 @DslBuilder
-internal class FieldShellBuilder<out C>(val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
+internal class FieldShellBuilder<out C>(override val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
     override fun name(name: String) {
         shell = shell.copy(name = name)
     }

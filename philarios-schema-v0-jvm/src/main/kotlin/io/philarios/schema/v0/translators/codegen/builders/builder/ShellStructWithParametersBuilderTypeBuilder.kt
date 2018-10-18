@@ -34,6 +34,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
                 .addTypeVariable(TypeVariableName("C", KModifier.OUT))
                 .primaryConstructor(constructor(type))
                 .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
+                        .addModifiers(KModifier.OVERRIDE)
                         .initializer("context")
                         .build())
                 .addProperty(PropertySpec.builder("shell", type.shellClassName, KModifier.INTERNAL)
