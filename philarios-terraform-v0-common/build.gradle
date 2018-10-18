@@ -1,0 +1,27 @@
+
+apply plugin: 'kotlin-platform-common'
+apply from: "../bintray.gradle"
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+    testCompile "org.spekframework.spek2:spek-dsl-common:$spek_version"
+}
+
+dependencies {
+    compile project(":philarios-schema-v0-common")
+}
+
+sourceSets {
+    main.kotlin.srcDirs += "src/generated/kotlin"
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
