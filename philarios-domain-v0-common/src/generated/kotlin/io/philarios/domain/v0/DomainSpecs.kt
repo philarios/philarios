@@ -5,7 +5,7 @@ import io.philarios.core.v0.Spec
 
 open class DomainSpec<in C>(internal val body: DomainBuilder<C>.() -> Unit) : Spec<C, Domain> {
     override fun connect(context: C): Scaffold<Domain> {
-        val builder = DomainBuilder<C>(context)
+        val builder = DomainShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }
@@ -13,7 +13,7 @@ open class DomainSpec<in C>(internal val body: DomainBuilder<C>.() -> Unit) : Sp
 
 open class EntitySpec<in C>(internal val body: EntityBuilder<C>.() -> Unit) : Spec<C, Entity> {
     override fun connect(context: C): Scaffold<Entity> {
-        val builder = EntityBuilder<C>(context)
+        val builder = EntityShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }
@@ -21,7 +21,7 @@ open class EntitySpec<in C>(internal val body: EntityBuilder<C>.() -> Unit) : Sp
 
 open class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -> Unit) : Spec<C, Relationship> {
     override fun connect(context: C): Scaffold<Relationship> {
-        val builder = RelationshipBuilder<C>(context)
+        val builder = RelationshipShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }
@@ -29,7 +29,7 @@ open class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -
 
 open class AttributeSpec<in C>(internal val body: AttributeBuilder<C>.() -> Unit) : Spec<C, Attribute> {
     override fun connect(context: C): Scaffold<Attribute> {
-        val builder = AttributeBuilder<C>(context)
+        val builder = AttributeShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }
@@ -37,7 +37,7 @@ open class AttributeSpec<in C>(internal val body: AttributeBuilder<C>.() -> Unit
 
 open class TypeSpec<in C>(internal val body: TypeBuilder<C>.() -> Unit) : Spec<C, Type> {
     override fun connect(context: C): Scaffold<Type> {
-        val builder = TypeBuilder<C>(context)
+        val builder = TypeShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }

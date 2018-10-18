@@ -5,7 +5,7 @@ import io.philarios.core.v0.Spec
 
 open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit) : Spec<C, Directory> {
     override fun connect(context: C): Scaffold<Directory> {
-        val builder = DirectoryBuilder<C>(context)
+        val builder = DirectoryShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }
@@ -13,7 +13,7 @@ open class DirectorySpec<in C>(internal val body: DirectoryBuilder<C>.() -> Unit
 
 open class FileSpec<in C>(internal val body: FileBuilder<C>.() -> Unit) : Spec<C, File> {
     override fun connect(context: C): Scaffold<File> {
-        val builder = FileBuilder<C>(context)
+        val builder = FileShellBuilder<C>(context)
         builder.apply(body)
         return builder.shell
     }

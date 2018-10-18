@@ -8,7 +8,7 @@ import kotlin.collections.List
 import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.launch
 
-data class DomainShell(var entities: List<Scaffold<Entity>> = emptyList(), var relationships: List<Scaffold<Relationship>> = emptyList()) : Scaffold<Domain> {
+internal data class DomainShell(var entities: List<Scaffold<Entity>> = emptyList(), var relationships: List<Scaffold<Relationship>> = emptyList()) : Scaffold<Domain> {
     override suspend fun resolve(registry: Registry): Domain {
         coroutineScope {
         	entities.forEach { launch { it.resolve(registry) } }
@@ -19,7 +19,7 @@ data class DomainShell(var entities: List<Scaffold<Entity>> = emptyList(), var r
     }
 }
 
-data class EntityShell(var name: String? = null, var attributes: List<Scaffold<Attribute>> = emptyList()) : Scaffold<Entity> {
+internal data class EntityShell(var name: String? = null, var attributes: List<Scaffold<Attribute>> = emptyList()) : Scaffold<Entity> {
     override suspend fun resolve(registry: Registry): Entity {
         checkNotNull(name) { "Entity is missing the name property" }
         coroutineScope {
@@ -31,7 +31,7 @@ data class EntityShell(var name: String? = null, var attributes: List<Scaffold<A
     }
 }
 
-data class RelationshipShell(
+internal data class RelationshipShell(
         var name: String? = null,
         var from: Scaffold<Entity>? = null,
         var to: Scaffold<Entity>? = null,
@@ -52,7 +52,7 @@ data class RelationshipShell(
     }
 }
 
-data class AttributeShell(var name: String? = null, var type: Scaffold<Type>? = null) : Scaffold<Attribute> {
+internal data class AttributeShell(var name: String? = null, var type: Scaffold<Type>? = null) : Scaffold<Attribute> {
     override suspend fun resolve(registry: Registry): Attribute {
         checkNotNull(name) { "Attribute is missing the name property" }
         checkNotNull(type) { "Attribute is missing the type property" }
@@ -64,7 +64,7 @@ data class AttributeShell(var name: String? = null, var type: Scaffold<Type>? = 
     }
 }
 
-data class TypeShell(var type: RawType? = null, var nullable: Boolean? = null) : Scaffold<Type> {
+internal data class TypeShell(var type: RawType? = null, var nullable: Boolean? = null) : Scaffold<Type> {
     override suspend fun resolve(registry: Registry): Type {
         checkNotNull(type) { "Type is missing the type property" }
         val value = Type(type!!,nullable)

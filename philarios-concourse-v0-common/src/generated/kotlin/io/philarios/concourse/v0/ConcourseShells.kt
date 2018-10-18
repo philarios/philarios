@@ -11,7 +11,7 @@ import kotlin.collections.Map
 import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.launch
 
-data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaffold<Concourse> {
+internal data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaffold<Concourse> {
     override suspend fun resolve(registry: Registry): Concourse {
         coroutineScope {
         	teams.forEach { launch { it.resolve(registry) } }
@@ -21,7 +21,7 @@ data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaff
     }
 }
 
-data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
+internal data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
     override suspend fun resolve(registry: Registry): Team {
         checkNotNull(name) { "Team is missing the name property" }
         coroutineScope {
@@ -32,7 +32,7 @@ data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipe
     }
 }
 
-data class PipelineShell(
+internal data class PipelineShell(
         var name: String? = null,
         var jobs: List<Scaffold<Job>> = emptyList(),
         var resources: List<Scaffold<Resource>> = emptyList(),
@@ -52,7 +52,7 @@ data class PipelineShell(
     }
 }
 
-data class JobShell(
+internal data class JobShell(
         var name: String? = null,
         var plan: List<Scaffold<Step>> = emptyList(),
         var serial: Boolean? = null,
@@ -81,9 +81,9 @@ data class JobShell(
     }
 }
 
-sealed class StepShell
+internal sealed class StepShell
 
-data class GetShell(
+internal data class GetShell(
         var get: String? = null,
         var resource: String? = null,
         var version: String? = null,
@@ -111,7 +111,7 @@ data class GetShell(
     }
 }
 
-data class PutShell(
+internal data class PutShell(
         var put: String? = null,
         var resource: String? = null,
         var params: Map<String, Any>? = emptyMap(),
@@ -137,7 +137,7 @@ data class PutShell(
     }
 }
 
-data class TaskShell(
+internal data class TaskShell(
         var task: String? = null,
         var config: Scaffold<TaskConfig>? = null,
         var file: String? = null,
@@ -169,7 +169,7 @@ data class TaskShell(
     }
 }
 
-data class AggregateShell(
+internal data class AggregateShell(
         var aggregate: List<Scaffold<Step>> = emptyList(),
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -192,7 +192,7 @@ data class AggregateShell(
     }
 }
 
-data class DoShell(
+internal data class DoShell(
         var doIt: List<Scaffold<Step>> = emptyList(),
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -215,7 +215,7 @@ data class DoShell(
     }
 }
 
-data class TryShell(
+internal data class TryShell(
         var tryIt: Scaffold<Step>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -239,7 +239,7 @@ data class TryShell(
     }
 }
 
-data class TaskConfigShell(
+internal data class TaskConfigShell(
         var platform: String? = null,
         var image_resource: Scaffold<TaskResource>? = null,
         var rootfs_uri: String? = null,
@@ -264,7 +264,7 @@ data class TaskConfigShell(
     }
 }
 
-data class TaskResourceShell(
+internal data class TaskResourceShell(
         var type: String? = null,
         var source: Map<String, Any>? = emptyMap(),
         var params: Map<String, Any>? = emptyMap(),
@@ -277,7 +277,7 @@ data class TaskResourceShell(
     }
 }
 
-data class TaskInputShell(
+internal data class TaskInputShell(
         var name: String? = null,
         var path: String? = null,
         var optional: Boolean? = null
@@ -289,7 +289,7 @@ data class TaskInputShell(
     }
 }
 
-data class TaskOutputShell(var name: String? = null, var path: String? = null) : Scaffold<TaskOutput> {
+internal data class TaskOutputShell(var name: String? = null, var path: String? = null) : Scaffold<TaskOutput> {
     override suspend fun resolve(registry: Registry): TaskOutput {
         checkNotNull(name) { "TaskOutput is missing the name property" }
         val value = TaskOutput(name!!,path)
@@ -297,7 +297,7 @@ data class TaskOutputShell(var name: String? = null, var path: String? = null) :
     }
 }
 
-data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
+internal data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
     override suspend fun resolve(registry: Registry): TaskCache {
         checkNotNull(path) { "TaskCache is missing the path property" }
         val value = TaskCache(path!!)
@@ -305,7 +305,7 @@ data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
     }
 }
 
-data class TaskRunConfigShell(
+internal data class TaskRunConfigShell(
         var path: String? = null,
         var args: List<String> = emptyList(),
         var dir: String? = null,
@@ -318,7 +318,7 @@ data class TaskRunConfigShell(
     }
 }
 
-data class ResourceShell(
+internal data class ResourceShell(
         var name: String? = null,
         var type: String? = null,
         var source: Map<String, Any>? = emptyMap(),
@@ -334,7 +334,7 @@ data class ResourceShell(
     }
 }
 
-data class ResourceTypeShell(
+internal data class ResourceTypeShell(
         var name: String? = null,
         var type: String? = null,
         var source: Map<String, Any>? = emptyMap(),
@@ -350,7 +350,7 @@ data class ResourceTypeShell(
     }
 }
 
-data class GroupShell(
+internal data class GroupShell(
         var name: String? = null,
         var jobs: List<String> = emptyList(),
         var resources: List<String> = emptyList()

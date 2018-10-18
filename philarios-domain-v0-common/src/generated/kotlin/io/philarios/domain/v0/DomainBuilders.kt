@@ -1,341 +1,166 @@
 package io.philarios.domain.v0
 
 import io.philarios.core.v0.DslBuilder
-import io.philarios.core.v0.Wrapper
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 
 @DslBuilder
-class DomainBuilder<out C>(val context: C, internal var shell: DomainShell = DomainShell()) {
-    fun <C> DomainBuilder<C>.entity(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + EntitySpec<C>(body).connect(context))
-    }
+interface DomainBuilder<out C> {
+    val context: C
 
-    fun <C> DomainBuilder<C>.entity(spec: EntitySpec<C>) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + spec.connect(context))
-    }
+    fun entity(body: EntityBuilder<C>.() -> Unit)
 
-    fun <C> DomainBuilder<C>.entity(ref: EntityRef) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + ref)
-    }
+    fun entity(spec: EntitySpec<C>)
 
-    fun <C> DomainBuilder<C>.entity(entity: Entity) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + Wrapper(entity))
-    }
+    fun entity(ref: EntityRef)
 
-    fun <C> DomainBuilder<C>.entities(entities: List<Entity>) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + entities.map { Wrapper(it) })
-    }
+    fun entity(entity: Entity)
 
-    fun <C> DomainBuilder<C>.relationship(body: RelationshipBuilder<C>.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipSpec<C>(body).connect(context))
-    }
+    fun entities(entities: List<Entity>)
 
-    fun <C> DomainBuilder<C>.relationship(spec: RelationshipSpec<C>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + spec.connect(context))
-    }
+    fun relationship(body: RelationshipBuilder<C>.() -> Unit)
 
-    fun <C> DomainBuilder<C>.relationship(ref: RelationshipRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
-    }
+    fun relationship(spec: RelationshipSpec<C>)
 
-    fun <C> DomainBuilder<C>.relationship(relationship: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(relationship))
-    }
+    fun relationship(ref: RelationshipRef)
 
-    fun <C> DomainBuilder<C>.relationships(relationships: List<Relationship>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
-    }
+    fun relationship(relationship: Relationship)
 
-    fun <C> DomainBuilder<C>.include(body: DomainBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun relationships(relationships: List<Relationship>)
 
-    fun <C> DomainBuilder<C>.include(spec: DomainSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(body: DomainBuilder<C>.() -> Unit)
 
-    fun <C, C2> DomainBuilder<C>.include(context: C2, body: DomainBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun include(spec: DomainSpec<C>)
 
-    fun <C, C2> DomainBuilder<C>.include(context: C2, spec: DomainSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: DomainBuilder<C2>.() -> Unit)
 
-    fun <C, C2> DomainBuilder<C>.includeForEach(context: Iterable<C2>, body: DomainBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> include(context: C2, spec: DomainSpec<C2>)
 
-    fun <C, C2> DomainBuilder<C>.includeForEach(context: Iterable<C2>, spec: DomainSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: DomainBuilder<C2>.() -> Unit)
 
-    private fun <C2> split(context: C2): DomainBuilder<C2> = DomainBuilder(context, shell)
-
-    private fun <C2> merge(other: DomainBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: DomainSpec<C2>)
 }
 
 @DslBuilder
-class EntityBuilder<out C>(val context: C, internal var shell: EntityShell = EntityShell()) {
-    fun <C> EntityBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+interface EntityBuilder<out C> {
+    val context: C
 
-    fun <C> EntityBuilder<C>.attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
-    }
+    fun name(name: String)
 
-    fun <C> EntityBuilder<C>.attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
-    }
+    fun attribute(body: AttributeBuilder<C>.() -> Unit)
 
-    fun <C> EntityBuilder<C>.attribute(ref: AttributeRef) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + ref)
-    }
+    fun attribute(spec: AttributeSpec<C>)
 
-    fun <C> EntityBuilder<C>.attribute(attribute: Attribute) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(attribute))
-    }
+    fun attribute(ref: AttributeRef)
 
-    fun <C> EntityBuilder<C>.attributes(attributes: List<Attribute>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + attributes.map { Wrapper(it) })
-    }
+    fun attribute(attribute: Attribute)
 
-    fun <C> EntityBuilder<C>.include(body: EntityBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun attributes(attributes: List<Attribute>)
 
-    fun <C> EntityBuilder<C>.include(spec: EntitySpec<C>) {
-        apply(spec.body)
-    }
+    fun include(body: EntityBuilder<C>.() -> Unit)
 
-    fun <C, C2> EntityBuilder<C>.include(context: C2, body: EntityBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun include(spec: EntitySpec<C>)
 
-    fun <C, C2> EntityBuilder<C>.include(context: C2, spec: EntitySpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: EntityBuilder<C2>.() -> Unit)
 
-    fun <C, C2> EntityBuilder<C>.includeForEach(context: Iterable<C2>, body: EntityBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> include(context: C2, spec: EntitySpec<C2>)
 
-    fun <C, C2> EntityBuilder<C>.includeForEach(context: Iterable<C2>, spec: EntitySpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: EntityBuilder<C2>.() -> Unit)
 
-    private fun <C2> split(context: C2): EntityBuilder<C2> = EntityBuilder(context, shell)
-
-    private fun <C2> merge(other: EntityBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: EntitySpec<C2>)
 }
 
 @DslBuilder
-class RelationshipBuilder<out C>(val context: C, internal var shell: RelationshipShell = RelationshipShell()) {
-    fun <C> RelationshipBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+interface RelationshipBuilder<out C> {
+    val context: C
 
-    fun <C> RelationshipBuilder<C>.from(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(from = EntitySpec<C>(body).connect(context))
-    }
+    fun name(name: String)
 
-    fun <C> RelationshipBuilder<C>.from(spec: EntitySpec<C>) {
-        shell = shell.copy(from = spec.connect(context))
-    }
+    fun from(body: EntityBuilder<C>.() -> Unit)
 
-    fun <C> RelationshipBuilder<C>.from(ref: EntityRef) {
-        shell = shell.copy(from = ref)
-    }
+    fun from(spec: EntitySpec<C>)
 
-    fun <C> RelationshipBuilder<C>.from(from: Entity) {
-        shell = shell.copy(from = Wrapper(from))
-    }
+    fun from(ref: EntityRef)
 
-    fun <C> RelationshipBuilder<C>.to(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(to = EntitySpec<C>(body).connect(context))
-    }
+    fun from(from: Entity)
 
-    fun <C> RelationshipBuilder<C>.to(spec: EntitySpec<C>) {
-        shell = shell.copy(to = spec.connect(context))
-    }
+    fun to(body: EntityBuilder<C>.() -> Unit)
 
-    fun <C> RelationshipBuilder<C>.to(ref: EntityRef) {
-        shell = shell.copy(to = ref)
-    }
+    fun to(spec: EntitySpec<C>)
 
-    fun <C> RelationshipBuilder<C>.to(to: Entity) {
-        shell = shell.copy(to = Wrapper(to))
-    }
+    fun to(ref: EntityRef)
 
-    fun <C> RelationshipBuilder<C>.attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
-    }
+    fun to(to: Entity)
 
-    fun <C> RelationshipBuilder<C>.attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
-    }
+    fun attribute(body: AttributeBuilder<C>.() -> Unit)
 
-    fun <C> RelationshipBuilder<C>.attribute(ref: AttributeRef) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + ref)
-    }
+    fun attribute(spec: AttributeSpec<C>)
 
-    fun <C> RelationshipBuilder<C>.attribute(attribute: Attribute) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(attribute))
-    }
+    fun attribute(ref: AttributeRef)
 
-    fun <C> RelationshipBuilder<C>.attributes(attributes: List<Attribute>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + attributes.map { Wrapper(it) })
-    }
+    fun attribute(attribute: Attribute)
 
-    fun <C> RelationshipBuilder<C>.include(body: RelationshipBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun attributes(attributes: List<Attribute>)
 
-    fun <C> RelationshipBuilder<C>.include(spec: RelationshipSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(body: RelationshipBuilder<C>.() -> Unit)
 
-    fun <C, C2> RelationshipBuilder<C>.include(context: C2, body: RelationshipBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun include(spec: RelationshipSpec<C>)
 
-    fun <C, C2> RelationshipBuilder<C>.include(context: C2, spec: RelationshipSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: RelationshipBuilder<C2>.() -> Unit)
 
-    fun <C, C2> RelationshipBuilder<C>.includeForEach(context: Iterable<C2>, body: RelationshipBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> include(context: C2, spec: RelationshipSpec<C2>)
 
-    fun <C, C2> RelationshipBuilder<C>.includeForEach(context: Iterable<C2>, spec: RelationshipSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: RelationshipBuilder<C2>.() -> Unit)
 
-    private fun <C2> split(context: C2): RelationshipBuilder<C2> = RelationshipBuilder(context, shell)
-
-    private fun <C2> merge(other: RelationshipBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: RelationshipSpec<C2>)
 }
 
 @DslBuilder
-class AttributeBuilder<out C>(val context: C, internal var shell: AttributeShell = AttributeShell()) {
-    fun <C> AttributeBuilder<C>.name(name: String) {
-        shell = shell.copy(name = name)
-    }
+interface AttributeBuilder<out C> {
+    val context: C
 
-    fun <C> AttributeBuilder<C>.type(body: TypeBuilder<C>.() -> Unit) {
-        shell = shell.copy(type = TypeSpec<C>(body).connect(context))
-    }
+    fun name(name: String)
 
-    fun <C> AttributeBuilder<C>.type(spec: TypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
+    fun type(body: TypeBuilder<C>.() -> Unit)
 
-    fun <C> AttributeBuilder<C>.type(ref: TypeRef) {
-        shell = shell.copy(type = ref)
-    }
+    fun type(spec: TypeSpec<C>)
 
-    fun <C> AttributeBuilder<C>.type(type: Type) {
-        shell = shell.copy(type = Wrapper(type))
-    }
+    fun type(ref: TypeRef)
 
-    fun <C> AttributeBuilder<C>.include(body: AttributeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun type(type: Type)
 
-    fun <C> AttributeBuilder<C>.include(spec: AttributeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(body: AttributeBuilder<C>.() -> Unit)
 
-    fun <C, C2> AttributeBuilder<C>.include(context: C2, body: AttributeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun include(spec: AttributeSpec<C>)
 
-    fun <C, C2> AttributeBuilder<C>.include(context: C2, spec: AttributeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: AttributeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> AttributeBuilder<C>.includeForEach(context: Iterable<C2>, body: AttributeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> include(context: C2, spec: AttributeSpec<C2>)
 
-    fun <C, C2> AttributeBuilder<C>.includeForEach(context: Iterable<C2>, spec: AttributeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: AttributeBuilder<C2>.() -> Unit)
 
-    private fun <C2> split(context: C2): AttributeBuilder<C2> = AttributeBuilder(context, shell)
-
-    private fun <C2> merge(other: AttributeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: AttributeSpec<C2>)
 }
 
 @DslBuilder
-class TypeBuilder<out C>(val context: C, internal var shell: TypeShell = TypeShell()) {
-    fun <C> TypeBuilder<C>.type(type: RawType) {
-        shell = shell.copy(type = type)
-    }
+interface TypeBuilder<out C> {
+    val context: C
 
-    fun <C> TypeBuilder<C>.nullable(nullable: Boolean) {
-        shell = shell.copy(nullable = nullable)
-    }
+    fun type(type: RawType)
 
-    fun <C> TypeBuilder<C>.include(body: TypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
+    fun nullable(nullable: Boolean)
 
-    fun <C> TypeBuilder<C>.include(spec: TypeSpec<C>) {
-        apply(spec.body)
-    }
+    fun include(body: TypeBuilder<C>.() -> Unit)
 
-    fun <C, C2> TypeBuilder<C>.include(context: C2, body: TypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
+    fun include(spec: TypeSpec<C>)
 
-    fun <C, C2> TypeBuilder<C>.include(context: C2, spec: TypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
+    fun <C2> include(context: C2, body: TypeBuilder<C2>.() -> Unit)
 
-    fun <C, C2> TypeBuilder<C>.includeForEach(context: Iterable<C2>, body: TypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
+    fun <C2> include(context: C2, spec: TypeSpec<C2>)
 
-    fun <C, C2> TypeBuilder<C>.includeForEach(context: Iterable<C2>, spec: TypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, body: TypeBuilder<C2>.() -> Unit)
 
-    private fun <C2> split(context: C2): TypeBuilder<C2> = TypeBuilder(context, shell)
-
-    private fun <C2> merge(other: TypeBuilder<C2>) {
-        this.shell = other.shell
-    }
+    fun <C2> includeForEach(context: Iterable<C2>, spec: TypeSpec<C2>)
 }
