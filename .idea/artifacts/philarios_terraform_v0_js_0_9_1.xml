@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="philarios-terraform-v0-js-0.9.1">
+    <output-path>C:\Users\marc\git\internal\philarios\philarios-terraform-v0\build\libs</output-path>
+    <root id="archive" name="philarios-terraform-v0-js-0.9.1.jar">
+      <element id="module-output" name="philarios-terraform-v0_jsMain" />
+    </root>
+  </artifact>
+</component>

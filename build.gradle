@@ -17,7 +17,7 @@ buildscript {
 
 allprojects {
     group 'io.philarios'
-    version '0.9.0'
+    version '0.9.1'
 
     repositories {
         mavenCentral()
@@ -26,6 +26,59 @@ allprojects {
         }
         maven {
             url "https://dl.bintray.com/spekframework/spek-dev"
+        }
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0"
+        }
+    }
+}
+
+
+subprojects {
+    apply plugin: "kotlin-multiplatform"
+    apply plugin: "maven-publish"
+
+    publishing {
+        repositories {
+            maven {
+                name "kotlinMultiplatform"
+                url "https://api.bintray.com/content/philarios/philarios/${project.name}/$version"
+                credentials {
+                    username bintrayUser
+                    password bintrayKey
+                }
+            }
+            maven {
+                name "jvm"
+                url "https://api.bintray.com/content/philarios/philarios/${project.name}-jvm/$version"
+                credentials {
+                    username bintrayUser
+                    password bintrayKey
+                }
+            }
+            maven {
+                name "metadata"
+                url "https://api.bintray.com/content/philarios/philarios/${project.name}-metadata/$version"
+                credentials {
+                    username bintrayUser
+                    password bintrayKey
+                }
+            }
+        }
+    }
+    afterEvaluate {
+        tasks.withType(PublishToMavenRepository).all { publishTask ->
+            publishTask.onlyIf { task ->
+                if (task.publication.name != task.repository.name) {
+                    task.enabled = false
+                    task.group = null
+                    return false
+                }
+                return true
+            }
         }
     }
 }

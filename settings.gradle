@@ -26,3 +26,5 @@ include "philarios-concourse-v0"
 include "philarios-domain-v0"
 include "philarios-filesystem-v0"
 include "philarios-terraform-v0"
+
+enableFeaturePreview('GRADLE_METADATA')
