@@ -2,38 +2,18 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="philarios-canvas-v0-browser_main" target="1.8" />
-      <module name="philarios-canvas-v0-browser_test" target="1.8" />
-      <module name="philarios-canvas-v0-common_main" target="1.8" />
-      <module name="philarios-canvas-v0-common_test" target="1.8" />
-      <module name="philarios-canvas-v0-js_main" target="1.8" />
-      <module name="philarios-canvas-v0-js_test" target="1.8" />
-      <module name="philarios-canvas-v0-jvm_main" target="1.8" />
-      <module name="philarios-canvas-v0-jvm_test" target="1.8" />
-      <module name="philarios-concourse-v0-common_main" target="1.8" />
-      <module name="philarios-concourse-v0-common_test" target="1.8" />
-      <module name="philarios-concourse-v0-jvm_main" target="1.8" />
-      <module name="philarios-concourse-v0-jvm_test" target="1.8" />
-      <module name="philarios-core-v0-common_main" target="1.8" />
-      <module name="philarios-core-v0-common_test" target="1.8" />
-      <module name="philarios-core-v0-jvm_main" target="1.8" />
-      <module name="philarios-core-v0-jvm_test" target="1.8" />
-      <module name="philarios-domain-v0-common_main" target="1.8" />
-      <module name="philarios-domain-v0-common_test" target="1.8" />
-      <module name="philarios-domain-v0-jvm_main" target="1.8" />
-      <module name="philarios-domain-v0-jvm_test" target="1.8" />
-      <module name="philarios-filesystem-v0-common_main" target="1.8" />
-      <module name="philarios-filesystem-v0-common_test" target="1.8" />
-      <module name="philarios-filesystem-v0-jvm_main" target="1.8" />
-      <module name="philarios-filesystem-v0-jvm_test" target="1.8" />
-      <module name="philarios-schema-v0-common_main" target="1.8" />
-      <module name="philarios-schema-v0-common_test" target="1.8" />
-      <module name="philarios-schema-v0-jvm_main" target="1.8" />
-      <module name="philarios-schema-v0-jvm_test" target="1.8" />
-      <module name="philarios-terraform-v0-common_main" target="1.8" />
-      <module name="philarios-terraform-v0-common_test" target="1.8" />
-      <module name="philarios-terraform-v0-jvm_main" target="1.8" />
-      <module name="philarios-terraform-v0-jvm_test" target="1.8" />
+      <module name="philarios-concourse-v0_jvmMain" target="1.6" />
+      <module name="philarios-concourse-v0_jvmTest" target="1.6" />
+      <module name="philarios-core-v0_jvmMain" target="1.6" />
+      <module name="philarios-core-v0_jvmTest" target="1.6" />
+      <module name="philarios-domain-v0_jvmMain" target="1.6" />
+      <module name="philarios-domain-v0_jvmTest" target="1.6" />
+      <module name="philarios-filesystem-v0_jvmMain" target="1.6" />
+      <module name="philarios-filesystem-v0_jvmTest" target="1.6" />
+      <module name="philarios-schema-v0_jvmMain" target="1.6" />
+      <module name="philarios-schema-v0_jvmTest" target="1.6" />
+      <module name="philarios-terraform-v0_jvmMain" target="1.6" />
+      <module name="philarios-terraform-v0_jvmTest" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>

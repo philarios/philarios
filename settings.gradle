@@ -12,20 +12,19 @@ pluginManagement {
             if (requested.id.id == "kotlin-platform-js") {
                 useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
+            if (requested.id.id == "kotlin-multiplatform") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
         }
     }
 }
 rootProject.name = 'philarios-main'
 
-include "philarios-core-v0-common"
-include "philarios-core-v0-jvm"
-include "philarios-schema-v0-common"
-include "philarios-schema-v0-jvm"
-include "philarios-filesystem-v0-common"
-include "philarios-filesystem-v0-jvm"
-include "philarios-concourse-v0-common"
-include "philarios-concourse-v0-jvm"
-include "philarios-domain-v0-common"
-include "philarios-domain-v0-jvm"
-include "philarios-terraform-v0-common"
-include "philarios-terraform-v0-jvm"
+include "philarios-core-v0"
+include "philarios-schema-v0"
+include "philarios-concourse-v0"
+include "philarios-domain-v0"
+include "philarios-filesystem-v0"
+include "philarios-terraform-v0"
+
+enableFeaturePreview('GRADLE_METADATA')
