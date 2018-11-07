@@ -1729,52 +1729,52 @@ internal class AggregateShellBuilder<out C>(override val context: C, internal va
 
 @DslBuilder
 internal class DoShellBuilder<out C>(override val context: C, internal var shell: DoShell = DoShell()) : DoBuilder<C> {
-    override fun doIt(spec: GetSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: GetSpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: GetRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: GetRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
-    override fun doIt(spec: PutSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: PutSpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: PutRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: PutRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
-    override fun doIt(spec: TaskSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: TaskSpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: TaskRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: TaskRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
-    override fun doIt(spec: AggregateSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: AggregateSpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: AggregateRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: AggregateRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
-    override fun doIt(spec: DoSpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: DoSpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: DoRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: DoRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
-    override fun doIt(spec: TrySpec<C>) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + spec.connect(context))
+    override fun `do`(spec: TrySpec<C>) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + spec.connect(context))
     }
 
-    override fun doIt(ref: TryRef) {
-        shell = shell.copy(doIt = shell.doIt.orEmpty() + ref)
+    override fun `do`(ref: TryRef) {
+        shell = shell.copy(`do` = shell.`do`.orEmpty() + ref)
     }
 
     override fun on_success(spec: GetSpec<C>) {
@@ -2022,52 +2022,52 @@ internal class DoShellBuilder<out C>(override val context: C, internal var shell
 
 @DslBuilder
 internal class TryShellBuilder<out C>(override val context: C, internal var shell: TryShell = TryShell()) : TryBuilder<C> {
-    override fun tryIt(spec: GetSpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: GetSpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: GetRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: GetRef) {
+        shell = shell.copy(`try` = ref)
     }
 
-    override fun tryIt(spec: PutSpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: PutSpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: PutRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: PutRef) {
+        shell = shell.copy(`try` = ref)
     }
 
-    override fun tryIt(spec: TaskSpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: TaskSpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: TaskRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: TaskRef) {
+        shell = shell.copy(`try` = ref)
     }
 
-    override fun tryIt(spec: AggregateSpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: AggregateSpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: AggregateRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: AggregateRef) {
+        shell = shell.copy(`try` = ref)
     }
 
-    override fun tryIt(spec: DoSpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: DoSpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: DoRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: DoRef) {
+        shell = shell.copy(`try` = ref)
     }
 
-    override fun tryIt(spec: TrySpec<C>) {
-        shell = shell.copy(tryIt = spec.connect(context))
+    override fun `try`(spec: TrySpec<C>) {
+        shell = shell.copy(`try` = spec.connect(context))
     }
 
-    override fun tryIt(ref: TryRef) {
-        shell = shell.copy(tryIt = ref)
+    override fun `try`(ref: TryRef) {
+        shell = shell.copy(`try` = ref)
     }
 
     override fun on_success(spec: GetSpec<C>) {

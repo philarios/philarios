@@ -75,7 +75,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
                 .addModifiers(KModifier.DATA)
                 .primaryConstructor(FunSpec.constructorBuilder()
                         .addParameters(type.fields.map { field ->
-                            ParameterSpec.builder(field.name, field.scaffoldType())
+                            ParameterSpec.builder(field.escapedName, field.scaffoldType())
                                     .defaultValue(when (field.type) {
                                         is ListType -> "emptyList()"
                                         is MapType -> "emptyMap()"
@@ -86,9 +86,9 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
                         .build()
                 )
                 .addProperties(type.fields.map { field ->
-                    PropertySpec.builder(field.name, field.scaffoldType())
+                    PropertySpec.builder(field.escapedName, field.scaffoldType())
                             .mutable(true)
-                            .initializer(field.name)
+                            .initializer(field.escapedName)
                             .build()
                 })
                 .addFunction(resolveBuilder.build(type))
@@ -118,7 +118,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
             val className = type.className
             return type.fields
                     .filter { it.needsToBeCheckedForNull() }
-                    .map { Statement("checkNotNull(%L) { \"%T is missing the %L property\" }", listOf(it.name, className, it.name)) }
+                    .map { Statement("checkNotNull(%L) { \"%T is missing the %L property\" }", listOf(it.escapedName, className, it.name)) }
                     .let {
                         if (it.isEmpty()) {
                             this
@@ -132,7 +132,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
             return type.fields
                     .map { Pair(it, it.resolveJob()) }
                     .filter { it.second != null }
-                    .map { Statement("\t${it.second!!}", listOf(it.first.name)) }
+                    .map { Statement("\t${it.second!!}", listOf(it.first.escapedName)) }
                     .let {
                         if (it.isEmpty()) {
                             this
@@ -149,7 +149,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
             val fields = type.fields
             return addStatement(
                     "val value = %T(${fields.map { it.resolved() }.joinToString(",")})",
-                    *(listOf(className) + fields.map { it.name }).toTypedArray()
+                    *(listOf(className) + fields.map { it.escapedName }).toTypedArray()
             )
         }
 
@@ -163,7 +163,7 @@ private class StructShellTypeBuilder(private val typeRefs: Map<RefType, Type>) {
             } else {
                 addStatement(
                         "registry.put(%T::class, ${keyField.unwrappedPlaceholder()}, value)",
-                        className, keyField.name
+                        className, keyField.escapedName
                 )
             }
         }

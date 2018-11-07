@@ -6,6 +6,7 @@ import io.philarios.schema.v0.Struct
 import io.philarios.schema.v0.Type
 import io.philarios.schema.v0.Union
 import io.philarios.schema.v0.translators.codegen.className
+import io.philarios.schema.v0.translators.codegen.escapedName
 import io.philarios.schema.v0.translators.codegen.typeName
 
 object DataTypeBuilder {
@@ -47,7 +48,7 @@ private object StructDataTypeBuilder {
                 .primaryConstructor(FunSpec.constructorBuilder()
                         .addParameters(
                                 type.fields.map {
-                                    ParameterSpec.builder(it.name, it.type.typeName)
+                                    ParameterSpec.builder(it.escapedName, it.type.typeName)
                                             .build()
                                 }
                         )
@@ -55,8 +56,8 @@ private object StructDataTypeBuilder {
                 )
                 .addProperties(
                         type.fields.map {
-                            PropertySpec.builder(it.name, it.type.typeName)
-                                    .initializer(it.name)
+                            PropertySpec.builder(it.escapedName, it.type.typeName)
+                                    .initializer(it.escapedName)
                                     .build()
                         }
                 )

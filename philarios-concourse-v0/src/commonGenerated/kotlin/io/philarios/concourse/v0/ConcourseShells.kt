@@ -193,7 +193,7 @@ internal data class AggregateShell(
 }
 
 internal data class DoShell(
-        var doIt: List<Scaffold<Step>> = emptyList(),
+        var `do`: List<Scaffold<Step>> = emptyList(),
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
@@ -204,19 +204,19 @@ internal data class DoShell(
 ) : StepShell(), Scaffold<Do> {
     override suspend fun resolve(registry: Registry): Do {
         coroutineScope {
-        	doIt.forEach { launch { it.resolve(registry) } }
+        	`do`.forEach { launch { it.resolve(registry) } }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
         	launch { on_abort?.resolve(registry) }
         	launch { ensure?.resolve(registry) }
         }
-        val value = Do(doIt.map { it.resolve(registry) },on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Do(`do`.map { it.resolve(registry) },on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
         return value
     }
 }
 
 internal data class TryShell(
-        var tryIt: Scaffold<Step>? = null,
+        var `try`: Scaffold<Step>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
@@ -226,15 +226,15 @@ internal data class TryShell(
         var attempts: Int? = null
 ) : StepShell(), Scaffold<Try> {
     override suspend fun resolve(registry: Registry): Try {
-        checkNotNull(tryIt) { "Try is missing the tryIt property" }
+        checkNotNull(`try`) { "Try is missing the try property" }
         coroutineScope {
-        	launch { tryIt!!.resolve(registry) }
+        	launch { `try`!!.resolve(registry) }
         	launch { on_success?.resolve(registry) }
         	launch { on_failure?.resolve(registry) }
         	launch { on_abort?.resolve(registry) }
         	launch { ensure?.resolve(registry) }
         }
-        val value = Try(tryIt!!.resolve(registry),on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Try(`try`!!.resolve(registry),on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
         return value
     }
 }

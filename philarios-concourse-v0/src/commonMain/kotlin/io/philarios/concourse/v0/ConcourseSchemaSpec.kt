@@ -501,7 +501,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         shape(StructSpec {
             name("Do")
             field(FieldSpec {
-                name("doIt") // TODO fix reserved words
+                name("do")
                 type(ListTypeSpec {
                     type(RefTypeSpec {
                         name("Step")
@@ -563,7 +563,7 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         shape(StructSpec {
             name("Try")
             field(FieldSpec {
-                name("tryIt") // TODO fix reserved words
+                name("try")
                 type(RefTypeSpec {
                     name("Step")
                 })

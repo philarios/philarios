@@ -81,7 +81,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
     private object SetParameterFunSpecs {
         fun setParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
@@ -91,7 +91,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun setParameterFunctionWithWrapper(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
@@ -101,7 +101,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(fieldType.bodyParameterSpec)
@@ -110,7 +110,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(fieldType.specParameterSpec)
@@ -119,7 +119,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun setParameterFunctionWithRef(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(fieldType.refParameterSpec)
@@ -131,7 +131,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
     private object AddParameterFunSpecs {
         fun addParameterFunction(type: Struct, field: Field, listType: Type): FunSpec {
             val listTypeName = listType.typeName
-            val name = field.name
+            val name = field.escapedName
             val singularName = field.singularName
             return FunSpec.builder(singularName)
                     .addModifiers(KModifier.OVERRIDE)
@@ -142,7 +142,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
         fun addParameterFunctionWithWrapper(type: Struct, field: Field, listType: Type): FunSpec {
             val listTypeName = listType.typeName
-            val name = field.name
+            val name = field.escapedName
             val singularName = field.singularName
             return FunSpec.builder(singularName)
                     .addModifiers(KModifier.OVERRIDE)
@@ -152,7 +152,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun addParameterFunctionWithBody(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val singularName = field.singularName
             return FunSpec.builder(singularName)
                     .addModifiers(KModifier.OVERRIDE)
@@ -162,7 +162,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun addParameterFunctionWithSpec(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val singularName = field.singularName
             return FunSpec.builder(singularName)
                     .addModifiers(KModifier.OVERRIDE)
@@ -172,7 +172,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun addParameterFunctionWithRef(type: Struct, field: Field, listType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val singularName = field.singularName
             return FunSpec.builder(singularName)
                     .addModifiers(KModifier.OVERRIDE)
@@ -186,7 +186,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         fun putKeyValueParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
             val valueClassName = valueType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -197,7 +197,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
         fun putKeyValueParameterFunctionWithBody(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -208,7 +208,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
         fun putKeyValueParameterFunctionWithSpec(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -219,7 +219,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
         fun putKeyValueParameterFunctionWithRef(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -231,7 +231,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         fun putPairParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
             val valueClassName = valueType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
@@ -242,7 +242,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
 
     private object AddAllParameterFunSpecs {
         fun addAllParameterFunction(type: Struct, field: Field): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = field.type.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)
@@ -252,7 +252,7 @@ object ShellStructWithParametersBuilderTypeBuilder : StructWithParametersBuilder
         }
 
         fun addAllParameterFunctionWithWrapper(type: Struct, field: Field): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = field.type.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.OVERRIDE)

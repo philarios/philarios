@@ -62,7 +62,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
 
     private object SetParameterFunSpecs {
         fun setParameterFunction(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
@@ -71,7 +71,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         }
 
         fun setParameterFunctionWithWrapper(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = fieldType.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
@@ -80,7 +80,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         }
 
         fun setParameterFunctionWithBody(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.bodyParameterSpec)
@@ -88,7 +88,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         }
 
         fun setParameterFunctionWithSpec(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.specParameterSpec)
@@ -96,7 +96,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         }
 
         fun setParameterFunctionWithRef(type: Struct, field: Field, fieldType: Type): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(fieldType.refParameterSpec)
@@ -152,7 +152,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         fun putKeyValueParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
             val valueClassName = valueType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -162,7 +162,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
 
         fun putKeyValueParameterFunctionWithBody(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -172,7 +172,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
 
         fun putKeyValueParameterFunctionWithSpec(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -182,7 +182,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
 
         fun putKeyValueParameterFunctionWithRef(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("key", keyClassName).build())
@@ -193,7 +193,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         fun putPairParameterFunction(type: Struct, field: Field, keyType: Type, valueType: Type): FunSpec {
             val keyClassName = keyType.className
             val valueClassName = valueType.className
-            val name = field.name
+            val name = field.escapedName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
                     .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
@@ -203,7 +203,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
 
     private object AddAllParameterFunSpecs {
         fun addAllParameterFunction(type: Struct, field: Field): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = field.type.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)
@@ -212,7 +212,7 @@ object InterfaceStructWithParametersBuilderTypeBuilder : StructWithParametersBui
         }
 
         fun addAllParameterFunctionWithWrapper(type: Struct, field: Field): FunSpec {
-            val name = field.name
+            val name = field.escapedName
             val typeName = field.type.typeName
             return FunSpec.builder(name)
                     .addModifiers(KModifier.ABSTRACT)

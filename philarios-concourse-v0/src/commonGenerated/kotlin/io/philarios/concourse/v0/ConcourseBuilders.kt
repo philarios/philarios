@@ -860,29 +860,29 @@ interface AggregateBuilder<out C> {
 interface DoBuilder<out C> {
     val context: C
 
-    fun doIt(spec: GetSpec<C>)
+    fun `do`(spec: GetSpec<C>)
 
-    fun doIt(ref: GetRef)
+    fun `do`(ref: GetRef)
 
-    fun doIt(spec: PutSpec<C>)
+    fun `do`(spec: PutSpec<C>)
 
-    fun doIt(ref: PutRef)
+    fun `do`(ref: PutRef)
 
-    fun doIt(spec: TaskSpec<C>)
+    fun `do`(spec: TaskSpec<C>)
 
-    fun doIt(ref: TaskRef)
+    fun `do`(ref: TaskRef)
 
-    fun doIt(spec: AggregateSpec<C>)
+    fun `do`(spec: AggregateSpec<C>)
 
-    fun doIt(ref: AggregateRef)
+    fun `do`(ref: AggregateRef)
 
-    fun doIt(spec: DoSpec<C>)
+    fun `do`(spec: DoSpec<C>)
 
-    fun doIt(ref: DoRef)
+    fun `do`(ref: DoRef)
 
-    fun doIt(spec: TrySpec<C>)
+    fun `do`(spec: TrySpec<C>)
 
-    fun doIt(ref: TryRef)
+    fun `do`(ref: TryRef)
 
     fun on_success(spec: GetSpec<C>)
 
@@ -1005,29 +1005,29 @@ interface DoBuilder<out C> {
 interface TryBuilder<out C> {
     val context: C
 
-    fun tryIt(spec: GetSpec<C>)
+    fun `try`(spec: GetSpec<C>)
 
-    fun tryIt(ref: GetRef)
+    fun `try`(ref: GetRef)
 
-    fun tryIt(spec: PutSpec<C>)
+    fun `try`(spec: PutSpec<C>)
 
-    fun tryIt(ref: PutRef)
+    fun `try`(ref: PutRef)
 
-    fun tryIt(spec: TaskSpec<C>)
+    fun `try`(spec: TaskSpec<C>)
 
-    fun tryIt(ref: TaskRef)
+    fun `try`(ref: TaskRef)
 
-    fun tryIt(spec: AggregateSpec<C>)
+    fun `try`(spec: AggregateSpec<C>)
 
-    fun tryIt(ref: AggregateRef)
+    fun `try`(ref: AggregateRef)
 
-    fun tryIt(spec: DoSpec<C>)
+    fun `try`(spec: DoSpec<C>)
 
-    fun tryIt(ref: DoRef)
+    fun `try`(ref: DoRef)
 
-    fun tryIt(spec: TrySpec<C>)
+    fun `try`(spec: TrySpec<C>)
 
-    fun tryIt(ref: TryRef)
+    fun `try`(ref: TryRef)
 
     fun on_success(spec: GetSpec<C>)
 

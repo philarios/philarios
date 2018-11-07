@@ -3,6 +3,7 @@ package io.philarios.schema.v0.translators.codegen
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeVariableName
+import io.philarios.schema.v0.Field
 import io.philarios.schema.v0.Type
 
 val contextParameterSpec

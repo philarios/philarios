@@ -97,7 +97,7 @@ data class Aggregate(
 ) : Step()
 
 data class Do(
-        val doIt: List<Step>,
+        val `do`: List<Step>,
         val on_success: Step?,
         val on_failure: Step?,
         val on_abort: Step?,
@@ -108,7 +108,7 @@ data class Do(
 ) : Step()
 
 data class Try(
-        val tryIt: Step,
+        val `try`: Step,
         val on_success: Step?,
         val on_failure: Step?,
         val on_abort: Step?,
