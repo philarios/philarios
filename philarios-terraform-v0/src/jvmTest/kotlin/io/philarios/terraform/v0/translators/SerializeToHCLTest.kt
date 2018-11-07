@@ -57,6 +57,19 @@ class SerializeToHCLTest {
     }
 
     @Test
+    fun `create string for a provider with a list config field`() {
+        val provider = Provider("kafka", mapOf(
+                "bootstrap_servers" to listOf("localhost:9092")
+        ))
+        val actual = provider.serializeToHCL()
+        actual `should equal` """
+            provider "kafka" {
+              bootstrap_servers = ["localhost:9092"]
+            }
+        """.trimIndent()
+    }
+
+    @Test
     fun `create string with config list for a variable with type but no default`() {
         val variable = Variable("key", "string", "")
         val actual = variable.serializeToHCL()

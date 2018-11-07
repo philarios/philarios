@@ -37,7 +37,28 @@ fun Output.serializeToHCL(): String {
 }
 
 fun Map<String, Any>.serializeToHCL(indent: Int): String {
-    return entries.map { "${indent.indent()}${it.key} = \"${it.value}\"" }.joinToString("\n")
+    return entries.map { "${indent.indent()}${it.key} = ${it.value.serializeToHCL()}" }.joinToString("\n")
+}
+
+fun Any.serializeToHCL(): String {
+    return when (this) {
+        is Map<*, *> -> (this as Map<String, Any>).serializeToHCL()
+        is List<*> -> (this as List<Any>).serializeToHCL()
+        is Boolean -> "$this"
+        is Int -> "$this"
+        is Long -> "$this"
+        is Float -> "$this"
+        is Double -> "$this"
+        else -> "\"$this\""
+    }
+}
+
+fun Map<String, Any>.serializeToHCL(): String {
+    return "{${entries.joinToString(",") { "${it.key} = ${it.value.serializeToHCL()}" }}}"
+}
+
+fun List<Any>.serializeToHCL(): String {
+    return "[${this.joinToString(","){ it.serializeToHCL() }}]"
 }
 
 fun Int.indent() = (1..this).joinToString("") { " " }
