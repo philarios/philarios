@@ -3,7 +3,15 @@ package io.philarios.terraform.v0.translators
 import io.philarios.terraform.v0.*
 
 fun Configuration.serializeToHCL(): String {
-    return ""
+    return listOf(
+            providers.map { it.serializeToHCL() },
+            dataSources.map { it.serializeToHCL() },
+            variables.map { it.serializeToHCL() },
+            resources.map { it.serializeToHCL() },
+            outputs.map { it.serializeToHCL() }
+    )
+            .flatten()
+            .joinToString("\n\n")
 }
 
 fun Resource.serializeToHCL(): String {
