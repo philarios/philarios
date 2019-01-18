@@ -21,36 +21,33 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../philarios-terraform-v0/src/commonTest">
-      <sourceFolder url="file://$MODULE_DIR$/../../../philarios-terraform-v0/src/commonTest/kotlin" type="kotlin-test" />
-      <sourceFolder url="file://$MODULE_DIR$/../../../philarios-terraform-v0/src/commonTest/resources" type="kotlin-test-resource" />
-    </content>
+    <content url="file://$MODULE_DIR$/../../../philarios-terraform-v0/src/commonTest" />
     <orderEntry type="jdk" jdkName="Kotlin SDK" jdkType="KotlinSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="philarios-terraform-v0_commonMain" />
+    <orderEntry type="module" module-name="io.philarios.philarios-terraform-v0.commonMain" />
     <orderEntry type="library" name="Gradle: org.objenesis:objenesis:2.5" level="project" />
     <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy-agent:1.6.14" level="project" />
     <orderEntry type="library" name="Gradle: net.bytebuddy:byte-buddy:1.6.14" level="project" />
     <orderEntry type="library" name="Gradle: org.mockito:mockito-core:2.8.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Gradle: com.nhaarman:mockito-kotlin:1.5.0" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.nhaarman:mockito-kotlin-kt1.1:1.5.0" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test:1.2.60" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.2.60" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.amshove.kluent:kluent-common:1.42" level="project" />
-    <orderEntry type="library" name="Gradle: org.amshove.kluent:kluent:1.42" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.3.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-common:1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.amshove.kluent:kluent:1.42" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-annotations-common:1.3.0" level="project" />
     <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-test-common:1.3.0" level="project" />
-    <orderEntry type="module" module-name="philarios-schema-v0_commonMain" />
-    <orderEntry type="module" module-name="philarios-core-v0_commonMain" />
+    <orderEntry type="module" module-name="io.philarios.philarios-schema-v0.commonMain" />
+    <orderEntry type="module" module-name="io.philarios.philarios-core-v0.commonMain" />
   </component>
-  <component name="TestModuleProperties" production-module="philarios-terraform-v0_commonMain" />
+  <component name="TestModuleProperties" production-module="io.philarios.philarios-terraform-v0.commonMain" />
 </module>
