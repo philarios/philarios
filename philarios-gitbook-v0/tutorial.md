@@ -14,7 +14,7 @@ file:
 ```groovy
 buildscript {
     ext {
-        philarios_version = '0.9.3'
+        philarios_version = '0.10.0'
     }
 }
 
