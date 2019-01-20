@@ -6,6 +6,6 @@ import io.philarios.schema.v0.translators.codegen.SchemaCodegen
 
 suspend fun main() {
     emptyContext()
-            .map(SchemaSchemaSpec)
+            .map(schemaSchema)
             .map(SchemaCodegen("./src/commonGenerated/kotlin"))
 }

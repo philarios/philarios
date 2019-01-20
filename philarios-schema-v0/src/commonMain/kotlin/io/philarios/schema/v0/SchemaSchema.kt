@@ -1,6 +1,6 @@
 package io.philarios.schema.v0
 
-object SchemaSchemaSpec : SchemaSpec<Any?>({
+val schemaSchema = SchemaSpec<Any?> {
     name("Schema")
     pkg("io.philarios.schema.v0")
 
@@ -197,4 +197,4 @@ object SchemaSchemaSpec : SchemaSpec<Any?>({
             })
         })
     })
-})
+}
