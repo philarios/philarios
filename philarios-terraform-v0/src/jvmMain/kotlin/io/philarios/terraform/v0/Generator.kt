@@ -6,6 +6,6 @@ import io.philarios.schema.v0.translators.codegen.SchemaCodegen
 
 suspend fun main() {
     emptyContext()
-            .map(TerraformSchemaSpec)
+            .map(terraformSchema)
             .map(SchemaCodegen("./src/commonGenerated/kotlin"))
 }

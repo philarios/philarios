@@ -2,7 +2,7 @@ package io.philarios.domain.v0
 
 import io.philarios.schema.v0.*
 
-object DomainSchemaSpec : SchemaSpec<Any?>({
+val domainSchema = SchemaSpec<Any?> {
     name("Domain")
     pkg("io.philarios.domain.v0")
 
@@ -123,4 +123,4 @@ object DomainSchemaSpec : SchemaSpec<Any?>({
         value("String")
     })
 
-})
+}

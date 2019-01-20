@@ -2,7 +2,7 @@ package io.philarios.terraform.v0
 
 import io.philarios.schema.v0.*
 
-object TerraformSchemaSpec : SchemaSpec<Any?>({
+val terraformSchema = SchemaSpec<Any?> {
     name("Terraform")
     pkg("io.philarios.terraform.v0")
 
@@ -131,4 +131,4 @@ object TerraformSchemaSpec : SchemaSpec<Any?>({
             type(AnyType)
         }
     })
-})
+}

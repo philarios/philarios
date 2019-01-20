@@ -2,7 +2,7 @@ package io.philarios.concourse.v0
 
 import io.philarios.schema.v0.*
 
-object ConcourseSchemaSpec : SchemaSpec<Any?>({
+val concourseSchema = SchemaSpec<Any?> {
     name("Concourse")
     pkg("io.philarios.concourse.v0")
 
@@ -873,4 +873,4 @@ object ConcourseSchemaSpec : SchemaSpec<Any?>({
         })
     })
 
-})
+}

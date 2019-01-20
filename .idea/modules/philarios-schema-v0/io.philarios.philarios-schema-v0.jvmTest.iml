@@ -42,7 +42,7 @@
     <content url="file://$MODULE_DIR$/../../../philarios-schema-v0/src/jvmTest" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="io.philarios.philarios-core-v0.jvmMain" scope="RUNTIME" />
+    <orderEntry type="module" module-name="io.philarios.philarios-core-v0.jvmMain" />
     <orderEntry type="module" module-name="io.philarios.philarios-core-v0.commonMain" />
     <orderEntry type="module" module-name="io.philarios.philarios-schema-v0.commonMain" />
     <orderEntry type="module" module-name="io.philarios.philarios-schema-v0.jvmMain" />

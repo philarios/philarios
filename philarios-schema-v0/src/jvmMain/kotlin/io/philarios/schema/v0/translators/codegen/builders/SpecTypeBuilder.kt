@@ -38,7 +38,6 @@ private object StructSpecTypeBuilder {
     private fun buildDataClass(type: Struct): TypeSpec {
         return TypeSpec.classBuilder(type.specClassName.rawType)
                 .addTypeVariable(TypeVariableName("C", KModifier.IN))
-                .addModifiers(KModifier.OPEN)
                 .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, TypeVariableName("C"), type.className))
                 .addProperty(PropertySpec
                         .builder("body", type.bodyLambdaTypeName)

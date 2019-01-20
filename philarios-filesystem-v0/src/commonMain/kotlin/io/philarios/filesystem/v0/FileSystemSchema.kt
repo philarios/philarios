@@ -2,7 +2,7 @@ package io.philarios.filesystem.v0
 
 import io.philarios.schema.v0.*
 
-object FileSystemSchemaSpec : SchemaSpec<Any?>({
+val fileSystemSchema = SchemaSpec<Any?> {
     name("FileSystem")
     pkg("io.philarios.filesystem.v0")
 
@@ -32,4 +32,4 @@ object FileSystemSchemaSpec : SchemaSpec<Any?>({
         })
     })
 
-})
+}
