@@ -3,9 +3,11 @@
 In this section we will walk through setting up a project using Philarios and creating our fist DSL specs.
 
 ## Prerequisites
+
 - Familiarity with [Kotlin](https://kotlinlang.org/)
 - Having read about [Type-Safe Builders](https://kotlinlang.org/docs/reference/type-safe-builders.html)
 - For the more advanced sections knowledge of [Terraform](https://www.terraform.io/)
+
 ## Project setup
 
 The easiest way to setup a project is to use Gradle. For this, we just add this following snippet to out `build.gradle`
