@@ -47,6 +47,28 @@ dependencies {
 }
 ```
 
+## Example spec
+
+```kotlin
+val myProject = ProjectSpec<Any?> {
+    name("My cool project")
+
+    module(JavaModuleSpec {
+        name("server")
+        version(8)
+    })
+
+    module(JavaModuleSpec {
+        name("client")
+        version(6)
+    })
+
+    module(DockerModuleSpec {
+        name("lb")
+    })
+}
+```
+
 ## Documentation
 
 The documentation can be found under [https://philarios.gitbook.io](https://philarios.gitbook.io).
