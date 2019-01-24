@@ -77,3 +77,21 @@ The documentation can be found under [https://philarios.gitbook.io](https://phil
 
 Feel free to open a new issue in case you have a question or need help. Contributions are also very welcome! Please keep
 in mind that this is my side-project but I will do my best to answer as quickly as possible.
+
+## Things I want to get done
+
+This is a very broad list of all the things that I think would be cool to have in this project. The further down an
+initiative is the less likely is it to happen.
+
+- [x] Core functionality
+- [x] Concourse schema
+- [x] Schema schema
+- [ ] Output to JSON/YAML
+- [x] Basic Terraform schema
+- [ ] Import from JSON schema
+- [ ] Export to JSON schema
+- [ ] Support for Terraform edge cases
+- [ ] Custom support for Terraform providers
+- [ ] Import from Kotlin class hierarchy
+- [ ] Kotlin codegen schema
+- [ ] Kotlin compiler plugin / Intellij plugin
