@@ -42,13 +42,14 @@ private val Struct.checkChildrenStatements
                 )
             }
 
-private fun Struct.resolveChildrenStatements(typeRefs: Map<RefType, Type>) = fields
-        .map { Pair(it, it.resolveJobStatement(typeRefs)) }
-        .filter { it.second != null }
-        .map { Statement("\t${it.second!!}", listOf(it.first.escapedName)) }
-        .takeIf { it.isNotEmpty() }
-        ?.let { listOf(Statement("coroutineScope {")) + it + Statement("}") }
-        ?: emptyList()
+private fun Struct.resolveChildrenStatements(typeRefs: Map<RefType, Type>) =
+        fields
+                .map { Pair(it, it.resolveJobStatement(typeRefs)) }
+                .filter { it.second != null }
+                .map { Statement("\t${it.second!!}", listOf(it.first.escapedName)) }
+                .takeIf { it.isNotEmpty() }
+                ?.let { listOf(Statement("coroutineScope {")) + it + Statement("}") }
+                ?: emptyList()
 
 private fun Struct.createValueStatement(typeRefs: Map<RefType, Type>) =
         Statement(
@@ -60,79 +61,78 @@ private val Struct.putIntoRegistryStatement
     get() =
         keyField?.let { keyField ->
             Statement(
-                    "registry.put(%T::class, ${keyField.unwrappedPlaceholder()}, value)",
+                    "registry.put(%T::class, ${keyField.unwrappedPlaceholder}, value)",
                     listOf(className, keyField.escapedName)
             )
         }
 
-private fun Field.resolveJobStatement(typeRefs: Map<RefType, Type>): String? = when (this.type) {
-    is Struct -> if (this.type.fields.isEmpty()) {
-        null
-    } else {
-        "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
-    }
-    is Union -> "launch { ${unwrappedPlaceholder()}.resolve(registry) }"
-    is RefType -> this.copy(type = typeRefs[this.type]!!).resolveJobStatement(typeRefs)
-    is OptionType -> {
-        val optionType = this.type.type
-        when (optionType) {
-            is Struct -> "launch { %L?.resolve(registry) }"
-            is Union -> "launch { %L?.resolve(registry) }"
-            is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).resolveJobStatement(typeRefs)
-            else -> null
-        }
-    }
-    is ListType -> {
-        val listType = this.type.type
-        when (listType) {
-            is Struct -> "${unwrappedPlaceholder()}.forEach { launch { it.resolve(registry) } }"
-            is Union -> "${unwrappedPlaceholder()}.forEach { launch { it.resolve(registry) } }"
-            is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).resolveJobStatement(typeRefs)
-            else -> null
-        }
-    }
-    else -> null
-}
+private fun Field.resolveJobStatement(typeRefs: Map<RefType, Type>): String? =
+        copy(type = type.resolveRefs(typeRefs))
+                .resolveJobStatement
 
-private fun Field.resolveStatement(typeRefs: Map<RefType, Type>): String = when (this.type) {
-    is Struct -> if (this.type.fields.isEmpty()) {
-        unwrappedPlaceholder()
-    } else {
-        "${unwrappedPlaceholder()}.resolve(registry)"
+private val Field.resolveJobStatement
+    get(): String? = when (type) {
+        is OptionType -> type.type.resolveJobStatement?.let { "%L?.let { $it }" }
+        is ListType -> type.type.resolveJobStatement?.let { "%L.forEach { $it }" }
+        is MapType -> Pair(type.keyType, type.valueType)
+                .let { Pair(it.first.resolveJobStatement, it.second.resolveJobStatement) }
+                .let {
+                    Pair(
+                            it.first?.let { "it.key.let { $it }" },
+                            it.second?.let { "it.value.let { $it }" }
+                    )
+                }
+                .let { listOf(it.first, it.second) }
+                .filterNotNull()
+                .joinToString("; ")
+                .takeIf { it.isNotBlank() }
+                ?.let { "%L.forEach { $it }" }
+        else -> type.resolveJobStatement?.let { "$unwrappedPlaceholder.let { $it }" }
     }
-    is Union -> "${unwrappedPlaceholder()}.resolve(registry)"
-    is RefType -> this.copy(type = typeRefs[this.type]!!).resolveStatement(typeRefs)
-    is OptionType -> {
-        val optionType = this.type.type
-        when (optionType) {
-            is Struct -> "%L?.resolve(registry)"
-            is Union -> "%L?.resolve(registry)"
-            is RefType -> this.copy(type = OptionType(typeRefs[optionType]!!)).resolveStatement(typeRefs)
-            else -> unwrappedPlaceholder()
-        }
+
+private fun Field.resolveStatement(typeRefs: Map<RefType, Type>): String =
+        copy(type = type.resolveRefs(typeRefs))
+                .resolveStatement
+
+private val Field.resolveStatement
+    get(): String = when (type) {
+        is OptionType -> type.type.resolveStatement?.let { "%L?.let { $it }" }
+        is ListType -> type.type.resolveStatement?.let { "%L.map { $it }" }
+        is MapType -> Pair(type.keyType, type.valueType)
+                .let { Pair(it.first.resolveStatement, it.second.resolveStatement) }
+                .let {
+                    Pair(
+                            it.first?.let { "it.key.let { $it }" } ?: "it.key",
+                            it.second?.let { "it.value.let { $it }" } ?: "it.key"
+                    )
+                }
+                .let { "Pair(${it.first}, ${it.second})" }
+                .let { "%L.map { $it }.toMap()" }
+        else -> type.resolveStatement?.let { "$unwrappedPlaceholder.let { $it }" }
+    } ?: unwrappedPlaceholder
+
+private val Type.resolveJobStatement
+    get() = resolveStatement?.let { "launch { $it }" }
+
+private val Type.resolveStatement
+    get() = when {
+        this is Struct && fields.isEmpty() -> null
+        this is Struct -> "it.resolve(registry)"
+        this is Union -> "it.resolve(registry)"
+        else -> null
     }
-    is ListType -> {
-        val listType = this.type.type
-        when (listType) {
-            is Struct -> "${unwrappedPlaceholder()}.map { it.resolve(registry) }"
-            is Union -> "${unwrappedPlaceholder()}.map { it.resolve(registry) }"
-            is RefType -> this.copy(type = ListType(typeRefs[listType]!!)).resolveStatement(typeRefs)
-            else -> unwrappedPlaceholder()
-        }
-    }
-    else -> unwrappedPlaceholder()
-}
 
 private val Struct.keyField get() = fields.find { it.key == true }
 
-// TODO MapType should be included here
-private fun Field.unwrappedPlaceholder() = when (this.type) {
-    is OptionType -> "%L"
-    is ListType -> "%L"
-    else -> "%L!!"
-}
+private val Field.unwrappedPlaceholder
+    get() = when (type) {
+        is OptionType -> "%L"
+        is ListType -> "%L"
+        is MapType -> "%L"
+        else -> "%L!!"
+    }
 
-private fun Field.needsToBeCheckedForNull() = when (this.type) {
+private fun Field.needsToBeCheckedForNull() = when (type) {
     is OptionType -> false
     is ListType -> false
     is MapType -> false

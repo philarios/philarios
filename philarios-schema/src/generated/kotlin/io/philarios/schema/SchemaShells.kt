@@ -87,9 +87,9 @@ internal data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShel
     override suspend fun resolve(registry: Registry): OptionType {
         checkNotNull(type) { "OptionType is missing the type property" }
         coroutineScope {
-        	launch { type!!.resolve(registry) }
+        	type!!.let { launch { it.resolve(registry) } }
         }
-        val value = OptionType(type!!.resolve(registry))
+        val value = OptionType(type!!.let { it.resolve(registry) })
         return value
     }
 }
@@ -99,9 +99,9 @@ internal data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(
     override suspend fun resolve(registry: Registry): ListType {
         checkNotNull(type) { "ListType is missing the type property" }
         coroutineScope {
-        	launch { type!!.resolve(registry) }
+        	type!!.let { launch { it.resolve(registry) } }
         }
-        val value = ListType(type!!.resolve(registry))
+        val value = ListType(type!!.let { it.resolve(registry) })
         return value
     }
 }
@@ -112,10 +112,10 @@ internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueT
         checkNotNull(keyType) { "MapType is missing the keyType property" }
         checkNotNull(valueType) { "MapType is missing the valueType property" }
         coroutineScope {
-        	launch { keyType!!.resolve(registry) }
-        	launch { valueType!!.resolve(registry) }
+        	keyType!!.let { launch { it.resolve(registry) } }
+        	valueType!!.let { launch { it.resolve(registry) } }
         }
-        val value = MapType(keyType!!.resolve(registry),valueType!!.resolve(registry))
+        val value = MapType(keyType!!.let { it.resolve(registry) },valueType!!.let { it.resolve(registry) })
         return value
     }
 }
@@ -129,9 +129,9 @@ internal data class FieldShell(
         checkNotNull(name) { "Field is missing the name property" }
         checkNotNull(type) { "Field is missing the type property" }
         coroutineScope {
-        	launch { type!!.resolve(registry) }
+        	type!!.let { launch { it.resolve(registry) } }
         }
-        val value = Field(name!!,key,type!!.resolve(registry))
+        val value = Field(name!!,key,type!!.let { it.resolve(registry) })
         return value
     }
 }
