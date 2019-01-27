@@ -1,9 +1,8 @@
 buildscript {
     ext {
-        kotlin_version = '1.3.0'
-        coroutines_version = '1.0.0'
-        spek_version = '2.0.0-rc.1'
-        kluent_version = '1.42'
+        kotlin_version = "1.3.11"
+        coroutines_version = "1.1.1"
+        spek_version = "2.0.0-rc.1"
     }
 
     repositories {
@@ -16,9 +15,12 @@ buildscript {
     }
 }
 
+group "io.philarios"
+version "0.0.0"
+
 allprojects {
-    group 'io.philarios'
-    version '0.10.0'
+    group "io.philarios"
+    version "0.10.0"
 
     repositories {
         mavenCentral()
@@ -29,60 +31,33 @@ allprojects {
             url "https://dl.bintray.com/spekframework/spek-dev"
         }
         maven {
-            url  "https://dl.bintray.com/markusamshove/maven"
-        }
-    }
-
-    configurations.all {
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.0"
+            url "https://dl.bintray.com/markusamshove/maven"
         }
     }
 }
 
-
 subprojects {
-    apply plugin: "kotlin-multiplatform"
+    apply plugin: "kotlin"
     apply plugin: "maven-publish"
 
-    publishing {
-        repositories {
-            maven {
-                name "kotlinMultiplatform"
-                url "https://api.bintray.com/content/philarios/philarios/${project.name}/$version"
-                credentials {
-                    username bintrayUser
-                    password bintrayKey
-                }
-            }
-            maven {
-                name "jvm"
-                url "https://api.bintray.com/content/philarios/philarios/${project.name}-jvm/$version"
-                credentials {
-                    username bintrayUser
-                    password bintrayKey
-                }
-            }
-            maven {
-                name "metadata"
-                url "https://api.bintray.com/content/philarios/philarios/${project.name}-metadata/$version"
-                credentials {
-                    username bintrayUser
-                    password bintrayKey
-                }
-            }
-        }
+    sourceSets.main.java.srcDirs += ["src/generated/kotlin"]
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+        testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.10"
     }
-    afterEvaluate {
-        tasks.withType(PublishToMavenRepository).all { publishTask ->
-            publishTask.onlyIf { task ->
-                if (task.publication.name != task.repository.name) {
-                    task.enabled = false
-                    task.group = null
-                    return false
-                }
-                return true
-            }
-        }
+
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
     }
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+    
 }

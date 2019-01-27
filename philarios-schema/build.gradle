@@ -1,0 +1,5 @@
+
+dependencies {
+    implementation project(":philarios-core")
+    implementation "com.squareup:kotlinpoet:0.7.0"
+}

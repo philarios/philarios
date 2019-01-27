@@ -1,30 +1,10 @@
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "kotlin-platform-common") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
+rootProject.name = 'philarios'
 
-            if (requested.id.id == "kotlin-platform-jvm") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
+include 'philarios-concourse'
+include 'philarios-core'
+include 'philarios-domain'
+include 'philarios-filesystem'
+include 'philarios-jsonschema'
+include 'philarios-schema'
+include 'philarios-terraform'
 
-            if (requested.id.id == "kotlin-platform-js") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-            if (requested.id.id == "kotlin-multiplatform") {
-                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-            }
-        }
-    }
-}
-rootProject.name = 'philarios-main'
-
-include "philarios-core-v0"
-include "philarios-schema-v0"
-include "philarios-concourse-v0"
-include "philarios-domain-v0"
-include "philarios-filesystem-v0"
-include "philarios-terraform-v0"
-
-enableFeaturePreview('GRADLE_METADATA')

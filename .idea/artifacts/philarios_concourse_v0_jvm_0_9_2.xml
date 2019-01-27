@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="philarios-concourse-v0-jvm-0.9.2">
-    <output-path>C:\Users\marc\git\internal\philarios\philarios-concourse-v0\build\libs</output-path>
-    <root id="archive" name="philarios-concourse-v0-jvm-0.9.2.jar">
-      <element id="module-output" name="philarios-concourse-v0_jvmMain" />
-    </root>
-  </artifact>
-</component>
