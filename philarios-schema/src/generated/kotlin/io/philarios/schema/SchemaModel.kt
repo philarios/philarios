@@ -5,10 +5,9 @@ import kotlin.String
 import kotlin.collections.List
 
 data class Schema(
-        val name: String,
         val pkg: String,
-        val types: List<Type>,
-        val references: List<Schema>
+        val name: String,
+        val types: List<Type>
 )
 
 sealed class Type

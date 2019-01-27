@@ -3,7 +3,7 @@ package io.philarios.schema.translators.codegen.types.shell
 import com.squareup.kotlinpoet.*
 import io.philarios.schema.*
 import io.philarios.schema.translators.codegen.util.escapedName
-import io.philarios.schema.translators.codegen.util.scaffoldClassName
+import io.philarios.schema.translators.codegen.util.scaffoldTypeName
 import io.philarios.schema.translators.codegen.util.shellClassName
 import io.philarios.schema.util.kotlinpoet.superclass
 
@@ -14,7 +14,7 @@ internal fun Struct.shellTypeSpec(typeRefs: Map<RefType, Type>, superclass: Clas
 
 private fun Struct.dataClassShellTypeSpec(typeRefs: Map<RefType, Type>, superclass: ClassName? = null) =
         TypeSpec.classBuilder(shellClassName)
-                .addSuperinterface(scaffoldClassName)
+                .addSuperinterface(scaffoldTypeName)
                 .superclass(superclass)
                 .addModifiers(KModifier.INTERNAL)
                 .addModifiers(KModifier.DATA)
@@ -29,7 +29,7 @@ private fun Struct.dataClassShellConstructorSpec(typeRefs: Map<RefType, Type>) =
                 .build()
 
 private fun Field.fieldParameterSpec(typeRefs: Map<RefType, Type>) =
-        ParameterSpec.builder(escapedName, scaffoldType(typeRefs))
+        ParameterSpec.builder(escapedName, scaffoldTypeName(typeRefs))
                 .defaultValue(when (type) {
                     is ListType -> "emptyList()"
                     is MapType -> "emptyMap()"
@@ -38,7 +38,7 @@ private fun Field.fieldParameterSpec(typeRefs: Map<RefType, Type>) =
                 .build()
 
 private fun Field.getFieldPropertySpec(typeRefs: Map<RefType, Type>) =
-        PropertySpec.builder(escapedName, scaffoldType(typeRefs))
+        PropertySpec.builder(escapedName, scaffoldTypeName(typeRefs))
                 .mutable(true)
                 .initializer(escapedName)
                 .build()

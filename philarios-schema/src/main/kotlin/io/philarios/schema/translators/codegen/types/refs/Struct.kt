@@ -7,7 +7,7 @@ import io.philarios.core.RegistryRef
 import io.philarios.schema.Struct
 import io.philarios.schema.translators.codegen.util.className
 import io.philarios.schema.translators.codegen.util.refClassName
-import io.philarios.schema.translators.codegen.util.scaffoldClassName
+import io.philarios.schema.translators.codegen.util.scaffoldTypeName
 
 internal val Struct.refTypeSpec
     get() = when {
@@ -18,7 +18,7 @@ internal val Struct.refTypeSpec
 private val Struct.dataClassRefTypeSpec
     get() = TypeSpec.classBuilder(refClassName)
             .addSuperinterface(
-                    scaffoldClassName,
+                    scaffoldTypeName,
                     CodeBlock.of(
                             "%T(%T::class, %L)",
                             RegistryRef::class.className,

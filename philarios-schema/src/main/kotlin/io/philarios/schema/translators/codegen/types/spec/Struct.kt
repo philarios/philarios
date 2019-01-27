@@ -28,7 +28,7 @@ private val Struct.dataClassSpecTypeSpec
             .addFunction(FunSpec.builder("connect")
                     .addModifiers(KModifier.OVERRIDE)
                     .addParameter(contextParameterSpec)
-                    .returns(scaffoldClassName)
+                    .returns(scaffoldTypeName)
                     .addStatements(
                             Statement("val builder = %T(context)", listOf(shellBuilderClassName)),
                             Statement("builder.apply(body)"),

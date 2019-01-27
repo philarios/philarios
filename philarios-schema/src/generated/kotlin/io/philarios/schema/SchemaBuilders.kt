@@ -10,9 +10,9 @@ import kotlin.collections.List
 interface SchemaBuilder<out C> {
     val context: C
 
-    fun name(name: String)
-
     fun pkg(pkg: String)
+
+    fun name(name: String)
 
     fun type(spec: StructSpec<C>)
 
@@ -61,16 +61,6 @@ interface SchemaBuilder<out C> {
     fun type(type: StringType)
 
     fun type(type: AnyType)
-
-    fun reference(body: SchemaBuilder<C>.() -> Unit)
-
-    fun reference(spec: SchemaSpec<C>)
-
-    fun reference(ref: SchemaRef)
-
-    fun reference(reference: Schema)
-
-    fun references(references: List<Schema>)
 
     fun include(body: SchemaBuilder<C>.() -> Unit)
 

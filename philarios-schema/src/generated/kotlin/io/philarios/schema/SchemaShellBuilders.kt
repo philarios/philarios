@@ -9,12 +9,12 @@ import kotlin.collections.List
 
 @DslBuilder
 internal class SchemaShellBuilder<out C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
-    }
-
     override fun pkg(pkg: String) {
         shell = shell.copy(pkg = pkg)
+    }
+
+    override fun name(name: String) {
+        shell = shell.copy(name = name)
     }
 
     override fun type(spec: StructSpec<C>) {
@@ -111,26 +111,6 @@ internal class SchemaShellBuilder<out C>(override val context: C, internal var s
 
     override fun type(type: AnyType) {
         shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun reference(body: SchemaBuilder<C>.() -> Unit) {
-        shell = shell.copy(references = shell.references.orEmpty() + SchemaSpec<C>(body).connect(context))
-    }
-
-    override fun reference(spec: SchemaSpec<C>) {
-        shell = shell.copy(references = shell.references.orEmpty() + spec.connect(context))
-    }
-
-    override fun reference(ref: SchemaRef) {
-        shell = shell.copy(references = shell.references.orEmpty() + ref)
-    }
-
-    override fun reference(reference: Schema) {
-        shell = shell.copy(references = shell.references.orEmpty() + Wrapper(reference))
-    }
-
-    override fun references(references: List<Schema>) {
-        shell = shell.copy(references = shell.references.orEmpty() + references.map { Wrapper(it) })
     }
 
     override fun include(body: SchemaBuilder<C>.() -> Unit) {

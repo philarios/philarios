@@ -64,11 +64,13 @@ fun Type.className(suffix: String) = when (this) {
 val Type.shellClassName
     get() = className("Shell")
 
-val Type.scaffoldClassName: ParameterizedTypeName
-    get() = className.scaffoldClassName
-
-val ClassName.scaffoldClassName: ParameterizedTypeName
-    get() = ParameterizedTypeName.get(Scaffold::class.className, this)
+val Type.scaffoldTypeName
+    get() = when {
+        this is Struct && fields.isEmpty() -> className
+        this is Struct -> ParameterizedTypeName.get(Scaffold::class.className, className)
+        this is Union -> ParameterizedTypeName.get(Scaffold::class.className, className)
+        else -> className
+    }
 
 val Type.refClassName
     get() = className("Ref")

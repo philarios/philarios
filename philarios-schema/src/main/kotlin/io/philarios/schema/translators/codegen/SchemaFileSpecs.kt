@@ -67,8 +67,8 @@ private fun Schema.builderShellFileSpec(typeRefs: Map<RefType, Type>): FileSpec 
 // TODO decide on how hacky this is?
 private fun Schema.propagatePkg(): Schema {
     return copy(
-            types = types.map { it.propagatePkg(pkg) },
-            references = references.map { it.propagatePkg() }
+            types = types.map { it.propagatePkg(pkg) }//,
+//            references = references.map { it.propagatePkg() }
     )
 }
 
@@ -90,11 +90,11 @@ private fun Schema.buildTypeRefs(): Map<RefType, Type> {
     return types
             .flatMap { it.buildTypeRefs() }
             .toMap()
-            .let {
-                references.fold(it) { typeRefs, referencedSchema ->
-                    typeRefs + referencedSchema.buildTypeRefs()
-                }
-            }
+//            .let {
+//                references.fold(it) { typeRefs, referencedSchema ->
+//                    typeRefs + referencedSchema.buildTypeRefs()
+//                }
+//            }
 }
 
 private fun Type.buildTypeRefs(): List<Pair<RefType, Type>> {

@@ -7,12 +7,12 @@ val schemaSchema = SchemaSpec<Any?> {
     type(StructSpec {
         name("Schema")
         field(FieldSpec {
-            name("name")
-            key(true)
+            name("pkg")
             type(StringType)
         })
         field(FieldSpec {
-            name("pkg")
+            name("name")
+            key(true)
             type(StringType)
         })
         field(FieldSpec {
@@ -23,14 +23,14 @@ val schemaSchema = SchemaSpec<Any?> {
                 })
             })
         })
-        field(FieldSpec {
-            name("references")
-            type(ListTypeSpec {
-                type(RefTypeSpec {
-                    name("Schema")
-                })
-            })
-        })
+//        field(FieldSpec {
+//            name("references")
+//            type(ListTypeSpec {
+//                type(RefTypeSpec {
+//                    name("Schema")
+//                })
+//            })
+//        })
     })
 
     type(UnionSpec {

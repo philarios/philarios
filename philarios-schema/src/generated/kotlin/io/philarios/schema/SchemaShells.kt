@@ -9,19 +9,17 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 internal data class SchemaShell(
-        var name: String? = null,
         var pkg: String? = null,
-        var types: List<Scaffold<Type>> = emptyList(),
-        var references: List<Scaffold<Schema>> = emptyList()
+        var name: String? = null,
+        var types: List<Scaffold<Type>> = emptyList()
 ) : Scaffold<Schema> {
     override suspend fun resolve(registry: Registry): Schema {
-        checkNotNull(name) { "Schema is missing the name property" }
         checkNotNull(pkg) { "Schema is missing the pkg property" }
+        checkNotNull(name) { "Schema is missing the name property" }
         coroutineScope {
         	types.forEach { launch { it.resolve(registry) } }
-        	references.forEach { launch { it.resolve(registry) } }
         }
-        val value = Schema(name!!,pkg!!,types.map { it.resolve(registry) },references.map { it.resolve(registry) })
+        val value = Schema(pkg!!,name!!,types.map { it.resolve(registry) })
         registry.put(Schema::class, name!!, value)
         return value
     }
