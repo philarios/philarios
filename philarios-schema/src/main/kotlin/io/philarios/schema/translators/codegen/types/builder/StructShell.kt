@@ -50,6 +50,7 @@ private val ParameterFunction.parameterFunSpec
         is ParameterFunction.AddParameterFunctionWithSpec -> parameterFunSpec
         is ParameterFunction.AddParameterFunctionWithRef -> parameterFunSpec
         is ParameterFunction.PutKeyValueParameterFunction -> parameterFunSpec
+        is ParameterFunction.PutKeyValueParameterFunctionWithWrapper -> parameterFunSpec
         is ParameterFunction.PutKeyValueParameterFunctionWithBody -> parameterFunSpec
         is ParameterFunction.PutKeyValueParameterFunctionWithSpec -> parameterFunSpec
         is ParameterFunction.PutKeyValueParameterFunctionWithRef -> parameterFunSpec
@@ -180,6 +181,19 @@ private val ParameterFunction.PutKeyValueParameterFunction.parameterFunSpec
                 .build()
     }
 
+private val ParameterFunction.PutKeyValueParameterFunctionWithWrapper.parameterFunSpec
+    get(): FunSpec {
+        val keyClassName = keyType.className
+        val valueClassName = valueType.className
+        val name = field.escapedName
+        return FunSpec.builder(name)
+                .addModifiers(KModifier.OVERRIDE)
+                .addParameter(ParameterSpec.builder("key", keyClassName).build())
+                .addParameter(ParameterSpec.builder("value", valueClassName).build())
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,%T(%L)))", name, name, "key", Wrapper::class.className, "value")
+                .build()
+    }
+
 private val ParameterFunction.PutKeyValueParameterFunctionWithBody.parameterFunSpec
     get(): FunSpec {
         val keyClassName = keyType.className
@@ -200,7 +214,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithSpec.parameterFunS
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = this.%L.orEmpty() + Pair(%L,spec.connect(context)))", name, name, "key")
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%L,spec.connect(context)))", name, name, "key")
                 .build()
     }
 

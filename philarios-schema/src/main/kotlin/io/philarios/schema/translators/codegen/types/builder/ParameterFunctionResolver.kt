@@ -132,8 +132,7 @@ class ParameterFunctionResolver(private val typeRefs: Map<RefType, Type>) {
                     ParameterFunction.PutKeyValueParameterFunctionWithBody(type, field, keyType, valueType),
                     ParameterFunction.PutKeyValueParameterFunctionWithSpec(type, field, keyType, valueType),
                     ParameterFunction.PutKeyValueParameterFunctionWithRef(type, field, keyType, valueType),
-                    ParameterFunction.PutKeyValueParameterFunction(type, field, keyType, valueType),
-                    ParameterFunction.PutPairParameterFunction(type, field, keyType, valueType)
+                    ParameterFunction.PutKeyValueParameterFunctionWithWrapper(type, field, keyType, valueType)
             )
         }
     }

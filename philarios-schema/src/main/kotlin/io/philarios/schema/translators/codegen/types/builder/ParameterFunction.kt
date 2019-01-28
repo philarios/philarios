@@ -16,6 +16,7 @@ sealed class ParameterFunction {
     data class AddParameterFunctionWithSpec(val type: Struct, val field: Field, val listType: Type): ParameterFunction()
     data class AddParameterFunctionWithRef(val type: Struct, val field: Field, val listType: Type): ParameterFunction()
     data class PutKeyValueParameterFunction(val type: Struct, val field: Field, val keyType: Type, val valueType: Type): ParameterFunction()
+    data class PutKeyValueParameterFunctionWithWrapper(val type: Struct, val field: Field, val keyType: Type, val valueType: Type): ParameterFunction()
     data class PutKeyValueParameterFunctionWithBody(val type: Struct, val field: Field, val keyType: Type, val valueType: Type): ParameterFunction()
     data class PutKeyValueParameterFunctionWithSpec(val type: Struct, val field: Field, val keyType: Type, val valueType: Type): ParameterFunction()
     data class PutKeyValueParameterFunctionWithRef(val type: Struct, val field: Field, val keyType: Type, val valueType: Type): ParameterFunction()
