@@ -1,0 +1,1 @@
+The CircleCI schema file was taken from http://json.schemastore.org/circleciconfig
