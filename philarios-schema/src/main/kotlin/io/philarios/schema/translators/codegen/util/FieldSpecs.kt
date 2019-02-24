@@ -9,7 +9,7 @@ val Field.singularName
     }
 
 val Field.escapedName
-    get() = if (name.isKeyword) {
+    get() = if (name.shouldBeEscaped) {
         "`$name`"
     } else {
         name
@@ -18,6 +18,10 @@ val Field.escapedName
 // This is copied over from the Kotlin Poet library
 // https://github.com/square/kotlinpoet/blob/master/src/main/java/com/squareup/kotlinpoet/Util.kt
 // TODO decide if I should keep, move or replace this
+
+internal val String.shouldBeEscaped get() = containsSpecialCharacter || isKeyword
+
+internal val String.containsSpecialCharacter get() = contains("$")
 
 internal val String.isKeyword get() = KEYWORDS.contains(this)
 

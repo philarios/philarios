@@ -10,10 +10,16 @@ fun Field.scaffoldTypeName(typeRefs: Map<RefType, Type>): TypeName =
         copy(type = type.resolveRefs(typeRefs))
                 .scaffoldTypeName
 
-private val Field.scaffoldTypeName get() = when (type) {
-    is OptionType -> type.type.scaffoldTypeName.asNullable()
-    is ListType -> ParameterizedTypeName.get(List::class.className, type.type.scaffoldTypeName)
-    is MapType -> ParameterizedTypeName.get(
-            Map::class.className, type.keyType.scaffoldTypeName, type.valueType.scaffoldTypeName)
-    else -> type.scaffoldTypeName.asNullable()
-}
+private val Field.scaffoldTypeName: TypeName
+    get() {
+        if (name == "definitions") {
+            println("")
+        }
+        return when (type) {
+            is OptionType -> copy(type = type.type).scaffoldTypeName.asNullable()
+            is ListType -> ParameterizedTypeName.get(List::class.className, type.type.scaffoldTypeName)
+            is MapType -> ParameterizedTypeName.get(
+                    Map::class.className, type.keyType.scaffoldTypeName, type.valueType.scaffoldTypeName)
+            else -> type.scaffoldTypeName.asNullable()
+        }
+    }
