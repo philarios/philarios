@@ -26,7 +26,7 @@ private fun Struct.resolveStatements(typeRefs: Map<RefType, Type>): List<Stateme
         listOf(
                 checkChildrenStatements,
                 resolveChildrenStatements(typeRefs),
-                listOf(createValueStatement(typeRefs)),
+                createValueStatements(typeRefs),
                 listOf(putIntoRegistryStatement)
         )
                 .flatten()
@@ -49,17 +49,24 @@ private fun Struct.resolveChildrenStatements(typeRefs: Map<RefType, Type>): List
                 ?.let { listOf(Statement("coroutineScope {")) + it + Statement("}") }
                 ?: emptyList()
 
-private fun Struct.createValueStatement(typeRefs: Map<RefType, Type>): Statement =
-        Statement(
-                "val value = %T(${fields.map { it.resolveStatement(typeRefs) }.joinToString(",")})",
-                listOf(className) + fields.map { it.escapedName }
-        )
+private fun Struct.createValueStatements(typeRefs: Map<RefType, Type>): List<Statement> =
+        listOf(Statement("val value = %T(", listOf(className))) +
+                fields
+                        .map { it.resolveStatement(typeRefs) }
+                        .mapIndexed { index, statement -> // TODO simplify this
+                            if (index == fields.size - 1) {
+                                statement
+                            } else {
+                                statement.copy(format = "${statement.format},")
+                            }
+                        } +
+                Statement(")")
 
 private val Struct.putIntoRegistryStatement: Statement?
     get() =
         keyField?.let { keyField ->
             Statement(
-                    "registry.put(%T::class, ${keyField.unwrappedPlaceholder}, value)",
+                    "registry.put(%T::class, value.%L, value)",
                     listOf(className, keyField.escapedName)
             )
         }
@@ -69,12 +76,12 @@ private fun Field.resolveJobStatement(typeRefs: Map<RefType, Type>): Statement? 
                 .resolveJobStatement
 
 private val Field.resolveJobStatement: Statement?
-    get() = type.resolveJobStatement?.let { Statement("%L.let{ $it }", listOf(escapedName)) }
+    get() = type.resolveJobStatement?.let { Statement("%>%L?.let{ $it }%<", listOf(escapedName)) }
 
 internal val Type.resolveJobStatement: String?
     get() = when {
-        this is OptionType -> type.resolveJobStatement?.let { "it?.let { $it }" }
-        this is ListType -> type.resolveJobStatement?.let { "it?.forEach { $it }" }
+        this is OptionType -> type.resolveJobStatement
+        this is ListType -> type.resolveJobStatement?.let { "it.forEach { $it }" }
         this is MapType -> Pair(keyType, valueType)
                 .let { Pair(it.first.resolveJobStatement, it.second.resolveJobStatement) }
                 .let {
@@ -94,35 +101,32 @@ internal val Type.resolveJobStatement: String?
         else -> null
     }
 
-private fun Field.resolveStatement(typeRefs: Map<RefType, Type>): String =
+private fun Field.resolveStatement(typeRefs: Map<RefType, Type>): Statement =
         copy(type = type.resolveRefs(typeRefs))
                 .resolveStatement
 
-private val Field.resolveStatement: String
-    get() = "%L.let{ ${type.resolveStatement} }"
+private val Field.resolveStatement: Statement
+    get() = Statement("%>$nullablePlaceholder.let{ ${type.resolveStatement} }%<", listOf(escapedName))
 
 private val Type.resolveStatement: String
     get() = when {
-        this is OptionType -> type.resolveStatement.let { "it?.let { $it }" }
-        this is ListType -> type.resolveStatement.let { "it?.map { $it }" }
+        this is OptionType -> type.resolveStatement
+        this is ListType -> type.resolveStatement.let { "it.map { $it }" }
         this is MapType -> Pair(keyType, valueType)
                 .let { Pair(it.first.resolveStatement, it.second.resolveStatement) }
                 .let { Pair(it.first.let { "it.key.let { $it }" }, it.second.let { "it.value.let { $it }" }) }
                 .let { "Pair(${it.first}, ${it.second})" }
                 .let { "it.map { $it }.toMap()" }
-        this is Struct && fields.isEmpty() -> "it"
-        this is Struct -> "it.resolve(registry)"
-        this is Union -> "it.resolve(registry)"
-        else -> "it"
+        else -> "it.resolve(registry)"
     }
 
 private val Struct.keyField: Field? get() = fields.find { it.key == true }
 
-private val Field.unwrappedPlaceholder: String
+private val Field.nullablePlaceholder: String
     get() = when (type) {
-        is OptionType -> "%L"
-        is ListType -> "%L"
-        is MapType -> "%L"
+        is OptionType -> "%L?"
+        is ListType -> "%L.orEmpty()"
+        is MapType -> "%L.orEmpty()"
         else -> "%L!!"
     }
 

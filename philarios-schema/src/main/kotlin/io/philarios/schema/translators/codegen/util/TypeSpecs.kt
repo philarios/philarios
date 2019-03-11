@@ -64,39 +64,73 @@ fun Type.className(suffix: String) = when (this) {
 val Type.shellClassName
     get() = className("Shell")
 
-val Type.scaffoldTypeName
-    get() = when {
-        this is Struct && fields.isEmpty() -> className
-        this is Struct -> ParameterizedTypeName.get(Scaffold::class.className, className)
-        this is Union -> ParameterizedTypeName.get(Scaffold::class.className, className)
-        else -> className
+val Type.scaffoldTypeName: TypeName
+    get() = when (this) {
+        is OptionType -> type.scaffoldTypeName
+        is ListType -> ParameterizedTypeName.get(
+                List::class.className,
+                type.scaffoldTypeName
+        )
+        is MapType -> ParameterizedTypeName.get(
+                Map::class.className,
+                keyType.scaffoldTypeName,
+                valueType.scaffoldTypeName
+        )
+        else -> ParameterizedTypeName.get(Scaffold::class.className, className)
+    }
+
+val Type.wrapperTypeName
+    get() = when (this) {
+        is Union -> TypeVariableName("T")
+        else -> typeName
+    }
+
+val Type.refTypeName
+    get() = when (this) {
+        is Union -> ParameterizedTypeName.get(refClassName, TypeVariableName("T"))
+        else -> refClassName
     }
 
 val Type.refClassName
     get() = className("Ref")
 
-val Type.specClassName
-    get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C", KModifier.IN))
+val Type.scaffolderTypeName
+    get() = when (this) {
+        is Union -> ParameterizedTypeName.get(scaffolderClassName, TypeVariableName("C", KModifier.IN), typeName)
+        else -> ParameterizedTypeName.get(scaffolderClassName, TypeVariableName("C", KModifier.IN))
+    }
 
-val Type.otherSpecClassName
+val Type.scaffolderClassName
+    get() = className("Scaffolder")
+
+val Type.specTypeName
+    get() = when (this) {
+        is Union -> ParameterizedTypeName.get(specClassName, TypeVariableName("C", KModifier.IN), TypeVariableName("T"))
+        else -> ParameterizedTypeName.get(specClassName, TypeVariableName("C", KModifier.IN))
+    }
+
+val Type.specClassName
+    get() = className("Spec")
+
+val Type.otherSpecTypeName
     get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C2", KModifier.IN))
 
-val Type.builderClassName
+val Type.builderTypeName
     get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C"))
 
-val Type.otherBuilderClassName
+val Type.otherBuilderTypeName
     get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C2"))
 
-val Type.shellBuilderClassName
+val Type.shellBuilderTypeName
     get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C"))
 
-val Type.otherShellBuilderClassName
+val Type.otherShellBuilderTypeName
     get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C2"))
 
 val Type.bodyLambdaTypeName
-    get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))
+    get() = LambdaTypeName.get(builderTypeName, emptyList(), ClassName("", "Unit"))
 
 val Type.otherBodyLambdaTypeName
-    get() = LambdaTypeName.get(otherBuilderClassName, emptyList(), ClassName("", "Unit"))
+    get() = LambdaTypeName.get(otherBuilderTypeName, emptyList(), ClassName("", "Unit"))
 
 val KClass<*>.className get() = ClassName.bestGuess(qualifiedName!!)

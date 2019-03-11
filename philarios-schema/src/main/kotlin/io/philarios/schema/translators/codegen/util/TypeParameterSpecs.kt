@@ -20,19 +20,24 @@ val otherContextIterableParameterSpec
             .builder("context", ParameterizedTypeName.get(Iterable::class.className, TypeVariableName("C2")))
             .build()
 
+val Type.wrapperParameterSpec
+    get() = ParameterSpec
+            .builder("value", wrapperTypeName)
+            .build()
+
 val Type.refParameterSpec
     get() = ParameterSpec
-            .builder("ref", refClassName)
+            .builder("ref", refTypeName)
             .build()
 
 val Type.specParameterSpec
     get() = ParameterSpec
-            .builder("spec", specClassName)
+            .builder("spec", specTypeName)
             .build()
 
 val Type.otherSpecParameterSpec
     get() = ParameterSpec
-            .builder("spec", otherSpecClassName)
+            .builder("spec", otherSpecTypeName)
             .build()
 
 val Type.bodyParameterSpec

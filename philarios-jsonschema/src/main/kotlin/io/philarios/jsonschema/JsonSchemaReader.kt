@@ -15,7 +15,6 @@ import java.io.InputStream
 
 fun read(inputStream: InputStream): JsonSchema {
 
-
     val deserializerModule = SimpleModule()
             .addDeserializer(JsonSchema::class.java, object : JsonDeserializer<JsonSchema>() {
                 override fun deserialize(p: JsonParser, ctxt: DeserializationContext): JsonSchema {

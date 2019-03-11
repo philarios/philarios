@@ -2,6 +2,10 @@ package io.philarios.core
 
 import kotlin.reflect.KClass
 
+interface Scaffolder<in C, out T : Any> {
+    fun createScaffold(context: C): Scaffold<T>
+}
+
 interface Scaffold<out T : Any> {
     suspend fun resolve(registry: Registry): T
 }

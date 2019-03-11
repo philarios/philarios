@@ -4,13 +4,14 @@ import io.philarios.core.Translator
 import io.philarios.core.emptyContext
 import io.philarios.core.map
 import io.philarios.schema.Schema
+import io.philarios.schema.SchemaScaffolder
 import io.philarios.schema.SchemaSpec
 import io.philarios.schema.translators.codegen.fileSpecs
 import java.io.File
 
 suspend fun SchemaSpec<Any?>.generateInto(outputDirectory: String = "./src/generated/kotlin") {
     emptyContext()
-            .map(this)
+            .map(SchemaScaffolder(this))
             .map(SchemaCodegen(outputDirectory))
 }
 

@@ -7,6 +7,7 @@ import io.philarios.schema.translators.codegen.types.builder.builderShellTypeSpe
 import io.philarios.schema.translators.codegen.types.builder.createTypeBuilderTypeSpec
 import io.philarios.schema.translators.codegen.types.model.modelTypeSpecs
 import io.philarios.schema.translators.codegen.types.refs.refTypeSpecs
+import io.philarios.schema.translators.codegen.types.scaffolder.scaffolderTypeSpecs
 import io.philarios.schema.translators.codegen.types.shell.shellTypeSpecs
 import io.philarios.schema.translators.codegen.types.spec.specTypeSpecs
 import io.philarios.schema.util.kotlinpoet.addTypes
@@ -22,7 +23,8 @@ internal val Schema.fileSpecs: List<FileSpec>
                 schemaWithPkg.shellFileSpec(typeRefs),
                 schemaWithPkg.specFileSpec,
                 schemaWithPkg.builderInterfaceFileSpec(typeRefs),
-                schemaWithPkg.builderShellFileSpec(typeRefs)
+                schemaWithPkg.builderShellFileSpec(typeRefs),
+                schemaWithPkg.scaffolderFileSpec
         )
     }
 
@@ -63,6 +65,12 @@ private fun Schema.builderShellFileSpec(typeRefs: Map<RefType, Type>): FileSpec 
             .addTypes(types.flatMap { it.builderTypeSpecs(typeRefs) })
             .build()
 }
+
+private val Schema.scaffolderFileSpec
+    get() =
+        FileSpec.builder(pkg, "${name}Scaffolders")
+                .addTypes(types.flatMap { it.scaffolderTypeSpecs })
+                .build()
 
 // TODO decide on how hacky this is?
 private fun Schema.propagatePkg(): Schema {

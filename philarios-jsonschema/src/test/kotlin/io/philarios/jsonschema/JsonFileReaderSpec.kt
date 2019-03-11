@@ -84,16 +84,6 @@ class JsonFileReaderSpec : FreeSpec({
             jsonSchema.properties shouldNotBe null
             jsonSchema.properties!! shouldNotBe emptyMap<String, JsonSchema>()
         }
-        with("circleciconfig json") {
-            val jsonSchema = executeRead("circleciconfig.json")
-            jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
-
-            jsonSchema as JsonSchemaObject
-
-            jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! shouldNotBe emptyMap<String, JsonSchema>()
-        }
     }
 
 })

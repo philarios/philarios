@@ -1,7 +1,10 @@
 package io.philarios.schema.translators.codegen.types.shell
 
 import com.squareup.kotlinpoet.*
-import io.philarios.schema.*
+import io.philarios.schema.Field
+import io.philarios.schema.RefType
+import io.philarios.schema.Struct
+import io.philarios.schema.Type
 import io.philarios.schema.translators.codegen.util.escapedName
 import io.philarios.schema.translators.codegen.util.scaffoldTypeName
 import io.philarios.schema.translators.codegen.util.shellClassName
@@ -30,11 +33,7 @@ private fun Struct.dataClassShellConstructorSpec(typeRefs: Map<RefType, Type>) =
 
 private fun Field.fieldParameterSpec(typeRefs: Map<RefType, Type>) =
         ParameterSpec.builder(escapedName, scaffoldTypeName(typeRefs))
-                .defaultValue(when (type) {
-                    is ListType -> "emptyList()"
-                    is MapType -> "emptyMap()"
-                    else -> "null"
-                })
+                .defaultValue("null")
                 .build()
 
 private fun Field.getFieldPropertySpec(typeRefs: Map<RefType, Type>) =

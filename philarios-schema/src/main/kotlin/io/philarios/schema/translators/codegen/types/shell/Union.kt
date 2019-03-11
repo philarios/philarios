@@ -5,7 +5,6 @@ import com.squareup.kotlinpoet.TypeSpec
 import io.philarios.schema.RefType
 import io.philarios.schema.Type
 import io.philarios.schema.Union
-import io.philarios.schema.translators.codegen.util.className
 import io.philarios.schema.translators.codegen.util.shellClassName
 
 internal fun Union.shellTypeSpecs(typeRefs: Map<RefType, Type>) =
