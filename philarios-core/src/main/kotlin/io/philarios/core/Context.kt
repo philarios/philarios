@@ -4,15 +4,15 @@ interface Context<out C> {
     val value: C
 }
 
-suspend fun <T, R : Any> Context<T>.map(spec: Spec<T, R>, registry: Registry = emptyRegistry()): Context<R> {
-    return contextOf(value.let { spec.connect(it).resolve(registry) })
+suspend fun <C, T : Any> Context<C>.map(scaffolder: Scaffolder<C, T>, registry: Registry = emptyRegistry()): Context<T> {
+    return contextOf(value.let { scaffolder.createScaffold(it).resolve(registry) })
 }
 
-fun <T, R> Context<T>.map(translator: Translator<T, R>): Context<R> {
+fun <C, T> Context<C>.map(translator: Translator<C, T>): Context<T> {
     return contextOf(value.let { translator.translate(it) })
 }
 
-inline fun <T, R> Context<T>.map(transform: (T) -> R): Context<R> {
+inline fun <C, T> Context<C>.map(transform: (C) -> T): Context<T> {
     return contextOf(value.let(transform))
 }
 

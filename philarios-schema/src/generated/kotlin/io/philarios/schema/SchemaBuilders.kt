@@ -10,57 +10,15 @@ import kotlin.collections.List
 interface SchemaBuilder<out C> {
     val context: C
 
-    fun pkg(pkg: String)
+    fun pkg(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun type(spec: StructSpec<C>)
+    fun <T : Type> type(spec: TypeSpec<C, T>)
 
-    fun type(ref: StructRef)
+    fun <T : Type> type(ref: TypeRef<T>)
 
-    fun type(spec: UnionSpec<C>)
-
-    fun type(ref: UnionRef)
-
-    fun type(spec: EnumTypeSpec<C>)
-
-    fun type(ref: EnumTypeRef)
-
-    fun type(spec: RefTypeSpec<C>)
-
-    fun type(ref: RefTypeRef)
-
-    fun type(spec: OptionTypeSpec<C>)
-
-    fun type(ref: OptionTypeRef)
-
-    fun type(spec: ListTypeSpec<C>)
-
-    fun type(ref: ListTypeRef)
-
-    fun type(spec: MapTypeSpec<C>)
-
-    fun type(ref: MapTypeRef)
-
-    fun type(type: BooleanType)
-
-    fun type(type: DoubleType)
-
-    fun type(type: FloatType)
-
-    fun type(type: LongType)
-
-    fun type(type: IntType)
-
-    fun type(type: ShortType)
-
-    fun type(type: ByteType)
-
-    fun type(type: CharacterType)
-
-    fun type(type: StringType)
-
-    fun type(type: AnyType)
+    fun <T : Type> type(value: T)
 
     fun include(body: SchemaBuilder<C>.() -> Unit)
 
@@ -79,9 +37,9 @@ interface SchemaBuilder<out C> {
 interface StructBuilder<out C> {
     val context: C
 
-    fun pkg(pkg: String)
+    fun pkg(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun field(body: FieldBuilder<C>.() -> Unit)
 
@@ -89,7 +47,7 @@ interface StructBuilder<out C> {
 
     fun field(ref: FieldRef)
 
-    fun field(field: Field)
+    fun field(value: Field)
 
     fun fields(fields: List<Field>)
 
@@ -110,9 +68,9 @@ interface StructBuilder<out C> {
 interface UnionBuilder<out C> {
     val context: C
 
-    fun pkg(pkg: String)
+    fun pkg(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun shape(body: StructBuilder<C>.() -> Unit)
 
@@ -120,7 +78,7 @@ interface UnionBuilder<out C> {
 
     fun shape(ref: StructRef)
 
-    fun shape(shape: Struct)
+    fun shape(value: Struct)
 
     fun shapes(shapes: List<Struct>)
 
@@ -141,9 +99,9 @@ interface UnionBuilder<out C> {
 interface EnumTypeBuilder<out C> {
     val context: C
 
-    fun pkg(pkg: String)
+    fun pkg(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun value(value: String)
 
@@ -166,9 +124,9 @@ interface EnumTypeBuilder<out C> {
 interface RefTypeBuilder<out C> {
     val context: C
 
-    fun pkg(pkg: String)
+    fun pkg(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun include(body: RefTypeBuilder<C>.() -> Unit)
 
@@ -187,53 +145,11 @@ interface RefTypeBuilder<out C> {
 interface OptionTypeBuilder<out C> {
     val context: C
 
-    fun type(spec: StructSpec<C>)
+    fun <T : Type> type(spec: TypeSpec<C, T>)
 
-    fun type(ref: StructRef)
+    fun <T : Type> type(ref: TypeRef<T>)
 
-    fun type(spec: UnionSpec<C>)
-
-    fun type(ref: UnionRef)
-
-    fun type(spec: EnumTypeSpec<C>)
-
-    fun type(ref: EnumTypeRef)
-
-    fun type(spec: RefTypeSpec<C>)
-
-    fun type(ref: RefTypeRef)
-
-    fun type(spec: OptionTypeSpec<C>)
-
-    fun type(ref: OptionTypeRef)
-
-    fun type(spec: ListTypeSpec<C>)
-
-    fun type(ref: ListTypeRef)
-
-    fun type(spec: MapTypeSpec<C>)
-
-    fun type(ref: MapTypeRef)
-
-    fun type(type: BooleanType)
-
-    fun type(type: DoubleType)
-
-    fun type(type: FloatType)
-
-    fun type(type: LongType)
-
-    fun type(type: IntType)
-
-    fun type(type: ShortType)
-
-    fun type(type: ByteType)
-
-    fun type(type: CharacterType)
-
-    fun type(type: StringType)
-
-    fun type(type: AnyType)
+    fun <T : Type> type(value: T)
 
     fun include(body: OptionTypeBuilder<C>.() -> Unit)
 
@@ -252,53 +168,11 @@ interface OptionTypeBuilder<out C> {
 interface ListTypeBuilder<out C> {
     val context: C
 
-    fun type(spec: StructSpec<C>)
+    fun <T : Type> type(spec: TypeSpec<C, T>)
 
-    fun type(ref: StructRef)
+    fun <T : Type> type(ref: TypeRef<T>)
 
-    fun type(spec: UnionSpec<C>)
-
-    fun type(ref: UnionRef)
-
-    fun type(spec: EnumTypeSpec<C>)
-
-    fun type(ref: EnumTypeRef)
-
-    fun type(spec: RefTypeSpec<C>)
-
-    fun type(ref: RefTypeRef)
-
-    fun type(spec: OptionTypeSpec<C>)
-
-    fun type(ref: OptionTypeRef)
-
-    fun type(spec: ListTypeSpec<C>)
-
-    fun type(ref: ListTypeRef)
-
-    fun type(spec: MapTypeSpec<C>)
-
-    fun type(ref: MapTypeRef)
-
-    fun type(type: BooleanType)
-
-    fun type(type: DoubleType)
-
-    fun type(type: FloatType)
-
-    fun type(type: LongType)
-
-    fun type(type: IntType)
-
-    fun type(type: ShortType)
-
-    fun type(type: ByteType)
-
-    fun type(type: CharacterType)
-
-    fun type(type: StringType)
-
-    fun type(type: AnyType)
+    fun <T : Type> type(value: T)
 
     fun include(body: ListTypeBuilder<C>.() -> Unit)
 
@@ -317,101 +191,17 @@ interface ListTypeBuilder<out C> {
 interface MapTypeBuilder<out C> {
     val context: C
 
-    fun keyType(spec: StructSpec<C>)
+    fun <T : Type> keyType(spec: TypeSpec<C, T>)
 
-    fun keyType(ref: StructRef)
+    fun <T : Type> keyType(ref: TypeRef<T>)
 
-    fun keyType(spec: UnionSpec<C>)
+    fun <T : Type> keyType(value: T)
 
-    fun keyType(ref: UnionRef)
+    fun <T : Type> valueType(spec: TypeSpec<C, T>)
 
-    fun keyType(spec: EnumTypeSpec<C>)
+    fun <T : Type> valueType(ref: TypeRef<T>)
 
-    fun keyType(ref: EnumTypeRef)
-
-    fun keyType(spec: RefTypeSpec<C>)
-
-    fun keyType(ref: RefTypeRef)
-
-    fun keyType(spec: OptionTypeSpec<C>)
-
-    fun keyType(ref: OptionTypeRef)
-
-    fun keyType(spec: ListTypeSpec<C>)
-
-    fun keyType(ref: ListTypeRef)
-
-    fun keyType(spec: MapTypeSpec<C>)
-
-    fun keyType(ref: MapTypeRef)
-
-    fun keyType(keyType: BooleanType)
-
-    fun keyType(keyType: DoubleType)
-
-    fun keyType(keyType: FloatType)
-
-    fun keyType(keyType: LongType)
-
-    fun keyType(keyType: IntType)
-
-    fun keyType(keyType: ShortType)
-
-    fun keyType(keyType: ByteType)
-
-    fun keyType(keyType: CharacterType)
-
-    fun keyType(keyType: StringType)
-
-    fun keyType(keyType: AnyType)
-
-    fun valueType(spec: StructSpec<C>)
-
-    fun valueType(ref: StructRef)
-
-    fun valueType(spec: UnionSpec<C>)
-
-    fun valueType(ref: UnionRef)
-
-    fun valueType(spec: EnumTypeSpec<C>)
-
-    fun valueType(ref: EnumTypeRef)
-
-    fun valueType(spec: RefTypeSpec<C>)
-
-    fun valueType(ref: RefTypeRef)
-
-    fun valueType(spec: OptionTypeSpec<C>)
-
-    fun valueType(ref: OptionTypeRef)
-
-    fun valueType(spec: ListTypeSpec<C>)
-
-    fun valueType(ref: ListTypeRef)
-
-    fun valueType(spec: MapTypeSpec<C>)
-
-    fun valueType(ref: MapTypeRef)
-
-    fun valueType(valueType: BooleanType)
-
-    fun valueType(valueType: DoubleType)
-
-    fun valueType(valueType: FloatType)
-
-    fun valueType(valueType: LongType)
-
-    fun valueType(valueType: IntType)
-
-    fun valueType(valueType: ShortType)
-
-    fun valueType(valueType: ByteType)
-
-    fun valueType(valueType: CharacterType)
-
-    fun valueType(valueType: StringType)
-
-    fun valueType(valueType: AnyType)
+    fun <T : Type> valueType(value: T)
 
     fun include(body: MapTypeBuilder<C>.() -> Unit)
 
@@ -430,57 +220,15 @@ interface MapTypeBuilder<out C> {
 interface FieldBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun key(key: Boolean)
+    fun key(value: Boolean)
 
-    fun type(spec: StructSpec<C>)
+    fun <T : Type> type(spec: TypeSpec<C, T>)
 
-    fun type(ref: StructRef)
+    fun <T : Type> type(ref: TypeRef<T>)
 
-    fun type(spec: UnionSpec<C>)
-
-    fun type(ref: UnionRef)
-
-    fun type(spec: EnumTypeSpec<C>)
-
-    fun type(ref: EnumTypeRef)
-
-    fun type(spec: RefTypeSpec<C>)
-
-    fun type(ref: RefTypeRef)
-
-    fun type(spec: OptionTypeSpec<C>)
-
-    fun type(ref: OptionTypeRef)
-
-    fun type(spec: ListTypeSpec<C>)
-
-    fun type(ref: ListTypeRef)
-
-    fun type(spec: MapTypeSpec<C>)
-
-    fun type(ref: MapTypeRef)
-
-    fun type(type: BooleanType)
-
-    fun type(type: DoubleType)
-
-    fun type(type: FloatType)
-
-    fun type(type: LongType)
-
-    fun type(type: IntType)
-
-    fun type(type: ShortType)
-
-    fun type(type: ByteType)
-
-    fun type(type: CharacterType)
-
-    fun type(type: StringType)
-
-    fun type(type: AnyType)
+    fun <T : Type> type(value: T)
 
     fun include(body: FieldBuilder<C>.() -> Unit)
 

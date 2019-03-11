@@ -41,6 +41,7 @@ subprojects {
     apply plugin: "maven-publish"
 
     sourceSets.main.java.srcDirs += ["src/generated/kotlin"]
+    sourceSets.test.java.srcDirs += ["src/samples/kotlin"]
 
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

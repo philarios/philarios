@@ -1,5 +1,6 @@
 rootProject.name = 'philarios'
 
+include 'philarios-circleci'
 include 'philarios-concourse'
 include 'philarios-core'
 include 'philarios-domain'

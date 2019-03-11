@@ -4,6 +4,7 @@ import com.squareup.kotlinpoet.*
 import io.philarios.schema.Field
 import io.philarios.schema.Struct
 import io.philarios.schema.translators.codegen.util.escapedName
+import io.philarios.schema.translators.codegen.util.runIfNotNull
 import io.philarios.schema.translators.codegen.util.typeName
 
 internal val Struct.modelTypeSpec get() = modelTypeSpec()
@@ -13,14 +14,14 @@ internal fun Struct.modelTypeSpec(superclass: ClassName? = null) = when {
     else -> dataClassModelTypeSpec(superclass)
 }
 
-private fun Struct.objectModelTypeSpec(superclass: ClassName? = null) =
+private fun Struct.objectModelTypeSpec(superclass: ClassName?) =
         TypeSpec.objectBuilder(name)
-                .let { builder -> superclass?.let { builder.superclass(it) } ?: builder }
+                .runIfNotNull(superclass) { superclass(it) }
                 .build()
 
-private fun Struct.dataClassModelTypeSpec(superclass: ClassName? = null): TypeSpec {
+private fun Struct.dataClassModelTypeSpec(superclass: ClassName?): TypeSpec {
     return TypeSpec.classBuilder(name)
-            .let { builder -> superclass?.let { builder.superclass(it) } ?: builder }
+            .runIfNotNull(superclass) { superclass(it) }
             .addModifiers(KModifier.DATA)
             .primaryConstructor(FunSpec.constructorBuilder()
                     .addParameters(fields.map { it.fieldParameterSpec })

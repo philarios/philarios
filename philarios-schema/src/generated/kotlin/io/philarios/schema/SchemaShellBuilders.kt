@@ -9,108 +9,24 @@ import kotlin.collections.List
 
 @DslBuilder
 internal class SchemaShellBuilder<out C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
-    override fun pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
+    override fun pkg(value: String) {
+        shell = shell.copy(pkg = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun type(spec: StructSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
+    override fun <T : Type> type(spec: TypeSpec<C, T>) {
+        shell = shell.copy(types = shell.types.orEmpty() + TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun type(ref: StructRef) {
+    override fun <T : Type> type(ref: TypeRef<T>) {
         shell = shell.copy(types = shell.types.orEmpty() + ref)
     }
 
-    override fun type(spec: UnionSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: UnionRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: EnumTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: RefTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: OptionTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: ListTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(types = shell.types.orEmpty() + spec.connect(context))
-    }
-
-    override fun type(ref: MapTypeRef) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
-    }
-
-    override fun type(type: BooleanType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: DoubleType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: FloatType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: LongType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: IntType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: ShortType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: ByteType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: CharacterType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: StringType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
-    }
-
-    override fun type(type: AnyType) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(type))
+    override fun <T : Type> type(value: T) {
+        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(value))
     }
 
     override fun include(body: SchemaBuilder<C>.() -> Unit) {
@@ -150,28 +66,28 @@ internal class SchemaShellBuilder<out C>(override val context: C, internal var s
 
 @DslBuilder
 internal class StructShellBuilder<out C>(override val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
-    override fun pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
+    override fun pkg(value: String) {
+        shell = shell.copy(pkg = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun field(body: FieldBuilder<C>.() -> Unit) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldSpec<C>(body).connect(context))
+        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder<C>(FieldSpec<C>(body)).createScaffold(context))
     }
 
     override fun field(spec: FieldSpec<C>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + spec.connect(context))
+        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun field(ref: FieldRef) {
         shell = shell.copy(fields = shell.fields.orEmpty() + ref)
     }
 
-    override fun field(field: Field) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + Wrapper(field))
+    override fun field(value: Field) {
+        shell = shell.copy(fields = shell.fields.orEmpty() + Wrapper(value))
     }
 
     override fun fields(fields: List<Field>) {
@@ -215,28 +131,28 @@ internal class StructShellBuilder<out C>(override val context: C, internal var s
 
 @DslBuilder
 internal class UnionShellBuilder<out C>(override val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
-    override fun pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
+    override fun pkg(value: String) {
+        shell = shell.copy(pkg = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun shape(body: StructBuilder<C>.() -> Unit) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructSpec<C>(body).connect(context))
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder<C>(StructSpec<C>(body)).createScaffold(context))
     }
 
     override fun shape(spec: StructSpec<C>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + spec.connect(context))
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun shape(ref: StructRef) {
         shell = shell.copy(shapes = shell.shapes.orEmpty() + ref)
     }
 
-    override fun shape(shape: Struct) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + Wrapper(shape))
+    override fun shape(value: Struct) {
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + Wrapper(value))
     }
 
     override fun shapes(shapes: List<Struct>) {
@@ -280,20 +196,20 @@ internal class UnionShellBuilder<out C>(override val context: C, internal var sh
 
 @DslBuilder
 internal class EnumTypeShellBuilder<out C>(override val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
-    override fun pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
+    override fun pkg(value: String) {
+        shell = shell.copy(pkg = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun value(value: String) {
-        shell = shell.copy(values = shell.values.orEmpty() + value)
+        shell = shell.copy(values = shell.values.orEmpty() + Wrapper(value))
     }
 
     override fun values(values: List<String>) {
-        shell = shell.copy(values = shell.values.orEmpty() + values)
+        shell = shell.copy(values = shell.values.orEmpty() + values.map { Wrapper(it) })
     }
 
     override fun include(body: EnumTypeBuilder<C>.() -> Unit) {
@@ -333,12 +249,12 @@ internal class EnumTypeShellBuilder<out C>(override val context: C, internal var
 
 @DslBuilder
 internal class RefTypeShellBuilder<out C>(override val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
-    override fun pkg(pkg: String) {
-        shell = shell.copy(pkg = pkg)
+    override fun pkg(value: String) {
+        shell = shell.copy(pkg = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun include(body: RefTypeBuilder<C>.() -> Unit) {
@@ -378,100 +294,16 @@ internal class RefTypeShellBuilder<out C>(override val context: C, internal var 
 
 @DslBuilder
 internal class OptionTypeShellBuilder<out C>(override val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
-    override fun type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    override fun <T : Type> type(spec: TypeSpec<C, T>) {
+        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun type(ref: StructRef) {
+    override fun <T : Type> type(ref: TypeRef<T>) {
         shell = shell.copy(type = ref)
     }
 
-    override fun type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
+    override fun <T : Type> type(value: T) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
     override fun include(body: OptionTypeBuilder<C>.() -> Unit) {
@@ -511,100 +343,16 @@ internal class OptionTypeShellBuilder<out C>(override val context: C, internal v
 
 @DslBuilder
 internal class ListTypeShellBuilder<out C>(override val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
-    override fun type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    override fun <T : Type> type(spec: TypeSpec<C, T>) {
+        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun type(ref: StructRef) {
+    override fun <T : Type> type(ref: TypeRef<T>) {
         shell = shell.copy(type = ref)
     }
 
-    override fun type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
+    override fun <T : Type> type(value: T) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
     override fun include(body: ListTypeBuilder<C>.() -> Unit) {
@@ -644,196 +392,28 @@ internal class ListTypeShellBuilder<out C>(override val context: C, internal var
 
 @DslBuilder
 internal class MapTypeShellBuilder<out C>(override val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
-    override fun keyType(spec: StructSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    override fun <T : Type> keyType(spec: TypeSpec<C, T>) {
+        shell = shell.copy(keyType = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun keyType(ref: StructRef) {
+    override fun <T : Type> keyType(ref: TypeRef<T>) {
         shell = shell.copy(keyType = ref)
     }
 
-    override fun keyType(spec: UnionSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
+    override fun <T : Type> keyType(value: T) {
+        shell = shell.copy(keyType = Wrapper(value))
     }
 
-    override fun keyType(ref: UnionRef) {
-        shell = shell.copy(keyType = ref)
+    override fun <T : Type> valueType(spec: TypeSpec<C, T>) {
+        shell = shell.copy(valueType = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun keyType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    override fun keyType(ref: EnumTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    override fun keyType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    override fun keyType(ref: RefTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    override fun keyType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    override fun keyType(ref: OptionTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    override fun keyType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    override fun keyType(ref: ListTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    override fun keyType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(keyType = spec.connect(context))
-    }
-
-    override fun keyType(ref: MapTypeRef) {
-        shell = shell.copy(keyType = ref)
-    }
-
-    override fun keyType(keyType: BooleanType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: DoubleType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: FloatType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: LongType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: IntType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: ShortType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: ByteType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: CharacterType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: StringType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun keyType(keyType: AnyType) {
-        shell = shell.copy(keyType = Wrapper(keyType))
-    }
-
-    override fun valueType(spec: StructSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: StructRef) {
+    override fun <T : Type> valueType(ref: TypeRef<T>) {
         shell = shell.copy(valueType = ref)
     }
 
-    override fun valueType(spec: UnionSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: UnionRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: EnumTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(spec: RefTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: RefTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: OptionTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(spec: ListTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: ListTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(spec: MapTypeSpec<C>) {
-        shell = shell.copy(valueType = spec.connect(context))
-    }
-
-    override fun valueType(ref: MapTypeRef) {
-        shell = shell.copy(valueType = ref)
-    }
-
-    override fun valueType(valueType: BooleanType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: DoubleType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: FloatType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: LongType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: IntType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: ShortType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: ByteType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: CharacterType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: StringType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
-    }
-
-    override fun valueType(valueType: AnyType) {
-        shell = shell.copy(valueType = Wrapper(valueType))
+    override fun <T : Type> valueType(value: T) {
+        shell = shell.copy(valueType = Wrapper(value))
     }
 
     override fun include(body: MapTypeBuilder<C>.() -> Unit) {
@@ -873,108 +453,24 @@ internal class MapTypeShellBuilder<out C>(override val context: C, internal var 
 
 @DslBuilder
 internal class FieldShellBuilder<out C>(override val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun key(key: Boolean) {
-        shell = shell.copy(key = key)
+    override fun key(value: Boolean) {
+        shell = shell.copy(key = Wrapper(value))
     }
 
-    override fun type(spec: StructSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+    override fun <T : Type> type(spec: TypeSpec<C, T>) {
+        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
 
-    override fun type(ref: StructRef) {
+    override fun <T : Type> type(ref: TypeRef<T>) {
         shell = shell.copy(type = ref)
     }
 
-    override fun type(spec: UnionSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: UnionRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: EnumTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: EnumTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: RefTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: RefTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: OptionTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: OptionTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: ListTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: ListTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(spec: MapTypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
-    }
-
-    override fun type(ref: MapTypeRef) {
-        shell = shell.copy(type = ref)
-    }
-
-    override fun type(type: BooleanType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: DoubleType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: FloatType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: LongType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: IntType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ShortType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: ByteType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: CharacterType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: StringType) {
-        shell = shell.copy(type = Wrapper(type))
-    }
-
-    override fun type(type: AnyType) {
-        shell = shell.copy(type = Wrapper(type))
+    override fun <T : Type> type(value: T) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
     override fun include(body: FieldBuilder<C>.() -> Unit) {
