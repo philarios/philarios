@@ -41,7 +41,9 @@ private fun JsonSchema.type(name: String? = null): TypeSpec<JsonSchemaObject, Ty
                     properties.forEach {
                         field {
                             name(it.key)
-                            type(it.value.type())
+                            type(OptionTypeSpec {
+                                type(it.value.type())
+                            })
                         }
                     }
                 }

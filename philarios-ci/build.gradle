@@ -1,0 +1,12 @@
+
+dependencies {
+    implementation project(":philarios-core")
+    implementation project(":philarios-circleci")
+
+    // TODO using local files do to bad connection here
+    implementation files("../libs/snakeyaml-1.24.jar")
+    implementation files("../libs/jackson-core-2.9.8.jar")
+    implementation files("../libs/jackson-databind-2.9.8.jar")
+    implementation files("../libs/jackson-annotations-2.9.8.jar")
+    implementation files("../libs/jackson-dataformat-yaml-2.9.8.jar")
+}
