@@ -14,7 +14,7 @@ class ResolveFunSpecSpec : FreeSpec({
         with("struct without fields") {
             val type = Struct("pkg", "Name", emptyList())
             val statement = type.resolveJobStatement
-            statement shouldBe null
+            statement shouldBe "ajflds"
         }
         with("struct with fields") {
             val type = Struct("pkg", "Name", listOf(Field("", false, StringType)))
