@@ -1,11 +1,11 @@
 ---
 version: "2"
 jobs:
-  build:
+  check:
     docker:
-    - image: "circleci/ruby:2.4.1"
+    - image: "gradle:4.10.3"
     steps:
     - checkout:
         path: "."
     - run:
-        command: "echo \"A first hello\""
+        command: "gradle check"
