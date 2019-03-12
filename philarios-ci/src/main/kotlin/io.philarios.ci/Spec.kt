@@ -8,7 +8,7 @@ import io.philarios.circleci.RunStepSpec
 val spec = CircleCISpec<Any?> {
     version("2")
 
-    jobs("check") {
+    jobs("build") {
         gradleDocker()
         checkout()
         run("gradle check")
