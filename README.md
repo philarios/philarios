@@ -88,12 +88,14 @@ initiative is the less likely is it to happen.
 - [x] Core functionality
 - [x] Concourse schema
 - [x] Schema schema
-- [ ] Output to JSON/YAML
 - [x] Basic Terraform schema
-- [ ] Import from JSON schema
+- [x] Import from JSON schema
+- [x] CircleCI schema with CI for this project
+- [x] Continuous release/delivery for the project
+- [ ] Custom support for Terraform providers
+- [ ] Output to JSON/YAML
 - [ ] Export to JSON schema
 - [ ] Support for Terraform edge cases
-- [ ] Custom support for Terraform providers
 - [ ] Import from Kotlin class hierarchy
 - [ ] Kotlin codegen schema
 - [ ] Kotlin compiler plugin / Intellij plugin
