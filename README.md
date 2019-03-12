@@ -1,5 +1,7 @@
 # Philarios
 
+[![CircleCI](https://circleci.com/gh/philarios/philarios/tree/master.svg?style=svg)](https://circleci.com/gh/philarios/philarios/tree/master)
+
 This project aims to provide an alternative to JSON- or YAML-based configuration files.
 
 The ease of use of declarative configuration files has lead to a significant increase in adoption in the last couple of
