@@ -15,6 +15,7 @@ jobs:
     docker:
     - image: "gradle:4.10.3"
 workflows:
+  version: "2"
   default:
     jobs:
     - build-snapshot:
