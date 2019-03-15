@@ -8,6 +8,7 @@ jobs:
     - checkout:
         path: "."
     - run:
+        name: "check"
         command: "gradle check -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}"
   release-build:
     docker:
@@ -16,6 +17,7 @@ jobs:
     - checkout:
         path: "."
     - run:
+        name: "publish"
         command: |-
           TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
           gradle bintrayUpload -Pversion=${TAG} -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}

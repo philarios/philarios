@@ -11,12 +11,12 @@ val spec = CircleCISpec<Any?> {
     jobs("snapshot-build") {
         gradleDocker()
         checkout()
-        run("gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}")
+        run("check", "gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}")
     }
     jobs("release-build") {
         gradleDocker()
         checkout()
-        run("""
+        run("publish", """
             TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
             gradle bintrayUpload -Pversion=${'$'}{TAG} -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
         """.trimIndent())
@@ -60,9 +60,10 @@ private fun JobBuilder<Any?>.checkout() {
     })
 }
 
-private fun JobBuilder<Any?>.run(command: String) {
+private fun JobBuilder<Any?>.run(name: String, command: String) {
     step(RunStepSpec {
         run {
+            name(name)
             command(command)
         }
     })
