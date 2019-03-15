@@ -8,7 +8,7 @@ jobs:
     - checkout:
         path: "."
     - run:
-        command: "gradle check"
+        command: "gradle check -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}"
   release-build:
     docker:
     - image: "gradle:4.10.3"
@@ -18,7 +18,7 @@ jobs:
     - run:
         command: |-
           TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
-          gradle bintrayUpload -Pversion=${TAG}
+          gradle bintrayUpload -Pversion=${TAG} -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}
 workflows:
   snapshot:
     jobs:

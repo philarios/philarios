@@ -11,14 +11,14 @@ val spec = CircleCISpec<Any?> {
     jobs("snapshot-build") {
         gradleDocker()
         checkout()
-        run("gradle check")
+        run("gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}")
     }
     jobs("release-build") {
         gradleDocker()
         checkout()
         run("""
             TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
-            gradle bintrayUpload -Pversion=${'$'}{TAG}
+            gradle bintrayUpload -Pversion=${'$'}{TAG} -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
         """.trimIndent())
     }
 
