@@ -17,6 +17,8 @@ jobs:
     steps:
     - checkout:
         path: "."
+    - run:
+        command: "git --no-pager tag --sort=-taggerdate | head -n 1"
 workflows:
   default:
     jobs:

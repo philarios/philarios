@@ -16,6 +16,7 @@ val spec = CircleCISpec<Any?> {
     jobs("trigger-promotion") {
         gradleDocker()
         checkout()
+        run("git --no-pager tag --sort=-taggerdate | head -n 1")
     }
 
     workflows("default") {
