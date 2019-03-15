@@ -42,7 +42,7 @@ val spec = CircleCISpec<Any?> {
         jobs("build-release") {
             filters {
                 branches {
-                    only("master")
+                    ignore("/.*/")
                 }
                 tags {
                     only("/\\d+\\.\\d+\\.\\d+/")
