@@ -1,7 +1,7 @@
 ---
 version: "2"
 jobs:
-  build:
+  build-snapshot:
     docker:
     - image: "gradle:4.10.3"
     steps:
@@ -11,3 +11,17 @@ jobs:
         command: |-
           gradle check
           gradle build
+  trigger-promotion:
+    docker:
+    - image: "gradle:4.10.3"
+workflows:
+  default:
+    jobs:
+    - build-snapshot:
+        filters:
+          branches:
+            only:
+            - "master"
+    - trigger-promotion:
+        requires:
+        - "build-snapshot"

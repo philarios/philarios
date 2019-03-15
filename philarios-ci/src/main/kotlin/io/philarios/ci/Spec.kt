@@ -8,13 +8,30 @@ import io.philarios.circleci.RunStepSpec
 val spec = CircleCISpec<Any?> {
     version("2")
 
-    jobs("build") {
+    jobs("build-snapshot") {
         gradleDocker()
         checkout()
         run("""
             gradle check
             gradle build
             """.trimIndent())
+    }
+    jobs("trigger-promotion") {
+        gradleDocker()
+
+    }
+
+    workflows("default") {
+        jobs("build-snapshot") {
+            filters {
+                branches {
+                    only("master")
+                }
+            }
+        }
+        jobs("trigger-promotion") {
+            require("build-snapshot")
+        }
     }
 }
 
