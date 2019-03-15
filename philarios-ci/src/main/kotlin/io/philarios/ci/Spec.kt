@@ -1,9 +1,6 @@
 package io.philarios.ci
 
-import io.philarios.circleci.CheckoutStepSpec
-import io.philarios.circleci.CircleCISpec
-import io.philarios.circleci.JobBuilder
-import io.philarios.circleci.RunStepSpec
+import io.philarios.circleci.*
 
 val spec = CircleCISpec<Any?> {
     version("2")
@@ -18,7 +15,7 @@ val spec = CircleCISpec<Any?> {
     }
     jobs("trigger-promotion") {
         gradleDocker()
-
+        checkout()
     }
 
     workflows("default") {
@@ -31,6 +28,7 @@ val spec = CircleCISpec<Any?> {
         }
         jobs("trigger-promotion") {
             require("build-snapshot")
+            type(WorkflowJobType.approval)
         }
     }
 }
