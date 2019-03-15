@@ -30,5 +30,4 @@ workflows:
     - trigger-promotion:
         requires:
         - "build-snapshot"
-        type: "approval"
   version: 2

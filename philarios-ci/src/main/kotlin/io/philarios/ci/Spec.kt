@@ -29,7 +29,7 @@ val spec = CircleCISpec<Any?> {
         }
         jobs("trigger-promotion") {
             require("build-snapshot")
-            type(WorkflowJobType.approval)
+//            type(WorkflowJobType.approval)
         }
     }
 }
