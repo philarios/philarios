@@ -13,7 +13,7 @@ val spec = CircleCISpec<Any?> {
             gradle build
             """.trimIndent())
     }
-    jobs("trigger-promotion") {
+    jobs("tag-release") {
         gradleDocker()
         checkout()
         run("git --no-pager tag --sort=-taggerdate | head -n 1")
@@ -29,7 +29,10 @@ val spec = CircleCISpec<Any?> {
         }
         jobs("trigger-promotion") {
             require("build-snapshot")
-//            type(WorkflowJobType.approval)
+            type(WorkflowJobType.approval)
+        }
+        jobs("tag-release") {
+            require("trigger-promotion")
         }
     }
 }

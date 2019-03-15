@@ -11,7 +11,7 @@ jobs:
         command: |-
           gradle check
           gradle build
-  trigger-promotion:
+  tag-release:
     docker:
     - image: "gradle:4.10.3"
     steps:
@@ -30,4 +30,8 @@ workflows:
     - trigger-promotion:
         requires:
         - "build-snapshot"
+        type: "approval"
+    - tag-release:
+        requires:
+        - "trigger-promotion"
   version: 2
