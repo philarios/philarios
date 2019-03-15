@@ -14,8 +14,10 @@ jobs:
   trigger-promotion:
     docker:
     - image: "gradle:4.10.3"
+    steps:
+    - checkout:
+        path: "."
 workflows:
-  version: 2
   default:
     jobs:
     - build-snapshot:
@@ -26,3 +28,5 @@ workflows:
     - trigger-promotion:
         requires:
         - "build-snapshot"
+        type: "approval"
+  version: 2
