@@ -1,7 +1,7 @@
 ---
 version: "2"
 jobs:
-  build-snapshot:
+  snapshot-build:
     docker:
     - image: "gradle:4.10.3"
     steps:
@@ -9,40 +9,27 @@ jobs:
         path: "."
     - run:
         command: "gradle check"
-  tag-release:
+  release-build:
     docker:
     - image: "gradle:4.10.3"
     steps:
     - checkout:
         path: "."
     - run:
-        command: "git --no-pager tag --sort=-taggerdate | head -n 1"
-  build-release:
-    docker:
-    - image: "gradle:4.10.3"
-    steps:
-    - checkout:
-        path: "."
-    - run:
-        command: "gradle check"
+        command: |-
+          TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
+          gradle bintrayUpload -Pversion=${TAG}
 workflows:
   snapshot:
     jobs:
-    - build-snapshot:
+    - snapshot-build:
         filters:
           branches:
             only:
             - "master"
-    - trigger-promotion:
-        requires:
-        - "build-snapshot"
-        type: "approval"
-    - tag-release:
-        requires:
-        - "trigger-promotion"
   release:
     jobs:
-    - build-release:
+    - release-build:
         filters:
           branches:
             ignore:

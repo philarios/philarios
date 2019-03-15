@@ -1,45 +1,39 @@
 package io.philarios.ci
 
-import io.philarios.circleci.*
+import io.philarios.circleci.CheckoutStepSpec
+import io.philarios.circleci.CircleCISpec
+import io.philarios.circleci.JobBuilder
+import io.philarios.circleci.RunStepSpec
 
 val spec = CircleCISpec<Any?> {
     version("2")
 
-    jobs("build-snapshot") {
+    jobs("snapshot-build") {
         gradleDocker()
         checkout()
         run("gradle check")
     }
-    jobs("tag-release") {
+    jobs("release-build") {
         gradleDocker()
         checkout()
-        run("git --no-pager tag --sort=-taggerdate | head -n 1")
-    }
-    jobs("build-release") {
-        gradleDocker()
-        checkout()
-        run("gradle check")
+        run("""
+            TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
+            gradle bintrayUpload -Pversion=${'$'}{TAG}
+        """.trimIndent())
     }
 
     workflows("snapshot") {
-        jobs("build-snapshot") {
+        jobs("snapshot-build") {
             filters {
                 branches {
                     only("master")
                 }
             }
         }
-        jobs("trigger-promotion") {
-            require("build-snapshot")
-            type(WorkflowJobType.approval)
-        }
-        jobs("tag-release") {
-            require("trigger-promotion")
-        }
     }
 
     workflows("release") {
-        jobs("build-release") {
+        jobs("release-build") {
             filters {
                 branches {
                     ignore("/.*/")
