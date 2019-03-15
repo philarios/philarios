@@ -8,9 +8,7 @@ jobs:
     - checkout:
         path: "."
     - run:
-        command: |-
-          gradle check
-          gradle build
+        command: "gradle check"
   tag-release:
     docker:
     - image: "gradle:4.10.3"
@@ -19,8 +17,16 @@ jobs:
         path: "."
     - run:
         command: "git --no-pager tag --sort=-taggerdate | head -n 1"
+  build-release:
+    docker:
+    - image: "gradle:4.10.3"
+    steps:
+    - checkout:
+        path: "."
+    - run:
+        command: "gradle check"
 workflows:
-  default:
+  snapshot:
     jobs:
     - build-snapshot:
         filters:
@@ -34,4 +40,14 @@ workflows:
     - tag-release:
         requires:
         - "trigger-promotion"
+  release:
+    jobs:
+    - build-release:
+        filters:
+          branches:
+            only:
+            - "master"
+          tags:
+            only:
+            - ".*"
   version: 2

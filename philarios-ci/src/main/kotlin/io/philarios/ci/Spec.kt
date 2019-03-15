@@ -8,18 +8,20 @@ val spec = CircleCISpec<Any?> {
     jobs("build-snapshot") {
         gradleDocker()
         checkout()
-        run("""
-            gradle check
-            gradle build
-            """.trimIndent())
+        run("gradle check")
     }
     jobs("tag-release") {
         gradleDocker()
         checkout()
         run("git --no-pager tag --sort=-taggerdate | head -n 1")
     }
+    jobs("build-release") {
+        gradleDocker()
+        checkout()
+        run("gradle check")
+    }
 
-    workflows("default") {
+    workflows("snapshot") {
         jobs("build-snapshot") {
             filters {
                 branches {
@@ -33,6 +35,19 @@ val spec = CircleCISpec<Any?> {
         }
         jobs("tag-release") {
             require("trigger-promotion")
+        }
+    }
+
+    workflows("release") {
+        jobs("build-release") {
+            filters {
+                branches {
+                    only("master")
+                }
+                tags {
+                    only(".*")
+                }
+            }
         }
     }
 }
