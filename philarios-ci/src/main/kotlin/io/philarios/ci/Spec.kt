@@ -45,7 +45,7 @@ val spec = CircleCISpec<Any?> {
                     only("master")
                 }
                 tags {
-                    only(".*")
+                    only("/\\d+\\.\\d+\\.\\d+/")
                 }
             }
         }

@@ -15,7 +15,8 @@ suspend fun main() {
             .map(CircleCIScaffolder(spec))
             .map {
                 val objectMapper = ObjectMapper(
-                        YAMLFactory().configure(YAMLGenerator.Feature.LITERAL_BLOCK_STYLE, true)
+                        YAMLFactory()
+                                .configure(YAMLGenerator.Feature.LITERAL_BLOCK_STYLE, true)
                 ).apply {
                     setSerializationInclusion(JsonInclude.Include.NON_NULL)
                     setSerializationInclusion(JsonInclude.Include.NON_EMPTY)

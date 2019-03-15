@@ -49,5 +49,5 @@ workflows:
             - "master"
           tags:
             only:
-            - ".*"
+            - "/\\d+\\.\\d+\\.\\d+/"
   version: 2
