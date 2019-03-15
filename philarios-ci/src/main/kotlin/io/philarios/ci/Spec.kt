@@ -11,7 +11,10 @@ val spec = CircleCISpec<Any?> {
     jobs("build") {
         gradleDocker()
         checkout()
-        run("gradle check")
+        run("""
+            gradle check
+            gradle build
+            """.trimIndent())
     }
 }
 
