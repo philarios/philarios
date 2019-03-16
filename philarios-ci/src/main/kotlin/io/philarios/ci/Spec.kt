@@ -18,6 +18,9 @@ val spec = CircleCISpec<Any?> {
         store_test_results {
             path("~/test-results")
         }
+        store_artifacts {
+            path("~/test-results/junit")
+        }
     }
     jobs("release-build") {
         gradleDocker()
@@ -61,6 +64,12 @@ private fun JobBuilder<Any?>.checkout(body: CheckoutBuilder<Any?>.() -> Unit) {
 private fun JobBuilder<Any?>.store_test_results(body: StoreTestResultsBuilder<Any?>.() -> Unit) {
     step(StoreTestResultsStepSpec {
         store_test_results(body)
+    })
+}
+
+private fun JobBuilder<Any?>.store_artifacts(body: StoreArtifactsBuilder<Any?>.() -> Unit) {
+    step(StoreArtifactsStepSpec {
+        store_artifacts(body)
     })
 }
 
