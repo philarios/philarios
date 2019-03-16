@@ -9,9 +9,7 @@ jobs:
         path: "."
     - run:
         name: "check"
-        command: |-
-          gradle check -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}
-          ls -al ./core/build
+        command: "gradle check -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}"
     - run:
         name: "report"
         command: |-

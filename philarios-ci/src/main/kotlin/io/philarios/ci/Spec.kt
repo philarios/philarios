@@ -10,7 +10,6 @@ val spec = CircleCISpec<Any?> {
         checkout()
         run("check", """
             gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
-            ls -al ./core/build
         """.trimIndent())
         run("report", """
             mkdir -p ~/test-results/junit/
