@@ -8,28 +8,32 @@ val fileSystemSchema = SchemaSpec<Any?> {
 
     type(UnionSpec {
         name("Entry")
-        shape(StructSpec {
+        shape {
             name("Directory")
-            field(FieldSpec {
+            field {
                 name("name")
                 type(StringType)
-            })
-            field(FieldSpec {
+            }
+            field {
                 name("entries")
                 type(ListTypeSpec {
                     type(RefTypeSpec {
                         name("Entry")
                     })
                 })
-            })
-        })
-        shape(StructSpec {
+            }
+        }
+        shape {
             name("File")
-            field(FieldSpec {
+            field {
                 name("name")
                 type(StringType)
-            })
-        })
+            }
+            field {
+                name("content")
+                type(StringType)
+            }
+        }
     })
 
 }

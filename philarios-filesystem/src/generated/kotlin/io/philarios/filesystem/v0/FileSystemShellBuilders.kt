@@ -1,29 +1,26 @@
 package io.philarios.filesystem.v0
 
 import io.philarios.core.DslBuilder
+import io.philarios.core.Wrapper
 import kotlin.String
 import kotlin.collections.Iterable
 
 @DslBuilder
 internal class DirectoryShellBuilder<out C>(override val context: C, internal var shell: DirectoryShell = DirectoryShell()) : DirectoryBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun entry(spec: DirectorySpec<C>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + spec.connect(context))
+    override fun <T : Entry> entry(spec: EntrySpec<C, T>) {
+        shell = shell.copy(entries = shell.entries.orEmpty() + EntryScaffolder<C, Entry>(spec).createScaffold(context))
     }
 
-    override fun entry(ref: DirectoryRef) {
+    override fun <T : Entry> entry(ref: EntryRef<T>) {
         shell = shell.copy(entries = shell.entries.orEmpty() + ref)
     }
 
-    override fun entry(spec: FileSpec<C>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + spec.connect(context))
-    }
-
-    override fun entry(ref: FileRef) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + ref)
+    override fun <T : Entry> entry(value: T) {
+        shell = shell.copy(entries = shell.entries.orEmpty() + Wrapper(value))
     }
 
     override fun include(body: DirectoryBuilder<C>.() -> Unit) {
@@ -63,8 +60,12 @@ internal class DirectoryShellBuilder<out C>(override val context: C, internal va
 
 @DslBuilder
 internal class FileShellBuilder<out C>(override val context: C, internal var shell: FileShell = FileShell()) : FileBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
+    }
+
+    override fun content(value: String) {
+        shell = shell.copy(content = Wrapper(value))
     }
 
     override fun include(body: FileBuilder<C>.() -> Unit) {

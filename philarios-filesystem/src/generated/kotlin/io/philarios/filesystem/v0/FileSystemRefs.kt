@@ -3,6 +3,10 @@ package io.philarios.filesystem.v0
 import io.philarios.core.Scaffold
 import kotlin.String
 
-class DirectoryRef(key: String) : Scaffold<Directory> by io.philarios.core.RegistryRef(io.philarios.filesystem.v0.Directory::class, key)
+sealed class EntryRef<T : Entry> : Scaffold<T>
 
-class FileRef(key: String) : Scaffold<File> by io.philarios.core.RegistryRef(io.philarios.filesystem.v0.File::class, key)
+class DirectoryRef(key: String) : EntryRef<Directory>(),
+        Scaffold<Directory> by io.philarios.core.RegistryRef(io.philarios.filesystem.v0.Directory::class, key)
+
+class FileRef(key: String) : EntryRef<File>(),
+        Scaffold<File> by io.philarios.core.RegistryRef(io.philarios.filesystem.v0.File::class, key)

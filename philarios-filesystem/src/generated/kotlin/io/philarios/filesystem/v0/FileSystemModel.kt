@@ -7,4 +7,4 @@ sealed class Entry
 
 data class Directory(val name: String, val entries: List<Entry>) : Entry()
 
-data class File(val name: String) : Entry()
+data class File(val name: String, val content: String) : Entry()

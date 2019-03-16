@@ -8,15 +8,13 @@ import kotlin.collections.Iterable
 interface DirectoryBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun entry(spec: DirectorySpec<C>)
+    fun <T : Entry> entry(spec: EntrySpec<C, T>)
 
-    fun entry(ref: DirectoryRef)
+    fun <T : Entry> entry(ref: EntryRef<T>)
 
-    fun entry(spec: FileSpec<C>)
-
-    fun entry(ref: FileRef)
+    fun <T : Entry> entry(value: T)
 
     fun include(body: DirectoryBuilder<C>.() -> Unit)
 
@@ -35,7 +33,9 @@ interface DirectoryBuilder<out C> {
 interface FileBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
+
+    fun content(value: String)
 
     fun include(body: FileBuilder<C>.() -> Unit)
 
