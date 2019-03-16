@@ -34,6 +34,7 @@ allprojects {
 
 subprojects {
     apply plugin: "kotlin"
+    apply plugin: 'jacoco'
     apply from: "${project.rootDir}/bintray.gradle"
 
     sourceSets.main.java.srcDirs += ["src/generated/kotlin"]
