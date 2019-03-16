@@ -1,6 +1,10 @@
 package io.philarios.schema.sample
 
 import io.philarios.schema.*
+import io.philarios.schema.sugar.field
+import io.philarios.schema.sugar.shape
+import io.philarios.schema.sugar.struct
+import io.philarios.schema.sugar.union
 import io.philarios.schema.translators.generateInto
 
 val sampleSpec = SchemaSpec<Any?> {
@@ -154,34 +158,6 @@ val mixedSpecs = SchemaSpec<Any?> {
                 type(DoubleType)
             }
         }
-    }
-}
-
-private fun <C> SchemaBuilder<C>.struct(name: String, body: StructBuilder<C>.() -> Unit = {}) {
-    type(StructSpec {
-        name(name)
-        apply(body)
-    })
-}
-
-private fun <C> SchemaBuilder<C>.union(name: String, body: UnionBuilder<C>.() -> Unit = {}) {
-    type(UnionSpec {
-        name(name)
-        apply(body)
-    })
-}
-
-private fun <C> UnionBuilder<C>.shape(name: String, body: StructBuilder<C>.() -> Unit = {}) {
-    shape {
-        name(name)
-        apply(body)
-    }
-}
-
-private fun <C> StructBuilder<C>.field(name: String, body: FieldBuilder<C>.() -> Unit = {}) {
-    field {
-        name(name)
-        apply(body)
     }
 }
 
