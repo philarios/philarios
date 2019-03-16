@@ -3,6 +3,26 @@ package io.philarios.schema.sample
 import io.philarios.core.Scaffold
 import kotlin.String
 
+class BooleanValueRef(key: String) : Scaffold<BooleanValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.BooleanValue::class, key)
+
+class DoubleValueRef(key: String) : Scaffold<DoubleValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.DoubleValue::class, key)
+
+class FloatValueRef(key: String) : Scaffold<FloatValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.FloatValue::class, key)
+
+class LongValueRef(key: String) : Scaffold<LongValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.LongValue::class, key)
+
+class IntValueRef(key: String) : Scaffold<IntValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.IntValue::class, key)
+
+class ShortValueRef(key: String) : Scaffold<ShortValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.ShortValue::class, key)
+
+class ByteValueRef(key: String) : Scaffold<ByteValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.ByteValue::class, key)
+
+class CharacterValueRef(key: String) : Scaffold<CharacterValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.CharacterValue::class, key)
+
+class StringValueRef(key: String) : Scaffold<StringValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.StringValue::class, key)
+
+class AnyValueRef(key: String) : Scaffold<AnyValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.AnyValue::class, key)
+
 class SimpleRef(key: String) : Scaffold<Simple> by io.philarios.core.RegistryRef(io.philarios.schema.sample.Simple::class, key)
 
 class ComplexRef(key: String) : Scaffold<Complex> by io.philarios.core.RegistryRef(io.philarios.schema.sample.Complex::class, key)

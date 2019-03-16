@@ -9,6 +9,57 @@ val sampleSpec = SchemaSpec<Any?> {
 
     struct("Empty")
 
+    struct("BooleanValue") {
+        field("value") {
+            type(BooleanType)
+        }
+    }
+    struct("DoubleValue") {
+        field("value") {
+            type(DoubleType)
+        }
+    }
+    struct("FloatValue") {
+        field("value") {
+            type(FloatType)
+        }
+    }
+    struct("LongValue") {
+        field("value") {
+            type(LongType)
+        }
+    }
+    struct("IntValue") {
+        field("value") {
+            type(IntType)
+        }
+    }
+    struct("ShortValue") {
+        field("value") {
+            type(ShortType)
+        }
+    }
+    struct("ByteValue") {
+        field("value") {
+            type(ByteType)
+        }
+    }
+    struct("CharacterValue") {
+        field("value") {
+            type(CharacterType)
+        }
+    }
+    struct("StringValue") {
+        field("value") {
+            type(StringType)
+        }
+    }
+    struct("AnyValue") {
+        field("value") {
+            type(AnyType)
+        }
+    }
+
     struct("Simple") {
         field("value") {
             type(StringType)

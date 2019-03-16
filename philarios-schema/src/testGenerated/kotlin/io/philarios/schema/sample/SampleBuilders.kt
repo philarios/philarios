@@ -1,14 +1,210 @@
 package io.philarios.schema.sample
 
 import io.philarios.core.DslBuilder
+import kotlin.Any
 import kotlin.Boolean
+import kotlin.Byte
+import kotlin.Char
 import kotlin.Double
+import kotlin.Float
 import kotlin.Int
+import kotlin.Long
 import kotlin.Pair
+import kotlin.Short
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
+
+@DslBuilder
+interface BooleanValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Boolean)
+
+    fun include(body: BooleanValueBuilder<C>.() -> Unit)
+
+    fun include(spec: BooleanValueSpec<C>)
+
+    fun <C2> include(context: C2, body: BooleanValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: BooleanValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: BooleanValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: BooleanValueSpec<C2>)
+}
+
+@DslBuilder
+interface DoubleValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Double)
+
+    fun include(body: DoubleValueBuilder<C>.() -> Unit)
+
+    fun include(spec: DoubleValueSpec<C>)
+
+    fun <C2> include(context: C2, body: DoubleValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: DoubleValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: DoubleValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: DoubleValueSpec<C2>)
+}
+
+@DslBuilder
+interface FloatValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Float)
+
+    fun include(body: FloatValueBuilder<C>.() -> Unit)
+
+    fun include(spec: FloatValueSpec<C>)
+
+    fun <C2> include(context: C2, body: FloatValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: FloatValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: FloatValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: FloatValueSpec<C2>)
+}
+
+@DslBuilder
+interface LongValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Long)
+
+    fun include(body: LongValueBuilder<C>.() -> Unit)
+
+    fun include(spec: LongValueSpec<C>)
+
+    fun <C2> include(context: C2, body: LongValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: LongValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: LongValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: LongValueSpec<C2>)
+}
+
+@DslBuilder
+interface IntValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Int)
+
+    fun include(body: IntValueBuilder<C>.() -> Unit)
+
+    fun include(spec: IntValueSpec<C>)
+
+    fun <C2> include(context: C2, body: IntValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: IntValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: IntValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: IntValueSpec<C2>)
+}
+
+@DslBuilder
+interface ShortValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Short)
+
+    fun include(body: ShortValueBuilder<C>.() -> Unit)
+
+    fun include(spec: ShortValueSpec<C>)
+
+    fun <C2> include(context: C2, body: ShortValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ShortValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ShortValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ShortValueSpec<C2>)
+}
+
+@DslBuilder
+interface ByteValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Byte)
+
+    fun include(body: ByteValueBuilder<C>.() -> Unit)
+
+    fun include(spec: ByteValueSpec<C>)
+
+    fun <C2> include(context: C2, body: ByteValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ByteValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ByteValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ByteValueSpec<C2>)
+}
+
+@DslBuilder
+interface CharacterValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Char)
+
+    fun include(body: CharacterValueBuilder<C>.() -> Unit)
+
+    fun include(spec: CharacterValueSpec<C>)
+
+    fun <C2> include(context: C2, body: CharacterValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: CharacterValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: CharacterValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: CharacterValueSpec<C2>)
+}
+
+@DslBuilder
+interface StringValueBuilder<out C> {
+    val context: C
+
+    fun value(value: String)
+
+    fun include(body: StringValueBuilder<C>.() -> Unit)
+
+    fun include(spec: StringValueSpec<C>)
+
+    fun <C2> include(context: C2, body: StringValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: StringValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: StringValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: StringValueSpec<C2>)
+}
+
+@DslBuilder
+interface AnyValueBuilder<out C> {
+    val context: C
+
+    fun value(value: Any)
+
+    fun include(body: AnyValueBuilder<C>.() -> Unit)
+
+    fun include(spec: AnyValueSpec<C>)
+
+    fun <C2> include(context: C2, body: AnyValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: AnyValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: AnyValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: AnyValueSpec<C2>)
+}
 
 @DslBuilder
 interface SimpleBuilder<out C> {

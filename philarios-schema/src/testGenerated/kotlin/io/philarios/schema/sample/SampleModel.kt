@@ -1,13 +1,39 @@
 package io.philarios.schema.sample
 
+import kotlin.Any
 import kotlin.Boolean
+import kotlin.Byte
+import kotlin.Char
 import kotlin.Double
+import kotlin.Float
 import kotlin.Int
+import kotlin.Long
+import kotlin.Short
 import kotlin.String
 import kotlin.collections.List
 import kotlin.collections.Map
 
 object Empty
+
+data class BooleanValue(val value: Boolean)
+
+data class DoubleValue(val value: Double)
+
+data class FloatValue(val value: Float)
+
+data class LongValue(val value: Long)
+
+data class IntValue(val value: Int)
+
+data class ShortValue(val value: Short)
+
+data class ByteValue(val value: Byte)
+
+data class CharacterValue(val value: Char)
+
+data class StringValue(val value: String)
+
+data class AnyValue(val value: Any)
 
 data class Simple(val value: String)
 
