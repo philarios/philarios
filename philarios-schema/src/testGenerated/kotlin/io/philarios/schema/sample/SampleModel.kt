@@ -35,6 +35,12 @@ data class StringValue(val value: String)
 
 data class AnyValue(val value: Any)
 
+data class OptionValue(val value: String?)
+
+data class ListValue(val value: List<String>)
+
+data class MapValue(val value: Map<String, String>)
+
 data class Simple(val value: String)
 
 data class Complex(

@@ -117,6 +117,33 @@ internal data class AnyValueShell(var value: Scaffold<Any>? = null) : Scaffold<A
     }
 }
 
+internal data class OptionValueShell(var value: Scaffold<String>? = null) : Scaffold<OptionValue> {
+    override suspend fun resolve(registry: Registry): OptionValue {
+        val value = OptionValue(
+            value?.let{ it.resolve(registry) }
+        )
+        return value
+    }
+}
+
+internal data class ListValueShell(var value: List<Scaffold<String>>? = null) : Scaffold<ListValue> {
+    override suspend fun resolve(registry: Registry): ListValue {
+        val value = ListValue(
+            value.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class MapValueShell(var value: Map<Scaffold<String>, Scaffold<String>>? = null) : Scaffold<MapValue> {
+    override suspend fun resolve(registry: Registry): MapValue {
+        val value = MapValue(
+            value.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() }
+        )
+        return value
+    }
+}
+
 internal data class SimpleShell(var value: Scaffold<String>? = null) : Scaffold<Simple> {
     override suspend fun resolve(registry: Registry): Simple {
         checkNotNull(value) { "Simple is missing the value property" }

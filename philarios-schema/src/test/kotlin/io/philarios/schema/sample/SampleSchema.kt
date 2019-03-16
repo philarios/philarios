@@ -9,6 +9,12 @@ val sampleSpec = SchemaSpec<Any?> {
 
     struct("Empty")
 
+    include(primitivesSpecs)
+    include(containerSpecs)
+    include(mixedSpecs)
+}
+
+val primitivesSpecs = SchemaSpec<Any?> {
     struct("BooleanValue") {
         field("value") {
             type(BooleanType)
@@ -59,7 +65,34 @@ val sampleSpec = SchemaSpec<Any?> {
             type(AnyType)
         }
     }
+}
 
+val containerSpecs = SchemaSpec<Any?> {
+    struct("OptionValue") {
+        field("value") {
+            type(OptionTypeSpec {
+                type(StringType)
+            })
+        }
+    }
+    struct("ListValue") {
+        field("value") {
+            type(ListTypeSpec {
+                type(StringType)
+            })
+        }
+    }
+    struct("MapValue") {
+        field("value") {
+            type(MapTypeSpec {
+                keyType(StringType)
+                valueType(StringType)
+            })
+        }
+    }
+}
+
+val mixedSpecs = SchemaSpec<Any?> {
     struct("Simple") {
         field("value") {
             type(StringType)
@@ -122,7 +155,6 @@ val sampleSpec = SchemaSpec<Any?> {
             }
         }
     }
-
 }
 
 private fun <C> SchemaBuilder<C>.struct(name: String, body: StructBuilder<C>.() -> Unit = {}) {

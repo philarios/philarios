@@ -22,6 +22,12 @@ class StringValueSpec<in C>(internal val body: StringValueBuilder<C>.() -> Unit)
 
 class AnyValueSpec<in C>(internal val body: AnyValueBuilder<C>.() -> Unit)
 
+class OptionValueSpec<in C>(internal val body: OptionValueBuilder<C>.() -> Unit)
+
+class ListValueSpec<in C>(internal val body: ListValueBuilder<C>.() -> Unit)
+
+class MapValueSpec<in C>(internal val body: MapValueBuilder<C>.() -> Unit)
+
 class SimpleSpec<in C>(internal val body: SimpleBuilder<C>.() -> Unit)
 
 class ComplexSpec<in C>(internal val body: ComplexBuilder<C>.() -> Unit)

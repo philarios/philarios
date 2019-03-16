@@ -23,6 +23,12 @@ class StringValueRef(key: String) : Scaffold<StringValue> by io.philarios.core.R
 
 class AnyValueRef(key: String) : Scaffold<AnyValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.AnyValue::class, key)
 
+class OptionValueRef(key: String) : Scaffold<OptionValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.OptionValue::class, key)
+
+class ListValueRef(key: String) : Scaffold<ListValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.ListValue::class, key)
+
+class MapValueRef(key: String) : Scaffold<MapValue> by io.philarios.core.RegistryRef(io.philarios.schema.sample.MapValue::class, key)
+
 class SimpleRef(key: String) : Scaffold<Simple> by io.philarios.core.RegistryRef(io.philarios.schema.sample.Simple::class, key)
 
 class ComplexRef(key: String) : Scaffold<Complex> by io.philarios.core.RegistryRef(io.philarios.schema.sample.Complex::class, key)

@@ -207,6 +207,69 @@ interface AnyValueBuilder<out C> {
 }
 
 @DslBuilder
+interface OptionValueBuilder<out C> {
+    val context: C
+
+    fun value(value: String)
+
+    fun include(body: OptionValueBuilder<C>.() -> Unit)
+
+    fun include(spec: OptionValueSpec<C>)
+
+    fun <C2> include(context: C2, body: OptionValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: OptionValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: OptionValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: OptionValueSpec<C2>)
+}
+
+@DslBuilder
+interface ListValueBuilder<out C> {
+    val context: C
+
+    fun value(value: String)
+
+    fun value(value: List<String>)
+
+    fun include(body: ListValueBuilder<C>.() -> Unit)
+
+    fun include(spec: ListValueSpec<C>)
+
+    fun <C2> include(context: C2, body: ListValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ListValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ListValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ListValueSpec<C2>)
+}
+
+@DslBuilder
+interface MapValueBuilder<out C> {
+    val context: C
+
+    fun value(key: String, value: String)
+
+    fun value(pair: Pair<String, String>)
+
+    fun value(value: Map<String, String>)
+
+    fun include(body: MapValueBuilder<C>.() -> Unit)
+
+    fun include(spec: MapValueSpec<C>)
+
+    fun <C2> include(context: C2, body: MapValueBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: MapValueSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: MapValueBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: MapValueSpec<C2>)
+}
+
+@DslBuilder
 interface SimpleBuilder<out C> {
     val context: C
 

@@ -88,6 +88,30 @@ class AnyValueScaffolder<in C>(internal val spec: AnyValueSpec<C>) : Scaffolder<
     }
 }
 
+class OptionValueScaffolder<in C>(internal val spec: OptionValueSpec<C>) : Scaffolder<C, OptionValue> {
+    override fun createScaffold(context: C): Scaffold<OptionValue> {
+        val builder = OptionValueShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ListValueScaffolder<in C>(internal val spec: ListValueSpec<C>) : Scaffolder<C, ListValue> {
+    override fun createScaffold(context: C): Scaffold<ListValue> {
+        val builder = ListValueShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class MapValueScaffolder<in C>(internal val spec: MapValueSpec<C>) : Scaffolder<C, MapValue> {
+    override fun createScaffold(context: C): Scaffold<MapValue> {
+        val builder = MapValueShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
 class SimpleScaffolder<in C>(internal val spec: SimpleSpec<C>) : Scaffolder<C, Simple> {
     override fun createScaffold(context: C): Scaffold<Simple> {
         val builder = SimpleShellBuilder<C>(context)

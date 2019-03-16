@@ -428,6 +428,141 @@ internal class AnyValueShellBuilder<out C>(override val context: C, internal var
 }
 
 @DslBuilder
+internal class OptionValueShellBuilder<out C>(override val context: C, internal var shell: OptionValueShell = OptionValueShell()) : OptionValueBuilder<C> {
+    override fun value(value: String) {
+        shell = shell.copy(value = Wrapper(value))
+    }
+
+    override fun include(body: OptionValueBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: OptionValueSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: OptionValueBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: OptionValueSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: OptionValueBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: OptionValueSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): OptionValueShellBuilder<C2> = OptionValueShellBuilder(context, shell)
+
+    private fun <C2> merge(other: OptionValueShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ListValueShellBuilder<out C>(override val context: C, internal var shell: ListValueShell = ListValueShell()) : ListValueBuilder<C> {
+    override fun value(value: String) {
+        shell = shell.copy(value = shell.value.orEmpty() + Wrapper(value))
+    }
+
+    override fun value(value: List<String>) {
+        shell = shell.copy(value = shell.value.orEmpty() + value.map { Wrapper(it) })
+    }
+
+    override fun include(body: ListValueBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ListValueSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ListValueBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ListValueSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ListValueBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ListValueSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ListValueShellBuilder<C2> = ListValueShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ListValueShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class MapValueShellBuilder<out C>(override val context: C, internal var shell: MapValueShell = MapValueShell()) : MapValueBuilder<C> {
+    override fun value(key: String, value: String) {
+        shell = shell.copy(value = shell.value.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
+    }
+
+    override fun value(pair: Pair<String, String>) {
+        shell = shell.copy(value = shell.value.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
+    }
+
+    override fun value(value: Map<String, String>) {
+        shell = shell.copy(value = shell.value.orEmpty() + value.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
+    }
+
+    override fun include(body: MapValueBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: MapValueSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: MapValueBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: MapValueSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: MapValueBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: MapValueSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): MapValueShellBuilder<C2> = MapValueShellBuilder(context, shell)
+
+    private fun <C2> merge(other: MapValueShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
 internal class SimpleShellBuilder<out C>(override val context: C, internal var shell: SimpleShell = SimpleShell()) : SimpleBuilder<C> {
     override fun value(value: String) {
         shell = shell.copy(value = Wrapper(value))
