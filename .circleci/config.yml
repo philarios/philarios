@@ -20,7 +20,7 @@ jobs:
     - store_test_results:
         path: "~/test-results"
     - store_artifacts:
-        path: "~/reports/junit"
+        path: "~/reports"
   release-build:
     docker:
     - image: "gradle:4.10.3"

@@ -21,7 +21,7 @@ val spec = CircleCISpec<Any?> {
             path("~/test-results")
         }
         store_artifacts {
-            path("~/reports/junit")
+            path("~/reports")
         }
     }
     jobs("release-build") {
