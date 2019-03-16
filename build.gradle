@@ -38,7 +38,7 @@ subprojects {
     apply from: "${project.rootDir}/bintray.gradle"
 
     sourceSets.main.java.srcDirs += ["src/generated/kotlin"]
-    sourceSets.test.java.srcDirs += ["src/samples/kotlin"]
+    sourceSets.test.java.srcDirs += ["src/testGenerated/kotlin"]
 
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

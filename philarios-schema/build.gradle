@@ -1,5 +1,17 @@
-
 dependencies {
     implementation project(":philarios-core")
     implementation "com.squareup:kotlinpoet:0.7.0"
 }
+
+task generateSamples(type: JavaExec) {
+    main = "io.philarios.schema.sample.SampleSchemaKt"
+    classpath = sourceSets.test.runtimeClasspath
+}
+
+task compileSamples(type: JavaCompile) {
+    classpath = sourceSets.test.runtimeClasspath
+}
+
+tasks["test"].dependsOn("compileSamples")
+tasks["compileSamples"].dependsOn("generateSamples")
+tasks["generateSamples"].dependsOn("testClasses")

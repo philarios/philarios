@@ -1,5 +1,6 @@
-package io.philarios.schema
+package io.philarios.schema.sample
 
+import io.philarios.schema.*
 import io.philarios.schema.translators.generateInto
 
 val sampleSpec = SchemaSpec<Any?> {
@@ -101,4 +102,4 @@ private fun <C> StructBuilder<C>.field(name: String, body: FieldBuilder<C>.() ->
     }
 }
 
-suspend fun main() = sampleSpec.generateInto("./src/samples/kotlin")
+suspend fun main() = sampleSpec.generateInto("./src/testGenerated/kotlin")
