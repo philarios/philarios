@@ -7,8 +7,8 @@ import io.philarios.core.Registry
 import io.philarios.schema.*
 import io.philarios.schema.translators.codegen.util.className
 import io.philarios.schema.translators.codegen.util.escapedName
-import io.philarios.schema.util.kotlinpoet.Statement
-import io.philarios.schema.util.kotlinpoet.addStatements
+import io.philarios.util.kotlinpoet.Statement
+import io.philarios.util.kotlinpoet.addStatements
 
 internal fun Struct.resolveFun(typeRefs: Map<RefType, Type>): FunSpec =
         FunSpec.builder("resolve")

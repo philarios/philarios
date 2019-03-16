@@ -5,8 +5,8 @@ import io.philarios.core.Scaffolder
 import io.philarios.core.Wrapper
 import io.philarios.schema.Struct
 import io.philarios.schema.translators.codegen.util.*
-import io.philarios.schema.util.kotlinpoet.Statement
-import io.philarios.schema.util.kotlinpoet.addStatements
+import io.philarios.util.kotlinpoet.Statement
+import io.philarios.util.kotlinpoet.addStatements
 
 internal val Struct.scaffolderTypeSpec
     get() = when {

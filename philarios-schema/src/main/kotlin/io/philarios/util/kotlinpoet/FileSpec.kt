@@ -1,4 +1,4 @@
-package io.philarios.schema.util.kotlinpoet
+package io.philarios.util.kotlinpoet
 
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec

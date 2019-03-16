@@ -10,7 +10,7 @@ import io.philarios.schema.translators.codegen.types.refs.refTypeSpecs
 import io.philarios.schema.translators.codegen.types.scaffolder.scaffolderTypeSpecs
 import io.philarios.schema.translators.codegen.types.shell.shellTypeSpecs
 import io.philarios.schema.translators.codegen.types.spec.specTypeSpecs
-import io.philarios.schema.util.kotlinpoet.addTypes
+import io.philarios.util.kotlinpoet.addTypes
 
 internal val Schema.fileSpecs: List<FileSpec>
     get() {

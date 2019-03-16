@@ -8,7 +8,7 @@ import io.philarios.schema.Type
 import io.philarios.schema.translators.codegen.util.escapedName
 import io.philarios.schema.translators.codegen.util.scaffoldTypeName
 import io.philarios.schema.translators.codegen.util.shellClassName
-import io.philarios.schema.util.kotlinpoet.superclass
+import io.philarios.util.kotlinpoet.superclass
 
 internal fun Struct.shellTypeSpec(typeRefs: Map<RefType, Type>, superclass: ClassName? = null) = when {
     fields.isEmpty() -> null
