@@ -12,6 +12,13 @@ val spec = CircleCISpec<Any?> {
             gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
             ls -al ./core/build
         """.trimIndent())
+        run("report", """
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+        """.trimIndent())
+        store_test_results {
+            path("test-results")
+        }
     }
     jobs("release-build") {
         gradleDocker()
@@ -20,9 +27,6 @@ val spec = CircleCISpec<Any?> {
             TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
             gradle bintrayUpload -Pversion=${'$'}{TAG} -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
         """.trimIndent())
-        store_test_results {
-            path("build/")
-        }
     }
 
     workflows("snapshot") {
