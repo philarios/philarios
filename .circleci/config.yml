@@ -15,10 +15,13 @@ jobs:
         command: |-
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+
+          mkdir -p ~/reports
+          cp -R ./philarios-core/build/reports/tests/test ~/reports/junit
     - store_test_results:
         path: "~/test-results"
     - store_artifacts:
-        path: "~/test-results/junit"
+        path: "~/reports/junit"
   release-build:
     docker:
     - image: "gradle:4.10.3"
