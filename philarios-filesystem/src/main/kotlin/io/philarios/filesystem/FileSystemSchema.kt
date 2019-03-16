@@ -5,7 +5,7 @@ import io.philarios.schema.sugar.*
 
 val fileSystemSchema = SchemaSpec<Any?> {
     name("FileSystem")
-    pkg("io.philarios.filesystem.v0")
+    pkg("io.philarios.filesystem")
 
     union("Entry") {
         shape("Directory") {

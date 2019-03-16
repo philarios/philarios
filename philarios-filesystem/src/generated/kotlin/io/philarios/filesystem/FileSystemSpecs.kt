@@ -1,4 +1,4 @@
-package io.philarios.filesystem.v0
+package io.philarios.filesystem
 
 sealed class EntrySpec<in C, out T : Entry>
 

@@ -1,4 +1,4 @@
-package io.philarios.filesystem.v0
+package io.philarios.filesystem
 
 import kotlin.String
 import kotlin.collections.List

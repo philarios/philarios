@@ -1,4 +1,4 @@
-package io.philarios.filesystem.v0
+package io.philarios.filesystem
 
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
