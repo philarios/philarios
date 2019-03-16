@@ -16,7 +16,7 @@ val spec = CircleCISpec<Any?> {
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
         """.trimIndent())
         store_test_results {
-            path("test-results")
+            path("~/test-results")
         }
     }
     jobs("release-build") {

@@ -16,7 +16,7 @@ jobs:
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
     - store_test_results:
-        path: "test-results"
+        path: "~/test-results"
   release-build:
     docker:
     - image: "gradle:4.10.3"
