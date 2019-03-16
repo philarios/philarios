@@ -1,9 +1,6 @@
 package io.philarios.ci
 
-import io.philarios.circleci.CheckoutStepSpec
-import io.philarios.circleci.CircleCISpec
-import io.philarios.circleci.JobBuilder
-import io.philarios.circleci.RunStepSpec
+import io.philarios.circleci.*
 
 val spec = CircleCISpec<Any?> {
     version("2")
@@ -11,7 +8,10 @@ val spec = CircleCISpec<Any?> {
     jobs("snapshot-build") {
         gradleDocker()
         checkout()
-        run("check", "gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}")
+        run("check", """
+            gradle check -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
+            ls -al ./core/build
+        """.trimIndent())
     }
     jobs("release-build") {
         gradleDocker()
@@ -20,6 +20,9 @@ val spec = CircleCISpec<Any?> {
             TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
             gradle bintrayUpload -Pversion=${'$'}{TAG} -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
         """.trimIndent())
+        store_test_results {
+            path("build/")
+        }
     }
 
     workflows("snapshot") {
@@ -46,25 +49,39 @@ val spec = CircleCISpec<Any?> {
     }
 }
 
+private fun JobBuilder<Any?>.checkout(body: CheckoutBuilder<Any?>.() -> Unit) {
+    step(CheckoutStepSpec {
+        checkout(body)
+    })
+}
+
+private fun JobBuilder<Any?>.store_test_results(body: StoreTestResultsBuilder<Any?>.() -> Unit) {
+    step(StoreTestResultsStepSpec {
+        store_test_results(body)
+    })
+}
+
+private fun JobBuilder<Any?>.run(body: RunBuilder<Any?>.() -> Unit) {
+    step(RunStepSpec {
+        run(body)
+    })
+}
+
+private fun JobBuilder<Any?>.checkout() {
+    checkout {
+        path(".")
+    }
+}
+
+private fun JobBuilder<Any?>.run(name: String, command: String) {
+    run {
+        name(name)
+        command(command)
+    }
+}
+
 private fun JobBuilder<Any?>.gradleDocker() {
     docker {
         image("gradle:4.10.3")
     }
-}
-
-private fun JobBuilder<Any?>.checkout() {
-    step(CheckoutStepSpec {
-        checkout {
-            path(".")
-        }
-    })
-}
-
-private fun JobBuilder<Any?>.run(name: String, command: String) {
-    step(RunStepSpec {
-        run {
-            name(name)
-            command(command)
-        }
-    })
 }
