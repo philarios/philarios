@@ -44,6 +44,10 @@ fun <C, T : Type> StructBuilder<C>.field(name: String, type: TypeSpec<C, T>, bod
     }
 }
 
+fun <C, T : Type> option(type: TypeSpec<C, T>) = OptionTypeSpec<C> {
+    type(type)
+}
+
 fun <C, T : Type> list(type: TypeSpec<C, T>) = ListTypeSpec<C> {
     type(type)
 }
