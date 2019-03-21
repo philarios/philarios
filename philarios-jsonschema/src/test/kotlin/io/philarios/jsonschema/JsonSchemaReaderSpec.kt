@@ -1,15 +1,15 @@
 package io.philarios.jsonschema
 
-import io.kotlintest.TestContext
 import io.kotlintest.matchers.haveKey
 import io.kotlintest.matchers.instanceOf
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import io.kotlintest.specs.AbstractFreeSpec
 import io.kotlintest.specs.FreeSpec
+import io.philarios.util.tests.calling
+import io.philarios.util.tests.with
 
-class JsonFileReaderSpec : FreeSpec({
+class JsonSchemaReaderSpec : FreeSpec({
 
     calling("read") {
         with("empty schema json") {
@@ -91,12 +91,4 @@ class JsonFileReaderSpec : FreeSpec({
 fun executeRead(filename: String): JsonSchema {
     val input = ClassLoader.getSystemResourceAsStream(filename)
     return read(input)
-}
-
-fun AbstractFreeSpec.calling(name: String, test: AbstractFreeSpec.FreeSpecScope.() -> Unit) {
-    "calling $name" - test
-}
-
-fun AbstractFreeSpec.FreeSpecScope.with(name: String, test: TestContext.() -> Unit) {
-    "with $name".invoke(test)
 }

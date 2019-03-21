@@ -84,23 +84,23 @@ private fun JsonSchema.type(name: String? = null): TypeSpec<JsonSchemaObject, Ty
     }
 }
 
-private val unsupportedBooleanSchema =
+internal val unsupportedBooleanSchema =
         UnsupportedJsonSchemaException("Boolean schemas are currently not supported")
 
-private val unsupportedNullType =
+internal val unsupportedNullType =
         UnsupportedJsonSchemaException("Null types are currently not supported")
 
-private val unsupportedArrayType =
+internal val unsupportedArrayType =
         UnsupportedJsonSchemaException("Array types without items are currently not supported")
 
-private val unsupportedObjectType =
+internal val unsupportedObjectType =
         UnsupportedJsonSchemaException(
                 "Object types without additionalProperties, properties or oneOf are currently not supported")
 
-private val unsupportedMultiType =
+internal val unsupportedMultiType =
         UnsupportedJsonSchemaException("Schemas with more than one type are currently not supported")
 
-private val unsupportedFields =
+internal val unsupportedFields =
         UnsupportedJsonSchemaException(
                 "Schemas without the properties type, \$ref, enum, oneOf are currently not supported")
 
