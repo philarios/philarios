@@ -2,7 +2,6 @@ package io.philarios.core
 
 interface Context<out C> {
     val value: C
-    operator fun <T> get(clazz: Class<T>): T
 }
 
 suspend fun <C, T : Any> Context<C>.map(scaffolder: Scaffolder<C, T>, registry: Registry = emptyRegistry()): Context<T> {
@@ -25,8 +24,4 @@ fun emptyContext(): Context<Any?> = ValueContext(null)
 
 fun <C> contextOf(value: C): Context<C> = ValueContext(value)
 
-internal class ValueContext<out C>(override val value: C) : Context<C> {
-    override fun <T> get(clazz: Class<T>): T {
-        TODO("not implemented")
-    }
-}
+internal class ValueContext<out C>(override val value: C) : Context<C>
