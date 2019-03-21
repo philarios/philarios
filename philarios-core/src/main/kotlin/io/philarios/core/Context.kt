@@ -21,15 +21,7 @@ fun <T> Context<T>.unwrap(): T {
     return value
 }
 
-fun emptyContext(): Context<Any?> = EmptyContext
-
-internal object EmptyContext : Context<Nothing?> {
-    override fun <T> get(clazz: Class<T>): T {
-        TODO("not implemented")
-    }
-
-    override val value: Nothing? = null
-}
+fun emptyContext(): Context<Any?> = ValueContext(null)
 
 fun <C> contextOf(value: C): Context<C> = ValueContext(value)
 
