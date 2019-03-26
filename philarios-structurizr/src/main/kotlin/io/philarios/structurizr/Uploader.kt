@@ -5,8 +5,12 @@ import io.philarios.core.emptyContext
 import io.philarios.core.map
 
 suspend fun main() {
+    upload(workspace)
+}
+
+private suspend fun upload(workspaceSpec: WorkspaceSpec<Any?>) {
     val workspace = emptyContext()
-            .map(WorkspaceScaffolder(workspace))
+            .map(WorkspaceScaffolder(workspaceSpec))
             .map(OutputTranslator())
             .value
 
@@ -15,58 +19,4 @@ suspend fun main() {
 
     val client = StructurizrClient(apiKey, apiSecret)
     client.putWorkspace(43493, workspace)
-}
-
-val workspace = WorkspaceSpec<Any?> {
-    name("Test")
-    description("This is a test workspace")
-
-    model {
-        people {
-            name("Admin")
-            description("An admin user of the system")
-            location(Location.Internal)
-        }
-        people {
-            name("User")
-            description("A normal user")
-            location(Location.External)
-        }
-        softwareSystem {
-            name("Todo App")
-            description("A simple todo app")
-
-            container {
-                name("app")
-                description("displays the todo list")
-                technology("Android")
-            }
-            container {
-                name("api")
-                description("answers requests from the app")
-                technology("Java")
-
-                component {
-                    name("controller")
-                    description("answers requests from the app")
-                    technology("Spring MVC")
-                }
-                component {
-                    name("service")
-                    description("contains the logic and use cases")
-                    technology("Java")
-                }
-                component {
-                    name("repository")
-                    description("queries the database")
-                    technology("JPA")
-                }
-            }
-            container {
-                name("database")
-                description("the main database")
-                technology("MySQL")
-            }
-        }
-    }
 }
