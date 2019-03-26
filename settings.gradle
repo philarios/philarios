@@ -8,5 +8,6 @@ include 'philarios-domain'
 include 'philarios-filesystem'
 include 'philarios-jsonschema'
 include 'philarios-schema'
+include 'philarios-structurizr'
 include 'philarios-terraform'
 
