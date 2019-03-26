@@ -1,5 +1,0 @@
-
-dependencies {
-    implementation project(":philarios-core")
-    implementation project(":philarios-schema")
-}

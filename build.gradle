@@ -1,5 +1,6 @@
 buildscript {
     ext {
+        experimental = false
         kotlin_version = "1.3.11"
         coroutines_version = "1.1.1"
         spek_version = "2.0.0-rc.1"
@@ -35,7 +36,10 @@ allprojects {
 subprojects {
     apply plugin: "kotlin"
     apply plugin: 'jacoco'
-    apply from: "${project.rootDir}/bintray.gradle"
+
+    if (!experimental) {
+        apply from: "${project.rootDir}/bintray.gradle"
+    }
 
     sourceSets.main.java.srcDirs += ["src/generated/kotlin"]
     sourceSets.test.java.srcDirs += ["src/testGenerated/kotlin"]
