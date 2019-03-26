@@ -2,6 +2,13 @@ package io.philarios.schema.sugar
 
 import io.philarios.schema.*
 
+fun <C> SchemaBuilder<C>.enum(name: String, body: EnumTypeBuilder<C>.() -> Unit = {}) {
+    type(EnumTypeSpec {
+        name(name)
+        apply(body)
+    })
+}
+
 fun <C> SchemaBuilder<C>.struct(name: String, body: StructBuilder<C>.() -> Unit = {}) {
     type(StructSpec {
         name(name)
