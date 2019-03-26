@@ -27,5 +27,30 @@ val workspace = WorkspaceSpec<Any?> {
             description("An admin user of the system")
             location(Location.Internal)
         }
+        people {
+            name("User")
+            description("A normal user")
+            location(Location.External)
+        }
+        softwareSystem {
+            name("Todo App")
+            description("A simple todo app")
+
+            container {
+                name("app")
+                description("displays the todo list")
+                technology("Android")
+            }
+            container {
+                name("api")
+                description("answers requests from the app")
+                technology("Java")
+            }
+            container {
+                name("database")
+                description("the main database")
+                technology("MySQL")
+            }
+        }
     }
 }

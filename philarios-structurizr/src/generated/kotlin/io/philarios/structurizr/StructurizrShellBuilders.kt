@@ -89,6 +89,26 @@ internal class ModelShellBuilder<out C>(override val context: C, internal var sh
         shell = shell.copy(people = shell.people.orEmpty() + people.map { Wrapper(it) })
     }
 
+    override fun softwareSystem(body: SoftwareSystemBuilder<C>.() -> Unit) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + SoftwareSystemScaffolder<C>(SoftwareSystemSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun softwareSystem(spec: SoftwareSystemSpec<C>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + SoftwareSystemScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun softwareSystem(ref: SoftwareSystemRef) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ref)
+    }
+
+    override fun softwareSystem(value: SoftwareSystem) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + Wrapper(value))
+    }
+
+    override fun softwareSystems(softwareSystems: List<SoftwareSystem>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { Wrapper(it) })
+    }
+
     override fun include(body: ModelBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -169,6 +189,124 @@ internal class PersonShellBuilder<out C>(override val context: C, internal var s
     private fun <C2> split(context: C2): PersonShellBuilder<C2> = PersonShellBuilder(context, shell)
 
     private fun <C2> merge(other: PersonShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class SoftwareSystemShellBuilder<out C>(override val context: C, internal var shell: SoftwareSystemShell = SoftwareSystemShell()) : SoftwareSystemBuilder<C> {
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun location(value: Location) {
+        shell = shell.copy(location = Wrapper(value))
+    }
+
+    override fun container(body: ContainerBuilder<C>.() -> Unit) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + ContainerScaffolder<C>(ContainerSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun container(spec: ContainerSpec<C>) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + ContainerScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun container(ref: ContainerRef) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + ref)
+    }
+
+    override fun container(value: Container) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + Wrapper(value))
+    }
+
+    override fun containers(containers: List<Container>) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { Wrapper(it) })
+    }
+
+    override fun include(body: SoftwareSystemBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: SoftwareSystemSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: SoftwareSystemBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: SoftwareSystemSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: SoftwareSystemBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: SoftwareSystemSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): SoftwareSystemShellBuilder<C2> = SoftwareSystemShellBuilder(context, shell)
+
+    private fun <C2> merge(other: SoftwareSystemShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ContainerShellBuilder<out C>(override val context: C, internal var shell: ContainerShell = ContainerShell()) : ContainerBuilder<C> {
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun technology(value: String) {
+        shell = shell.copy(technology = Wrapper(value))
+    }
+
+    override fun include(body: ContainerBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ContainerSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ContainerBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ContainerSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ContainerBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ContainerSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ContainerShellBuilder<C2> = ContainerShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ContainerShellBuilder<C2>) {
         this.shell = other.shell
     }
 }

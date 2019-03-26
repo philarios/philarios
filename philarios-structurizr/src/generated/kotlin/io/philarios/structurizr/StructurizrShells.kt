@@ -27,13 +27,15 @@ internal data class WorkspaceShell(
     }
 }
 
-internal data class ModelShell(var people: List<Scaffold<Person>>? = null) : Scaffold<Model> {
+internal data class ModelShell(var people: List<Scaffold<Person>>? = null, var softwareSystems: List<Scaffold<SoftwareSystem>>? = null) : Scaffold<Model> {
     override suspend fun resolve(registry: Registry): Model {
         coroutineScope {
             people?.let{ it.forEach { launch { it.resolve(registry) } } }
+            softwareSystems?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
         val value = Model(
-            people.orEmpty().let{ it.map { it.resolve(registry) } }
+            people.orEmpty().let{ it.map { it.resolve(registry) } },
+            softwareSystems.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -51,6 +53,46 @@ internal data class PersonShell(
             name!!.let{ it.resolve(registry) },
             description!!.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) }
+        )
+        return value
+    }
+}
+
+internal data class SoftwareSystemShell(
+        var name: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var location: Scaffold<Location>? = null,
+        var containers: List<Scaffold<Container>>? = null
+) : Scaffold<SoftwareSystem> {
+    override suspend fun resolve(registry: Registry): SoftwareSystem {
+        checkNotNull(name) { "SoftwareSystem is missing the name property" }
+        checkNotNull(description) { "SoftwareSystem is missing the description property" }
+        coroutineScope {
+            containers?.let{ it.forEach { launch { it.resolve(registry) } } }
+        }
+        val value = SoftwareSystem(
+            name!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            location?.let{ it.resolve(registry) },
+            containers.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class ContainerShell(
+        var name: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var technology: Scaffold<String>? = null
+) : Scaffold<Container> {
+    override suspend fun resolve(registry: Registry): Container {
+        checkNotNull(name) { "Container is missing the name property" }
+        checkNotNull(description) { "Container is missing the description property" }
+        checkNotNull(technology) { "Container is missing the technology property" }
+        val value = Container(
+            name!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            technology!!.let{ it.resolve(registry) }
         )
         return value
     }

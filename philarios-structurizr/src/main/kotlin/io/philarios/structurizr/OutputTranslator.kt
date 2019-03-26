@@ -19,6 +19,16 @@ private fun Workspace.convert() = SWorkspace(name, description).also {
                     person.description
             )
         }
+        model.softwareSystems.forEach { softwareSystem ->
+            val addedSoftwareSystem = it.model.addSoftwareSystem(
+                    softwareSystem.location?.convert() ?: SLocation.Unspecified,
+                    softwareSystem.name,
+                    softwareSystem.description
+            )
+            softwareSystem.containers.forEach { container ->
+                addedSoftwareSystem.addContainer(container.name, container.description, container.technology)
+            }
+        }
     }
 }
 
@@ -26,7 +36,7 @@ private fun Model.convert(): Model {
     TODO("not implemented")
 }
 
-private fun Location.convert(): SLocation = when (this) {
+private fun Location.convert() = when (this) {
     Location.Internal -> SLocation.Internal
     Location.External -> SLocation.External
     Location.Unspecified -> SLocation.Unspecified

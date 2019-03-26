@@ -26,3 +26,19 @@ class PersonScaffolder<in C>(internal val spec: PersonSpec<C>) : Scaffolder<C, P
         return builder.shell
     }
 }
+
+class SoftwareSystemScaffolder<in C>(internal val spec: SoftwareSystemSpec<C>) : Scaffolder<C, SoftwareSystem> {
+    override fun createScaffold(context: C): Scaffold<SoftwareSystem> {
+        val builder = SoftwareSystemShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ContainerScaffolder<in C>(internal val spec: ContainerSpec<C>) : Scaffolder<C, Container> {
+    override fun createScaffold(context: C): Scaffold<Container> {
+        val builder = ContainerShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}

@@ -48,6 +48,16 @@ interface ModelBuilder<out C> {
 
     fun people(people: List<Person>)
 
+    fun softwareSystem(body: SoftwareSystemBuilder<C>.() -> Unit)
+
+    fun softwareSystem(spec: SoftwareSystemSpec<C>)
+
+    fun softwareSystem(ref: SoftwareSystemRef)
+
+    fun softwareSystem(value: SoftwareSystem)
+
+    fun softwareSystems(softwareSystems: List<SoftwareSystem>)
+
     fun include(body: ModelBuilder<C>.() -> Unit)
 
     fun include(spec: ModelSpec<C>)
@@ -82,4 +92,60 @@ interface PersonBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: PersonBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: PersonSpec<C2>)
+}
+
+@DslBuilder
+interface SoftwareSystemBuilder<out C> {
+    val context: C
+
+    fun name(value: String)
+
+    fun description(value: String)
+
+    fun location(value: Location)
+
+    fun container(body: ContainerBuilder<C>.() -> Unit)
+
+    fun container(spec: ContainerSpec<C>)
+
+    fun container(ref: ContainerRef)
+
+    fun container(value: Container)
+
+    fun containers(containers: List<Container>)
+
+    fun include(body: SoftwareSystemBuilder<C>.() -> Unit)
+
+    fun include(spec: SoftwareSystemSpec<C>)
+
+    fun <C2> include(context: C2, body: SoftwareSystemBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: SoftwareSystemSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: SoftwareSystemBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: SoftwareSystemSpec<C2>)
+}
+
+@DslBuilder
+interface ContainerBuilder<out C> {
+    val context: C
+
+    fun name(value: String)
+
+    fun description(value: String)
+
+    fun technology(value: String)
+
+    fun include(body: ContainerBuilder<C>.() -> Unit)
+
+    fun include(spec: ContainerSpec<C>)
+
+    fun <C2> include(context: C2, body: ContainerBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ContainerSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ContainerBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ContainerSpec<C2>)
 }
