@@ -27,6 +27,13 @@ data class SoftwareSystem(
 data class Container(
         val name: String,
         val description: String,
+        val technology: String,
+        val components: List<Component>
+)
+
+data class Component(
+        val name: String,
+        val description: String,
         val technology: String
 )
 

@@ -9,3 +9,5 @@ class PersonSpec<in C>(internal val body: PersonBuilder<C>.() -> Unit)
 class SoftwareSystemSpec<in C>(internal val body: SoftwareSystemBuilder<C>.() -> Unit)
 
 class ContainerSpec<in C>(internal val body: ContainerBuilder<C>.() -> Unit)
+
+class ComponentSpec<in C>(internal val body: ComponentBuilder<C>.() -> Unit)

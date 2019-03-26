@@ -83,13 +83,36 @@ internal data class SoftwareSystemShell(
 internal data class ContainerShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
-        var technology: Scaffold<String>? = null
+        var technology: Scaffold<String>? = null,
+        var components: List<Scaffold<Component>>? = null
 ) : Scaffold<Container> {
     override suspend fun resolve(registry: Registry): Container {
         checkNotNull(name) { "Container is missing the name property" }
         checkNotNull(description) { "Container is missing the description property" }
         checkNotNull(technology) { "Container is missing the technology property" }
+        coroutineScope {
+            components?.let{ it.forEach { launch { it.resolve(registry) } } }
+        }
         val value = Container(
+            name!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            technology!!.let{ it.resolve(registry) },
+            components.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class ComponentShell(
+        var name: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var technology: Scaffold<String>? = null
+) : Scaffold<Component> {
+    override suspend fun resolve(registry: Registry): Component {
+        checkNotNull(name) { "Component is missing the name property" }
+        checkNotNull(description) { "Component is missing the description property" }
+        checkNotNull(technology) { "Component is missing the technology property" }
+        val value = Component(
             name!!.let{ it.resolve(registry) },
             description!!.let{ it.resolve(registry) },
             technology!!.let{ it.resolve(registry) }

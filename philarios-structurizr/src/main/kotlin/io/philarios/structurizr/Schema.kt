@@ -35,6 +35,13 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("name", StringType)
         field("description", StringType)
         field("technology", StringType)
+        field("components", list(ref("Component")))
+    }
+
+    struct("Component") {
+        field("name", StringType)
+        field("description", StringType)
+        field("technology", StringType)
     }
 
     enum("Location") {

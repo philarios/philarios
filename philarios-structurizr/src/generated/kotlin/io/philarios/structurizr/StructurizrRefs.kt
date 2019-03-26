@@ -12,3 +12,5 @@ class PersonRef(key: String) : Scaffold<Person> by io.philarios.core.RegistryRef
 class SoftwareSystemRef(key: String) : Scaffold<SoftwareSystem> by io.philarios.core.RegistryRef(io.philarios.structurizr.SoftwareSystem::class, key)
 
 class ContainerRef(key: String) : Scaffold<Container> by io.philarios.core.RegistryRef(io.philarios.structurizr.Container::class, key)
+
+class ComponentRef(key: String) : Scaffold<Component> by io.philarios.core.RegistryRef(io.philarios.structurizr.Component::class, key)

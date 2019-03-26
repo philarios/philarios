@@ -42,3 +42,11 @@ class ContainerScaffolder<in C>(internal val spec: ContainerSpec<C>) : Scaffolde
         return builder.shell
     }
 }
+
+class ComponentScaffolder<in C>(internal val spec: ComponentSpec<C>) : Scaffolder<C, Component> {
+    override fun createScaffold(context: C): Scaffold<Component> {
+        val builder = ComponentShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}

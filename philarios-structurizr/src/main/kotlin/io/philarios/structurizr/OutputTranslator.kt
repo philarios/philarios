@@ -26,7 +26,18 @@ private fun Workspace.convert() = SWorkspace(name, description).also {
                     softwareSystem.description
             )
             softwareSystem.containers.forEach { container ->
-                addedSoftwareSystem.addContainer(container.name, container.description, container.technology)
+                val addedContainer = addedSoftwareSystem.addContainer(
+                        container.name,
+                        container.description,
+                        container.technology
+                )
+                container.components.forEach { component ->
+                    addedContainer.addComponent(
+                            component.name,
+                            component.description,
+                            component.technology
+                    )
+                }
             }
         }
     }

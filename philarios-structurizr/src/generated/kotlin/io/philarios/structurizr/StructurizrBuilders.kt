@@ -137,6 +137,16 @@ interface ContainerBuilder<out C> {
 
     fun technology(value: String)
 
+    fun component(body: ComponentBuilder<C>.() -> Unit)
+
+    fun component(spec: ComponentSpec<C>)
+
+    fun component(ref: ComponentRef)
+
+    fun component(value: Component)
+
+    fun components(components: List<Component>)
+
     fun include(body: ContainerBuilder<C>.() -> Unit)
 
     fun include(spec: ContainerSpec<C>)
@@ -148,4 +158,27 @@ interface ContainerBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: ContainerBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: ContainerSpec<C2>)
+}
+
+@DslBuilder
+interface ComponentBuilder<out C> {
+    val context: C
+
+    fun name(value: String)
+
+    fun description(value: String)
+
+    fun technology(value: String)
+
+    fun include(body: ComponentBuilder<C>.() -> Unit)
+
+    fun include(spec: ComponentSpec<C>)
+
+    fun <C2> include(context: C2, body: ComponentBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ComponentSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ComponentBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ComponentSpec<C2>)
 }

@@ -45,6 +45,22 @@ val workspace = WorkspaceSpec<Any?> {
                 name("api")
                 description("answers requests from the app")
                 technology("Java")
+
+                component {
+                    name("controller")
+                    description("answers requests from the app")
+                    technology("Spring MVC")
+                }
+                component {
+                    name("service")
+                    description("contains the logic and use cases")
+                    technology("Java")
+                }
+                component {
+                    name("repository")
+                    description("queries the database")
+                    technology("JPA")
+                }
             }
             container {
                 name("database")
