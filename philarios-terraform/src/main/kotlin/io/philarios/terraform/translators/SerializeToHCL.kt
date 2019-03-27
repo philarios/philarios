@@ -1,6 +1,6 @@
 package io.philarios.terraform.translators
 
-import io.philarios.terraform.v0.*
+import io.philarios.terraform.*
 
 fun Configuration.serializeToHCL(): String {
     return listOf(
