@@ -1,88 +1,88 @@
 package io.philarios.jsonschema
 
-import io.kotlintest.matchers.haveKey
-import io.kotlintest.matchers.instanceOf
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
-import io.kotlintest.specs.FreeSpec
-import io.philarios.util.tests.calling
-import io.philarios.util.tests.with
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeInstanceOf
+import org.amshove.kluent.shouldHaveKey
+import org.amshove.kluent.shouldNotBe
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
-class JsonSchemaReaderSpec : FreeSpec({
+class JsonSchemaReaderSpec : Spek({
 
-    calling("read") {
-        with("empty schema json") {
+    describe("read") {
+        it("empty schema json") {
             val jsonSchema = executeRead("empty_schema.json")
+            
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
         }
-        with("boolean schema json") {
+        it("boolean schema json") {
             val jsonSchema = executeRead("boolean_schema.json")
+            
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaBoolean::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaBoolean::class
 
             jsonSchema as JsonSchemaBoolean
 
             jsonSchema.value shouldBe true
         }
-        with("properties schema json") {
+        it("properties schema json") {
             val jsonSchema = executeRead("properties_schema.json")
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
 
             jsonSchema as JsonSchemaObject
 
             jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! should haveKey("title")
+            jsonSchema.properties!! shouldHaveKey "title"
         }
-        with("properties with default schema json") {
+        it("properties with default schema json") {
             val jsonSchema = executeRead("properties_with_default_schema.json")
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
 
             jsonSchema as JsonSchemaObject
 
             jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! should haveKey("default")
-            jsonSchema.properties!!["default"] shouldBe instanceOf(JsonSchemaBoolean::class)
+            jsonSchema.properties!! shouldHaveKey "default"
+            jsonSchema.properties!!["default"] shouldBeInstanceOf JsonSchemaBoolean::class
         }
-        with("complex properties schema json") {
+        it("complex properties schema json") {
             val jsonSchema = executeRead("complex_properties_schema.json")
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
 
             jsonSchema as JsonSchemaObject
 
             jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! shouldNotBe emptyMap<String, JsonSchema>()
+            jsonSchema.properties!! shouldNotBe emptyMap()
         }
-        with("properties and type schema json") {
+        it("properties and type schema json") {
             val jsonSchema = executeRead("properties_and_type_schema.json")
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
 
             jsonSchema as JsonSchemaObject
 
             jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! shouldNotBe emptyMap<String, JsonSchema>()
+            jsonSchema.properties!! shouldNotBe emptyMap()
 
             jsonSchema.type shouldNotBe null
-            jsonSchema.type shouldBe instanceOf(TypeSimpleTypeArray::class)
+            jsonSchema.type shouldBeInstanceOf TypeSimpleTypeArray::class
 
             val type = jsonSchema.type as TypeSimpleTypeArray
 
             type.value.size shouldBe 2
         }
-        with("schema json") {
+        it("schema json") {
             val jsonSchema = executeRead("schema.json")
             jsonSchema shouldNotBe null
-            jsonSchema shouldBe instanceOf(JsonSchemaObject::class)
+            jsonSchema shouldBeInstanceOf JsonSchemaObject::class
 
             jsonSchema as JsonSchemaObject
 
             jsonSchema.properties shouldNotBe null
-            jsonSchema.properties!! shouldNotBe emptyMap<String, JsonSchema>()
+            jsonSchema.properties!! shouldNotBe emptyMap()
         }
     }
 

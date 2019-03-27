@@ -1,37 +1,36 @@
 package io.philarios.jsonschema
 
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.FreeSpec
 import io.philarios.core.contextOf
 import io.philarios.core.map
 import io.philarios.core.unwrap
 import io.philarios.schema.BooleanType
 import io.philarios.schema.Schema
 import io.philarios.schema.SchemaScaffolder
-import io.philarios.util.tests.calling
-import io.philarios.util.tests.with
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.invoking
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldThrow
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
-class JsonSchemaSchemaSpec : FreeSpec({
+class JsonSchemaSchemaSpec : Spek({
 
-    calling("jsonSchemaSchema") {
-        with("empty JsonSchemaObject") {
-            val exception = shouldThrow<UnsupportedJsonSchemaException> {
+    describe("jsonSchemaSchema") {
+        it("throws an exception for an empty JsonSchemaObject") {
+            invoking {
                 runJsonSchemaSchema(JsonSchemaObject())
-            }
-            exception shouldBe unsupportedFields
+            } shouldThrow unsupportedFields
         }
-        with("JsonSchemaObject with null type") {
-            val exception = shouldThrow<UnsupportedJsonSchemaException> {
+        it("throws an exception for a JsonSchemaObject with null type") {
+            invoking {
                 runJsonSchemaSchema(JsonSchemaObject(type = TypeSimpleType(SimpleType.`null`)))
-            }
-            exception shouldBe unsupportedNullType
+            } shouldThrow unsupportedNullType
         }
-        with("JsonSchemaObject with boolean type") {
+        it("works for a JsonSchemaObject with boolean type") {
             val schema = runJsonSchemaSchema(JsonSchemaObject(type = TypeSimpleType(SimpleType.boolean)))
             val expected = Schema("", "", listOf(BooleanType))
-            schema shouldBe expected
+            schema shouldEqual expected
         }
     }
 
