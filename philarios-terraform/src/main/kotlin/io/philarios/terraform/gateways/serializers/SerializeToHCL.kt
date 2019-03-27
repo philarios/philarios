@@ -1,4 +1,4 @@
-package io.philarios.terraform.translators
+package io.philarios.terraform.gateways.serializers
 
 import io.philarios.terraform.*
 
