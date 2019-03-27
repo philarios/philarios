@@ -18,5 +18,5 @@ suspend fun generateSchema(metadata: JsonSchemaGenerationMetadata) {
 
     contextOf(jsonSchema)
             .map(SchemaScaffolder(jsonSchemaSchema(metadata.pkg, metadata.name)))
-            .map(SchemaCodegen(metadata.outputDirectory))
+            .map(SchemaCodegen(metadata.outputDirectory)::invoke)
 }

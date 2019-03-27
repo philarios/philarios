@@ -11,7 +11,7 @@ suspend fun main() {
 private suspend fun upload(workspaceSpec: WorkspaceSpec<Any?>) {
     val workspace = emptyContext()
             .map(WorkspaceScaffolder(workspaceSpec))
-            .map(OutputTranslator())
+            .map(Workspace::convert)
             .value
 
     val apiKey = System.getenv("STRUCTURIZR_API_KEY")

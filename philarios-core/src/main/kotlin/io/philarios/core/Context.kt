@@ -11,10 +11,6 @@ suspend fun <C, T : Any> Context<C>.map(scaffolder: Scaffolder<C, T>, registry: 
     return contextOf(value.let { scaffolder.createScaffold(it).resolve(registry) })
 }
 
-fun <C, T> Context<C>.map(translator: Translator<C, T>): Context<T> {
-    return contextOf(value.let { translator.translate(it) })
-}
-
 inline fun <C, T> Context<C>.map(transform: (C) -> T): Context<T> {
     return contextOf(value.let(transform))
 }

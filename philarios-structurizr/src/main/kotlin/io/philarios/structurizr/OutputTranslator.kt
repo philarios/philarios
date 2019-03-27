@@ -1,16 +1,10 @@
 package io.philarios.structurizr
 
-import io.philarios.core.Translator
 import com.structurizr.Workspace as SWorkspace
-import com.structurizr.model.Model as SModel
 import com.structurizr.model.Location as SLocation
+import com.structurizr.model.Model as SModel
 
-class OutputTranslator : Translator<Workspace, SWorkspace> {
-    override fun translate(context: Workspace) = context.convert()
-
-}
-
-private fun Workspace.convert() = SWorkspace(name, description).also {
+fun Workspace.convert() = SWorkspace(name, description).also {
     model?.let { model ->
         model.people.forEach { person ->
             it.model.addPerson(

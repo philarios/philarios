@@ -1,7 +1,7 @@
 package io.philarios.schema.sample
 
-import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
+import io.philarios.util.registry.Registry
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Byte
