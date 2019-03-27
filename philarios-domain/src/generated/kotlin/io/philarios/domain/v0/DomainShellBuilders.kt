@@ -10,19 +10,19 @@ import kotlin.collections.List
 @DslBuilder
 internal class DomainShellBuilder<out C>(override val context: C, internal var shell: DomainShell = DomainShell()) : DomainBuilder<C> {
     override fun entity(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + EntitySpec<C>(body).connect(context))
+        shell = shell.copy(entities = shell.entities.orEmpty() + EntityScaffolder<C>(EntitySpec<C>(body)).createScaffold(context))
     }
 
     override fun entity(spec: EntitySpec<C>) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + spec.connect(context))
+        shell = shell.copy(entities = shell.entities.orEmpty() + EntityScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun entity(ref: EntityRef) {
         shell = shell.copy(entities = shell.entities.orEmpty() + ref)
     }
 
-    override fun entity(entity: Entity) {
-        shell = shell.copy(entities = shell.entities.orEmpty() + Wrapper(entity))
+    override fun entity(value: Entity) {
+        shell = shell.copy(entities = shell.entities.orEmpty() + Wrapper(value))
     }
 
     override fun entities(entities: List<Entity>) {
@@ -30,19 +30,19 @@ internal class DomainShellBuilder<out C>(override val context: C, internal var s
     }
 
     override fun relationship(body: RelationshipBuilder<C>.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipSpec<C>(body).connect(context))
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(RelationshipSpec<C>(body)).createScaffold(context))
     }
 
     override fun relationship(spec: RelationshipSpec<C>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + spec.connect(context))
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun relationship(ref: RelationshipRef) {
         shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
     }
 
-    override fun relationship(relationship: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(relationship))
+    override fun relationship(value: Relationship) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(value))
     }
 
     override fun relationships(relationships: List<Relationship>) {
@@ -86,24 +86,24 @@ internal class DomainShellBuilder<out C>(override val context: C, internal var s
 
 @DslBuilder
 internal class EntityShellBuilder<out C>(override val context: C, internal var shell: EntityShell = EntityShell()) : EntityBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeScaffolder<C>(AttributeSpec<C>(body)).createScaffold(context))
     }
 
     override fun attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun attribute(ref: AttributeRef) {
         shell = shell.copy(attributes = shell.attributes.orEmpty() + ref)
     }
 
-    override fun attribute(attribute: Attribute) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(attribute))
+    override fun attribute(value: Attribute) {
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(value))
     }
 
     override fun attributes(attributes: List<Attribute>) {
@@ -147,56 +147,56 @@ internal class EntityShellBuilder<out C>(override val context: C, internal var s
 
 @DslBuilder
 internal class RelationshipShellBuilder<out C>(override val context: C, internal var shell: RelationshipShell = RelationshipShell()) : RelationshipBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun from(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(from = EntitySpec<C>(body).connect(context))
+        shell = shell.copy(from = EntityScaffolder<C>(EntitySpec<C>(body)).createScaffold(context))
     }
 
     override fun from(spec: EntitySpec<C>) {
-        shell = shell.copy(from = spec.connect(context))
+        shell = shell.copy(from = EntityScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun from(ref: EntityRef) {
         shell = shell.copy(from = ref)
     }
 
-    override fun from(from: Entity) {
-        shell = shell.copy(from = Wrapper(from))
+    override fun from(value: Entity) {
+        shell = shell.copy(from = Wrapper(value))
     }
 
     override fun to(body: EntityBuilder<C>.() -> Unit) {
-        shell = shell.copy(to = EntitySpec<C>(body).connect(context))
+        shell = shell.copy(to = EntityScaffolder<C>(EntitySpec<C>(body)).createScaffold(context))
     }
 
     override fun to(spec: EntitySpec<C>) {
-        shell = shell.copy(to = spec.connect(context))
+        shell = shell.copy(to = EntityScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun to(ref: EntityRef) {
         shell = shell.copy(to = ref)
     }
 
-    override fun to(to: Entity) {
-        shell = shell.copy(to = Wrapper(to))
+    override fun to(value: Entity) {
+        shell = shell.copy(to = Wrapper(value))
     }
 
     override fun attribute(body: AttributeBuilder<C>.() -> Unit) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeSpec<C>(body).connect(context))
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeScaffolder<C>(AttributeSpec<C>(body)).createScaffold(context))
     }
 
     override fun attribute(spec: AttributeSpec<C>) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + spec.connect(context))
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + AttributeScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun attribute(ref: AttributeRef) {
         shell = shell.copy(attributes = shell.attributes.orEmpty() + ref)
     }
 
-    override fun attribute(attribute: Attribute) {
-        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(attribute))
+    override fun attribute(value: Attribute) {
+        shell = shell.copy(attributes = shell.attributes.orEmpty() + Wrapper(value))
     }
 
     override fun attributes(attributes: List<Attribute>) {
@@ -240,24 +240,24 @@ internal class RelationshipShellBuilder<out C>(override val context: C, internal
 
 @DslBuilder
 internal class AttributeShellBuilder<out C>(override val context: C, internal var shell: AttributeShell = AttributeShell()) : AttributeBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun type(body: TypeBuilder<C>.() -> Unit) {
-        shell = shell.copy(type = TypeSpec<C>(body).connect(context))
+        shell = shell.copy(type = TypeScaffolder<C>(TypeSpec<C>(body)).createScaffold(context))
     }
 
     override fun type(spec: TypeSpec<C>) {
-        shell = shell.copy(type = spec.connect(context))
+        shell = shell.copy(type = TypeScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun type(ref: TypeRef) {
         shell = shell.copy(type = ref)
     }
 
-    override fun type(type: Type) {
-        shell = shell.copy(type = Wrapper(type))
+    override fun type(value: Type) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
     override fun include(body: AttributeBuilder<C>.() -> Unit) {
@@ -297,12 +297,12 @@ internal class AttributeShellBuilder<out C>(override val context: C, internal va
 
 @DslBuilder
 internal class TypeShellBuilder<out C>(override val context: C, internal var shell: TypeShell = TypeShell()) : TypeBuilder<C> {
-    override fun type(type: RawType) {
-        shell = shell.copy(type = type)
+    override fun type(value: RawType) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
-    override fun nullable(nullable: Boolean) {
-        shell = shell.copy(nullable = nullable)
+    override fun nullable(value: Boolean) {
+        shell = shell.copy(nullable = Wrapper(value))
     }
 
     override fun include(body: TypeBuilder<C>.() -> Unit) {

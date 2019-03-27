@@ -16,7 +16,7 @@ interface DomainBuilder<out C> {
 
     fun entity(ref: EntityRef)
 
-    fun entity(entity: Entity)
+    fun entity(value: Entity)
 
     fun entities(entities: List<Entity>)
 
@@ -26,7 +26,7 @@ interface DomainBuilder<out C> {
 
     fun relationship(ref: RelationshipRef)
 
-    fun relationship(relationship: Relationship)
+    fun relationship(value: Relationship)
 
     fun relationships(relationships: List<Relationship>)
 
@@ -47,7 +47,7 @@ interface DomainBuilder<out C> {
 interface EntityBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun attribute(body: AttributeBuilder<C>.() -> Unit)
 
@@ -55,7 +55,7 @@ interface EntityBuilder<out C> {
 
     fun attribute(ref: AttributeRef)
 
-    fun attribute(attribute: Attribute)
+    fun attribute(value: Attribute)
 
     fun attributes(attributes: List<Attribute>)
 
@@ -76,7 +76,7 @@ interface EntityBuilder<out C> {
 interface RelationshipBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun from(body: EntityBuilder<C>.() -> Unit)
 
@@ -84,7 +84,7 @@ interface RelationshipBuilder<out C> {
 
     fun from(ref: EntityRef)
 
-    fun from(from: Entity)
+    fun from(value: Entity)
 
     fun to(body: EntityBuilder<C>.() -> Unit)
 
@@ -92,7 +92,7 @@ interface RelationshipBuilder<out C> {
 
     fun to(ref: EntityRef)
 
-    fun to(to: Entity)
+    fun to(value: Entity)
 
     fun attribute(body: AttributeBuilder<C>.() -> Unit)
 
@@ -100,7 +100,7 @@ interface RelationshipBuilder<out C> {
 
     fun attribute(ref: AttributeRef)
 
-    fun attribute(attribute: Attribute)
+    fun attribute(value: Attribute)
 
     fun attributes(attributes: List<Attribute>)
 
@@ -121,7 +121,7 @@ interface RelationshipBuilder<out C> {
 interface AttributeBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun type(body: TypeBuilder<C>.() -> Unit)
 
@@ -129,7 +129,7 @@ interface AttributeBuilder<out C> {
 
     fun type(ref: TypeRef)
 
-    fun type(type: Type)
+    fun type(value: Type)
 
     fun include(body: AttributeBuilder<C>.() -> Unit)
 
@@ -148,9 +148,9 @@ interface AttributeBuilder<out C> {
 interface TypeBuilder<out C> {
     val context: C
 
-    fun type(type: RawType)
+    fun type(value: RawType)
 
-    fun nullable(nullable: Boolean)
+    fun nullable(value: Boolean)
 
     fun include(body: TypeBuilder<C>.() -> Unit)
 
