@@ -1,7 +1,6 @@
 package io.philarios.structurizr
 
 import io.philarios.schema.*
-import io.philarios.schema.sugar.*
 
 val structurizrSchema = SchemaSpec<Any?> {
     name("Structurizr")

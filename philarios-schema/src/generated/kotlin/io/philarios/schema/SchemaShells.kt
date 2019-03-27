@@ -1,7 +1,7 @@
 package io.philarios.schema
 
-import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
+import io.philarios.util.registry.Registry
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.List

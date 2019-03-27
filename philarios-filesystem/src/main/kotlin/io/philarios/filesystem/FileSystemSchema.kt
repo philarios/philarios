@@ -1,7 +1,6 @@
 package io.philarios.filesystem
 
 import io.philarios.schema.*
-import io.philarios.schema.sugar.*
 
 val fileSystemSchema = SchemaSpec<Any?> {
     name("FileSystem")
