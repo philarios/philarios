@@ -1,4 +1,4 @@
-package io.philarios.jsonschema
+package io.philarios.jsonschema.gateways.reader
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -11,9 +11,10 @@ import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import io.philarios.jsonschema.entities.*
 import java.io.InputStream
 
-fun read(inputStream: InputStream): JsonSchema {
+fun readJsonSchema(inputStream: InputStream): JsonSchema {
 
     val deserializerModule = SimpleModule()
             .addDeserializer(JsonSchema::class.java, object : JsonDeserializer<JsonSchema>() {

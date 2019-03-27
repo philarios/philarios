@@ -1,4 +1,4 @@
-package io.philarios.jsonschema
+package io.philarios.jsonschema.entities
 
 import io.philarios.core.contextOf
 import io.philarios.core.map
@@ -8,7 +8,6 @@ import io.philarios.schema.Schema
 import io.philarios.schema.SchemaScaffolder
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.invoking
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek

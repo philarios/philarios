@@ -1,4 +1,4 @@
-package io.philarios.jsonschema
+package io.philarios.jsonschema.entities
 
 import kotlin.String
 import kotlin.collections.Map

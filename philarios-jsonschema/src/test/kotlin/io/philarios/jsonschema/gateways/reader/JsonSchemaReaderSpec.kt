@@ -1,5 +1,9 @@
-package io.philarios.jsonschema
+package io.philarios.jsonschema.gateways.reader
 
+import io.philarios.jsonschema.entities.JsonSchema
+import io.philarios.jsonschema.entities.JsonSchemaBoolean
+import io.philarios.jsonschema.entities.JsonSchemaObject
+import io.philarios.jsonschema.entities.TypeSimpleTypeArray
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldHaveKey
@@ -9,7 +13,7 @@ import org.spekframework.spek2.style.specification.describe
 
 class JsonSchemaReaderSpec : Spek({
 
-    describe("read") {
+    describe("readJsonSchema") {
         it("empty schema json") {
             val jsonSchema = executeRead("empty_schema.json")
             
@@ -90,5 +94,5 @@ class JsonSchemaReaderSpec : Spek({
 
 fun executeRead(filename: String): JsonSchema {
     val input = ClassLoader.getSystemResourceAsStream(filename)
-    return read(input)
+    return readJsonSchema(input)
 }

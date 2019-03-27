@@ -1,4 +1,4 @@
-package io.philarios.jsonschema
+package io.philarios.jsonschema.entities
 
 import io.philarios.schema.*
 import io.philarios.schema.Type

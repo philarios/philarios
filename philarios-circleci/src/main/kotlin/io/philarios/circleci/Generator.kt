@@ -2,7 +2,7 @@ package io.philarios.circleci
 
 import io.philarios.jsonschema.JsonSchemaGenerationMetadata
 import io.philarios.jsonschema.generateSchema
-import io.philarios.jsonschema.Type as JsonSchemaType
+import io.philarios.jsonschema.entities.Type as JsonSchemaType
 
 suspend fun main() = generateSchema(JsonSchemaGenerationMetadata(
         "circleciconfig.json",
