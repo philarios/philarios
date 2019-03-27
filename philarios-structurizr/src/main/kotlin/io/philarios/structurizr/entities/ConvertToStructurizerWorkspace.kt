@@ -1,5 +1,7 @@
-package io.philarios.structurizr
+package io.philarios.structurizr.entities
 
+import io.philarios.structurizr.Location
+import io.philarios.structurizr.Workspace
 import com.structurizr.Workspace as SWorkspace
 import com.structurizr.model.Location as SLocation
 import com.structurizr.model.Model as SModel
@@ -35,10 +37,6 @@ fun Workspace.convert() = SWorkspace(name, description).also {
             }
         }
     }
-}
-
-private fun Model.convert(): Model {
-    TODO("not implemented")
 }
 
 private fun Location.convert() = when (this) {

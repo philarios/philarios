@@ -1,6 +1,5 @@
 package io.philarios.structurizr
 
-
 val workspace = WorkspaceSpec<Any?> {
     name("Test")
     description("This is a test workspace")
