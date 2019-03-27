@@ -18,7 +18,7 @@ interface ConfigurationBuilder<out C> {
 
     fun resource(ref: ResourceRef)
 
-    fun resource(resource: Resource)
+    fun resource(value: Resource)
 
     fun resources(resources: List<Resource>)
 
@@ -28,7 +28,7 @@ interface ConfigurationBuilder<out C> {
 
     fun dataSource(ref: DataSourceRef)
 
-    fun dataSource(dataSource: DataSource)
+    fun dataSource(value: DataSource)
 
     fun dataSources(dataSources: List<DataSource>)
 
@@ -38,7 +38,7 @@ interface ConfigurationBuilder<out C> {
 
     fun provider(ref: ProviderRef)
 
-    fun provider(provider: Provider)
+    fun provider(value: Provider)
 
     fun providers(providers: List<Provider>)
 
@@ -48,7 +48,7 @@ interface ConfigurationBuilder<out C> {
 
     fun variable(ref: VariableRef)
 
-    fun variable(variable: Variable)
+    fun variable(value: Variable)
 
     fun variables(variables: List<Variable>)
 
@@ -58,7 +58,7 @@ interface ConfigurationBuilder<out C> {
 
     fun output(ref: OutputRef)
 
-    fun output(output: Output)
+    fun output(value: Output)
 
     fun outputs(outputs: List<Output>)
 
@@ -79,9 +79,9 @@ interface ConfigurationBuilder<out C> {
 interface ResourceBuilder<out C> {
     val context: C
 
-    fun type(type: String)
+    fun type(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun config(key: String, value: Any)
 
@@ -106,9 +106,9 @@ interface ResourceBuilder<out C> {
 interface DataSourceBuilder<out C> {
     val context: C
 
-    fun type(type: String)
+    fun type(value: String)
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun config(key: String, value: Any)
 
@@ -133,7 +133,7 @@ interface DataSourceBuilder<out C> {
 interface ProviderBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun config(key: String, value: Any)
 
@@ -158,11 +158,11 @@ interface ProviderBuilder<out C> {
 interface VariableBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun type(type: String)
+    fun type(value: String)
 
-    fun default(default: Any)
+    fun default(value: Any)
 
     fun include(body: VariableBuilder<C>.() -> Unit)
 
@@ -181,7 +181,7 @@ interface VariableBuilder<out C> {
 interface OutputBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun value(value: Any)
 

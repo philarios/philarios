@@ -12,19 +12,19 @@ import kotlin.collections.Map
 @DslBuilder
 internal class ConfigurationShellBuilder<out C>(override val context: C, internal var shell: ConfigurationShell = ConfigurationShell()) : ConfigurationBuilder<C> {
     override fun resource(body: ResourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceSpec<C>(body).connect(context))
+        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder<C>(ResourceSpec<C>(body)).createScaffold(context))
     }
 
     override fun resource(spec: ResourceSpec<C>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + spec.connect(context))
+        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun resource(ref: ResourceRef) {
         shell = shell.copy(resources = shell.resources.orEmpty() + ref)
     }
 
-    override fun resource(resource: Resource) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + Wrapper(resource))
+    override fun resource(value: Resource) {
+        shell = shell.copy(resources = shell.resources.orEmpty() + Wrapper(value))
     }
 
     override fun resources(resources: List<Resource>) {
@@ -32,19 +32,19 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
     }
 
     override fun dataSource(body: DataSourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceSpec<C>(body).connect(context))
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder<C>(DataSourceSpec<C>(body)).createScaffold(context))
     }
 
     override fun dataSource(spec: DataSourceSpec<C>) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + spec.connect(context))
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun dataSource(ref: DataSourceRef) {
         shell = shell.copy(dataSources = shell.dataSources.orEmpty() + ref)
     }
 
-    override fun dataSource(dataSource: DataSource) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + Wrapper(dataSource))
+    override fun dataSource(value: DataSource) {
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + Wrapper(value))
     }
 
     override fun dataSources(dataSources: List<DataSource>) {
@@ -52,19 +52,19 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
     }
 
     override fun provider(body: ProviderBuilder<C>.() -> Unit) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderSpec<C>(body).connect(context))
+        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder<C>(ProviderSpec<C>(body)).createScaffold(context))
     }
 
     override fun provider(spec: ProviderSpec<C>) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + spec.connect(context))
+        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun provider(ref: ProviderRef) {
         shell = shell.copy(providers = shell.providers.orEmpty() + ref)
     }
 
-    override fun provider(provider: Provider) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + Wrapper(provider))
+    override fun provider(value: Provider) {
+        shell = shell.copy(providers = shell.providers.orEmpty() + Wrapper(value))
     }
 
     override fun providers(providers: List<Provider>) {
@@ -72,19 +72,19 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
     }
 
     override fun variable(body: VariableBuilder<C>.() -> Unit) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + VariableSpec<C>(body).connect(context))
+        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder<C>(VariableSpec<C>(body)).createScaffold(context))
     }
 
     override fun variable(spec: VariableSpec<C>) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + spec.connect(context))
+        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun variable(ref: VariableRef) {
         shell = shell.copy(variables = shell.variables.orEmpty() + ref)
     }
 
-    override fun variable(variable: Variable) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + Wrapper(variable))
+    override fun variable(value: Variable) {
+        shell = shell.copy(variables = shell.variables.orEmpty() + Wrapper(value))
     }
 
     override fun variables(variables: List<Variable>) {
@@ -92,19 +92,19 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
     }
 
     override fun output(body: OutputBuilder<C>.() -> Unit) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputSpec<C>(body).connect(context))
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder<C>(OutputSpec<C>(body)).createScaffold(context))
     }
 
     override fun output(spec: OutputSpec<C>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + spec.connect(context))
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder<C>(spec).createScaffold(context))
     }
 
     override fun output(ref: OutputRef) {
         shell = shell.copy(outputs = shell.outputs.orEmpty() + ref)
     }
 
-    override fun output(output: Output) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + Wrapper(output))
+    override fun output(value: Output) {
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + Wrapper(value))
     }
 
     override fun outputs(outputs: List<Output>) {
@@ -148,24 +148,24 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
 
 @DslBuilder
 internal class ResourceShellBuilder<out C>(override val context: C, internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder<C> {
-    override fun type(type: String) {
-        shell = shell.copy(type = type)
+    override fun type(value: String) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(key,value))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(pair.first,pair.second))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config)
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
 
     override fun include(body: ResourceBuilder<C>.() -> Unit) {
@@ -205,24 +205,24 @@ internal class ResourceShellBuilder<out C>(override val context: C, internal var
 
 @DslBuilder
 internal class DataSourceShellBuilder<out C>(override val context: C, internal var shell: DataSourceShell = DataSourceShell()) : DataSourceBuilder<C> {
-    override fun type(type: String) {
-        shell = shell.copy(type = type)
+    override fun type(value: String) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(key,value))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(pair.first,pair.second))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config)
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
 
     override fun include(body: DataSourceBuilder<C>.() -> Unit) {
@@ -262,20 +262,20 @@ internal class DataSourceShellBuilder<out C>(override val context: C, internal v
 
 @DslBuilder
 internal class ProviderShellBuilder<out C>(override val context: C, internal var shell: ProviderShell = ProviderShell()) : ProviderBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(key,value))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(pair.first,pair.second))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config)
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
 
     override fun include(body: ProviderBuilder<C>.() -> Unit) {
@@ -315,16 +315,16 @@ internal class ProviderShellBuilder<out C>(override val context: C, internal var
 
 @DslBuilder
 internal class VariableShellBuilder<out C>(override val context: C, internal var shell: VariableShell = VariableShell()) : VariableBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun type(type: String) {
-        shell = shell.copy(type = type)
+    override fun type(value: String) {
+        shell = shell.copy(type = Wrapper(value))
     }
 
-    override fun default(default: Any) {
-        shell = shell.copy(default = default)
+    override fun default(value: Any) {
+        shell = shell.copy(default = Wrapper(value))
     }
 
     override fun include(body: VariableBuilder<C>.() -> Unit) {
@@ -364,12 +364,12 @@ internal class VariableShellBuilder<out C>(override val context: C, internal var
 
 @DslBuilder
 internal class OutputShellBuilder<out C>(override val context: C, internal var shell: OutputShell = OutputShell()) : OutputBuilder<C> {
-    override fun name(name: String) {
-        shell = shell.copy(name = name)
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
     }
 
     override fun value(value: Any) {
-        shell = shell.copy(value = value)
+        shell = shell.copy(value = Wrapper(value))
     }
 
     override fun include(body: OutputBuilder<C>.() -> Unit) {
