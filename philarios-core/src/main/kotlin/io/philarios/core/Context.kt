@@ -1,5 +1,8 @@
 package io.philarios.core
 
+import io.philarios.util.registry.Registry
+import io.philarios.util.registry.emptyRegistry
+
 interface Context<out C> {
     val value: C
 }

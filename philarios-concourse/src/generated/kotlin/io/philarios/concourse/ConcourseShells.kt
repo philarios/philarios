@@ -1,6 +1,6 @@
 package io.philarios.concourse
 
-import io.philarios.core.Registry
+import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
 import kotlin.Any
 import kotlin.Boolean

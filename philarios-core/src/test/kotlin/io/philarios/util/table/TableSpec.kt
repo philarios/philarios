@@ -1,8 +1,8 @@
-package io.philarios.util
+package io.philarios.util.table
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.BehaviorSpec
-import io.philarios.util.emptyTable
+import io.philarios.util.table.emptyTable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 

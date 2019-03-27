@@ -1,6 +1,6 @@
 package io.philarios.filesystem
 
-import io.philarios.core.Registry
+import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
 import kotlin.String
 import kotlin.collections.List

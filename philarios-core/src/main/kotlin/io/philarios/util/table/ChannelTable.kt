@@ -1,4 +1,4 @@
-package io.philarios.util
+package io.philarios.util.table
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

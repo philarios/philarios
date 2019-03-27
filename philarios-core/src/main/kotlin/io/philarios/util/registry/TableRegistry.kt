@@ -1,7 +1,7 @@
-package io.philarios.core
+package io.philarios.util.registry
 
-import io.philarios.util.Table
-import io.philarios.util.emptyTable
+import io.philarios.util.table.Table
+import io.philarios.util.table.emptyTable
 import kotlin.reflect.KClass
 
 internal class TableRegistry : Registry {

@@ -1,6 +1,6 @@
 package io.philarios.domain.v0
 
-import io.philarios.core.Registry
+import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
 import kotlin.Boolean
 import kotlin.String

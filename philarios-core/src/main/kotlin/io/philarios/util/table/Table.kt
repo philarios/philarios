@@ -1,4 +1,4 @@
-package io.philarios.util
+package io.philarios.util.table
 
 interface Table<K, V> {
     suspend fun send(key: K, value: V)

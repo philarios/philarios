@@ -3,7 +3,7 @@ package io.philarios.schema.translators.codegen.types.shell
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import io.philarios.core.Registry
+import io.philarios.util.registry.Registry
 import io.philarios.schema.*
 import io.philarios.schema.translators.codegen.util.className
 import io.philarios.schema.translators.codegen.util.escapedName

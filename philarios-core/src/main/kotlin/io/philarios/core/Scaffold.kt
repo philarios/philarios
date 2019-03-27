@@ -1,5 +1,6 @@
 package io.philarios.core
 
+import io.philarios.util.registry.Registry
 import kotlin.reflect.KClass
 
 interface Scaffolder<in C, out T : Any> {

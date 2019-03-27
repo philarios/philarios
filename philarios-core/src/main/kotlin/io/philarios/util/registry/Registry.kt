@@ -1,4 +1,4 @@
-package io.philarios.core
+package io.philarios.util.registry
 
 import kotlin.reflect.KClass
 
