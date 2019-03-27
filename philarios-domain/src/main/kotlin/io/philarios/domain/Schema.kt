@@ -4,7 +4,7 @@ import io.philarios.schema.*
 
 val domainSchema = SchemaSpec<Any?> {
     name("Domain")
-    pkg("io.philarios.domain.v0")
+    pkg("io.philarios.domain")
 
     type(StructSpec {
         name("Domain")

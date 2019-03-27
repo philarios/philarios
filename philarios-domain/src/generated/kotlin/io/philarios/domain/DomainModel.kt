@@ -1,4 +1,4 @@
-package io.philarios.domain.v0
+package io.philarios.domain
 
 import kotlin.Boolean
 import kotlin.String

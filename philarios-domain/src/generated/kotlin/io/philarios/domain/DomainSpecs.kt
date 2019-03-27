@@ -1,4 +1,4 @@
-package io.philarios.domain.v0
+package io.philarios.domain
 
 class DomainSpec<in C>(internal val body: DomainBuilder<C>.() -> Unit)
 

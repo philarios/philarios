@@ -1,4 +1,4 @@
-package io.philarios.domain.v0
+package io.philarios.domain
 
 import io.philarios.core.DslBuilder
 import io.philarios.core.Wrapper
