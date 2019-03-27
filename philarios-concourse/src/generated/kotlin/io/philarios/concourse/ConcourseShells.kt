@@ -1,7 +1,7 @@
 package io.philarios.concourse
 
-import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
+import io.philarios.util.registry.Registry
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
@@ -11,57 +11,68 @@ import kotlin.collections.Map
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-internal data class ConcourseShell(var teams: List<Scaffold<Team>> = emptyList()) : Scaffold<Concourse> {
+internal data class ConcourseShell(var teams: List<Scaffold<Team>>? = null) : Scaffold<Concourse> {
     override suspend fun resolve(registry: Registry): Concourse {
         coroutineScope {
-        	teams.forEach { launch { it.resolve(registry) } }
+            teams?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
-        val value = Concourse(teams.map { it.resolve(registry) })
+        val value = Concourse(
+            teams.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
         return value
     }
 }
 
-internal data class TeamShell(var name: String? = null, var pipelines: List<Scaffold<Pipeline>> = emptyList()) : Scaffold<Team> {
+internal data class TeamShell(var name: Scaffold<String>? = null, var pipelines: List<Scaffold<Pipeline>>? = null) : Scaffold<Team> {
     override suspend fun resolve(registry: Registry): Team {
         checkNotNull(name) { "Team is missing the name property" }
         coroutineScope {
-        	pipelines.forEach { launch { it.resolve(registry) } }
+            pipelines?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
-        val value = Team(name!!,pipelines.map { it.resolve(registry) })
+        val value = Team(
+            name!!.let{ it.resolve(registry) },
+            pipelines.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
         return value
     }
 }
 
 internal data class PipelineShell(
-        var name: String? = null,
-        var jobs: List<Scaffold<Job>> = emptyList(),
-        var resources: List<Scaffold<Resource>> = emptyList(),
-        var resource_types: List<Scaffold<ResourceType>> = emptyList(),
-        var groups: List<Scaffold<Group>> = emptyList()
+        var name: Scaffold<String>? = null,
+        var jobs: List<Scaffold<Job>>? = null,
+        var resources: List<Scaffold<Resource>>? = null,
+        var resource_types: List<Scaffold<ResourceType>>? = null,
+        var groups: List<Scaffold<Group>>? = null
 ) : Scaffold<Pipeline> {
     override suspend fun resolve(registry: Registry): Pipeline {
         checkNotNull(name) { "Pipeline is missing the name property" }
         coroutineScope {
-        	jobs.forEach { launch { it.resolve(registry) } }
-        	resources.forEach { launch { it.resolve(registry) } }
-        	resource_types.forEach { launch { it.resolve(registry) } }
-        	groups.forEach { launch { it.resolve(registry) } }
+            jobs?.let{ it.forEach { launch { it.resolve(registry) } } }
+            resources?.let{ it.forEach { launch { it.resolve(registry) } } }
+            resource_types?.let{ it.forEach { launch { it.resolve(registry) } } }
+            groups?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
-        val value = Pipeline(name!!,jobs.map { it.resolve(registry) },resources.map { it.resolve(registry) },resource_types.map { it.resolve(registry) },groups.map { it.resolve(registry) })
+        val value = Pipeline(
+            name!!.let{ it.resolve(registry) },
+            jobs.orEmpty().let{ it.map { it.resolve(registry) } },
+            resources.orEmpty().let{ it.map { it.resolve(registry) } },
+            resource_types.orEmpty().let{ it.map { it.resolve(registry) } },
+            groups.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
         return value
     }
 }
 
 internal data class JobShell(
-        var name: String? = null,
-        var plan: List<Scaffold<Step>> = emptyList(),
-        var serial: Boolean? = null,
-        var build_logs_to_retain: Int? = null,
-        var serial_groups: List<String> = emptyList(),
-        var max_in_flight: Int? = null,
-        var public: Boolean? = null,
-        var disable_manual_trigger: Boolean? = null,
-        var interruptible: Boolean? = null,
+        var name: Scaffold<String>? = null,
+        var plan: List<Scaffold<Step>>? = null,
+        var serial: Scaffold<Boolean>? = null,
+        var build_logs_to_retain: Scaffold<Int>? = null,
+        var serial_groups: List<Scaffold<String>>? = null,
+        var max_in_flight: Scaffold<Int>? = null,
+        var public: Scaffold<Boolean>? = null,
+        var disable_manual_trigger: Scaffold<Boolean>? = null,
+        var interruptible: Scaffold<Boolean>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
@@ -70,13 +81,27 @@ internal data class JobShell(
     override suspend fun resolve(registry: Registry): Job {
         checkNotNull(name) { "Job is missing the name property" }
         coroutineScope {
-        	plan.forEach { launch { it.resolve(registry) } }
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            plan?.let{ it.forEach { launch { it.resolve(registry) } } }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Job(name!!,plan.map { it.resolve(registry) },serial,build_logs_to_retain,serial_groups,max_in_flight,public,disable_manual_trigger,interruptible,on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry))
+        val value = Job(
+            name!!.let{ it.resolve(registry) },
+            plan.orEmpty().let{ it.map { it.resolve(registry) } },
+            serial?.let{ it.resolve(registry) },
+            build_logs_to_retain?.let{ it.resolve(registry) },
+            serial_groups.orEmpty().let{ it.map { it.resolve(registry) } },
+            max_in_flight?.let{ it.resolve(registry) },
+            public?.let{ it.resolve(registry) },
+            disable_manual_trigger?.let{ it.resolve(registry) },
+            interruptible?.let{ it.resolve(registry) },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
@@ -84,133 +109,193 @@ internal data class JobShell(
 internal sealed class StepShell
 
 internal data class GetShell(
-        var get: String? = null,
-        var resource: String? = null,
-        var version: String? = null,
-        var passed: List<String> = emptyList(),
-        var params: Map<String, Any>? = emptyMap(),
-        var trigger: Boolean? = null,
+        var get: Scaffold<String>? = null,
+        var resource: Scaffold<String>? = null,
+        var version: Scaffold<String>? = null,
+        var passed: List<Scaffold<String>>? = null,
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var trigger: Scaffold<Boolean>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Get> {
     override suspend fun resolve(registry: Registry): Get {
         checkNotNull(get) { "Get is missing the get property" }
         coroutineScope {
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Get(get!!,resource,version,passed,params!!,trigger,on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Get(
+            get!!.let{ it.resolve(registry) },
+            resource?.let{ it.resolve(registry) },
+            version?.let{ it.resolve(registry) },
+            passed.orEmpty().let{ it.map { it.resolve(registry) } },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            trigger?.let{ it.resolve(registry) },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class PutShell(
-        var put: String? = null,
-        var resource: String? = null,
-        var params: Map<String, Any>? = emptyMap(),
-        var get_params: Map<String, Any>? = emptyMap(),
+        var put: Scaffold<String>? = null,
+        var resource: Scaffold<String>? = null,
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var get_params: Map<Scaffold<String>, Scaffold<Any>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Put> {
     override suspend fun resolve(registry: Registry): Put {
         checkNotNull(put) { "Put is missing the put property" }
         coroutineScope {
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Put(put!!,resource,params!!,get_params!!,on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Put(
+            put!!.let{ it.resolve(registry) },
+            resource?.let{ it.resolve(registry) },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            get_params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class TaskShell(
-        var task: String? = null,
+        var task: Scaffold<String>? = null,
         var config: Scaffold<TaskConfig>? = null,
-        var file: String? = null,
-        var privileged: String? = null,
-        var params: Map<String, Any>? = emptyMap(),
-        var image: String? = null,
-        var input_mapping: Map<String, String>? = emptyMap(),
-        var output_mapping: Map<String, String>? = emptyMap(),
+        var file: Scaffold<String>? = null,
+        var privileged: Scaffold<String>? = null,
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var image: Scaffold<String>? = null,
+        var input_mapping: Map<Scaffold<String>, Scaffold<String>>? = null,
+        var output_mapping: Map<Scaffold<String>, Scaffold<String>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Task> {
     override suspend fun resolve(registry: Registry): Task {
         checkNotNull(task) { "Task is missing the task property" }
         checkNotNull(config) { "Task is missing the config property" }
         coroutineScope {
-        	launch { config!!.resolve(registry) }
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            config?.let{ launch { it.resolve(registry) } }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Task(task!!,config!!.resolve(registry),file,privileged,params!!,image,input_mapping!!,output_mapping!!,on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Task(
+            task!!.let{ it.resolve(registry) },
+            config!!.let{ it.resolve(registry) },
+            file?.let{ it.resolve(registry) },
+            privileged?.let{ it.resolve(registry) },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            image?.let{ it.resolve(registry) },
+            input_mapping.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            output_mapping.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class AggregateShell(
-        var aggregate: List<Scaffold<Step>> = emptyList(),
+        var aggregate: List<Scaffold<Step>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Aggregate> {
     override suspend fun resolve(registry: Registry): Aggregate {
         coroutineScope {
-        	aggregate.forEach { launch { it.resolve(registry) } }
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            aggregate?.let{ it.forEach { launch { it.resolve(registry) } } }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Aggregate(aggregate.map { it.resolve(registry) },on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Aggregate(
+            aggregate.orEmpty().let{ it.map { it.resolve(registry) } },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class DoShell(
-        var `do`: List<Scaffold<Step>> = emptyList(),
+        var `do`: List<Scaffold<Step>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Do> {
     override suspend fun resolve(registry: Registry): Do {
         coroutineScope {
-        	`do`.forEach { launch { it.resolve(registry) } }
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            `do`?.let{ it.forEach { launch { it.resolve(registry) } } }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Do(`do`.map { it.resolve(registry) },on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Do(
+            `do`.orEmpty().let{ it.map { it.resolve(registry) } },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
@@ -221,143 +306,198 @@ internal data class TryShell(
         var on_failure: Scaffold<Step>? = null,
         var on_abort: Scaffold<Step>? = null,
         var ensure: Scaffold<Step>? = null,
-        var tags: List<String> = emptyList(),
-        var timeout: String? = null,
-        var attempts: Int? = null
+        var tags: List<Scaffold<String>>? = null,
+        var timeout: Scaffold<String>? = null,
+        var attempts: Scaffold<Int>? = null
 ) : StepShell(), Scaffold<Try> {
     override suspend fun resolve(registry: Registry): Try {
         checkNotNull(`try`) { "Try is missing the try property" }
         coroutineScope {
-        	launch { `try`!!.resolve(registry) }
-        	launch { on_success?.resolve(registry) }
-        	launch { on_failure?.resolve(registry) }
-        	launch { on_abort?.resolve(registry) }
-        	launch { ensure?.resolve(registry) }
+            `try`?.let{ launch { it.resolve(registry) } }
+            on_success?.let{ launch { it.resolve(registry) } }
+            on_failure?.let{ launch { it.resolve(registry) } }
+            on_abort?.let{ launch { it.resolve(registry) } }
+            ensure?.let{ launch { it.resolve(registry) } }
         }
-        val value = Try(`try`!!.resolve(registry),on_success?.resolve(registry),on_failure?.resolve(registry),on_abort?.resolve(registry),ensure?.resolve(registry),tags,timeout,attempts)
+        val value = Try(
+            `try`!!.let{ it.resolve(registry) },
+            on_success?.let{ it.resolve(registry) },
+            on_failure?.let{ it.resolve(registry) },
+            on_abort?.let{ it.resolve(registry) },
+            ensure?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            timeout?.let{ it.resolve(registry) },
+            attempts?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class TaskConfigShell(
-        var platform: String? = null,
+        var platform: Scaffold<String>? = null,
         var image_resource: Scaffold<TaskResource>? = null,
-        var rootfs_uri: String? = null,
-        var inputs: List<Scaffold<TaskInput>> = emptyList(),
-        var outputs: List<Scaffold<TaskOutput>> = emptyList(),
-        var caches: List<Scaffold<TaskCache>> = emptyList(),
+        var rootfs_uri: Scaffold<String>? = null,
+        var inputs: List<Scaffold<TaskInput>>? = null,
+        var outputs: List<Scaffold<TaskOutput>>? = null,
+        var caches: List<Scaffold<TaskCache>>? = null,
         var run: Scaffold<TaskRunConfig>? = null,
-        var params: Map<String, Any>? = emptyMap()
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null
 ) : Scaffold<TaskConfig> {
     override suspend fun resolve(registry: Registry): TaskConfig {
         checkNotNull(platform) { "TaskConfig is missing the platform property" }
         checkNotNull(image_resource) { "TaskConfig is missing the image_resource property" }
         coroutineScope {
-        	launch { image_resource!!.resolve(registry) }
-        	inputs.forEach { launch { it.resolve(registry) } }
-        	outputs.forEach { launch { it.resolve(registry) } }
-        	caches.forEach { launch { it.resolve(registry) } }
-        	launch { run?.resolve(registry) }
+            image_resource?.let{ launch { it.resolve(registry) } }
+            inputs?.let{ it.forEach { launch { it.resolve(registry) } } }
+            outputs?.let{ it.forEach { launch { it.resolve(registry) } } }
+            caches?.let{ it.forEach { launch { it.resolve(registry) } } }
+            run?.let{ launch { it.resolve(registry) } }
         }
-        val value = TaskConfig(platform!!,image_resource!!.resolve(registry),rootfs_uri,inputs.map { it.resolve(registry) },outputs.map { it.resolve(registry) },caches.map { it.resolve(registry) },run?.resolve(registry),params!!)
+        val value = TaskConfig(
+            platform!!.let{ it.resolve(registry) },
+            image_resource!!.let{ it.resolve(registry) },
+            rootfs_uri?.let{ it.resolve(registry) },
+            inputs.orEmpty().let{ it.map { it.resolve(registry) } },
+            outputs.orEmpty().let{ it.map { it.resolve(registry) } },
+            caches.orEmpty().let{ it.map { it.resolve(registry) } },
+            run?.let{ it.resolve(registry) },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() }
+        )
         return value
     }
 }
 
 internal data class TaskResourceShell(
-        var type: String? = null,
-        var source: Map<String, Any>? = emptyMap(),
-        var params: Map<String, Any>? = emptyMap(),
-        var version: Map<String, String>? = emptyMap()
+        var type: Scaffold<String>? = null,
+        var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var version: Map<Scaffold<String>, Scaffold<String>>? = null
 ) : Scaffold<TaskResource> {
     override suspend fun resolve(registry: Registry): TaskResource {
         checkNotNull(type) { "TaskResource is missing the type property" }
-        val value = TaskResource(type!!,source!!,params!!,version!!)
+        val value = TaskResource(
+            type!!.let{ it.resolve(registry) },
+            source.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            version.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() }
+        )
         return value
     }
 }
 
 internal data class TaskInputShell(
-        var name: String? = null,
-        var path: String? = null,
-        var optional: Boolean? = null
+        var name: Scaffold<String>? = null,
+        var path: Scaffold<String>? = null,
+        var optional: Scaffold<Boolean>? = null
 ) : Scaffold<TaskInput> {
     override suspend fun resolve(registry: Registry): TaskInput {
         checkNotNull(name) { "TaskInput is missing the name property" }
-        val value = TaskInput(name!!,path,optional)
+        val value = TaskInput(
+            name!!.let{ it.resolve(registry) },
+            path?.let{ it.resolve(registry) },
+            optional?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
-internal data class TaskOutputShell(var name: String? = null, var path: String? = null) : Scaffold<TaskOutput> {
+internal data class TaskOutputShell(var name: Scaffold<String>? = null, var path: Scaffold<String>? = null) : Scaffold<TaskOutput> {
     override suspend fun resolve(registry: Registry): TaskOutput {
         checkNotNull(name) { "TaskOutput is missing the name property" }
-        val value = TaskOutput(name!!,path)
+        val value = TaskOutput(
+            name!!.let{ it.resolve(registry) },
+            path?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
-internal data class TaskCacheShell(var path: String? = null) : Scaffold<TaskCache> {
+internal data class TaskCacheShell(var path: Scaffold<String>? = null) : Scaffold<TaskCache> {
     override suspend fun resolve(registry: Registry): TaskCache {
         checkNotNull(path) { "TaskCache is missing the path property" }
-        val value = TaskCache(path!!)
+        val value = TaskCache(
+            path!!.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class TaskRunConfigShell(
-        var path: String? = null,
-        var args: List<String> = emptyList(),
-        var dir: String? = null,
-        var user: String? = null
+        var path: Scaffold<String>? = null,
+        var args: List<Scaffold<String>>? = null,
+        var dir: Scaffold<String>? = null,
+        var user: Scaffold<String>? = null
 ) : Scaffold<TaskRunConfig> {
     override suspend fun resolve(registry: Registry): TaskRunConfig {
         checkNotNull(path) { "TaskRunConfig is missing the path property" }
-        val value = TaskRunConfig(path!!,args,dir,user)
+        val value = TaskRunConfig(
+            path!!.let{ it.resolve(registry) },
+            args.orEmpty().let{ it.map { it.resolve(registry) } },
+            dir?.let{ it.resolve(registry) },
+            user?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class ResourceShell(
-        var name: String? = null,
-        var type: String? = null,
-        var source: Map<String, Any>? = emptyMap(),
-        var check_every: String? = null,
-        var tags: List<String> = emptyList(),
-        var webhook_token: String? = null
+        var name: Scaffold<String>? = null,
+        var type: Scaffold<String>? = null,
+        var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var check_every: Scaffold<String>? = null,
+        var tags: List<Scaffold<String>>? = null,
+        var webhook_token: Scaffold<String>? = null
 ) : Scaffold<Resource> {
     override suspend fun resolve(registry: Registry): Resource {
         checkNotNull(name) { "Resource is missing the name property" }
         checkNotNull(type) { "Resource is missing the type property" }
-        val value = Resource(name!!,type!!,source!!,check_every,tags,webhook_token)
+        val value = Resource(
+            name!!.let{ it.resolve(registry) },
+            type!!.let{ it.resolve(registry) },
+            source.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            check_every?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } },
+            webhook_token?.let{ it.resolve(registry) }
+        )
         return value
     }
 }
 
 internal data class ResourceTypeShell(
-        var name: String? = null,
-        var type: String? = null,
-        var source: Map<String, Any>? = emptyMap(),
-        var privileged: Boolean? = null,
-        var params: Map<String, Any>? = emptyMap(),
-        var tags: List<String> = emptyList()
+        var name: Scaffold<String>? = null,
+        var type: Scaffold<String>? = null,
+        var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var privileged: Scaffold<Boolean>? = null,
+        var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<ResourceType> {
     override suspend fun resolve(registry: Registry): ResourceType {
         checkNotNull(name) { "ResourceType is missing the name property" }
         checkNotNull(type) { "ResourceType is missing the type property" }
-        val value = ResourceType(name!!,type!!,source!!,privileged,params!!,tags)
+        val value = ResourceType(
+            name!!.let{ it.resolve(registry) },
+            type!!.let{ it.resolve(registry) },
+            source.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            privileged?.let{ it.resolve(registry) },
+            params.orEmpty().let{ it.map { Pair(it.key.let { it.resolve(registry) }, it.value.let { it.resolve(registry) }) }.toMap() },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
         return value
     }
 }
 
 internal data class GroupShell(
-        var name: String? = null,
-        var jobs: List<String> = emptyList(),
-        var resources: List<String> = emptyList()
+        var name: Scaffold<String>? = null,
+        var jobs: List<Scaffold<String>>? = null,
+        var resources: List<Scaffold<String>>? = null
 ) : Scaffold<Group> {
     override suspend fun resolve(registry: Registry): Group {
         checkNotNull(name) { "Group is missing the name property" }
-        val value = Group(name!!,jobs,resources)
+        val value = Group(
+            name!!.let{ it.resolve(registry) },
+            jobs.orEmpty().let{ it.map { it.resolve(registry) } },
+            resources.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
         return value
     }
 }

@@ -11,17 +11,25 @@ class PipelineRef(key: String) : Scaffold<Pipeline> by io.philarios.core.Registr
 
 class JobRef(key: String) : Scaffold<Job> by io.philarios.core.RegistryRef(io.philarios.concourse.Job::class, key)
 
-class GetRef(key: String) : Scaffold<Get> by io.philarios.core.RegistryRef(io.philarios.concourse.Get::class, key)
+sealed class StepRef<T : Step> : Scaffold<T>
 
-class PutRef(key: String) : Scaffold<Put> by io.philarios.core.RegistryRef(io.philarios.concourse.Put::class, key)
+class GetRef(key: String) : StepRef<Get>(),
+        Scaffold<Get> by io.philarios.core.RegistryRef(io.philarios.concourse.Get::class, key)
 
-class TaskRef(key: String) : Scaffold<Task> by io.philarios.core.RegistryRef(io.philarios.concourse.Task::class, key)
+class PutRef(key: String) : StepRef<Put>(),
+        Scaffold<Put> by io.philarios.core.RegistryRef(io.philarios.concourse.Put::class, key)
 
-class AggregateRef(key: String) : Scaffold<Aggregate> by io.philarios.core.RegistryRef(io.philarios.concourse.Aggregate::class, key)
+class TaskRef(key: String) : StepRef<Task>(),
+        Scaffold<Task> by io.philarios.core.RegistryRef(io.philarios.concourse.Task::class, key)
 
-class DoRef(key: String) : Scaffold<Do> by io.philarios.core.RegistryRef(io.philarios.concourse.Do::class, key)
+class AggregateRef(key: String) : StepRef<Aggregate>(),
+        Scaffold<Aggregate> by io.philarios.core.RegistryRef(io.philarios.concourse.Aggregate::class, key)
 
-class TryRef(key: String) : Scaffold<Try> by io.philarios.core.RegistryRef(io.philarios.concourse.Try::class, key)
+class DoRef(key: String) : StepRef<Do>(),
+        Scaffold<Do> by io.philarios.core.RegistryRef(io.philarios.concourse.Do::class, key)
+
+class TryRef(key: String) : StepRef<Try>(),
+        Scaffold<Try> by io.philarios.core.RegistryRef(io.philarios.concourse.Try::class, key)
 
 class TaskConfigRef(key: String) : Scaffold<TaskConfig> by io.philarios.core.RegistryRef(io.philarios.concourse.TaskConfig::class, key)
 

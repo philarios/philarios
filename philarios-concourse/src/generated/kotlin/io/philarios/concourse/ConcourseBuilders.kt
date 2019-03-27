@@ -20,7 +20,7 @@ interface ConcourseBuilder<out C> {
 
     fun team(ref: TeamRef)
 
-    fun team(team: Team)
+    fun team(value: Team)
 
     fun teams(teams: List<Team>)
 
@@ -41,7 +41,7 @@ interface ConcourseBuilder<out C> {
 interface TeamBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun pipeline(body: PipelineBuilder<C>.() -> Unit)
 
@@ -49,7 +49,7 @@ interface TeamBuilder<out C> {
 
     fun pipeline(ref: PipelineRef)
 
-    fun pipeline(pipeline: Pipeline)
+    fun pipeline(value: Pipeline)
 
     fun pipelines(pipelines: List<Pipeline>)
 
@@ -70,7 +70,7 @@ interface TeamBuilder<out C> {
 interface PipelineBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
     fun job(body: JobBuilder<C>.() -> Unit)
 
@@ -78,7 +78,7 @@ interface PipelineBuilder<out C> {
 
     fun job(ref: JobRef)
 
-    fun job(job: Job)
+    fun job(value: Job)
 
     fun jobs(jobs: List<Job>)
 
@@ -88,7 +88,7 @@ interface PipelineBuilder<out C> {
 
     fun resource(ref: ResourceRef)
 
-    fun resource(resource: Resource)
+    fun resource(value: Resource)
 
     fun resources(resources: List<Resource>)
 
@@ -98,7 +98,7 @@ interface PipelineBuilder<out C> {
 
     fun resource_type(ref: ResourceTypeRef)
 
-    fun resource_type(resource_type: ResourceType)
+    fun resource_type(value: ResourceType)
 
     fun resource_types(resource_types: List<ResourceType>)
 
@@ -108,7 +108,7 @@ interface PipelineBuilder<out C> {
 
     fun group(ref: GroupRef)
 
-    fun group(group: Group)
+    fun group(value: Group)
 
     fun groups(groups: List<Group>)
 
@@ -129,143 +129,53 @@ interface PipelineBuilder<out C> {
 interface JobBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun plan(spec: GetSpec<C>)
+    fun <T : Step> plan(spec: StepSpec<C, T>)
 
-    fun plan(ref: GetRef)
+    fun <T : Step> plan(ref: StepRef<T>)
 
-    fun plan(spec: PutSpec<C>)
+    fun <T : Step> plan(value: T)
 
-    fun plan(ref: PutRef)
+    fun serial(value: Boolean)
 
-    fun plan(spec: TaskSpec<C>)
+    fun build_logs_to_retain(value: Int)
 
-    fun plan(ref: TaskRef)
-
-    fun plan(spec: AggregateSpec<C>)
-
-    fun plan(ref: AggregateRef)
-
-    fun plan(spec: DoSpec<C>)
-
-    fun plan(ref: DoRef)
-
-    fun plan(spec: TrySpec<C>)
-
-    fun plan(ref: TryRef)
-
-    fun serial(serial: Boolean)
-
-    fun build_logs_to_retain(build_logs_to_retain: Int)
-
-    fun serial_group(serial_group: String)
+    fun serial_group(value: String)
 
     fun serial_groups(serial_groups: List<String>)
 
-    fun max_in_flight(max_in_flight: Int)
+    fun max_in_flight(value: Int)
 
-    fun public(public: Boolean)
+    fun public(value: Boolean)
 
-    fun disable_manual_trigger(disable_manual_trigger: Boolean)
+    fun disable_manual_trigger(value: Boolean)
 
-    fun interruptible(interruptible: Boolean)
+    fun interruptible(value: Boolean)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> on_success(value: T)
 
-    fun on_success(ref: PutRef)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TaskSpec<C>)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun on_success(ref: TaskRef)
+    fun <T : Step> on_failure(value: T)
 
-    fun on_success(spec: AggregateSpec<C>)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun on_success(ref: AggregateRef)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun on_success(spec: DoSpec<C>)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(ref: DoRef)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TrySpec<C>)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(ref: TryRef)
-
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
+    fun <T : Step> ensure(value: T)
 
     fun include(body: JobBuilder<C>.() -> Unit)
 
@@ -284,13 +194,13 @@ interface JobBuilder<out C> {
 interface GetBuilder<out C> {
     val context: C
 
-    fun get(get: String)
+    fun get(value: String)
 
-    fun resource(resource: String)
+    fun resource(value: String)
 
-    fun version(version: String)
+    fun version(value: String)
 
-    fun passed(passed: String)
+    fun passed(value: String)
 
     fun passed(passed: List<String>)
 
@@ -300,111 +210,39 @@ interface GetBuilder<out C> {
 
     fun params(params: Map<String, Any>)
 
-    fun trigger(trigger: Boolean)
+    fun trigger(value: Boolean)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> on_success(value: T)
 
-    fun on_success(ref: PutRef)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TaskSpec<C>)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun on_success(ref: TaskRef)
+    fun <T : Step> on_failure(value: T)
 
-    fun on_success(spec: AggregateSpec<C>)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun on_success(ref: AggregateRef)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun on_success(spec: DoSpec<C>)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(ref: DoRef)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TrySpec<C>)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(ref: TryRef)
+    fun <T : Step> ensure(value: T)
 
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: GetBuilder<C>.() -> Unit)
 
@@ -423,9 +261,9 @@ interface GetBuilder<out C> {
 interface PutBuilder<out C> {
     val context: C
 
-    fun put(put: String)
+    fun put(value: String)
 
-    fun resource(resource: String)
+    fun resource(value: String)
 
     fun params(key: String, value: Any)
 
@@ -439,109 +277,37 @@ interface PutBuilder<out C> {
 
     fun get_params(get_params: Map<String, Any>)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> on_success(value: T)
 
-    fun on_success(ref: PutRef)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TaskSpec<C>)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun on_success(ref: TaskRef)
+    fun <T : Step> on_failure(value: T)
 
-    fun on_success(spec: AggregateSpec<C>)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun on_success(ref: AggregateRef)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun on_success(spec: DoSpec<C>)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(ref: DoRef)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TrySpec<C>)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(ref: TryRef)
+    fun <T : Step> ensure(value: T)
 
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: PutBuilder<C>.() -> Unit)
 
@@ -560,7 +326,7 @@ interface PutBuilder<out C> {
 interface TaskBuilder<out C> {
     val context: C
 
-    fun task(task: String)
+    fun task(value: String)
 
     fun config(body: TaskConfigBuilder<C>.() -> Unit)
 
@@ -568,11 +334,11 @@ interface TaskBuilder<out C> {
 
     fun config(ref: TaskConfigRef)
 
-    fun config(config: TaskConfig)
+    fun config(value: TaskConfig)
 
-    fun file(file: String)
+    fun file(value: String)
 
-    fun privileged(privileged: String)
+    fun privileged(value: String)
 
     fun params(key: String, value: Any)
 
@@ -580,7 +346,7 @@ interface TaskBuilder<out C> {
 
     fun params(params: Map<String, Any>)
 
-    fun image(image: String)
+    fun image(value: String)
 
     fun input_mapping(key: String, value: String)
 
@@ -594,109 +360,37 @@ interface TaskBuilder<out C> {
 
     fun output_mapping(output_mapping: Map<String, String>)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> on_success(value: T)
 
-    fun on_success(ref: PutRef)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TaskSpec<C>)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun on_success(ref: TaskRef)
+    fun <T : Step> on_failure(value: T)
 
-    fun on_success(spec: AggregateSpec<C>)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun on_success(ref: AggregateRef)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun on_success(spec: DoSpec<C>)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(ref: DoRef)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(spec: TrySpec<C>)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(ref: TryRef)
+    fun <T : Step> ensure(value: T)
 
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: TaskBuilder<C>.() -> Unit)
 
@@ -715,133 +409,43 @@ interface TaskBuilder<out C> {
 interface AggregateBuilder<out C> {
     val context: C
 
-    fun aggregate(spec: GetSpec<C>)
+    fun <T : Step> aggregate(spec: StepSpec<C, T>)
 
-    fun aggregate(ref: GetRef)
+    fun <T : Step> aggregate(ref: StepRef<T>)
 
-    fun aggregate(spec: PutSpec<C>)
+    fun <T : Step> aggregate(value: T)
 
-    fun aggregate(ref: PutRef)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun aggregate(spec: TaskSpec<C>)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun aggregate(ref: TaskRef)
+    fun <T : Step> on_success(value: T)
 
-    fun aggregate(spec: AggregateSpec<C>)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun aggregate(ref: AggregateRef)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun aggregate(spec: DoSpec<C>)
+    fun <T : Step> on_failure(value: T)
 
-    fun aggregate(ref: DoRef)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun aggregate(spec: TrySpec<C>)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun aggregate(ref: TryRef)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> ensure(value: T)
 
-    fun on_success(ref: PutRef)
-
-    fun on_success(spec: TaskSpec<C>)
-
-    fun on_success(ref: TaskRef)
-
-    fun on_success(spec: AggregateSpec<C>)
-
-    fun on_success(ref: AggregateRef)
-
-    fun on_success(spec: DoSpec<C>)
-
-    fun on_success(ref: DoRef)
-
-    fun on_success(spec: TrySpec<C>)
-
-    fun on_success(ref: TryRef)
-
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: AggregateBuilder<C>.() -> Unit)
 
@@ -860,133 +464,43 @@ interface AggregateBuilder<out C> {
 interface DoBuilder<out C> {
     val context: C
 
-    fun `do`(spec: GetSpec<C>)
+    fun <T : Step> `do`(spec: StepSpec<C, T>)
 
-    fun `do`(ref: GetRef)
+    fun <T : Step> `do`(ref: StepRef<T>)
 
-    fun `do`(spec: PutSpec<C>)
+    fun <T : Step> `do`(value: T)
 
-    fun `do`(ref: PutRef)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun `do`(spec: TaskSpec<C>)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun `do`(ref: TaskRef)
+    fun <T : Step> on_success(value: T)
 
-    fun `do`(spec: AggregateSpec<C>)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun `do`(ref: AggregateRef)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun `do`(spec: DoSpec<C>)
+    fun <T : Step> on_failure(value: T)
 
-    fun `do`(ref: DoRef)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun `do`(spec: TrySpec<C>)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun `do`(ref: TryRef)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> ensure(value: T)
 
-    fun on_success(ref: PutRef)
-
-    fun on_success(spec: TaskSpec<C>)
-
-    fun on_success(ref: TaskRef)
-
-    fun on_success(spec: AggregateSpec<C>)
-
-    fun on_success(ref: AggregateRef)
-
-    fun on_success(spec: DoSpec<C>)
-
-    fun on_success(ref: DoRef)
-
-    fun on_success(spec: TrySpec<C>)
-
-    fun on_success(ref: TryRef)
-
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: DoBuilder<C>.() -> Unit)
 
@@ -1005,133 +519,43 @@ interface DoBuilder<out C> {
 interface TryBuilder<out C> {
     val context: C
 
-    fun `try`(spec: GetSpec<C>)
+    fun <T : Step> `try`(spec: StepSpec<C, T>)
 
-    fun `try`(ref: GetRef)
+    fun <T : Step> `try`(ref: StepRef<T>)
 
-    fun `try`(spec: PutSpec<C>)
+    fun <T : Step> `try`(value: T)
 
-    fun `try`(ref: PutRef)
+    fun <T : Step> on_success(spec: StepSpec<C, T>)
 
-    fun `try`(spec: TaskSpec<C>)
+    fun <T : Step> on_success(ref: StepRef<T>)
 
-    fun `try`(ref: TaskRef)
+    fun <T : Step> on_success(value: T)
 
-    fun `try`(spec: AggregateSpec<C>)
+    fun <T : Step> on_failure(spec: StepSpec<C, T>)
 
-    fun `try`(ref: AggregateRef)
+    fun <T : Step> on_failure(ref: StepRef<T>)
 
-    fun `try`(spec: DoSpec<C>)
+    fun <T : Step> on_failure(value: T)
 
-    fun `try`(ref: DoRef)
+    fun <T : Step> on_abort(spec: StepSpec<C, T>)
 
-    fun `try`(spec: TrySpec<C>)
+    fun <T : Step> on_abort(ref: StepRef<T>)
 
-    fun `try`(ref: TryRef)
+    fun <T : Step> on_abort(value: T)
 
-    fun on_success(spec: GetSpec<C>)
+    fun <T : Step> ensure(spec: StepSpec<C, T>)
 
-    fun on_success(ref: GetRef)
+    fun <T : Step> ensure(ref: StepRef<T>)
 
-    fun on_success(spec: PutSpec<C>)
+    fun <T : Step> ensure(value: T)
 
-    fun on_success(ref: PutRef)
-
-    fun on_success(spec: TaskSpec<C>)
-
-    fun on_success(ref: TaskRef)
-
-    fun on_success(spec: AggregateSpec<C>)
-
-    fun on_success(ref: AggregateRef)
-
-    fun on_success(spec: DoSpec<C>)
-
-    fun on_success(ref: DoRef)
-
-    fun on_success(spec: TrySpec<C>)
-
-    fun on_success(ref: TryRef)
-
-    fun on_failure(spec: GetSpec<C>)
-
-    fun on_failure(ref: GetRef)
-
-    fun on_failure(spec: PutSpec<C>)
-
-    fun on_failure(ref: PutRef)
-
-    fun on_failure(spec: TaskSpec<C>)
-
-    fun on_failure(ref: TaskRef)
-
-    fun on_failure(spec: AggregateSpec<C>)
-
-    fun on_failure(ref: AggregateRef)
-
-    fun on_failure(spec: DoSpec<C>)
-
-    fun on_failure(ref: DoRef)
-
-    fun on_failure(spec: TrySpec<C>)
-
-    fun on_failure(ref: TryRef)
-
-    fun on_abort(spec: GetSpec<C>)
-
-    fun on_abort(ref: GetRef)
-
-    fun on_abort(spec: PutSpec<C>)
-
-    fun on_abort(ref: PutRef)
-
-    fun on_abort(spec: TaskSpec<C>)
-
-    fun on_abort(ref: TaskRef)
-
-    fun on_abort(spec: AggregateSpec<C>)
-
-    fun on_abort(ref: AggregateRef)
-
-    fun on_abort(spec: DoSpec<C>)
-
-    fun on_abort(ref: DoRef)
-
-    fun on_abort(spec: TrySpec<C>)
-
-    fun on_abort(ref: TryRef)
-
-    fun ensure(spec: GetSpec<C>)
-
-    fun ensure(ref: GetRef)
-
-    fun ensure(spec: PutSpec<C>)
-
-    fun ensure(ref: PutRef)
-
-    fun ensure(spec: TaskSpec<C>)
-
-    fun ensure(ref: TaskRef)
-
-    fun ensure(spec: AggregateSpec<C>)
-
-    fun ensure(ref: AggregateRef)
-
-    fun ensure(spec: DoSpec<C>)
-
-    fun ensure(ref: DoRef)
-
-    fun ensure(spec: TrySpec<C>)
-
-    fun ensure(ref: TryRef)
-
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun timeout(timeout: String)
+    fun timeout(value: String)
 
-    fun attempts(attempts: Int)
+    fun attempts(value: Int)
 
     fun include(body: TryBuilder<C>.() -> Unit)
 
@@ -1150,7 +574,7 @@ interface TryBuilder<out C> {
 interface TaskConfigBuilder<out C> {
     val context: C
 
-    fun platform(platform: String)
+    fun platform(value: String)
 
     fun image_resource(body: TaskResourceBuilder<C>.() -> Unit)
 
@@ -1158,9 +582,9 @@ interface TaskConfigBuilder<out C> {
 
     fun image_resource(ref: TaskResourceRef)
 
-    fun image_resource(image_resource: TaskResource)
+    fun image_resource(value: TaskResource)
 
-    fun rootfs_uri(rootfs_uri: String)
+    fun rootfs_uri(value: String)
 
     fun input(body: TaskInputBuilder<C>.() -> Unit)
 
@@ -1168,7 +592,7 @@ interface TaskConfigBuilder<out C> {
 
     fun input(ref: TaskInputRef)
 
-    fun input(input: TaskInput)
+    fun input(value: TaskInput)
 
     fun inputs(inputs: List<TaskInput>)
 
@@ -1178,7 +602,7 @@ interface TaskConfigBuilder<out C> {
 
     fun output(ref: TaskOutputRef)
 
-    fun output(output: TaskOutput)
+    fun output(value: TaskOutput)
 
     fun outputs(outputs: List<TaskOutput>)
 
@@ -1188,7 +612,7 @@ interface TaskConfigBuilder<out C> {
 
     fun cache(ref: TaskCacheRef)
 
-    fun cache(cache: TaskCache)
+    fun cache(value: TaskCache)
 
     fun caches(caches: List<TaskCache>)
 
@@ -1198,7 +622,7 @@ interface TaskConfigBuilder<out C> {
 
     fun run(ref: TaskRunConfigRef)
 
-    fun run(run: TaskRunConfig)
+    fun run(value: TaskRunConfig)
 
     fun params(key: String, value: Any)
 
@@ -1223,7 +647,7 @@ interface TaskConfigBuilder<out C> {
 interface TaskResourceBuilder<out C> {
     val context: C
 
-    fun type(type: String)
+    fun type(value: String)
 
     fun source(key: String, value: Any)
 
@@ -1260,11 +684,11 @@ interface TaskResourceBuilder<out C> {
 interface TaskInputBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun path(path: String)
+    fun path(value: String)
 
-    fun optional(optional: Boolean)
+    fun optional(value: Boolean)
 
     fun include(body: TaskInputBuilder<C>.() -> Unit)
 
@@ -1283,9 +707,9 @@ interface TaskInputBuilder<out C> {
 interface TaskOutputBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun path(path: String)
+    fun path(value: String)
 
     fun include(body: TaskOutputBuilder<C>.() -> Unit)
 
@@ -1304,7 +728,7 @@ interface TaskOutputBuilder<out C> {
 interface TaskCacheBuilder<out C> {
     val context: C
 
-    fun path(path: String)
+    fun path(value: String)
 
     fun include(body: TaskCacheBuilder<C>.() -> Unit)
 
@@ -1323,15 +747,15 @@ interface TaskCacheBuilder<out C> {
 interface TaskRunConfigBuilder<out C> {
     val context: C
 
-    fun path(path: String)
+    fun path(value: String)
 
-    fun arg(arg: String)
+    fun arg(value: String)
 
     fun args(args: List<String>)
 
-    fun dir(dir: String)
+    fun dir(value: String)
 
-    fun user(user: String)
+    fun user(value: String)
 
     fun include(body: TaskRunConfigBuilder<C>.() -> Unit)
 
@@ -1350,9 +774,9 @@ interface TaskRunConfigBuilder<out C> {
 interface ResourceBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun type(type: String)
+    fun type(value: String)
 
     fun source(key: String, value: Any)
 
@@ -1360,13 +784,13 @@ interface ResourceBuilder<out C> {
 
     fun source(source: Map<String, Any>)
 
-    fun check_every(check_every: String)
+    fun check_every(value: String)
 
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
-    fun webhook_token(webhook_token: String)
+    fun webhook_token(value: String)
 
     fun include(body: ResourceBuilder<C>.() -> Unit)
 
@@ -1385,9 +809,9 @@ interface ResourceBuilder<out C> {
 interface ResourceTypeBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun type(type: String)
+    fun type(value: String)
 
     fun source(key: String, value: Any)
 
@@ -1395,7 +819,7 @@ interface ResourceTypeBuilder<out C> {
 
     fun source(source: Map<String, Any>)
 
-    fun privileged(privileged: Boolean)
+    fun privileged(value: Boolean)
 
     fun params(key: String, value: Any)
 
@@ -1403,7 +827,7 @@ interface ResourceTypeBuilder<out C> {
 
     fun params(params: Map<String, Any>)
 
-    fun tag(tag: String)
+    fun tag(value: String)
 
     fun tags(tags: List<String>)
 
@@ -1424,13 +848,13 @@ interface ResourceTypeBuilder<out C> {
 interface GroupBuilder<out C> {
     val context: C
 
-    fun name(name: String)
+    fun name(value: String)
 
-    fun job(job: String)
+    fun job(value: String)
 
     fun jobs(jobs: List<String>)
 
-    fun resource(resource: String)
+    fun resource(value: String)
 
     fun resources(resources: List<String>)
 
