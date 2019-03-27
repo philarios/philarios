@@ -439,7 +439,7 @@ val concourseSchema = SchemaSpec<Any?> {
         shape(StructSpec {
             name("Aggregate")
             field(FieldSpec {
-                name("aggregate") // TODO fix reserved words
+                name("aggregate")
                 type(ListTypeSpec {
                     type(RefTypeSpec {
                         name("Step")
