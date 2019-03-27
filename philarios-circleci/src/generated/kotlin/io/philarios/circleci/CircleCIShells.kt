@@ -1,7 +1,7 @@
 package io.philarios.circleci
 
-import io.philarios.util.registry.Registry
 import io.philarios.core.Scaffold
+import io.philarios.util.registry.Registry
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.String
