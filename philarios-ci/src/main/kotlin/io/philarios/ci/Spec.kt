@@ -9,13 +9,7 @@ val spec = CircleCISpec<Any?> {
         gradleDocker()
         checkout()
         runFromResource("check", "snapshot-build-check.sh")
-        run("report", """
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-
-            find . -type d -maxdepth 1 -name "philarios-*" -exec bash -c "mkdir -p ~/reports/{} && cp -r {}/build/reports/tests/test ~/reports/{}/junit" \;
-            find . -type d -maxdepth 1 -name "philarios-*" -exec bash -c "mkdir -p ~/reports/{} && cp -r {}/build/reports/jacoco/test ~/reports/{}/jacoco" \;
-        """.trimIndent())
+        runFromResource("report", "snapshot-build-report.sh")
         store_test_results {
             path("~/test-results")
         }
@@ -26,10 +20,7 @@ val spec = CircleCISpec<Any?> {
     jobs("release-build") {
         gradleDocker()
         checkout()
-        run("publish", """
-            TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
-            gradle bintrayUpload -Pversion=${'$'}{TAG} -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
-        """.trimIndent())
+        runFromResource("publish", "release-build-publish.sh")
     }
 
     workflows("snapshot") {

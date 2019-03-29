@@ -16,6 +16,8 @@ jobs:
     - run:
         name: "report"
         command: |-
+          #!/usr/bin/env bash
+
           mkdir -p ~/test-results/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
 
@@ -34,6 +36,8 @@ jobs:
     - run:
         name: "publish"
         command: |-
+          #!/usr/bin/env bash
+
           TAG=$(git --no-pager tag --sort=-taggerdate | head -n 1)
           gradle bintrayUpload -Pversion=${TAG} -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}
 workflows:
