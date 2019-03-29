@@ -47,43 +47,6 @@ val spec = CircleCISpec<Any?> {
     }
 }
 
-private fun JobBuilder<Any?>.checkout(body: CheckoutBuilder<Any?>.() -> Unit) {
-    step(CheckoutStepSpec {
-        checkout(body)
-    })
-}
-
-private fun JobBuilder<Any?>.store_test_results(body: StoreTestResultsBuilder<Any?>.() -> Unit) {
-    step(StoreTestResultsStepSpec {
-        store_test_results(body)
-    })
-}
-
-private fun JobBuilder<Any?>.store_artifacts(body: StoreArtifactsBuilder<Any?>.() -> Unit) {
-    step(StoreArtifactsStepSpec {
-        store_artifacts(body)
-    })
-}
-
-private fun JobBuilder<Any?>.run(body: RunBuilder<Any?>.() -> Unit) {
-    step(RunStepSpec {
-        run(body)
-    })
-}
-
-private fun JobBuilder<Any?>.checkout() {
-    checkout {
-        path(".")
-    }
-}
-
-private fun JobBuilder<Any?>.run(name: String, command: String) {
-    run {
-        name(name)
-        command(command)
-    }
-}
-
 private fun JobBuilder<Any?>.gradleDocker() {
     docker {
         image("gradle:4.10.3")
