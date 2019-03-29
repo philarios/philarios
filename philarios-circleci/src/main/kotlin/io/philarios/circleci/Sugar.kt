@@ -21,6 +21,16 @@ fun <C> JobBuilder<C>.run(name: String, command: String, body: RunBuilder<C>.() 
     }
 }
 
+fun <C> JobBuilder<C>.runFromResource(name: String, resource: String, body: RunBuilder<C>.() -> Unit = {}) {
+    run {
+        name(name)
+        command(readResource(resource))
+        apply(body)
+    }
+}
+
+fun readResource(resource: String) = ClassLoader.getSystemResourceAsStream(resource).bufferedReader().readText()
+
 fun <C> JobBuilder<C>.checkout(body: CheckoutBuilder<C>.() -> Unit) {
     step(CheckoutStepSpec {
         checkout(body)

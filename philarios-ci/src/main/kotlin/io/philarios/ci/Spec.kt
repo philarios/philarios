@@ -8,9 +8,7 @@ val spec = CircleCISpec<Any?> {
     jobs("snapshot-build") {
         gradleDocker()
         checkout()
-        run("check", """
-            gradle check jacocoTestReport -PbintrayUser=${'$'}{BINTRAY_USER} -PbintrayKey=${'$'}{BINTRAY_KEY}
-        """.trimIndent())
+        runFromResource("check", "snapshot-build-check.sh")
         run("report", """
             mkdir -p ~/test-results/junit/
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;

@@ -3,4 +3,10 @@ dependencies {
     implementation project(":philarios-core")
     implementation project(":philarios-schema")
     implementation project(":philarios-jsonschema")
+
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.24'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.9.8'
 }

@@ -9,7 +9,10 @@ jobs:
         path: "."
     - run:
         name: "check"
-        command: "gradle check jacocoTestReport -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}"
+        command: |-
+          #!/usr/bin/env bash
+
+          gradle check jacocoTestReport -PbintrayUser=${BINTRAY_USER} -PbintrayKey=${BINTRAY_KEY}
     - run:
         name: "report"
         command: |-
