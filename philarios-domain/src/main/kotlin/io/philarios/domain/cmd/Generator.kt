@@ -1,6 +1,6 @@
 package io.philarios.domain.cmd
 
 import io.philarios.domain.domainSchema
-import io.philarios.schema.usecases.generateCodeForSchemaSpec
+import io.philarios.schema.usecases.generateCode
 
-suspend fun main() = generateCodeForSchemaSpec(domainSchema)
+suspend fun main() = generateCode(domainSchema)

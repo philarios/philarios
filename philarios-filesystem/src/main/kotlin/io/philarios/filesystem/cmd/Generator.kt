@@ -1,6 +1,6 @@
 package io.philarios.filesystem.cmd
 
 import io.philarios.filesystem.fileSystemSchema
-import io.philarios.schema.usecases.generateCodeForSchemaSpec
+import io.philarios.schema.usecases.generateCode
 
-suspend fun main() = generateCodeForSchemaSpec(fileSystemSchema)
+suspend fun main() = generateCode(fileSystemSchema)
