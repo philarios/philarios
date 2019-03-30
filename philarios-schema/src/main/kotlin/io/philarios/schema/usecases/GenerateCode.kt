@@ -8,20 +8,23 @@ import io.philarios.schema.SchemaSpec
 import io.philarios.schema.entities.codegen.fileSpecs
 import io.philarios.schema.gateways.writers.DirectoryFileSpecWriter
 import io.philarios.schema.gateways.writers.FileSpecWriter
-import java.io.File
 
-suspend fun generateCode(
-        schemaSpec: SchemaSpec<Any?>,
-        fileSpecWriter: FileSpecWriter = DirectoryFileSpecWriter()
-) {
-    emptyContext()
-            .map(SchemaScaffolder(schemaSpec))
-            .map { generateCode(it, fileSpecWriter) }
-}
+suspend fun generateCode(schemaSpec: SchemaSpec<Any?>) = GenerateCode()(schemaSpec)
 
-fun generateCode(
-        schema: Schema,
-        fileSpecWriter: FileSpecWriter
+fun generateCode(schema: Schema) = GenerateCode()(schema)
+
+class GenerateCode(
+        private val fileSpecWriter: FileSpecWriter = DirectoryFileSpecWriter()
 ) {
-    fileSpecWriter.writeFileSpecs(schema.fileSpecs)
+
+    suspend operator fun invoke(schemaSpec: SchemaSpec<Any?>) {
+        emptyContext()
+                .map(SchemaScaffolder(schemaSpec))
+                .map { invoke(it) }
+    }
+
+    operator fun invoke(schema: Schema) {
+        fileSpecWriter.writeFileSpecs(schema.fileSpecs)
+    }
+
 }

@@ -139,12 +139,12 @@ val mixedSpecs = SchemaSpec<Any?> {
     struct("Response") {
         field("errors") {
             type(ListTypeSpec {
-                type(UnionRef("Error"))
+                type(UnionRef("ServerError"))
             })
         }
     }
 
-    union("Error") {
+    union("ServerError") {
         shape("UnknownError")
         shape("InsufficientAmountError") {
             field("amount") {

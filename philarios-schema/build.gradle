@@ -2,4 +2,7 @@ dependencies {
     implementation project(":philarios-core")
 
     implementation "com.squareup:kotlinpoet:0.7.0"
+
+    testImplementation "org.jetbrains.kotlin:kotlin-compiler:${kotlin_version}"
+    testImplementation "org.jetbrains.kotlin:kotlin-script-util:${kotlin_version}"
 }

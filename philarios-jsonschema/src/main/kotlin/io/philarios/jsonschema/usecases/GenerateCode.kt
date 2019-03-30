@@ -7,19 +7,19 @@ import io.philarios.jsonschema.entities.jsonSchemaSchema
 import io.philarios.jsonschema.gateways.reader.readJsonSchema
 import io.philarios.schema.SchemaScaffolder
 import io.philarios.schema.gateways.writers.DirectoryFileSpecWriter
-import io.philarios.schema.gateways.writers.FileSpecWriter
-import io.philarios.schema.usecases.generateCode
+import io.philarios.schema.usecases.GenerateCode as SchemaGenerateCode
 
-suspend fun generateCode(
-        inputResource: String,
-        pkg: String,
-        name: String,
-        fileSpecWriter: FileSpecWriter = DirectoryFileSpecWriter()
+suspend fun generateCode(inputResource: String, pkg: String, name: String) = GenerateCode()(inputResource, pkg, name)
+
+class GenerateCode(
+        private val schemaGenerateCode: SchemaGenerateCode = SchemaGenerateCode(DirectoryFileSpecWriter())
 ) {
-    val inputStream = ClassLoader.getSystemResourceAsStream(inputResource)
-    val jsonSchema = readJsonSchema(inputStream) as JsonSchemaObject
+    suspend operator fun invoke(inputResource: String, pkg: String, name: String) {
+        val inputStream = ClassLoader.getSystemResourceAsStream(inputResource)
+        val jsonSchema = readJsonSchema(inputStream) as JsonSchemaObject
 
-    contextOf(jsonSchema)
-            .map(SchemaScaffolder(jsonSchemaSchema(pkg, name)))
-            .map { generateCode(it, fileSpecWriter) }
+        contextOf(jsonSchema)
+                .map(SchemaScaffolder(jsonSchemaSchema(pkg, name)))
+                .map { schemaGenerateCode(it) }
+    }
 }
