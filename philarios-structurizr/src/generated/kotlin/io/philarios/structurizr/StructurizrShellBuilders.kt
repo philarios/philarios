@@ -162,6 +162,26 @@ internal class PersonShellBuilder<out C>(override val context: C, internal var s
         shell = shell.copy(location = Wrapper(value))
     }
 
+    override fun relationship(body: RelationshipBuilder<C>.() -> Unit) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(RelationshipSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun relationship(spec: RelationshipSpec<C>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun relationship(ref: RelationshipRef) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
+    }
+
+    override fun relationship(value: Relationship) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(value))
+    }
+
+    override fun relationships(relationships: List<Relationship>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
+    }
+
     override fun include(body: PersonBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -235,6 +255,26 @@ internal class SoftwareSystemShellBuilder<out C>(override val context: C, intern
         shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { Wrapper(it) })
     }
 
+    override fun relationship(body: RelationshipBuilder<C>.() -> Unit) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(RelationshipSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun relationship(spec: RelationshipSpec<C>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun relationship(ref: RelationshipRef) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
+    }
+
+    override fun relationship(value: Relationship) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(value))
+    }
+
+    override fun relationships(relationships: List<Relationship>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
+    }
+
     override fun include(body: SoftwareSystemBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -306,6 +346,26 @@ internal class ContainerShellBuilder<out C>(override val context: C, internal va
 
     override fun components(components: List<Component>) {
         shell = shell.copy(components = shell.components.orEmpty() + components.map { Wrapper(it) })
+    }
+
+    override fun relationship(body: RelationshipBuilder<C>.() -> Unit) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(RelationshipSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun relationship(spec: RelationshipSpec<C>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun relationship(ref: RelationshipRef) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
+    }
+
+    override fun relationship(value: Relationship) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(value))
+    }
+
+    override fun relationships(relationships: List<Relationship>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
     }
 
     override fun include(body: ContainerBuilder<C>.() -> Unit) {

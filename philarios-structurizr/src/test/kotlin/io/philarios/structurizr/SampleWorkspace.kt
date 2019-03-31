@@ -30,6 +30,13 @@ val workspace = WorkspaceSpec<Any?> {
             name("User")
             description("A normal user")
             location(Location.External)
+
+            relationship {
+                destinationId(Id.TODO)
+                description("uses the app")
+                technology("fingers")
+                interactionStyle(InteractionStyle.Synchronous)
+            }
         }
         softwareSystem {
             id(Id.TODO)
@@ -47,6 +54,13 @@ val workspace = WorkspaceSpec<Any?> {
                 name("api")
                 description("answers requests from the app")
                 technology("Java")
+
+                relationship {
+                    destinationId(Id.TODO_DATABASE)
+                    description("issues queries to the datbase")
+                    technology("JDBC")
+                    interactionStyle(InteractionStyle.Synchronous)
+                }
 
                 component {
                     id(Id.TODO_API_CONTROLLER)

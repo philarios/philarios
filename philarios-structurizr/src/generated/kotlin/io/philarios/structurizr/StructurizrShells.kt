@@ -45,17 +45,22 @@ internal data class PersonShell(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
-        var location: Scaffold<Location>? = null
+        var location: Scaffold<Location>? = null,
+        var relationships: List<Scaffold<Relationship>>? = null
 ) : Scaffold<Person> {
     override suspend fun resolve(registry: Registry): Person {
         checkNotNull(id) { "Person is missing the id property" }
         checkNotNull(name) { "Person is missing the name property" }
         checkNotNull(description) { "Person is missing the description property" }
+        coroutineScope {
+            relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
+        }
         val value = Person(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
             description!!.let{ it.resolve(registry) },
-            location?.let{ it.resolve(registry) }
+            location?.let{ it.resolve(registry) },
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -66,7 +71,8 @@ internal data class SoftwareSystemShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var location: Scaffold<Location>? = null,
-        var containers: List<Scaffold<Container>>? = null
+        var containers: List<Scaffold<Container>>? = null,
+        var relationships: List<Scaffold<Relationship>>? = null
 ) : Scaffold<SoftwareSystem> {
     override suspend fun resolve(registry: Registry): SoftwareSystem {
         checkNotNull(id) { "SoftwareSystem is missing the id property" }
@@ -74,13 +80,15 @@ internal data class SoftwareSystemShell(
         checkNotNull(description) { "SoftwareSystem is missing the description property" }
         coroutineScope {
             containers?.let{ it.forEach { launch { it.resolve(registry) } } }
+            relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
         val value = SoftwareSystem(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
             description!!.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) },
-            containers.orEmpty().let{ it.map { it.resolve(registry) } }
+            containers.orEmpty().let{ it.map { it.resolve(registry) } },
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -91,7 +99,8 @@ internal data class ContainerShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var technology: Scaffold<String>? = null,
-        var components: List<Scaffold<Component>>? = null
+        var components: List<Scaffold<Component>>? = null,
+        var relationships: List<Scaffold<Relationship>>? = null
 ) : Scaffold<Container> {
     override suspend fun resolve(registry: Registry): Container {
         checkNotNull(id) { "Container is missing the id property" }
@@ -100,13 +109,15 @@ internal data class ContainerShell(
         checkNotNull(technology) { "Container is missing the technology property" }
         coroutineScope {
             components?.let{ it.forEach { launch { it.resolve(registry) } } }
+            relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
         val value = Container(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
             description!!.let{ it.resolve(registry) },
             technology!!.let{ it.resolve(registry) },
-            components.orEmpty().let{ it.map { it.resolve(registry) } }
+            components.orEmpty().let{ it.map { it.resolve(registry) } },
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }

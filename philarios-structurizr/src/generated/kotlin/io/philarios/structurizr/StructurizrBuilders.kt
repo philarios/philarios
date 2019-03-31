@@ -83,6 +83,16 @@ interface PersonBuilder<out C> {
 
     fun location(value: Location)
 
+    fun relationship(body: RelationshipBuilder<C>.() -> Unit)
+
+    fun relationship(spec: RelationshipSpec<C>)
+
+    fun relationship(ref: RelationshipRef)
+
+    fun relationship(value: Relationship)
+
+    fun relationships(relationships: List<Relationship>)
+
     fun include(body: PersonBuilder<C>.() -> Unit)
 
     fun include(spec: PersonSpec<C>)
@@ -118,6 +128,16 @@ interface SoftwareSystemBuilder<out C> {
 
     fun containers(containers: List<Container>)
 
+    fun relationship(body: RelationshipBuilder<C>.() -> Unit)
+
+    fun relationship(spec: RelationshipSpec<C>)
+
+    fun relationship(ref: RelationshipRef)
+
+    fun relationship(value: Relationship)
+
+    fun relationships(relationships: List<Relationship>)
+
     fun include(body: SoftwareSystemBuilder<C>.() -> Unit)
 
     fun include(spec: SoftwareSystemSpec<C>)
@@ -152,6 +172,16 @@ interface ContainerBuilder<out C> {
     fun component(value: Component)
 
     fun components(components: List<Component>)
+
+    fun relationship(body: RelationshipBuilder<C>.() -> Unit)
+
+    fun relationship(spec: RelationshipSpec<C>)
+
+    fun relationship(ref: RelationshipRef)
+
+    fun relationship(value: Relationship)
+
+    fun relationships(relationships: List<Relationship>)
 
     fun include(body: ContainerBuilder<C>.() -> Unit)
 

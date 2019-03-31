@@ -24,6 +24,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("name", StringType)
         field("description", StringType)
         field("location", option(ref("Location")))
+        field("relationships", list(ref("Relationship")))
     }
 
     struct("SoftwareSystem") {
@@ -32,6 +33,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", StringType)
         field("location", option(ref("Location")))
         field("containers", list(ref("Container")))
+        field("relationships", list(ref("Relationship")))
     }
 
     struct("Container") {
@@ -40,6 +42,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", StringType)
         field("technology", StringType)
         field("components", list(ref("Component")))
+        field("relationships", list(ref("Relationship")))
     }
 
     struct("Component") {

@@ -15,7 +15,8 @@ data class Person(
         val id: String,
         val name: String,
         val description: String,
-        val location: Location?
+        val location: Location?,
+        val relationships: List<Relationship>
 )
 
 data class SoftwareSystem(
@@ -23,7 +24,8 @@ data class SoftwareSystem(
         val name: String,
         val description: String,
         val location: Location?,
-        val containers: List<Container>
+        val containers: List<Container>,
+        val relationships: List<Relationship>
 )
 
 data class Container(
@@ -31,7 +33,8 @@ data class Container(
         val name: String,
         val description: String,
         val technology: String,
-        val components: List<Component>
+        val components: List<Component>,
+        val relationships: List<Relationship>
 )
 
 data class Component(
