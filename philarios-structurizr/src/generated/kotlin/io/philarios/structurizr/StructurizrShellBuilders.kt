@@ -69,19 +69,19 @@ internal class WorkspaceShellBuilder<out C>(override val context: C, internal va
 
 @DslBuilder
 internal class ModelShellBuilder<out C>(override val context: C, internal var shell: ModelShell = ModelShell()) : ModelBuilder<C> {
-    override fun people(body: PersonBuilder<C>.() -> Unit) {
+    override fun person(body: PersonBuilder<C>.() -> Unit) {
         shell = shell.copy(people = shell.people.orEmpty() + PersonScaffolder<C>(PersonSpec<C>(body)).createScaffold(context))
     }
 
-    override fun people(spec: PersonSpec<C>) {
+    override fun person(spec: PersonSpec<C>) {
         shell = shell.copy(people = shell.people.orEmpty() + PersonScaffolder<C>(spec).createScaffold(context))
     }
 
-    override fun people(ref: PersonRef) {
+    override fun person(ref: PersonRef) {
         shell = shell.copy(people = shell.people.orEmpty() + ref)
     }
 
-    override fun people(value: Person) {
+    override fun person(value: Person) {
         shell = shell.copy(people = shell.people.orEmpty() + Wrapper(value))
     }
 

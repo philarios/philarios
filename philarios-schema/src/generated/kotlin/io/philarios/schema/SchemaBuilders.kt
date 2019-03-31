@@ -224,6 +224,8 @@ interface FieldBuilder<out C> {
 
     fun key(value: Boolean)
 
+    fun singularName(value: String)
+
     fun <T : Type> type(spec: TypeSpec<C, T>)
 
     fun <T : Type> type(ref: TypeRef<T>)

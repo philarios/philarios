@@ -61,5 +61,6 @@ object AnyType : Type()
 data class Field(
         val name: String,
         val key: Boolean?,
+        val singularName: String?,
         val type: Type
 )

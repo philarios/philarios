@@ -26,7 +26,7 @@ class ModelTypeSpecSpec : Spek({
             typeSpec.kind shouldBe TypeSpec.Kind.OBJECT
         }
         it("works for struct types with fields") {
-            val struct = Struct("pkg", "name", listOf(Field("", false, StringType)))
+            val struct = Struct("pkg", "name", listOf(Field("", false, null, StringType)))
             val typeSpec = struct.modelTypeSpec()
 
             typeSpec.name shouldBe "name"

@@ -461,6 +461,10 @@ internal class FieldShellBuilder<out C>(override val context: C, internal var sh
         shell = shell.copy(key = Wrapper(value))
     }
 
+    override fun singularName(value: String) {
+        shell = shell.copy(singularName = Wrapper(value))
+    }
+
     override fun <T : Type> type(spec: TypeSpec<C, T>) {
         shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }

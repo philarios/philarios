@@ -149,6 +149,7 @@ internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueT
 internal data class FieldShell(
         var name: Scaffold<String>? = null,
         var key: Scaffold<Boolean>? = null,
+        var singularName: Scaffold<String>? = null,
         var type: Scaffold<Type>? = null
 ) : Scaffold<Field> {
     override suspend fun resolve(registry: Registry): Field {
@@ -160,6 +161,7 @@ internal data class FieldShell(
         val value = Field(
             name!!.let{ it.resolve(registry) },
             key?.let{ it.resolve(registry) },
+            singularName?.let{ it.resolve(registry) },
             type!!.let{ it.resolve(registry) }
         )
         return value

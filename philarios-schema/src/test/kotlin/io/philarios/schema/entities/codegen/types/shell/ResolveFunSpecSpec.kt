@@ -16,7 +16,7 @@ class ResolveFunSpecSpec : Spek({
             statement shouldBe null
         }
         it("works with structs with fields") {
-            val type = Struct("pkg", "Name", listOf(Field("", false, StringType)))
+            val type = Struct("pkg", "Name", listOf(Field("", false, null, StringType)))
             val statement = type.resolveJobStatement
             statement shouldBe "launch { it.resolve(registry) }"
         }

@@ -130,7 +130,7 @@ class ParameterFunctionResolver(private val typeRefs: Map<RefType, Type>) {
     }
 
     private fun refMapListParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<ParameterFunction> {
-        return parameterFunctions(type, Field(field.name, field.key, ListType(MapType(
+        return parameterFunctions(type, field.copy(type = ListType(MapType(
                 (keyType as? RefType)?.let { typeRefs[it]!! } ?: keyType,
                 (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
         ))))
@@ -203,7 +203,7 @@ class ParameterFunctionResolver(private val typeRefs: Map<RefType, Type>) {
     }
 
     private fun refMapParameterFunctions(type: Struct, field: Field, keyType: Type, valueType: Type): List<ParameterFunction> {
-        return parameterFunctions(type, Field(field.name, field.key, MapType(
+        return parameterFunctions(type, field.copy(type = MapType(
                 (keyType as? RefType)?.let { typeRefs[it]!! } ?: keyType,
                 (valueType as? RefType)?.let { typeRefs[it]!! } ?: valueType
         )))

@@ -2,8 +2,8 @@ package io.philarios.schema.entities.codegen.util
 
 import io.philarios.schema.Field
 
-val Field.singularName
-    get() = when {
+val Field.actualSingularName
+    get() = singularName ?: when {
         name.endsWith("ies") -> name.removeSuffix("ies").plus("y")
         else -> name.removeSuffix("s")
     }

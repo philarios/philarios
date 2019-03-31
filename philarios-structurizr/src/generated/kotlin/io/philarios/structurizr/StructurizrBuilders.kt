@@ -38,13 +38,13 @@ interface WorkspaceBuilder<out C> {
 interface ModelBuilder<out C> {
     val context: C
 
-    fun people(body: PersonBuilder<C>.() -> Unit)
+    fun person(body: PersonBuilder<C>.() -> Unit)
 
-    fun people(spec: PersonSpec<C>)
+    fun person(spec: PersonSpec<C>)
 
-    fun people(ref: PersonRef)
+    fun person(ref: PersonRef)
 
-    fun people(value: Person)
+    fun person(value: Person)
 
     fun people(people: List<Person>)
 

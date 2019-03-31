@@ -19,13 +19,13 @@ val workspace = WorkspaceSpec<Any?> {
     description("This is a test workspace")
 
     model {
-        people {
+        person {
             id(Id.ADMIN)
             name("Admin")
             description("An admin user of the system")
             location(Location.Internal)
         }
-        people {
+        person {
             id(Id.USER)
             name("User")
             description("A normal user")

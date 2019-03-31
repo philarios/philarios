@@ -13,7 +13,9 @@ val structurizrSchema = SchemaSpec<Any?> {
     }
 
     struct("Model") {
-        field("people", list(ref("Person")))
+        field("people", list(ref("Person"))) {
+            singularName("person")
+        }
         field("softwareSystems", list(ref("SoftwareSystem")))
     }
 

@@ -65,6 +65,7 @@ val schemaSchema = SchemaSpec<Any?> {
     struct("Field") {
         field("name", StringType)
         field("key", option(BooleanType))
+        field("singularName", option(StringType))
         field("type", ref("Type"))
     }
 }

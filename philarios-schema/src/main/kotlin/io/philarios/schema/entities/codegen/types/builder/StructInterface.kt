@@ -93,7 +93,7 @@ private val ParameterFunction.SetParameterFunctionWithWrapper.parameterFunSpec
 
 private val ParameterFunction.AddParameterFunctionWithBody.parameterFunSpec
     get(): FunSpec {
-        val singularName = field.singularName
+        val singularName = field.actualSingularName
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.ABSTRACT)
                 .addParameter(listType.bodyParameterSpec)
@@ -102,7 +102,7 @@ private val ParameterFunction.AddParameterFunctionWithBody.parameterFunSpec
 
 private val ParameterFunction.AddParameterFunctionWithSpec.parameterFunSpec
     get(): FunSpec {
-        val singularName = field.singularName
+        val singularName = field.actualSingularName
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.ABSTRACT)
                 .runIfTrue(listType is Union) {
@@ -114,7 +114,7 @@ private val ParameterFunction.AddParameterFunctionWithSpec.parameterFunSpec
 
 private val ParameterFunction.AddParameterFunctionWithRef.parameterFunSpec
     get(): FunSpec {
-        val singularName = field.singularName
+        val singularName = field.actualSingularName
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.ABSTRACT)
                 .runIfTrue(listType is Union) {
@@ -126,7 +126,7 @@ private val ParameterFunction.AddParameterFunctionWithRef.parameterFunSpec
 
 private val ParameterFunction.AddParameterFunctionWithWrapper.parameterFunSpec
     get(): FunSpec {
-        val singularName = field.singularName
+        val singularName = field.actualSingularName
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.ABSTRACT)
                 .runIfTrue(listType is Union) {
