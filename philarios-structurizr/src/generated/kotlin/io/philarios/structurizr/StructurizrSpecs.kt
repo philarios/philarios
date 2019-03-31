@@ -11,3 +11,5 @@ class SoftwareSystemSpec<in C>(internal val body: SoftwareSystemBuilder<C>.() ->
 class ContainerSpec<in C>(internal val body: ContainerBuilder<C>.() -> Unit)
 
 class ComponentSpec<in C>(internal val body: ComponentBuilder<C>.() -> Unit)
+
+class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -> Unit)

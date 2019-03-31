@@ -12,12 +12,14 @@ data class Workspace(
 data class Model(val people: List<Person>, val softwareSystems: List<SoftwareSystem>)
 
 data class Person(
+        val id: String,
         val name: String,
         val description: String,
         val location: Location?
 )
 
 data class SoftwareSystem(
+        val id: String,
         val name: String,
         val description: String,
         val location: Location?,
@@ -25,6 +27,7 @@ data class SoftwareSystem(
 )
 
 data class Container(
+        val id: String,
         val name: String,
         val description: String,
         val technology: String,
@@ -32,9 +35,18 @@ data class Container(
 )
 
 data class Component(
+        val id: String,
         val name: String,
         val description: String,
-        val technology: String
+        val technology: String,
+        val relationships: List<Relationship>
+)
+
+data class Relationship(
+        val destinationId: String,
+        val description: String,
+        val technology: String,
+        val interactionStyle: InteractionStyle
 )
 
 enum class Location {
@@ -43,4 +55,10 @@ enum class Location {
     External,
 
     Unspecified
+}
+
+enum class InteractionStyle {
+    Synchronous,
+
+    Asynchronous
 }

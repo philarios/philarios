@@ -75,6 +75,8 @@ interface ModelBuilder<out C> {
 interface PersonBuilder<out C> {
     val context: C
 
+    fun id(value: String)
+
     fun name(value: String)
 
     fun description(value: String)
@@ -97,6 +99,8 @@ interface PersonBuilder<out C> {
 @DslBuilder
 interface SoftwareSystemBuilder<out C> {
     val context: C
+
+    fun id(value: String)
 
     fun name(value: String)
 
@@ -131,6 +135,8 @@ interface SoftwareSystemBuilder<out C> {
 interface ContainerBuilder<out C> {
     val context: C
 
+    fun id(value: String)
+
     fun name(value: String)
 
     fun description(value: String)
@@ -164,11 +170,23 @@ interface ContainerBuilder<out C> {
 interface ComponentBuilder<out C> {
     val context: C
 
+    fun id(value: String)
+
     fun name(value: String)
 
     fun description(value: String)
 
     fun technology(value: String)
+
+    fun relationship(body: RelationshipBuilder<C>.() -> Unit)
+
+    fun relationship(spec: RelationshipSpec<C>)
+
+    fun relationship(ref: RelationshipRef)
+
+    fun relationship(value: Relationship)
+
+    fun relationships(relationships: List<Relationship>)
 
     fun include(body: ComponentBuilder<C>.() -> Unit)
 
@@ -181,4 +199,29 @@ interface ComponentBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: ComponentBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: ComponentSpec<C2>)
+}
+
+@DslBuilder
+interface RelationshipBuilder<out C> {
+    val context: C
+
+    fun destinationId(value: String)
+
+    fun description(value: String)
+
+    fun technology(value: String)
+
+    fun interactionStyle(value: InteractionStyle)
+
+    fun include(body: RelationshipBuilder<C>.() -> Unit)
+
+    fun include(spec: RelationshipSpec<C>)
+
+    fun <C2> include(context: C2, body: RelationshipBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: RelationshipSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: RelationshipBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: RelationshipSpec<C2>)
 }

@@ -18,12 +18,14 @@ val structurizrSchema = SchemaSpec<Any?> {
     }
 
     struct("Person") {
+        field("id", StringType)
         field("name", StringType)
         field("description", StringType)
         field("location", option(ref("Location")))
     }
 
     struct("SoftwareSystem") {
+        field("id", StringType)
         field("name", StringType)
         field("description", StringType)
         field("location", option(ref("Location")))
@@ -31,6 +33,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     }
 
     struct("Container") {
+        field("id", StringType)
         field("name", StringType)
         field("description", StringType)
         field("technology", StringType)
@@ -38,14 +41,28 @@ val structurizrSchema = SchemaSpec<Any?> {
     }
 
     struct("Component") {
+        field("id", StringType)
         field("name", StringType)
         field("description", StringType)
         field("technology", StringType)
+        field("relationships", list(ref("Relationship")))
+    }
+
+    struct("Relationship") {
+        field("destinationId", StringType)
+        field("description", StringType)
+        field("technology", StringType)
+        field("interactionStyle", ref("InteractionStyle"))
     }
 
     enum("Location") {
         value("Internal")
         value("External")
         value("Unspecified")
+    }
+
+    enum("InteractionStyle") {
+        value("Synchronous")
+        value("Asynchronous")
     }
 }

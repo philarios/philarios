@@ -50,3 +50,11 @@ class ComponentScaffolder<in C>(internal val spec: ComponentSpec<C>) : Scaffolde
         return builder.shell
     }
 }
+
+class RelationshipScaffolder<in C>(internal val spec: RelationshipSpec<C>) : Scaffolder<C, Relationship> {
+    override fun createScaffold(context: C): Scaffold<Relationship> {
+        val builder = RelationshipShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
