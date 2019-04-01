@@ -2,6 +2,8 @@ package io.philarios.structurizr
 
 import io.philarios.core.DslBuilder
 import io.philarios.core.Wrapper
+import kotlin.Boolean
+import kotlin.Int
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -30,6 +32,22 @@ internal class WorkspaceShellBuilder<out C>(override val context: C, internal va
 
     override fun model(value: Model) {
         shell = shell.copy(model = Wrapper(value))
+    }
+
+    override fun viewSet(body: ViewSetBuilder<C>.() -> Unit) {
+        shell = shell.copy(viewSet = ViewSetScaffolder<C>(ViewSetSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun viewSet(spec: ViewSetSpec<C>) {
+        shell = shell.copy(viewSet = ViewSetScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun viewSet(ref: ViewSetRef) {
+        shell = shell.copy(viewSet = ref)
+    }
+
+    override fun viewSet(value: ViewSet) {
+        shell = shell.copy(viewSet = Wrapper(value))
     }
 
     override fun include(body: WorkspaceBuilder<C>.() -> Unit) {
@@ -525,6 +543,542 @@ internal class RelationshipShellBuilder<out C>(override val context: C, internal
     private fun <C2> split(context: C2): RelationshipShellBuilder<C2> = RelationshipShellBuilder(context, shell)
 
     private fun <C2> merge(other: RelationshipShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ViewSetShellBuilder<out C>(override val context: C, internal var shell: ViewSetShell = ViewSetShell()) : ViewSetBuilder<C> {
+    override fun configuration(body: ConfigurationBuilder<C>.() -> Unit) {
+        shell = shell.copy(configuration = ConfigurationScaffolder<C>(ConfigurationSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun configuration(spec: ConfigurationSpec<C>) {
+        shell = shell.copy(configuration = ConfigurationScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun configuration(ref: ConfigurationRef) {
+        shell = shell.copy(configuration = ref)
+    }
+
+    override fun configuration(value: Configuration) {
+        shell = shell.copy(configuration = Wrapper(value))
+    }
+
+    override fun include(body: ViewSetBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ViewSetSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ViewSetBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ViewSetSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ViewSetBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ViewSetSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ViewSetShellBuilder<C2> = ViewSetShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ViewSetShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ConfigurationShellBuilder<out C>(override val context: C, internal var shell: ConfigurationShell = ConfigurationShell()) : ConfigurationBuilder<C> {
+    override fun branding(body: BrandingBuilder<C>.() -> Unit) {
+        shell = shell.copy(branding = BrandingScaffolder<C>(BrandingSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun branding(spec: BrandingSpec<C>) {
+        shell = shell.copy(branding = BrandingScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun branding(ref: BrandingRef) {
+        shell = shell.copy(branding = ref)
+    }
+
+    override fun branding(value: Branding) {
+        shell = shell.copy(branding = Wrapper(value))
+    }
+
+    override fun styles(body: StylesBuilder<C>.() -> Unit) {
+        shell = shell.copy(styles = StylesScaffolder<C>(StylesSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun styles(spec: StylesSpec<C>) {
+        shell = shell.copy(styles = StylesScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun styles(ref: StylesRef) {
+        shell = shell.copy(styles = ref)
+    }
+
+    override fun styles(value: Styles) {
+        shell = shell.copy(styles = Wrapper(value))
+    }
+
+    override fun terminology(body: TerminologyBuilder<C>.() -> Unit) {
+        shell = shell.copy(terminology = TerminologyScaffolder<C>(TerminologySpec<C>(body)).createScaffold(context))
+    }
+
+    override fun terminology(spec: TerminologySpec<C>) {
+        shell = shell.copy(terminology = TerminologyScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun terminology(ref: TerminologyRef) {
+        shell = shell.copy(terminology = ref)
+    }
+
+    override fun terminology(value: Terminology) {
+        shell = shell.copy(terminology = Wrapper(value))
+    }
+
+    override fun include(body: ConfigurationBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ConfigurationSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ConfigurationBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ConfigurationSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ConfigurationBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ConfigurationSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ConfigurationShellBuilder<C2> = ConfigurationShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ConfigurationShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class BrandingShellBuilder<out C>(override val context: C, internal var shell: BrandingShell = BrandingShell()) : BrandingBuilder<C> {
+    override fun logo(value: String) {
+        shell = shell.copy(logo = Wrapper(value))
+    }
+
+    override fun font(body: FontBuilder<C>.() -> Unit) {
+        shell = shell.copy(font = FontScaffolder<C>(FontSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun font(spec: FontSpec<C>) {
+        shell = shell.copy(font = FontScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun font(ref: FontRef) {
+        shell = shell.copy(font = ref)
+    }
+
+    override fun font(value: Font) {
+        shell = shell.copy(font = Wrapper(value))
+    }
+
+    override fun include(body: BrandingBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: BrandingSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: BrandingBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: BrandingSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: BrandingBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: BrandingSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): BrandingShellBuilder<C2> = BrandingShellBuilder(context, shell)
+
+    private fun <C2> merge(other: BrandingShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class FontShellBuilder<out C>(override val context: C, internal var shell: FontShell = FontShell()) : FontBuilder<C> {
+    override fun name(value: String) {
+        shell = shell.copy(name = Wrapper(value))
+    }
+
+    override fun url(value: String) {
+        shell = shell.copy(url = Wrapper(value))
+    }
+
+    override fun include(body: FontBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: FontSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: FontBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: FontSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: FontBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: FontSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): FontShellBuilder<C2> = FontShellBuilder(context, shell)
+
+    private fun <C2> merge(other: FontShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class StylesShellBuilder<out C>(override val context: C, internal var shell: StylesShell = StylesShell()) : StylesBuilder<C> {
+    override fun element(body: ElementStyleBuilder<C>.() -> Unit) {
+        shell = shell.copy(elements = shell.elements.orEmpty() + ElementStyleScaffolder<C>(ElementStyleSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun element(spec: ElementStyleSpec<C>) {
+        shell = shell.copy(elements = shell.elements.orEmpty() + ElementStyleScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun element(ref: ElementStyleRef) {
+        shell = shell.copy(elements = shell.elements.orEmpty() + ref)
+    }
+
+    override fun element(value: ElementStyle) {
+        shell = shell.copy(elements = shell.elements.orEmpty() + Wrapper(value))
+    }
+
+    override fun elements(elements: List<ElementStyle>) {
+        shell = shell.copy(elements = shell.elements.orEmpty() + elements.map { Wrapper(it) })
+    }
+
+    override fun relationship(body: RelationshipStyleBuilder<C>.() -> Unit) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipStyleScaffolder<C>(RelationshipStyleSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun relationship(spec: RelationshipStyleSpec<C>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipStyleScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun relationship(ref: RelationshipStyleRef) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + ref)
+    }
+
+    override fun relationship(value: RelationshipStyle) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + Wrapper(value))
+    }
+
+    override fun relationships(relationships: List<RelationshipStyle>) {
+        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
+    }
+
+    override fun include(body: StylesBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: StylesSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: StylesBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: StylesSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: StylesBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: StylesSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): StylesShellBuilder<C2> = StylesShellBuilder(context, shell)
+
+    private fun <C2> merge(other: StylesShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ElementStyleShellBuilder<out C>(override val context: C, internal var shell: ElementStyleShell = ElementStyleShell()) : ElementStyleBuilder<C> {
+    override fun tag(value: String) {
+        shell = shell.copy(tag = Wrapper(value))
+    }
+
+    override fun width(value: Int) {
+        shell = shell.copy(width = Wrapper(value))
+    }
+
+    override fun height(value: Int) {
+        shell = shell.copy(height = Wrapper(value))
+    }
+
+    override fun background(value: String) {
+        shell = shell.copy(background = Wrapper(value))
+    }
+
+    override fun color(value: String) {
+        shell = shell.copy(color = Wrapper(value))
+    }
+
+    override fun fontSize(value: Int) {
+        shell = shell.copy(fontSize = Wrapper(value))
+    }
+
+    override fun shape(value: Shape) {
+        shell = shell.copy(shape = Wrapper(value))
+    }
+
+    override fun border(value: Border) {
+        shell = shell.copy(border = Wrapper(value))
+    }
+
+    override fun opacity(value: Int) {
+        shell = shell.copy(opacity = Wrapper(value))
+    }
+
+    override fun metadata(value: Boolean) {
+        shell = shell.copy(metadata = Wrapper(value))
+    }
+
+    override fun description(value: Boolean) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun include(body: ElementStyleBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ElementStyleSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ElementStyleBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ElementStyleSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ElementStyleBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ElementStyleSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ElementStyleShellBuilder<C2> = ElementStyleShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ElementStyleShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class RelationshipStyleShellBuilder<out C>(override val context: C, internal var shell: RelationshipStyleShell = RelationshipStyleShell()) : RelationshipStyleBuilder<C> {
+    override fun tag(value: String) {
+        shell = shell.copy(tag = Wrapper(value))
+    }
+
+    override fun thickness(value: Int) {
+        shell = shell.copy(thickness = Wrapper(value))
+    }
+
+    override fun color(value: String) {
+        shell = shell.copy(color = Wrapper(value))
+    }
+
+    override fun fontSize(value: Int) {
+        shell = shell.copy(fontSize = Wrapper(value))
+    }
+
+    override fun width(value: Int) {
+        shell = shell.copy(width = Wrapper(value))
+    }
+
+    override fun dashed(value: Boolean) {
+        shell = shell.copy(dashed = Wrapper(value))
+    }
+
+    override fun routing(value: Routing) {
+        shell = shell.copy(routing = Wrapper(value))
+    }
+
+    override fun position(value: Int) {
+        shell = shell.copy(position = Wrapper(value))
+    }
+
+    override fun opacity(value: Int) {
+        shell = shell.copy(opacity = Wrapper(value))
+    }
+
+    override fun include(body: RelationshipStyleBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: RelationshipStyleSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: RelationshipStyleBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: RelationshipStyleSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: RelationshipStyleBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: RelationshipStyleSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): RelationshipStyleShellBuilder<C2> = RelationshipStyleShellBuilder(context, shell)
+
+    private fun <C2> merge(other: RelationshipStyleShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class TerminologyShellBuilder<out C>(override val context: C, internal var shell: TerminologyShell = TerminologyShell()) : TerminologyBuilder<C> {
+    override fun enterprise(value: String) {
+        shell = shell.copy(enterprise = Wrapper(value))
+    }
+
+    override fun person(value: String) {
+        shell = shell.copy(person = Wrapper(value))
+    }
+
+    override fun softwareSystem(value: String) {
+        shell = shell.copy(softwareSystem = Wrapper(value))
+    }
+
+    override fun container(value: String) {
+        shell = shell.copy(container = Wrapper(value))
+    }
+
+    override fun component(value: String) {
+        shell = shell.copy(component = Wrapper(value))
+    }
+
+    override fun code(value: String) {
+        shell = shell.copy(code = Wrapper(value))
+    }
+
+    override fun deploymentNode(value: String) {
+        shell = shell.copy(deploymentNode = Wrapper(value))
+    }
+
+    override fun include(body: TerminologyBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: TerminologySpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: TerminologyBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: TerminologySpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: TerminologyBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: TerminologySpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): TerminologyShellBuilder<C2> = TerminologyShellBuilder(context, shell)
+
+    private fun <C2> merge(other: TerminologyShellBuilder<C2>) {
         this.shell = other.shell
     }
 }

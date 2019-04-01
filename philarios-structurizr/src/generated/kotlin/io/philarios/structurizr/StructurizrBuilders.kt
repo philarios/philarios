@@ -1,6 +1,8 @@
 package io.philarios.structurizr
 
 import io.philarios.core.DslBuilder
+import kotlin.Boolean
+import kotlin.Int
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
@@ -20,6 +22,14 @@ interface WorkspaceBuilder<out C> {
     fun model(ref: ModelRef)
 
     fun model(value: Model)
+
+    fun viewSet(body: ViewSetBuilder<C>.() -> Unit)
+
+    fun viewSet(spec: ViewSetSpec<C>)
+
+    fun viewSet(ref: ViewSetRef)
+
+    fun viewSet(value: ViewSet)
 
     fun include(body: WorkspaceBuilder<C>.() -> Unit)
 
@@ -254,4 +264,260 @@ interface RelationshipBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: RelationshipBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: RelationshipSpec<C2>)
+}
+
+@DslBuilder
+interface ViewSetBuilder<out C> {
+    val context: C
+
+    fun configuration(body: ConfigurationBuilder<C>.() -> Unit)
+
+    fun configuration(spec: ConfigurationSpec<C>)
+
+    fun configuration(ref: ConfigurationRef)
+
+    fun configuration(value: Configuration)
+
+    fun include(body: ViewSetBuilder<C>.() -> Unit)
+
+    fun include(spec: ViewSetSpec<C>)
+
+    fun <C2> include(context: C2, body: ViewSetBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ViewSetSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ViewSetBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ViewSetSpec<C2>)
+}
+
+@DslBuilder
+interface ConfigurationBuilder<out C> {
+    val context: C
+
+    fun branding(body: BrandingBuilder<C>.() -> Unit)
+
+    fun branding(spec: BrandingSpec<C>)
+
+    fun branding(ref: BrandingRef)
+
+    fun branding(value: Branding)
+
+    fun styles(body: StylesBuilder<C>.() -> Unit)
+
+    fun styles(spec: StylesSpec<C>)
+
+    fun styles(ref: StylesRef)
+
+    fun styles(value: Styles)
+
+    fun terminology(body: TerminologyBuilder<C>.() -> Unit)
+
+    fun terminology(spec: TerminologySpec<C>)
+
+    fun terminology(ref: TerminologyRef)
+
+    fun terminology(value: Terminology)
+
+    fun include(body: ConfigurationBuilder<C>.() -> Unit)
+
+    fun include(spec: ConfigurationSpec<C>)
+
+    fun <C2> include(context: C2, body: ConfigurationBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ConfigurationSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ConfigurationBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ConfigurationSpec<C2>)
+}
+
+@DslBuilder
+interface BrandingBuilder<out C> {
+    val context: C
+
+    fun logo(value: String)
+
+    fun font(body: FontBuilder<C>.() -> Unit)
+
+    fun font(spec: FontSpec<C>)
+
+    fun font(ref: FontRef)
+
+    fun font(value: Font)
+
+    fun include(body: BrandingBuilder<C>.() -> Unit)
+
+    fun include(spec: BrandingSpec<C>)
+
+    fun <C2> include(context: C2, body: BrandingBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: BrandingSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: BrandingBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: BrandingSpec<C2>)
+}
+
+@DslBuilder
+interface FontBuilder<out C> {
+    val context: C
+
+    fun name(value: String)
+
+    fun url(value: String)
+
+    fun include(body: FontBuilder<C>.() -> Unit)
+
+    fun include(spec: FontSpec<C>)
+
+    fun <C2> include(context: C2, body: FontBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: FontSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: FontBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: FontSpec<C2>)
+}
+
+@DslBuilder
+interface StylesBuilder<out C> {
+    val context: C
+
+    fun element(body: ElementStyleBuilder<C>.() -> Unit)
+
+    fun element(spec: ElementStyleSpec<C>)
+
+    fun element(ref: ElementStyleRef)
+
+    fun element(value: ElementStyle)
+
+    fun elements(elements: List<ElementStyle>)
+
+    fun relationship(body: RelationshipStyleBuilder<C>.() -> Unit)
+
+    fun relationship(spec: RelationshipStyleSpec<C>)
+
+    fun relationship(ref: RelationshipStyleRef)
+
+    fun relationship(value: RelationshipStyle)
+
+    fun relationships(relationships: List<RelationshipStyle>)
+
+    fun include(body: StylesBuilder<C>.() -> Unit)
+
+    fun include(spec: StylesSpec<C>)
+
+    fun <C2> include(context: C2, body: StylesBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: StylesSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: StylesBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: StylesSpec<C2>)
+}
+
+@DslBuilder
+interface ElementStyleBuilder<out C> {
+    val context: C
+
+    fun tag(value: String)
+
+    fun width(value: Int)
+
+    fun height(value: Int)
+
+    fun background(value: String)
+
+    fun color(value: String)
+
+    fun fontSize(value: Int)
+
+    fun shape(value: Shape)
+
+    fun border(value: Border)
+
+    fun opacity(value: Int)
+
+    fun metadata(value: Boolean)
+
+    fun description(value: Boolean)
+
+    fun include(body: ElementStyleBuilder<C>.() -> Unit)
+
+    fun include(spec: ElementStyleSpec<C>)
+
+    fun <C2> include(context: C2, body: ElementStyleBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ElementStyleSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ElementStyleBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ElementStyleSpec<C2>)
+}
+
+@DslBuilder
+interface RelationshipStyleBuilder<out C> {
+    val context: C
+
+    fun tag(value: String)
+
+    fun thickness(value: Int)
+
+    fun color(value: String)
+
+    fun fontSize(value: Int)
+
+    fun width(value: Int)
+
+    fun dashed(value: Boolean)
+
+    fun routing(value: Routing)
+
+    fun position(value: Int)
+
+    fun opacity(value: Int)
+
+    fun include(body: RelationshipStyleBuilder<C>.() -> Unit)
+
+    fun include(spec: RelationshipStyleSpec<C>)
+
+    fun <C2> include(context: C2, body: RelationshipStyleBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: RelationshipStyleSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: RelationshipStyleBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: RelationshipStyleSpec<C2>)
+}
+
+@DslBuilder
+interface TerminologyBuilder<out C> {
+    val context: C
+
+    fun enterprise(value: String)
+
+    fun person(value: String)
+
+    fun softwareSystem(value: String)
+
+    fun container(value: String)
+
+    fun component(value: String)
+
+    fun code(value: String)
+
+    fun deploymentNode(value: String)
+
+    fun include(body: TerminologyBuilder<C>.() -> Unit)
+
+    fun include(spec: TerminologySpec<C>)
+
+    fun <C2> include(context: C2, body: TerminologyBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: TerminologySpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: TerminologyBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: TerminologySpec<C2>)
 }

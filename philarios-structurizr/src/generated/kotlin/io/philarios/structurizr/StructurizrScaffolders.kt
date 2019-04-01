@@ -58,3 +58,67 @@ class RelationshipScaffolder<in C>(internal val spec: RelationshipSpec<C>) : Sca
         return builder.shell
     }
 }
+
+class ViewSetScaffolder<in C>(internal val spec: ViewSetSpec<C>) : Scaffolder<C, ViewSet> {
+    override fun createScaffold(context: C): Scaffold<ViewSet> {
+        val builder = ViewSetShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ConfigurationScaffolder<in C>(internal val spec: ConfigurationSpec<C>) : Scaffolder<C, Configuration> {
+    override fun createScaffold(context: C): Scaffold<Configuration> {
+        val builder = ConfigurationShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class BrandingScaffolder<in C>(internal val spec: BrandingSpec<C>) : Scaffolder<C, Branding> {
+    override fun createScaffold(context: C): Scaffold<Branding> {
+        val builder = BrandingShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class FontScaffolder<in C>(internal val spec: FontSpec<C>) : Scaffolder<C, Font> {
+    override fun createScaffold(context: C): Scaffold<Font> {
+        val builder = FontShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class StylesScaffolder<in C>(internal val spec: StylesSpec<C>) : Scaffolder<C, Styles> {
+    override fun createScaffold(context: C): Scaffold<Styles> {
+        val builder = StylesShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ElementStyleScaffolder<in C>(internal val spec: ElementStyleSpec<C>) : Scaffolder<C, ElementStyle> {
+    override fun createScaffold(context: C): Scaffold<ElementStyle> {
+        val builder = ElementStyleShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class RelationshipStyleScaffolder<in C>(internal val spec: RelationshipStyleSpec<C>) : Scaffolder<C, RelationshipStyle> {
+    override fun createScaffold(context: C): Scaffold<RelationshipStyle> {
+        val builder = RelationshipStyleShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class TerminologyScaffolder<in C>(internal val spec: TerminologySpec<C>) : Scaffolder<C, Terminology> {
+    override fun createScaffold(context: C): Scaffold<Terminology> {
+        val builder = TerminologyShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
