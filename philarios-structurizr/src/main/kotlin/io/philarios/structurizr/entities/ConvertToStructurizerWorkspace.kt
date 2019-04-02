@@ -1,7 +1,6 @@
 package io.philarios.structurizr.entities
 
-import com.structurizr.model.StaticStructureElement
-import io.philarios.structurizr.*
+import io.philarios.structurizr.Workspace
 import com.structurizr.Workspace as SWorkspace
 import com.structurizr.model.Component as SComponent
 import com.structurizr.model.Container as SContainer
@@ -23,6 +22,6 @@ import com.structurizr.view.Terminology as STerminology
 import com.structurizr.view.ViewSet as SViewSet
 
 fun Workspace.convert() = SWorkspace(name, description).also {
-    model?.convert(it.model)
-    viewSet?.convert(it.views)
+    val elementMap = model?.convert(it.model)
+    viewSet?.convert(it.views, elementMap.orEmpty())
 }

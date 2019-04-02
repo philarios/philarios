@@ -24,9 +24,10 @@ import com.structurizr.view.ViewSet as SViewSet
 
 typealias ElementMap = Map<String, StaticStructureElement>
 
-fun Model.convert(model: SModel) = model.also {
+fun Model.convert(model: SModel) = model.let {
     val map = collect(it)
     connect(map)
+    map
 }
 
 private fun Model.collect(model: SModel) =

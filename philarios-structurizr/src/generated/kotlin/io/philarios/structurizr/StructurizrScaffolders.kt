@@ -67,6 +67,46 @@ class ViewSetScaffolder<in C>(internal val spec: ViewSetSpec<C>) : Scaffolder<C,
     }
 }
 
+class SystemLandscapeViewScaffolder<in C>(internal val spec: SystemLandscapeViewSpec<C>) : Scaffolder<C, SystemLandscapeView> {
+    override fun createScaffold(context: C): Scaffold<SystemLandscapeView> {
+        val builder = SystemLandscapeViewShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class SystemContextViewScaffolder<in C>(internal val spec: SystemContextViewSpec<C>) : Scaffolder<C, SystemContextView> {
+    override fun createScaffold(context: C): Scaffold<SystemContextView> {
+        val builder = SystemContextViewShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ContainerViewScaffolder<in C>(internal val spec: ContainerViewSpec<C>) : Scaffolder<C, ContainerView> {
+    override fun createScaffold(context: C): Scaffold<ContainerView> {
+        val builder = ContainerViewShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class ComponentViewScaffolder<in C>(internal val spec: ComponentViewSpec<C>) : Scaffolder<C, ComponentView> {
+    override fun createScaffold(context: C): Scaffold<ComponentView> {
+        val builder = ComponentViewShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class DynamicViewScaffolder<in C>(internal val spec: DynamicViewSpec<C>) : Scaffolder<C, DynamicView> {
+    override fun createScaffold(context: C): Scaffold<DynamicView> {
+        val builder = DynamicViewShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
 class ConfigurationScaffolder<in C>(internal val spec: ConfigurationSpec<C>) : Scaffolder<C, Configuration> {
     override fun createScaffold(context: C): Scaffold<Configuration> {
         val builder = ConfigurationShellBuilder<C>(context)

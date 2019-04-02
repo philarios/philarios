@@ -19,6 +19,16 @@ class RelationshipRef(key: String) : Scaffold<Relationship> by io.philarios.core
 
 class ViewSetRef(key: String) : Scaffold<ViewSet> by io.philarios.core.RegistryRef(io.philarios.structurizr.ViewSet::class, key)
 
+class SystemLandscapeViewRef(key: String) : Scaffold<SystemLandscapeView> by io.philarios.core.RegistryRef(io.philarios.structurizr.SystemLandscapeView::class, key)
+
+class SystemContextViewRef(key: String) : Scaffold<SystemContextView> by io.philarios.core.RegistryRef(io.philarios.structurizr.SystemContextView::class, key)
+
+class ContainerViewRef(key: String) : Scaffold<ContainerView> by io.philarios.core.RegistryRef(io.philarios.structurizr.ContainerView::class, key)
+
+class ComponentViewRef(key: String) : Scaffold<ComponentView> by io.philarios.core.RegistryRef(io.philarios.structurizr.ComponentView::class, key)
+
+class DynamicViewRef(key: String) : Scaffold<DynamicView> by io.philarios.core.RegistryRef(io.philarios.structurizr.DynamicView::class, key)
+
 class ConfigurationRef(key: String) : Scaffold<Configuration> by io.philarios.core.RegistryRef(io.philarios.structurizr.Configuration::class, key)
 
 class BrandingRef(key: String) : Scaffold<Branding> by io.philarios.core.RegistryRef(io.philarios.structurizr.Branding::class, key)

@@ -69,7 +69,97 @@ enum class InteractionStyle {
     Asynchronous
 }
 
-data class ViewSet(val configuration: Configuration?)
+data class ViewSet(
+        val systemLandscapeViews: List<SystemLandscapeView>?,
+        val systemContextViews: List<SystemContextView>?,
+        val containerViews: List<ContainerView>?,
+        val componentViews: List<ComponentView>?,
+        val dynamicViews: List<DynamicView>?,
+        val configuration: Configuration?
+)
+
+data class SystemLandscapeView(
+        val key: String,
+        val description: String,
+        val title: String?,
+        val paperSize: PaperSize?,
+        val softwareSystems: List<String>?,
+        val people: List<String>?
+)
+
+data class SystemContextView(
+        val softwareSystemId: String,
+        val key: String,
+        val description: String,
+        val title: String?,
+        val paperSize: PaperSize?,
+        val softwareSystems: List<String>?,
+        val people: List<String>?
+)
+
+data class ContainerView(
+        val softwareSystemId: String,
+        val key: String,
+        val description: String,
+        val title: String?,
+        val paperSize: PaperSize?,
+        val softwareSystems: List<String>?,
+        val people: List<String>?,
+        val containers: List<String>?
+)
+
+data class ComponentView(
+        val containerId: String,
+        val key: String,
+        val description: String,
+        val title: String?,
+        val paperSize: PaperSize?,
+        val softwareSystems: List<String>?,
+        val people: List<String>?,
+        val containers: List<String>?,
+        val components: List<String>?
+)
+
+data class DynamicView(
+        val key: String,
+        val description: String,
+        val title: String?,
+        val paperSize: PaperSize?
+)
+
+enum class PaperSize {
+    A6_Portrait,
+
+    A6_Landscape,
+
+    A5_Portrait,
+
+    A5_Landscape,
+
+    A4_Portrait,
+
+    A4_Landscape,
+
+    A3_Portrait,
+
+    A3_Landscape,
+
+    A2_Portrait,
+
+    A2_Landscape,
+
+    Letter_Portrait,
+
+    Letter_Landscape,
+
+    Legal_Portrait,
+
+    Legal_Landscape,
+
+    Slide_4_3,
+
+    Slide_16_9
+}
 
 data class Configuration(
         val branding: Branding?,

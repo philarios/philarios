@@ -270,6 +270,56 @@ interface RelationshipBuilder<out C> {
 interface ViewSetBuilder<out C> {
     val context: C
 
+    fun systemLandscapeView(body: SystemLandscapeViewBuilder<C>.() -> Unit)
+
+    fun systemLandscapeView(spec: SystemLandscapeViewSpec<C>)
+
+    fun systemLandscapeView(ref: SystemLandscapeViewRef)
+
+    fun systemLandscapeView(value: SystemLandscapeView)
+
+    fun systemLandscapeViews(systemLandscapeViews: List<SystemLandscapeView>)
+
+    fun systemContextView(body: SystemContextViewBuilder<C>.() -> Unit)
+
+    fun systemContextView(spec: SystemContextViewSpec<C>)
+
+    fun systemContextView(ref: SystemContextViewRef)
+
+    fun systemContextView(value: SystemContextView)
+
+    fun systemContextViews(systemContextViews: List<SystemContextView>)
+
+    fun containerView(body: ContainerViewBuilder<C>.() -> Unit)
+
+    fun containerView(spec: ContainerViewSpec<C>)
+
+    fun containerView(ref: ContainerViewRef)
+
+    fun containerView(value: ContainerView)
+
+    fun containerViews(containerViews: List<ContainerView>)
+
+    fun componentView(body: ComponentViewBuilder<C>.() -> Unit)
+
+    fun componentView(spec: ComponentViewSpec<C>)
+
+    fun componentView(ref: ComponentViewRef)
+
+    fun componentView(value: ComponentView)
+
+    fun componentViews(componentViews: List<ComponentView>)
+
+    fun dynamicView(body: DynamicViewBuilder<C>.() -> Unit)
+
+    fun dynamicView(spec: DynamicViewSpec<C>)
+
+    fun dynamicView(ref: DynamicViewRef)
+
+    fun dynamicView(value: DynamicView)
+
+    fun dynamicViews(dynamicViews: List<DynamicView>)
+
     fun configuration(body: ConfigurationBuilder<C>.() -> Unit)
 
     fun configuration(spec: ConfigurationSpec<C>)
@@ -289,6 +339,181 @@ interface ViewSetBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: ViewSetBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: ViewSetSpec<C2>)
+}
+
+@DslBuilder
+interface SystemLandscapeViewBuilder<out C> {
+    val context: C
+
+    fun key(value: String)
+
+    fun description(value: String)
+
+    fun title(value: String)
+
+    fun paperSize(value: PaperSize)
+
+    fun softwareSystem(value: String)
+
+    fun softwareSystems(softwareSystems: List<String>)
+
+    fun person(value: String)
+
+    fun people(people: List<String>)
+
+    fun include(body: SystemLandscapeViewBuilder<C>.() -> Unit)
+
+    fun include(spec: SystemLandscapeViewSpec<C>)
+
+    fun <C2> include(context: C2, body: SystemLandscapeViewBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: SystemLandscapeViewSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: SystemLandscapeViewBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: SystemLandscapeViewSpec<C2>)
+}
+
+@DslBuilder
+interface SystemContextViewBuilder<out C> {
+    val context: C
+
+    fun softwareSystemId(value: String)
+
+    fun key(value: String)
+
+    fun description(value: String)
+
+    fun title(value: String)
+
+    fun paperSize(value: PaperSize)
+
+    fun softwareSystem(value: String)
+
+    fun softwareSystems(softwareSystems: List<String>)
+
+    fun person(value: String)
+
+    fun people(people: List<String>)
+
+    fun include(body: SystemContextViewBuilder<C>.() -> Unit)
+
+    fun include(spec: SystemContextViewSpec<C>)
+
+    fun <C2> include(context: C2, body: SystemContextViewBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: SystemContextViewSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: SystemContextViewBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: SystemContextViewSpec<C2>)
+}
+
+@DslBuilder
+interface ContainerViewBuilder<out C> {
+    val context: C
+
+    fun softwareSystemId(value: String)
+
+    fun key(value: String)
+
+    fun description(value: String)
+
+    fun title(value: String)
+
+    fun paperSize(value: PaperSize)
+
+    fun softwareSystem(value: String)
+
+    fun softwareSystems(softwareSystems: List<String>)
+
+    fun person(value: String)
+
+    fun people(people: List<String>)
+
+    fun container(value: String)
+
+    fun containers(containers: List<String>)
+
+    fun include(body: ContainerViewBuilder<C>.() -> Unit)
+
+    fun include(spec: ContainerViewSpec<C>)
+
+    fun <C2> include(context: C2, body: ContainerViewBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ContainerViewSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ContainerViewBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ContainerViewSpec<C2>)
+}
+
+@DslBuilder
+interface ComponentViewBuilder<out C> {
+    val context: C
+
+    fun containerId(value: String)
+
+    fun key(value: String)
+
+    fun description(value: String)
+
+    fun title(value: String)
+
+    fun paperSize(value: PaperSize)
+
+    fun softwareSystem(value: String)
+
+    fun softwareSystems(softwareSystems: List<String>)
+
+    fun person(value: String)
+
+    fun people(people: List<String>)
+
+    fun container(value: String)
+
+    fun containers(containers: List<String>)
+
+    fun component(value: String)
+
+    fun components(components: List<String>)
+
+    fun include(body: ComponentViewBuilder<C>.() -> Unit)
+
+    fun include(spec: ComponentViewSpec<C>)
+
+    fun <C2> include(context: C2, body: ComponentViewBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: ComponentViewSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: ComponentViewBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: ComponentViewSpec<C2>)
+}
+
+@DslBuilder
+interface DynamicViewBuilder<out C> {
+    val context: C
+
+    fun key(value: String)
+
+    fun description(value: String)
+
+    fun title(value: String)
+
+    fun paperSize(value: PaperSize)
+
+    fun include(body: DynamicViewBuilder<C>.() -> Unit)
+
+    fun include(spec: DynamicViewSpec<C>)
+
+    fun <C2> include(context: C2, body: DynamicViewBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: DynamicViewSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: DynamicViewBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: DynamicViewSpec<C2>)
 }
 
 @DslBuilder

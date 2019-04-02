@@ -549,6 +549,106 @@ internal class RelationshipShellBuilder<out C>(override val context: C, internal
 
 @DslBuilder
 internal class ViewSetShellBuilder<out C>(override val context: C, internal var shell: ViewSetShell = ViewSetShell()) : ViewSetBuilder<C> {
+    override fun systemLandscapeView(body: SystemLandscapeViewBuilder<C>.() -> Unit) {
+        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder<C>(SystemLandscapeViewSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun systemLandscapeView(spec: SystemLandscapeViewSpec<C>) {
+        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun systemLandscapeView(ref: SystemLandscapeViewRef) {
+        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + ref)
+    }
+
+    override fun systemLandscapeView(value: SystemLandscapeView) {
+        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + Wrapper(value))
+    }
+
+    override fun systemLandscapeViews(systemLandscapeViews: List<SystemLandscapeView>) {
+        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + systemLandscapeViews.map { Wrapper(it) })
+    }
+
+    override fun systemContextView(body: SystemContextViewBuilder<C>.() -> Unit) {
+        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + SystemContextViewScaffolder<C>(SystemContextViewSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun systemContextView(spec: SystemContextViewSpec<C>) {
+        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + SystemContextViewScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun systemContextView(ref: SystemContextViewRef) {
+        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + ref)
+    }
+
+    override fun systemContextView(value: SystemContextView) {
+        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + Wrapper(value))
+    }
+
+    override fun systemContextViews(systemContextViews: List<SystemContextView>) {
+        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + systemContextViews.map { Wrapper(it) })
+    }
+
+    override fun containerView(body: ContainerViewBuilder<C>.() -> Unit) {
+        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ContainerViewScaffolder<C>(ContainerViewSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun containerView(spec: ContainerViewSpec<C>) {
+        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ContainerViewScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun containerView(ref: ContainerViewRef) {
+        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ref)
+    }
+
+    override fun containerView(value: ContainerView) {
+        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + Wrapper(value))
+    }
+
+    override fun containerViews(containerViews: List<ContainerView>) {
+        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + containerViews.map { Wrapper(it) })
+    }
+
+    override fun componentView(body: ComponentViewBuilder<C>.() -> Unit) {
+        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ComponentViewScaffolder<C>(ComponentViewSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun componentView(spec: ComponentViewSpec<C>) {
+        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ComponentViewScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun componentView(ref: ComponentViewRef) {
+        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ref)
+    }
+
+    override fun componentView(value: ComponentView) {
+        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + Wrapper(value))
+    }
+
+    override fun componentViews(componentViews: List<ComponentView>) {
+        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + componentViews.map { Wrapper(it) })
+    }
+
+    override fun dynamicView(body: DynamicViewBuilder<C>.() -> Unit) {
+        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + DynamicViewScaffolder<C>(DynamicViewSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun dynamicView(spec: DynamicViewSpec<C>) {
+        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + DynamicViewScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun dynamicView(ref: DynamicViewRef) {
+        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + ref)
+    }
+
+    override fun dynamicView(value: DynamicView) {
+        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + Wrapper(value))
+    }
+
+    override fun dynamicViews(dynamicViews: List<DynamicView>) {
+        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + dynamicViews.map { Wrapper(it) })
+    }
+
     override fun configuration(body: ConfigurationBuilder<C>.() -> Unit) {
         shell = shell.copy(configuration = ConfigurationScaffolder<C>(ConfigurationSpec<C>(body)).createScaffold(context))
     }
@@ -596,6 +696,371 @@ internal class ViewSetShellBuilder<out C>(override val context: C, internal var 
     private fun <C2> split(context: C2): ViewSetShellBuilder<C2> = ViewSetShellBuilder(context, shell)
 
     private fun <C2> merge(other: ViewSetShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class SystemLandscapeViewShellBuilder<out C>(override val context: C, internal var shell: SystemLandscapeViewShell = SystemLandscapeViewShell()) : SystemLandscapeViewBuilder<C> {
+    override fun key(value: String) {
+        shell = shell.copy(key = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun paperSize(value: PaperSize) {
+        shell = shell.copy(paperSize = Wrapper(value))
+    }
+
+    override fun softwareSystem(value: String) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + Wrapper(value))
+    }
+
+    override fun softwareSystems(softwareSystems: List<String>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { Wrapper(it) })
+    }
+
+    override fun person(value: String) {
+        shell = shell.copy(people = shell.people.orEmpty() + Wrapper(value))
+    }
+
+    override fun people(people: List<String>) {
+        shell = shell.copy(people = shell.people.orEmpty() + people.map { Wrapper(it) })
+    }
+
+    override fun include(body: SystemLandscapeViewBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: SystemLandscapeViewSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: SystemLandscapeViewBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: SystemLandscapeViewSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: SystemLandscapeViewBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: SystemLandscapeViewSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): SystemLandscapeViewShellBuilder<C2> = SystemLandscapeViewShellBuilder(context, shell)
+
+    private fun <C2> merge(other: SystemLandscapeViewShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class SystemContextViewShellBuilder<out C>(override val context: C, internal var shell: SystemContextViewShell = SystemContextViewShell()) : SystemContextViewBuilder<C> {
+    override fun softwareSystemId(value: String) {
+        shell = shell.copy(softwareSystemId = Wrapper(value))
+    }
+
+    override fun key(value: String) {
+        shell = shell.copy(key = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun paperSize(value: PaperSize) {
+        shell = shell.copy(paperSize = Wrapper(value))
+    }
+
+    override fun softwareSystem(value: String) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + Wrapper(value))
+    }
+
+    override fun softwareSystems(softwareSystems: List<String>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { Wrapper(it) })
+    }
+
+    override fun person(value: String) {
+        shell = shell.copy(people = shell.people.orEmpty() + Wrapper(value))
+    }
+
+    override fun people(people: List<String>) {
+        shell = shell.copy(people = shell.people.orEmpty() + people.map { Wrapper(it) })
+    }
+
+    override fun include(body: SystemContextViewBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: SystemContextViewSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: SystemContextViewBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: SystemContextViewSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: SystemContextViewBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: SystemContextViewSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): SystemContextViewShellBuilder<C2> = SystemContextViewShellBuilder(context, shell)
+
+    private fun <C2> merge(other: SystemContextViewShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ContainerViewShellBuilder<out C>(override val context: C, internal var shell: ContainerViewShell = ContainerViewShell()) : ContainerViewBuilder<C> {
+    override fun softwareSystemId(value: String) {
+        shell = shell.copy(softwareSystemId = Wrapper(value))
+    }
+
+    override fun key(value: String) {
+        shell = shell.copy(key = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun paperSize(value: PaperSize) {
+        shell = shell.copy(paperSize = Wrapper(value))
+    }
+
+    override fun softwareSystem(value: String) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + Wrapper(value))
+    }
+
+    override fun softwareSystems(softwareSystems: List<String>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { Wrapper(it) })
+    }
+
+    override fun person(value: String) {
+        shell = shell.copy(people = shell.people.orEmpty() + Wrapper(value))
+    }
+
+    override fun people(people: List<String>) {
+        shell = shell.copy(people = shell.people.orEmpty() + people.map { Wrapper(it) })
+    }
+
+    override fun container(value: String) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + Wrapper(value))
+    }
+
+    override fun containers(containers: List<String>) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { Wrapper(it) })
+    }
+
+    override fun include(body: ContainerViewBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ContainerViewSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ContainerViewBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ContainerViewSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ContainerViewBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ContainerViewSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ContainerViewShellBuilder<C2> = ContainerViewShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ContainerViewShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class ComponentViewShellBuilder<out C>(override val context: C, internal var shell: ComponentViewShell = ComponentViewShell()) : ComponentViewBuilder<C> {
+    override fun containerId(value: String) {
+        shell = shell.copy(containerId = Wrapper(value))
+    }
+
+    override fun key(value: String) {
+        shell = shell.copy(key = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun paperSize(value: PaperSize) {
+        shell = shell.copy(paperSize = Wrapper(value))
+    }
+
+    override fun softwareSystem(value: String) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + Wrapper(value))
+    }
+
+    override fun softwareSystems(softwareSystems: List<String>) {
+        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { Wrapper(it) })
+    }
+
+    override fun person(value: String) {
+        shell = shell.copy(people = shell.people.orEmpty() + Wrapper(value))
+    }
+
+    override fun people(people: List<String>) {
+        shell = shell.copy(people = shell.people.orEmpty() + people.map { Wrapper(it) })
+    }
+
+    override fun container(value: String) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + Wrapper(value))
+    }
+
+    override fun containers(containers: List<String>) {
+        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { Wrapper(it) })
+    }
+
+    override fun component(value: String) {
+        shell = shell.copy(components = shell.components.orEmpty() + Wrapper(value))
+    }
+
+    override fun components(components: List<String>) {
+        shell = shell.copy(components = shell.components.orEmpty() + components.map { Wrapper(it) })
+    }
+
+    override fun include(body: ComponentViewBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: ComponentViewSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: ComponentViewBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: ComponentViewSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: ComponentViewBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: ComponentViewSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): ComponentViewShellBuilder<C2> = ComponentViewShellBuilder(context, shell)
+
+    private fun <C2> merge(other: ComponentViewShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class DynamicViewShellBuilder<out C>(override val context: C, internal var shell: DynamicViewShell = DynamicViewShell()) : DynamicViewBuilder<C> {
+    override fun key(value: String) {
+        shell = shell.copy(key = Wrapper(value))
+    }
+
+    override fun description(value: String) {
+        shell = shell.copy(description = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun paperSize(value: PaperSize) {
+        shell = shell.copy(paperSize = Wrapper(value))
+    }
+
+    override fun include(body: DynamicViewBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: DynamicViewSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: DynamicViewBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: DynamicViewSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: DynamicViewBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: DynamicViewSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): DynamicViewShellBuilder<C2> = DynamicViewShellBuilder(context, shell)
+
+    private fun <C2> merge(other: DynamicViewShellBuilder<C2>) {
         this.shell = other.shell
     }
 }

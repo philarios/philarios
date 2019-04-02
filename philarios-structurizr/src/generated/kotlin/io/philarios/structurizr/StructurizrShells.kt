@@ -175,13 +175,156 @@ internal data class RelationshipShell(
     }
 }
 
-internal data class ViewSetShell(var configuration: Scaffold<Configuration>? = null) : Scaffold<ViewSet> {
+internal data class ViewSetShell(
+        var systemLandscapeViews: List<Scaffold<SystemLandscapeView>>? = null,
+        var systemContextViews: List<Scaffold<SystemContextView>>? = null,
+        var containerViews: List<Scaffold<ContainerView>>? = null,
+        var componentViews: List<Scaffold<ComponentView>>? = null,
+        var dynamicViews: List<Scaffold<DynamicView>>? = null,
+        var configuration: Scaffold<Configuration>? = null
+) : Scaffold<ViewSet> {
     override suspend fun resolve(registry: Registry): ViewSet {
         coroutineScope {
+            systemLandscapeViews?.let{ it.forEach { launch { it.resolve(registry) } } }
+            systemContextViews?.let{ it.forEach { launch { it.resolve(registry) } } }
+            containerViews?.let{ it.forEach { launch { it.resolve(registry) } } }
+            componentViews?.let{ it.forEach { launch { it.resolve(registry) } } }
+            dynamicViews?.let{ it.forEach { launch { it.resolve(registry) } } }
             configuration?.let{ launch { it.resolve(registry) } }
         }
         val value = ViewSet(
+            systemLandscapeViews?.let{ it.map { it.resolve(registry) } },
+            systemContextViews?.let{ it.map { it.resolve(registry) } },
+            containerViews?.let{ it.map { it.resolve(registry) } },
+            componentViews?.let{ it.map { it.resolve(registry) } },
+            dynamicViews?.let{ it.map { it.resolve(registry) } },
             configuration?.let{ it.resolve(registry) }
+        )
+        return value
+    }
+}
+
+internal data class SystemLandscapeViewShell(
+        var key: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var paperSize: Scaffold<PaperSize>? = null,
+        var softwareSystems: List<Scaffold<String>>? = null,
+        var people: List<Scaffold<String>>? = null
+) : Scaffold<SystemLandscapeView> {
+    override suspend fun resolve(registry: Registry): SystemLandscapeView {
+        checkNotNull(key) { "SystemLandscapeView is missing the key property" }
+        checkNotNull(description) { "SystemLandscapeView is missing the description property" }
+        val value = SystemLandscapeView(
+            key!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            title?.let{ it.resolve(registry) },
+            paperSize?.let{ it.resolve(registry) },
+            softwareSystems?.let{ it.map { it.resolve(registry) } },
+            people?.let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class SystemContextViewShell(
+        var softwareSystemId: Scaffold<String>? = null,
+        var key: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var paperSize: Scaffold<PaperSize>? = null,
+        var softwareSystems: List<Scaffold<String>>? = null,
+        var people: List<Scaffold<String>>? = null
+) : Scaffold<SystemContextView> {
+    override suspend fun resolve(registry: Registry): SystemContextView {
+        checkNotNull(softwareSystemId) { "SystemContextView is missing the softwareSystemId property" }
+        checkNotNull(key) { "SystemContextView is missing the key property" }
+        checkNotNull(description) { "SystemContextView is missing the description property" }
+        val value = SystemContextView(
+            softwareSystemId!!.let{ it.resolve(registry) },
+            key!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            title?.let{ it.resolve(registry) },
+            paperSize?.let{ it.resolve(registry) },
+            softwareSystems?.let{ it.map { it.resolve(registry) } },
+            people?.let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class ContainerViewShell(
+        var softwareSystemId: Scaffold<String>? = null,
+        var key: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var paperSize: Scaffold<PaperSize>? = null,
+        var softwareSystems: List<Scaffold<String>>? = null,
+        var people: List<Scaffold<String>>? = null,
+        var containers: List<Scaffold<String>>? = null
+) : Scaffold<ContainerView> {
+    override suspend fun resolve(registry: Registry): ContainerView {
+        checkNotNull(softwareSystemId) { "ContainerView is missing the softwareSystemId property" }
+        checkNotNull(key) { "ContainerView is missing the key property" }
+        checkNotNull(description) { "ContainerView is missing the description property" }
+        val value = ContainerView(
+            softwareSystemId!!.let{ it.resolve(registry) },
+            key!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            title?.let{ it.resolve(registry) },
+            paperSize?.let{ it.resolve(registry) },
+            softwareSystems?.let{ it.map { it.resolve(registry) } },
+            people?.let{ it.map { it.resolve(registry) } },
+            containers?.let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class ComponentViewShell(
+        var containerId: Scaffold<String>? = null,
+        var key: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var paperSize: Scaffold<PaperSize>? = null,
+        var softwareSystems: List<Scaffold<String>>? = null,
+        var people: List<Scaffold<String>>? = null,
+        var containers: List<Scaffold<String>>? = null,
+        var components: List<Scaffold<String>>? = null
+) : Scaffold<ComponentView> {
+    override suspend fun resolve(registry: Registry): ComponentView {
+        checkNotNull(containerId) { "ComponentView is missing the containerId property" }
+        checkNotNull(key) { "ComponentView is missing the key property" }
+        checkNotNull(description) { "ComponentView is missing the description property" }
+        val value = ComponentView(
+            containerId!!.let{ it.resolve(registry) },
+            key!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            title?.let{ it.resolve(registry) },
+            paperSize?.let{ it.resolve(registry) },
+            softwareSystems?.let{ it.map { it.resolve(registry) } },
+            people?.let{ it.map { it.resolve(registry) } },
+            containers?.let{ it.map { it.resolve(registry) } },
+            components?.let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class DynamicViewShell(
+        var key: Scaffold<String>? = null,
+        var description: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var paperSize: Scaffold<PaperSize>? = null
+) : Scaffold<DynamicView> {
+    override suspend fun resolve(registry: Registry): DynamicView {
+        checkNotNull(key) { "DynamicView is missing the key property" }
+        checkNotNull(description) { "DynamicView is missing the description property" }
+        val value = DynamicView(
+            key!!.let{ it.resolve(registry) },
+            description!!.let{ it.resolve(registry) },
+            title?.let{ it.resolve(registry) },
+            paperSize?.let{ it.resolve(registry) }
         )
         return value
     }

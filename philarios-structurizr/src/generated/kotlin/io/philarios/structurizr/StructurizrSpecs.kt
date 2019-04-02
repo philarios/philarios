@@ -16,6 +16,16 @@ class RelationshipSpec<in C>(internal val body: RelationshipBuilder<C>.() -> Uni
 
 class ViewSetSpec<in C>(internal val body: ViewSetBuilder<C>.() -> Unit)
 
+class SystemLandscapeViewSpec<in C>(internal val body: SystemLandscapeViewBuilder<C>.() -> Unit)
+
+class SystemContextViewSpec<in C>(internal val body: SystemContextViewBuilder<C>.() -> Unit)
+
+class ContainerViewSpec<in C>(internal val body: ContainerViewBuilder<C>.() -> Unit)
+
+class ComponentViewSpec<in C>(internal val body: ComponentViewBuilder<C>.() -> Unit)
+
+class DynamicViewSpec<in C>(internal val body: DynamicViewBuilder<C>.() -> Unit)
+
 class ConfigurationSpec<in C>(internal val body: ConfigurationBuilder<C>.() -> Unit)
 
 class BrandingSpec<in C>(internal val body: BrandingBuilder<C>.() -> Unit)
