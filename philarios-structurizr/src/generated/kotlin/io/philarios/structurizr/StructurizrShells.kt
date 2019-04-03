@@ -17,14 +17,13 @@ internal data class WorkspaceShell(
 ) : Scaffold<Workspace> {
     override suspend fun resolve(registry: Registry): Workspace {
         checkNotNull(name) { "Workspace is missing the name property" }
-        checkNotNull(description) { "Workspace is missing the description property" }
         coroutineScope {
             model?.let{ launch { it.resolve(registry) } }
             viewSet?.let{ launch { it.resolve(registry) } }
         }
         val value = Workspace(
             name!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             model?.let{ it.resolve(registry) },
             viewSet?.let{ it.resolve(registry) }
         )
@@ -56,14 +55,13 @@ internal data class PersonShell(
     override suspend fun resolve(registry: Registry): Person {
         checkNotNull(id) { "Person is missing the id property" }
         checkNotNull(name) { "Person is missing the name property" }
-        checkNotNull(description) { "Person is missing the description property" }
         coroutineScope {
             relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
         val value = Person(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
@@ -82,7 +80,6 @@ internal data class SoftwareSystemShell(
     override suspend fun resolve(registry: Registry): SoftwareSystem {
         checkNotNull(id) { "SoftwareSystem is missing the id property" }
         checkNotNull(name) { "SoftwareSystem is missing the name property" }
-        checkNotNull(description) { "SoftwareSystem is missing the description property" }
         coroutineScope {
             containers?.let{ it.forEach { launch { it.resolve(registry) } } }
             relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -90,7 +87,7 @@ internal data class SoftwareSystemShell(
         val value = SoftwareSystem(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) },
             containers.orEmpty().let{ it.map { it.resolve(registry) } },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
@@ -110,8 +107,6 @@ internal data class ContainerShell(
     override suspend fun resolve(registry: Registry): Container {
         checkNotNull(id) { "Container is missing the id property" }
         checkNotNull(name) { "Container is missing the name property" }
-        checkNotNull(description) { "Container is missing the description property" }
-        checkNotNull(technology) { "Container is missing the technology property" }
         coroutineScope {
             components?.let{ it.forEach { launch { it.resolve(registry) } } }
             relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -119,8 +114,8 @@ internal data class ContainerShell(
         val value = Container(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
-            technology!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
+            technology?.let{ it.resolve(registry) },
             components.orEmpty().let{ it.map { it.resolve(registry) } },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
@@ -138,16 +133,14 @@ internal data class ComponentShell(
     override suspend fun resolve(registry: Registry): Component {
         checkNotNull(id) { "Component is missing the id property" }
         checkNotNull(name) { "Component is missing the name property" }
-        checkNotNull(description) { "Component is missing the description property" }
-        checkNotNull(technology) { "Component is missing the technology property" }
         coroutineScope {
             relationships?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
         val value = Component(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
-            technology!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
+            technology?.let{ it.resolve(registry) },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
@@ -162,14 +155,11 @@ internal data class RelationshipShell(
 ) : Scaffold<Relationship> {
     override suspend fun resolve(registry: Registry): Relationship {
         checkNotNull(destinationId) { "Relationship is missing the destinationId property" }
-        checkNotNull(description) { "Relationship is missing the description property" }
-        checkNotNull(technology) { "Relationship is missing the technology property" }
-        checkNotNull(interactionStyle) { "Relationship is missing the interactionStyle property" }
         val value = Relationship(
             destinationId!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
-            technology!!.let{ it.resolve(registry) },
-            interactionStyle!!.let{ it.resolve(registry) }
+            description?.let{ it.resolve(registry) },
+            technology?.let{ it.resolve(registry) },
+            interactionStyle?.let{ it.resolve(registry) }
         )
         return value
     }
@@ -214,10 +204,9 @@ internal data class SystemLandscapeViewShell(
 ) : Scaffold<SystemLandscapeView> {
     override suspend fun resolve(registry: Registry): SystemLandscapeView {
         checkNotNull(key) { "SystemLandscapeView is missing the key property" }
-        checkNotNull(description) { "SystemLandscapeView is missing the description property" }
         val value = SystemLandscapeView(
             key!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             title?.let{ it.resolve(registry) },
             paperSize?.let{ it.resolve(registry) },
             softwareSystems?.let{ it.map { it.resolve(registry) } },
@@ -239,11 +228,10 @@ internal data class SystemContextViewShell(
     override suspend fun resolve(registry: Registry): SystemContextView {
         checkNotNull(softwareSystemId) { "SystemContextView is missing the softwareSystemId property" }
         checkNotNull(key) { "SystemContextView is missing the key property" }
-        checkNotNull(description) { "SystemContextView is missing the description property" }
         val value = SystemContextView(
             softwareSystemId!!.let{ it.resolve(registry) },
             key!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             title?.let{ it.resolve(registry) },
             paperSize?.let{ it.resolve(registry) },
             softwareSystems?.let{ it.map { it.resolve(registry) } },
@@ -266,11 +254,10 @@ internal data class ContainerViewShell(
     override suspend fun resolve(registry: Registry): ContainerView {
         checkNotNull(softwareSystemId) { "ContainerView is missing the softwareSystemId property" }
         checkNotNull(key) { "ContainerView is missing the key property" }
-        checkNotNull(description) { "ContainerView is missing the description property" }
         val value = ContainerView(
             softwareSystemId!!.let{ it.resolve(registry) },
             key!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             title?.let{ it.resolve(registry) },
             paperSize?.let{ it.resolve(registry) },
             softwareSystems?.let{ it.map { it.resolve(registry) } },
@@ -295,11 +282,10 @@ internal data class ComponentViewShell(
     override suspend fun resolve(registry: Registry): ComponentView {
         checkNotNull(containerId) { "ComponentView is missing the containerId property" }
         checkNotNull(key) { "ComponentView is missing the key property" }
-        checkNotNull(description) { "ComponentView is missing the description property" }
         val value = ComponentView(
             containerId!!.let{ it.resolve(registry) },
             key!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             title?.let{ it.resolve(registry) },
             paperSize?.let{ it.resolve(registry) },
             softwareSystems?.let{ it.map { it.resolve(registry) } },
@@ -319,10 +305,9 @@ internal data class DynamicViewShell(
 ) : Scaffold<DynamicView> {
     override suspend fun resolve(registry: Registry): DynamicView {
         checkNotNull(key) { "DynamicView is missing the key property" }
-        checkNotNull(description) { "DynamicView is missing the description property" }
         val value = DynamicView(
             key!!.let{ it.resolve(registry) },
-            description!!.let{ it.resolve(registry) },
+            description?.let{ it.resolve(registry) },
             title?.let{ it.resolve(registry) },
             paperSize?.let{ it.resolve(registry) }
         )
@@ -403,18 +388,13 @@ internal data class ElementStyleShell(
 ) : Scaffold<ElementStyle> {
     override suspend fun resolve(registry: Registry): ElementStyle {
         checkNotNull(tag) { "ElementStyle is missing the tag property" }
-        checkNotNull(width) { "ElementStyle is missing the width property" }
-        checkNotNull(height) { "ElementStyle is missing the height property" }
-        checkNotNull(background) { "ElementStyle is missing the background property" }
-        checkNotNull(color) { "ElementStyle is missing the color property" }
-        checkNotNull(fontSize) { "ElementStyle is missing the fontSize property" }
         val value = ElementStyle(
             tag!!.let{ it.resolve(registry) },
-            width!!.let{ it.resolve(registry) },
-            height!!.let{ it.resolve(registry) },
-            background!!.let{ it.resolve(registry) },
-            color!!.let{ it.resolve(registry) },
-            fontSize!!.let{ it.resolve(registry) },
+            width?.let{ it.resolve(registry) },
+            height?.let{ it.resolve(registry) },
+            background?.let{ it.resolve(registry) },
+            color?.let{ it.resolve(registry) },
+            fontSize?.let{ it.resolve(registry) },
             shape?.let{ it.resolve(registry) },
             border?.let{ it.resolve(registry) },
             opacity?.let{ it.resolve(registry) },
@@ -438,22 +418,15 @@ internal data class RelationshipStyleShell(
 ) : Scaffold<RelationshipStyle> {
     override suspend fun resolve(registry: Registry): RelationshipStyle {
         checkNotNull(tag) { "RelationshipStyle is missing the tag property" }
-        checkNotNull(thickness) { "RelationshipStyle is missing the thickness property" }
-        checkNotNull(color) { "RelationshipStyle is missing the color property" }
-        checkNotNull(fontSize) { "RelationshipStyle is missing the fontSize property" }
-        checkNotNull(width) { "RelationshipStyle is missing the width property" }
-        checkNotNull(dashed) { "RelationshipStyle is missing the dashed property" }
-        checkNotNull(routing) { "RelationshipStyle is missing the routing property" }
-        checkNotNull(position) { "RelationshipStyle is missing the position property" }
         val value = RelationshipStyle(
             tag!!.let{ it.resolve(registry) },
-            thickness!!.let{ it.resolve(registry) },
-            color!!.let{ it.resolve(registry) },
-            fontSize!!.let{ it.resolve(registry) },
-            width!!.let{ it.resolve(registry) },
-            dashed!!.let{ it.resolve(registry) },
-            routing!!.let{ it.resolve(registry) },
-            position!!.let{ it.resolve(registry) },
+            thickness?.let{ it.resolve(registry) },
+            color?.let{ it.resolve(registry) },
+            fontSize?.let{ it.resolve(registry) },
+            width?.let{ it.resolve(registry) },
+            dashed?.let{ it.resolve(registry) },
+            routing?.let{ it.resolve(registry) },
+            position?.let{ it.resolve(registry) },
             opacity?.let{ it.resolve(registry) }
         )
         return value

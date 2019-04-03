@@ -16,6 +16,15 @@ val workspace = WorkspaceSpec<Any?> {
     viewSet {
         landscapeView()
         todoViews()
+
+        configuration {
+            styles {
+                element {
+                    tag("Person")
+                    shape(Shape.Person)
+                }
+            }
+        }
     }
 }
 
@@ -30,7 +39,6 @@ private fun ModelBuilder<Any?>.people() {
             destinationId(IndexingId.ROOT)
             description("manages the indexing logic")
             technology("brain")
-            interactionStyle(InteractionStyle.Asynchronous)
         }
     }
     person {
@@ -43,7 +51,6 @@ private fun ModelBuilder<Any?>.people() {
             destinationId(TodoId.ROOT)
             description("uses the app")
             technology("fingers")
-            interactionStyle(InteractionStyle.Synchronous)
         }
     }
 }
@@ -59,7 +66,6 @@ private fun ModelBuilder<Any?>.indexingSoftwareSystem() {
             destinationId(TodoId.ROOT)
             description("reads todo list from")
             technology("Kafka")
-            interactionStyle(InteractionStyle.Asynchronous)
         }
     }
 }
@@ -81,7 +87,6 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
                 destinationId(TodoId.API)
                 description("sends requests to the API")
                 technology("REST")
-                interactionStyle(InteractionStyle.Synchronous)
             }
         }
         container {
@@ -94,7 +99,6 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
                 destinationId(TodoId.DATABASE)
                 description("issues queries to the database")
                 technology("JDBC")
-                interactionStyle(InteractionStyle.Synchronous)
             }
 
             component {
@@ -119,7 +123,6 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
                     destinationId(TodoId.DATABASE)
                     description("issues queries to the datbase")
                     technology("JDBC")
-                    interactionStyle(InteractionStyle.Synchronous)
                 }
             }
         }

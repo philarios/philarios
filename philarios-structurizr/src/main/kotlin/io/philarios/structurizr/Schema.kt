@@ -8,7 +8,7 @@ val structurizrSchema = SchemaSpec<Any?> {
 
     struct("Workspace") {
         field("name", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("model", option(ref("Model")))
         field("viewSet", option(ref("ViewSet")))
     }
@@ -23,7 +23,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("Person") {
         field("id", StringType)
         field("name", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("location", option(ref("Location")))
         field("relationships", list(ref("Relationship")))
     }
@@ -31,7 +31,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("SoftwareSystem") {
         field("id", StringType)
         field("name", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("location", option(ref("Location")))
         field("containers", list(ref("Container")))
         field("relationships", list(ref("Relationship")))
@@ -40,8 +40,8 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("Container") {
         field("id", StringType)
         field("name", StringType)
-        field("description", StringType)
-        field("technology", StringType)
+        field("description", option(StringType))
+        field("technology", option(StringType))
         field("components", list(ref("Component")))
         field("relationships", list(ref("Relationship")))
     }
@@ -49,16 +49,16 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("Component") {
         field("id", StringType)
         field("name", StringType)
-        field("description", StringType)
-        field("technology", StringType)
+        field("description", option(StringType))
+        field("technology", option(StringType))
         field("relationships", list(ref("Relationship")))
     }
 
     struct("Relationship") {
         field("destinationId", StringType)
-        field("description", StringType)
-        field("technology", StringType)
-        field("interactionStyle", ref("InteractionStyle"))
+        field("description", option(StringType))
+        field("technology", option(StringType))
+        field("interactionStyle", option(ref("InteractionStyle")))
     }
 
     enum("Location") {
@@ -83,7 +83,7 @@ val structurizrSchema = SchemaSpec<Any?> {
 
     struct("SystemLandscapeView") {
         field("key", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("title", option(StringType))
         field("paperSize", option(ref("PaperSize")))
         field("softwareSystems", option(list(StringType)))
@@ -94,7 +94,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("SystemContextView") {
         field("softwareSystemId", StringType)
         field("key", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("title", option(StringType))
         field("paperSize", option(ref("PaperSize")))
         field("softwareSystems", option(list(StringType)))
@@ -105,7 +105,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("ContainerView") {
         field("softwareSystemId", StringType)
         field("key", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("title", option(StringType))
         field("paperSize", option(ref("PaperSize")))
         field("softwareSystems", option(list(StringType)))
@@ -117,7 +117,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     struct("ComponentView") {
         field("containerId", StringType)
         field("key", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("title", option(StringType))
         field("paperSize", option(ref("PaperSize")))
         field("softwareSystems", option(list(StringType)))
@@ -129,7 +129,7 @@ val structurizrSchema = SchemaSpec<Any?> {
     }
     struct("DynamicView") {
         field("key", StringType)
-        field("description", StringType)
+        field("description", option(StringType))
         field("title", option(StringType))
         field("paperSize", option(ref("PaperSize")))
     }
@@ -139,13 +139,13 @@ val structurizrSchema = SchemaSpec<Any?> {
 //    field("filteredViews", option(list(ref("FilteredView"))))
 //    struct("DeploymentView") {
 //        field("key", StringType)
-//        field("description", StringType)
+//        field("description", option(StringType))
 //        field("title", option(StringType))
 //        field("paperSize", option(ref("PaperSize")))
 //    }
 //    struct("FilteredView") {
 //        field("key", StringType)
-//        field("description", StringType)
+//        field("description", option(StringType))
 //        field("title", option(StringType))
 //        field("paperSize", option(ref("PaperSize")))
 //    }
@@ -192,11 +192,11 @@ val structurizrSchema = SchemaSpec<Any?> {
 
     struct("ElementStyle") {
         field("tag", StringType)
-        field("width", IntType)
-        field("height", IntType)
-        field("background", StringType)
-        field("color", StringType)
-        field("fontSize", IntType)
+        field("width", option(IntType))
+        field("height", option(IntType))
+        field("background", option(StringType))
+        field("color", option(StringType))
+        field("fontSize", option(IntType))
         field("shape", option(ref("Shape")))
         field("border", option(ref("Border")))
         field("opacity", option(IntType))
@@ -227,13 +227,13 @@ val structurizrSchema = SchemaSpec<Any?> {
 
     struct("RelationshipStyle") {
         field("tag", StringType)
-        field("thickness", IntType)
-        field("color", StringType)
-        field("fontSize", IntType)
-        field("width", IntType)
-        field("dashed", BooleanType)
-        field("routing", ref("Routing"))
-        field("position", IntType)
+        field("thickness", option(IntType))
+        field("color", option(StringType))
+        field("fontSize", option(IntType))
+        field("width", option(IntType))
+        field("dashed", option(BooleanType))
+        field("routing", option(ref("Routing")))
+        field("position", option(IntType))
         field("opacity", option(IntType))
     }
 

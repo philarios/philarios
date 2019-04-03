@@ -106,7 +106,7 @@ private fun connectStaticStructureElements(
                         destination,
                         relationship.description,
                         relationship.technology,
-                        relationship.interactionStyle.collect()
+                        relationship.interactionStyle?.collect() ?: SInteractionStyle.Synchronous
                 )
             }
         }

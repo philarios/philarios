@@ -7,7 +7,7 @@ import kotlin.collections.List
 
 data class Workspace(
         val name: String,
-        val description: String,
+        val description: String?,
         val model: Model?,
         val viewSet: ViewSet?
 )
@@ -17,7 +17,7 @@ data class Model(val people: List<Person>, val softwareSystems: List<SoftwareSys
 data class Person(
         val id: String,
         val name: String,
-        val description: String,
+        val description: String?,
         val location: Location?,
         val relationships: List<Relationship>
 )
@@ -25,7 +25,7 @@ data class Person(
 data class SoftwareSystem(
         val id: String,
         val name: String,
-        val description: String,
+        val description: String?,
         val location: Location?,
         val containers: List<Container>,
         val relationships: List<Relationship>
@@ -34,8 +34,8 @@ data class SoftwareSystem(
 data class Container(
         val id: String,
         val name: String,
-        val description: String,
-        val technology: String,
+        val description: String?,
+        val technology: String?,
         val components: List<Component>,
         val relationships: List<Relationship>
 )
@@ -43,16 +43,16 @@ data class Container(
 data class Component(
         val id: String,
         val name: String,
-        val description: String,
-        val technology: String,
+        val description: String?,
+        val technology: String?,
         val relationships: List<Relationship>
 )
 
 data class Relationship(
         val destinationId: String,
-        val description: String,
-        val technology: String,
-        val interactionStyle: InteractionStyle
+        val description: String?,
+        val technology: String?,
+        val interactionStyle: InteractionStyle?
 )
 
 enum class Location {
@@ -80,7 +80,7 @@ data class ViewSet(
 
 data class SystemLandscapeView(
         val key: String,
-        val description: String,
+        val description: String?,
         val title: String?,
         val paperSize: PaperSize?,
         val softwareSystems: List<String>?,
@@ -90,7 +90,7 @@ data class SystemLandscapeView(
 data class SystemContextView(
         val softwareSystemId: String,
         val key: String,
-        val description: String,
+        val description: String?,
         val title: String?,
         val paperSize: PaperSize?,
         val softwareSystems: List<String>?,
@@ -100,7 +100,7 @@ data class SystemContextView(
 data class ContainerView(
         val softwareSystemId: String,
         val key: String,
-        val description: String,
+        val description: String?,
         val title: String?,
         val paperSize: PaperSize?,
         val softwareSystems: List<String>?,
@@ -111,7 +111,7 @@ data class ContainerView(
 data class ComponentView(
         val containerId: String,
         val key: String,
-        val description: String,
+        val description: String?,
         val title: String?,
         val paperSize: PaperSize?,
         val softwareSystems: List<String>?,
@@ -122,7 +122,7 @@ data class ComponentView(
 
 data class DynamicView(
         val key: String,
-        val description: String,
+        val description: String?,
         val title: String?,
         val paperSize: PaperSize?
 )
@@ -175,11 +175,11 @@ data class Styles(val elements: List<ElementStyle>?, val relationships: List<Rel
 
 data class ElementStyle(
         val tag: String,
-        val width: Int,
-        val height: Int,
-        val background: String,
-        val color: String,
-        val fontSize: Int,
+        val width: Int?,
+        val height: Int?,
+        val background: String?,
+        val color: String?,
+        val fontSize: Int?,
         val shape: Shape?,
         val border: Border?,
         val opacity: Int?,
@@ -223,13 +223,13 @@ enum class Border {
 
 data class RelationshipStyle(
         val tag: String,
-        val thickness: Int,
-        val color: String,
-        val fontSize: Int,
-        val width: Int,
-        val dashed: Boolean,
-        val routing: Routing,
-        val position: Int,
+        val thickness: Int?,
+        val color: String?,
+        val fontSize: Int?,
+        val width: Int?,
+        val dashed: Boolean?,
+        val routing: Routing?,
+        val position: Int?,
         val opacity: Int?
 )
 

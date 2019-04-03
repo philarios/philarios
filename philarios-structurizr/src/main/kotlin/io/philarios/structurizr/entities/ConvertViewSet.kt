@@ -120,13 +120,17 @@ private fun Branding.convert(branding: SBranding) = branding.also {
 private fun Font.convert() = SFont(name, url)
 
 private fun Styles.convert(styles: SStyles) = styles.also {
-    elements?.forEach { element -> it.add(element.convert()) }
-    relationships?.forEach { relationship -> it.add(relationship.convert()) }
+    elements?.forEach { element -> it.add(element.convert(styles)) }
+    relationships?.forEach { relationship -> it.add(relationship.convert(styles)) }
 }
 
-private fun ElementStyle.convert() = SElementStyle(
-        tag, width, height, background, color, fontSize, shape?.convert()
-).also {
+private fun ElementStyle.convert(styles: SStyles) = styles.addElementStyle(tag).also {
+    width?.let { width -> it.width = width }
+    height?.let { height -> it.height = height }
+    background?.let { background -> it.background = background }
+    color?.let { color -> it.color = color }
+    fontSize?.let { fontSize -> it.fontSize = fontSize }
+    shape?.let { shape -> it.shape = shape.convert() }
     border?.let { border -> it.border = border.convert() }
     opacity?.let { opacity -> it.opacity = opacity }
     metadata?.let { metadata -> it.metadata = metadata }
@@ -154,9 +158,14 @@ private fun Border.convert() = when (this) {
     Border.Dashed -> SBorder.Dashed
 }
 
-private fun RelationshipStyle.convert() = SRelationshipStyle(
-        tag, thickness, color, dashed, routing.convert(), fontSize, width, position
-).also {
+private fun RelationshipStyle.convert(styles: SStyles) = styles.addRelationshipStyle(tag).also {
+    thickness?.let { thickness -> it.thickness = thickness }
+    color?.let { color -> it.color = color }
+    dashed?.let { dashed -> it.dashed = dashed }
+    routing?.let { routing -> it.routing = routing.convert() }
+    fontSize?.let { fontSize -> it.fontSize = fontSize }
+    width?.let { width -> it.width = width }
+    position?.let { position -> it.position = position }
     opacity?.let { opacity -> it.opacity = opacity }
 }
 
