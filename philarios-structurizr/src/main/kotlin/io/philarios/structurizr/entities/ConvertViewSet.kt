@@ -34,35 +34,57 @@ private fun SystemLandscapeView.convert(viewSet: SViewSet, elementMap: ElementMa
         viewSet.createSystemLandscapeView(key, description).also {
             title?.let { title -> it.title = title }
             paperSize?.let { paperSize -> it.paperSize = paperSize.convert() }
-            softwareSystems?.forEach { softwareSystems -> it.add(elementMap[softwareSystems] as SSoftwareSystem) }
-            people?.forEach { person -> it.add(elementMap[person] as SPerson) }
+            people
+                    ?.mapNotNull { elementMap[it] as? SPerson }
+                    ?.forEach { person -> it.add(person) }
+            softwareSystems
+                    ?.mapNotNull { elementMap[it] as? SSoftwareSystem }
+                    ?.forEach { softwareSystems -> it.add(softwareSystems) }
         }
 
 private fun SystemContextView.convert(viewSet: SViewSet, elementMap: ElementMap) =
         viewSet.createSystemContextView(elementMap[softwareSystemId] as SSoftwareSystem, key, description).also {
             title?.let { title -> it.title = title }
             paperSize?.let { paperSize -> it.paperSize = paperSize.convert() }
-            softwareSystems?.forEach { softwareSystems -> it.add(elementMap[softwareSystems] as SSoftwareSystem) }
-            people?.forEach { person -> it.add(elementMap[person] as SPerson) }
+            people
+                    ?.mapNotNull { elementMap[it] as? SPerson }
+                    ?.forEach { person -> it.add(person) }
+            softwareSystems
+                    ?.mapNotNull { elementMap[it] as? SSoftwareSystem }
+                    ?.forEach { softwareSystems -> it.add(softwareSystems) }
         }
 
 private fun ContainerView.convert(viewSet: SViewSet, elementMap: ElementMap) =
         viewSet.createContainerView(elementMap[softwareSystemId] as SSoftwareSystem, key, description).also {
             title?.let { title -> it.title = title }
             paperSize?.let { paperSize -> it.paperSize = paperSize.convert() }
-            softwareSystems?.forEach { softwareSystems -> it.add(elementMap[softwareSystems] as SSoftwareSystem) }
-            people?.forEach { person -> it.add(elementMap[person] as SPerson) }
-            containers?.forEach { container -> it.add(elementMap[container] as SContainer) }
+            people
+                    ?.mapNotNull { elementMap[it] as? SPerson }
+                    ?.forEach { person -> it.add(person) }
+            softwareSystems
+                    ?.mapNotNull { elementMap[it] as? SSoftwareSystem }
+                    ?.forEach { softwareSystems -> it.add(softwareSystems) }
+            containers
+                    ?.mapNotNull { elementMap[it] as? SContainer }
+                    ?.forEach { container -> it.add(container) }
         }
 
 private fun ComponentView.convert(viewSet: SViewSet, elementMap: ElementMap) =
         viewSet.createComponentView(elementMap[containerId] as SContainer, key, description).also {
             title?.let { title -> it.title = title }
             paperSize?.let { paperSize -> it.paperSize = paperSize.convert() }
-            softwareSystems?.forEach { softwareSystems -> it.add(elementMap[softwareSystems] as SSoftwareSystem) }
-            people?.forEach { person -> it.add(elementMap[person] as SPerson) }
-            containers?.forEach { container -> it.add(elementMap[container] as SContainer) }
-            components?.forEach { component -> it.add(elementMap[component] as SComponent) }
+            people
+                    ?.mapNotNull { elementMap[it] as? SPerson }
+                    ?.forEach { person -> it.add(person) }
+            softwareSystems
+                    ?.mapNotNull { elementMap[it] as? SSoftwareSystem }
+                    ?.forEach { softwareSystems -> it.add(softwareSystems) }
+            containers
+                    ?.mapNotNull { elementMap[it] as? SContainer }
+                    ?.forEach { container -> it.add(container) }
+            components
+                    ?.mapNotNull { elementMap[it] as? SComponent }
+                    ?.forEach { component -> it.add(component) }
         }
 
 private fun PaperSize.convert() = when (this) {
