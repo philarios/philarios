@@ -343,7 +343,11 @@ internal class ContainerShellBuilder<out C>(override val context: C, internal va
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technology = Wrapper(value))
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + Wrapper(value))
+    }
+
+    override fun technologies(technologies: List<String>) {
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { Wrapper(it) })
     }
 
     override fun component(body: ComponentBuilder<C>.() -> Unit) {
@@ -436,7 +440,11 @@ internal class ComponentShellBuilder<out C>(override val context: C, internal va
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technology = Wrapper(value))
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + Wrapper(value))
+    }
+
+    override fun technologies(technologies: List<String>) {
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { Wrapper(it) })
     }
 
     override fun relationship(body: RelationshipBuilder<C>.() -> Unit) {
@@ -505,7 +513,11 @@ internal class RelationshipShellBuilder<out C>(override val context: C, internal
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technology = Wrapper(value))
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + Wrapper(value))
+    }
+
+    override fun technologies(technologies: List<String>) {
+        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { Wrapper(it) })
     }
 
     override fun interactionStyle(value: InteractionStyle) {

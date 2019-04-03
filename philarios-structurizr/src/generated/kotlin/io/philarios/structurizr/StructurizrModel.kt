@@ -35,7 +35,7 @@ data class Container(
         val id: String,
         val name: String,
         val description: String?,
-        val technology: String?,
+        val technologies: List<String>,
         val components: List<Component>,
         val relationships: List<Relationship>
 )
@@ -44,14 +44,14 @@ data class Component(
         val id: String,
         val name: String,
         val description: String?,
-        val technology: String?,
+        val technologies: List<String>,
         val relationships: List<Relationship>
 )
 
 data class Relationship(
         val destinationId: String,
         val description: String?,
-        val technology: String?,
+        val technologies: List<String>,
         val interactionStyle: InteractionStyle?
 )
 

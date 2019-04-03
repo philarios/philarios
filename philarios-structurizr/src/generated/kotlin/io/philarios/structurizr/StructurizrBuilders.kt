@@ -173,6 +173,8 @@ interface ContainerBuilder<out C> {
 
     fun technology(value: String)
 
+    fun technologies(technologies: List<String>)
+
     fun component(body: ComponentBuilder<C>.() -> Unit)
 
     fun component(spec: ComponentSpec<C>)
@@ -218,6 +220,8 @@ interface ComponentBuilder<out C> {
 
     fun technology(value: String)
 
+    fun technologies(technologies: List<String>)
+
     fun relationship(body: RelationshipBuilder<C>.() -> Unit)
 
     fun relationship(spec: RelationshipSpec<C>)
@@ -250,6 +254,8 @@ interface RelationshipBuilder<out C> {
     fun description(value: String)
 
     fun technology(value: String)
+
+    fun technologies(technologies: List<String>)
 
     fun interactionStyle(value: InteractionStyle)
 

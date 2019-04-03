@@ -41,7 +41,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("id", StringType)
         field("name", StringType)
         field("description", option(StringType))
-        field("technology", option(StringType))
+        field("technologies", list(StringType))
         field("components", list(ref("Component")))
         field("relationships", list(ref("Relationship")))
     }
@@ -50,14 +50,14 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("id", StringType)
         field("name", StringType)
         field("description", option(StringType))
-        field("technology", option(StringType))
+        field("technologies", list(StringType))
         field("relationships", list(ref("Relationship")))
     }
 
     struct("Relationship") {
         field("destinationId", StringType)
         field("description", option(StringType))
-        field("technology", option(StringType))
+        field("technologies", list(StringType))
         field("interactionStyle", option(ref("InteractionStyle")))
     }
 

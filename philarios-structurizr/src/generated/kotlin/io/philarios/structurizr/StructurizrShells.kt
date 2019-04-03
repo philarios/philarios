@@ -100,7 +100,7 @@ internal data class ContainerShell(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
-        var technology: Scaffold<String>? = null,
+        var technologies: List<Scaffold<String>>? = null,
         var components: List<Scaffold<Component>>? = null,
         var relationships: List<Scaffold<Relationship>>? = null
 ) : Scaffold<Container> {
@@ -115,7 +115,7 @@ internal data class ContainerShell(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
-            technology?.let{ it.resolve(registry) },
+            technologies.orEmpty().let{ it.map { it.resolve(registry) } },
             components.orEmpty().let{ it.map { it.resolve(registry) } },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
@@ -127,7 +127,7 @@ internal data class ComponentShell(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
-        var technology: Scaffold<String>? = null,
+        var technologies: List<Scaffold<String>>? = null,
         var relationships: List<Scaffold<Relationship>>? = null
 ) : Scaffold<Component> {
     override suspend fun resolve(registry: Registry): Component {
@@ -140,7 +140,7 @@ internal data class ComponentShell(
             id!!.let{ it.resolve(registry) },
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
-            technology?.let{ it.resolve(registry) },
+            technologies.orEmpty().let{ it.map { it.resolve(registry) } },
             relationships.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
@@ -150,7 +150,7 @@ internal data class ComponentShell(
 internal data class RelationshipShell(
         var destinationId: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
-        var technology: Scaffold<String>? = null,
+        var technologies: List<Scaffold<String>>? = null,
         var interactionStyle: Scaffold<InteractionStyle>? = null
 ) : Scaffold<Relationship> {
     override suspend fun resolve(registry: Registry): Relationship {
@@ -158,7 +158,7 @@ internal data class RelationshipShell(
         val value = Relationship(
             destinationId!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
-            technology?.let{ it.resolve(registry) },
+            technologies.orEmpty().let{ it.map { it.resolve(registry) } },
             interactionStyle?.let{ it.resolve(registry) }
         )
         return value

@@ -54,7 +54,7 @@ private fun SoftwareSystem.collect(softwareSystem: SSoftwareSystem) =
             map + container.collect(softwareSystem.addContainer(
                     container.name,
                     container.description,
-                    container.technology
+                    container.technologies.joinTechnologies()
             ))
         }
 
@@ -63,7 +63,7 @@ private fun Container.collect(container: SContainer) =
             map + component.collect(container.addComponent(
                     component.name,
                     component.description,
-                    component.technology
+                    component.technologies.joinTechnologies()
             ))
         }
 
@@ -105,7 +105,7 @@ private fun connectStaticStructureElements(
                 source.uses(
                         destination,
                         relationship.description,
-                        relationship.technology,
+                        relationship.technologies.joinTechnologies(),
                         relationship.interactionStyle?.collect() ?: SInteractionStyle.Synchronous
                 )
             }
@@ -123,3 +123,5 @@ private fun InteractionStyle.collect() = when (this) {
     InteractionStyle.Synchronous -> SInteractionStyle.Synchronous
     InteractionStyle.Asynchronous -> SInteractionStyle.Asynchronous
 }
+
+private fun List<String>.joinTechnologies() = distinct().joinToString { it }

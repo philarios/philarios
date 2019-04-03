@@ -86,6 +86,7 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
             relationship {
                 destinationId(TodoId.API)
                 description("sends requests to the API")
+                technology("HTTP")
                 technology("REST")
             }
         }
