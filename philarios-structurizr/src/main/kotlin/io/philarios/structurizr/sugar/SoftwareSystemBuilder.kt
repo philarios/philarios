@@ -1,8 +1,6 @@
 package io.philarios.structurizr.sugar
 
-import io.philarios.structurizr.ContainerBuilder
-import io.philarios.structurizr.RelationshipBuilder
-import io.philarios.structurizr.SoftwareSystemBuilder
+import io.philarios.structurizr.*
 
 fun <C, T : Any> SoftwareSystemBuilder<C>.id(id: T) {
     id(id.hierarchicalId())
@@ -20,5 +18,13 @@ fun <C, T : Any> SoftwareSystemBuilder<C>.relationship(destinationId: T, body: R
         destinationId(destinationId)
         apply(body)
     }
+}
+
+fun <C> SoftwareSystemBuilder<C>.internal() {
+    location(Location.Internal)
+}
+
+fun <C> SoftwareSystemBuilder<C>.external() {
+    location(Location.External)
 }
 

@@ -36,7 +36,7 @@ private fun ModelBuilder<Any?>.people() {
     person(PersonId.ADMIN) {
         name("Admin")
         description("An admin user of the system")
-        location(Location.Internal)
+        internal()
 
         relationship(IndexingId.ROOT) {
             description("manages the indexing logic")
@@ -46,7 +46,7 @@ private fun ModelBuilder<Any?>.people() {
     person(PersonId.USER) {
         name("User")
         description("A normal user")
-        location(Location.External)
+        external()
 
         relationship(TodoId.ROOT) {
             description("uses the app")
@@ -59,11 +59,12 @@ private fun ModelBuilder<Any?>.indexingSoftwareSystem() {
     softwareSystem(IndexingId.ROOT) {
         name("Indexing")
         description("Indexes the todo list for machine learning magic")
-        location(Location.Internal)
+        internal()
 
         relationship(TodoId.ROOT) {
             description("reads todo list from")
             technology("Kafka")
+            asynchronous()
         }
     }
 }
@@ -73,7 +74,7 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
         id(TodoId.ROOT)
         name("Todo App")
         description("A simple todo app")
-        location(Location.Internal)
+        internal()
 
         container(TodoId.APP) {
             name("app")
@@ -114,6 +115,7 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
                 relationship(TodoId.DATABASE) {
                     description("issues queries to the datbase")
                     technology("JDBC")
+                    synchronous()
                 }
             }
         }
