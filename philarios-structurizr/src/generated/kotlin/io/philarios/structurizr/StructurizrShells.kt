@@ -50,7 +50,8 @@ internal data class PersonShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var location: Scaffold<Location>? = null,
-        var relationships: List<Scaffold<Relationship>>? = null
+        var relationships: List<Scaffold<Relationship>>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<Person> {
     override suspend fun resolve(registry: Registry): Person {
         checkNotNull(id) { "Person is missing the id property" }
@@ -63,7 +64,8 @@ internal data class PersonShell(
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) },
-            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -75,7 +77,8 @@ internal data class SoftwareSystemShell(
         var description: Scaffold<String>? = null,
         var location: Scaffold<Location>? = null,
         var containers: List<Scaffold<Container>>? = null,
-        var relationships: List<Scaffold<Relationship>>? = null
+        var relationships: List<Scaffold<Relationship>>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<SoftwareSystem> {
     override suspend fun resolve(registry: Registry): SoftwareSystem {
         checkNotNull(id) { "SoftwareSystem is missing the id property" }
@@ -90,7 +93,8 @@ internal data class SoftwareSystemShell(
             description?.let{ it.resolve(registry) },
             location?.let{ it.resolve(registry) },
             containers.orEmpty().let{ it.map { it.resolve(registry) } },
-            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -102,7 +106,8 @@ internal data class ContainerShell(
         var description: Scaffold<String>? = null,
         var technologies: List<Scaffold<String>>? = null,
         var components: List<Scaffold<Component>>? = null,
-        var relationships: List<Scaffold<Relationship>>? = null
+        var relationships: List<Scaffold<Relationship>>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<Container> {
     override suspend fun resolve(registry: Registry): Container {
         checkNotNull(id) { "Container is missing the id property" }
@@ -117,7 +122,8 @@ internal data class ContainerShell(
             description?.let{ it.resolve(registry) },
             technologies.orEmpty().let{ it.map { it.resolve(registry) } },
             components.orEmpty().let{ it.map { it.resolve(registry) } },
-            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -128,7 +134,8 @@ internal data class ComponentShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var technologies: List<Scaffold<String>>? = null,
-        var relationships: List<Scaffold<Relationship>>? = null
+        var relationships: List<Scaffold<Relationship>>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<Component> {
     override suspend fun resolve(registry: Registry): Component {
         checkNotNull(id) { "Component is missing the id property" }
@@ -141,7 +148,8 @@ internal data class ComponentShell(
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             technologies.orEmpty().let{ it.map { it.resolve(registry) } },
-            relationships.orEmpty().let{ it.map { it.resolve(registry) } }
+            relationships.orEmpty().let{ it.map { it.resolve(registry) } },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }
@@ -151,7 +159,8 @@ internal data class RelationshipShell(
         var destinationId: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var technologies: List<Scaffold<String>>? = null,
-        var interactionStyle: Scaffold<InteractionStyle>? = null
+        var interactionStyle: Scaffold<InteractionStyle>? = null,
+        var tags: List<Scaffold<String>>? = null
 ) : Scaffold<Relationship> {
     override suspend fun resolve(registry: Registry): Relationship {
         checkNotNull(destinationId) { "Relationship is missing the destinationId property" }
@@ -159,7 +168,8 @@ internal data class RelationshipShell(
             destinationId!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             technologies.orEmpty().let{ it.map { it.resolve(registry) } },
-            interactionStyle?.let{ it.resolve(registry) }
+            interactionStyle?.let{ it.resolve(registry) },
+            tags.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         return value
     }

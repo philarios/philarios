@@ -26,6 +26,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", option(StringType))
         field("location", option(ref("Location")))
         field("relationships", list(ref("Relationship")))
+        field("tags", list(StringType))
     }
 
     struct("SoftwareSystem") {
@@ -35,6 +36,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("location", option(ref("Location")))
         field("containers", list(ref("Container")))
         field("relationships", list(ref("Relationship")))
+        field("tags", list(StringType))
     }
 
     struct("Container") {
@@ -44,6 +46,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("technologies", list(StringType))
         field("components", list(ref("Component")))
         field("relationships", list(ref("Relationship")))
+        field("tags", list(StringType))
     }
 
     struct("Component") {
@@ -52,6 +55,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", option(StringType))
         field("technologies", list(StringType))
         field("relationships", list(ref("Relationship")))
+        field("tags", list(StringType))
     }
 
     struct("Relationship") {
@@ -59,6 +63,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", option(StringType))
         field("technologies", list(StringType))
         field("interactionStyle", option(ref("InteractionStyle")))
+        field("tags", list(StringType))
     }
 
     enum("Location") {

@@ -37,14 +37,14 @@ private fun Model.collect(model: SModel) =
                             person.location?.collect() ?: SLocation.Unspecified,
                             person.name,
                             person.description
-                    ))
+                    ).also { it.addTags(*person.tags.toTypedArray()) })
                 } +
                 softwareSystems.fold(emptyMap) { map, softwareSystem ->
                     map + softwareSystem.collect(model.addSoftwareSystem(
                             softwareSystem.location?.collect() ?: SLocation.Unspecified,
                             softwareSystem.name,
                             softwareSystem.description
-                    ))
+                    ).also { it.addTags(*softwareSystem.tags.toTypedArray()) })
                 }
 
 private fun Person.collect(person: SPerson) = mapOf(id to person)
@@ -55,7 +55,7 @@ private fun SoftwareSystem.collect(softwareSystem: SSoftwareSystem) =
                     container.name,
                     container.description,
                     container.technologies.joinTechnologies()
-            ))
+            ).also { it.addTags(*container.tags.toTypedArray()) })
         }
 
 private fun Container.collect(container: SContainer) =
@@ -64,7 +64,7 @@ private fun Container.collect(container: SContainer) =
                     component.name,
                     component.description,
                     component.technologies.joinTechnologies()
-            ))
+            ).also { it.addTags(*component.tags.toTypedArray()) })
         }
 
 private fun Component.collect(component: SComponent) = mapOf(id to component)
@@ -107,7 +107,7 @@ private fun connectStaticStructureElements(
                         relationship.description,
                         relationship.technologies.joinTechnologies(),
                         relationship.interactionStyle?.collect() ?: SInteractionStyle.Synchronous
-                )
+                ).also { it!!.addTags(*relationship.tags.toTypedArray()) }
             }
         }
     }

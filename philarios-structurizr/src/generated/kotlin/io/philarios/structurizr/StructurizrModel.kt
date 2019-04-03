@@ -19,7 +19,8 @@ data class Person(
         val name: String,
         val description: String?,
         val location: Location?,
-        val relationships: List<Relationship>
+        val relationships: List<Relationship>,
+        val tags: List<String>
 )
 
 data class SoftwareSystem(
@@ -28,7 +29,8 @@ data class SoftwareSystem(
         val description: String?,
         val location: Location?,
         val containers: List<Container>,
-        val relationships: List<Relationship>
+        val relationships: List<Relationship>,
+        val tags: List<String>
 )
 
 data class Container(
@@ -37,7 +39,8 @@ data class Container(
         val description: String?,
         val technologies: List<String>,
         val components: List<Component>,
-        val relationships: List<Relationship>
+        val relationships: List<Relationship>,
+        val tags: List<String>
 )
 
 data class Component(
@@ -45,14 +48,16 @@ data class Component(
         val name: String,
         val description: String?,
         val technologies: List<String>,
-        val relationships: List<Relationship>
+        val relationships: List<Relationship>,
+        val tags: List<String>
 )
 
 data class Relationship(
         val destinationId: String,
         val description: String?,
         val technologies: List<String>,
-        val interactionStyle: InteractionStyle?
+        val interactionStyle: InteractionStyle?,
+        val tags: List<String>
 )
 
 enum class Location {

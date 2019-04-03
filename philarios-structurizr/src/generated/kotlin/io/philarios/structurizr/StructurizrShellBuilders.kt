@@ -200,6 +200,14 @@ internal class PersonShellBuilder<out C>(override val context: C, internal var s
         shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
     }
 
+    override fun tag(value: String) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + Wrapper(value))
+    }
+
+    override fun tags(tags: List<String>) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { Wrapper(it) })
+    }
+
     override fun include(body: PersonBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -291,6 +299,14 @@ internal class SoftwareSystemShellBuilder<out C>(override val context: C, intern
 
     override fun relationships(relationships: List<Relationship>) {
         shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
+    }
+
+    override fun tag(value: String) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + Wrapper(value))
+    }
+
+    override fun tags(tags: List<String>) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { Wrapper(it) })
     }
 
     override fun include(body: SoftwareSystemBuilder<C>.() -> Unit) {
@@ -390,6 +406,14 @@ internal class ContainerShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
     }
 
+    override fun tag(value: String) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + Wrapper(value))
+    }
+
+    override fun tags(tags: List<String>) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { Wrapper(it) })
+    }
+
     override fun include(body: ContainerBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -467,6 +491,14 @@ internal class ComponentShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { Wrapper(it) })
     }
 
+    override fun tag(value: String) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + Wrapper(value))
+    }
+
+    override fun tags(tags: List<String>) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { Wrapper(it) })
+    }
+
     override fun include(body: ComponentBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -522,6 +554,14 @@ internal class RelationshipShellBuilder<out C>(override val context: C, internal
 
     override fun interactionStyle(value: InteractionStyle) {
         shell = shell.copy(interactionStyle = Wrapper(value))
+    }
+
+    override fun tag(value: String) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + Wrapper(value))
+    }
+
+    override fun tags(tags: List<String>) {
+        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { Wrapper(it) })
     }
 
     override fun include(body: RelationshipBuilder<C>.() -> Unit) {

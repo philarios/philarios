@@ -103,6 +103,10 @@ interface PersonBuilder<out C> {
 
     fun relationships(relationships: List<Relationship>)
 
+    fun tag(value: String)
+
+    fun tags(tags: List<String>)
+
     fun include(body: PersonBuilder<C>.() -> Unit)
 
     fun include(spec: PersonSpec<C>)
@@ -147,6 +151,10 @@ interface SoftwareSystemBuilder<out C> {
     fun relationship(value: Relationship)
 
     fun relationships(relationships: List<Relationship>)
+
+    fun tag(value: String)
+
+    fun tags(tags: List<String>)
 
     fun include(body: SoftwareSystemBuilder<C>.() -> Unit)
 
@@ -195,6 +203,10 @@ interface ContainerBuilder<out C> {
 
     fun relationships(relationships: List<Relationship>)
 
+    fun tag(value: String)
+
+    fun tags(tags: List<String>)
+
     fun include(body: ContainerBuilder<C>.() -> Unit)
 
     fun include(spec: ContainerSpec<C>)
@@ -232,6 +244,10 @@ interface ComponentBuilder<out C> {
 
     fun relationships(relationships: List<Relationship>)
 
+    fun tag(value: String)
+
+    fun tags(tags: List<String>)
+
     fun include(body: ComponentBuilder<C>.() -> Unit)
 
     fun include(spec: ComponentSpec<C>)
@@ -258,6 +274,10 @@ interface RelationshipBuilder<out C> {
     fun technologies(technologies: List<String>)
 
     fun interactionStyle(value: InteractionStyle)
+
+    fun tag(value: String)
+
+    fun tags(tags: List<String>)
 
     fun include(body: RelationshipBuilder<C>.() -> Unit)
 

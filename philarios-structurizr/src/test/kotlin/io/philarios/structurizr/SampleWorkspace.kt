@@ -23,6 +23,10 @@ val workspace = WorkspaceSpec<Any?> {
                     tag("Person")
                     shape(Shape.Person)
                 }
+                element {
+                    tag("database")
+                    shape(Shape.Cylinder)
+                }
             }
         }
     }
@@ -132,6 +136,7 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
             name("database")
             description("the main database")
             technology("MySQL")
+            tag("database")
         }
     }
 }
