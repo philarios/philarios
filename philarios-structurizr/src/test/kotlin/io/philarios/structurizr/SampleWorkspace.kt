@@ -33,26 +33,22 @@ val workspace = WorkspaceSpec<Any?> {
 }
 
 private fun ModelBuilder<Any?>.people() {
-    person {
-        id(PersonId.ADMIN)
+    person(PersonId.ADMIN) {
         name("Admin")
         description("An admin user of the system")
         location(Location.Internal)
 
-        relationship {
-            destinationId(IndexingId.ROOT)
+        relationship(IndexingId.ROOT) {
             description("manages the indexing logic")
             technology("brain")
         }
     }
-    person {
-        id(PersonId.USER)
+    person(PersonId.USER) {
         name("User")
         description("A normal user")
         location(Location.External)
 
-        relationship {
-            destinationId(TodoId.ROOT)
+        relationship(TodoId.ROOT) {
             description("uses the app")
             technology("fingers")
         }
@@ -60,14 +56,12 @@ private fun ModelBuilder<Any?>.people() {
 }
 
 private fun ModelBuilder<Any?>.indexingSoftwareSystem() {
-    softwareSystem {
-        id(IndexingId.ROOT)
+    softwareSystem(IndexingId.ROOT) {
         name("Indexing")
         description("Indexes the todo list for machine learning magic")
         location(Location.Internal)
 
-        relationship {
-            destinationId(TodoId.ROOT)
+        relationship(TodoId.ROOT) {
             description("reads todo list from")
             technology("Kafka")
         }
@@ -81,58 +75,49 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
         description("A simple todo app")
         location(Location.Internal)
 
-        container {
-            id(TodoId.APP)
+        container(TodoId.APP) {
             name("app")
             description("displays the todo list")
             technology("Android")
 
-            relationship {
-                destinationId(TodoId.API)
+            relationship(TodoId.API) {
                 description("sends requests to the API")
                 technology("HTTP")
                 technology("REST")
             }
         }
-        container {
-            id(TodoId.API)
+        container(TodoId.API) {
             name("api")
             description("answers requests from the app")
             technology("Java")
 
-            relationship {
-                destinationId(TodoId.DATABASE)
+            relationship(TodoId.DATABASE) {
                 description("issues queries to the database")
                 technology("JDBC")
             }
 
-            component {
-                id(TodoId.Api.CONTROLLER)
+            component(TodoId.Api.CONTROLLER) {
                 name("controller")
                 description("answers requests from the app")
                 technology("Spring MVC")
             }
-            component {
-                id(TodoId.Api.SERVICE)
+            component(TodoId.Api.SERVICE) {
                 name("service")
                 description("contains the logic and use cases")
                 technology("Java")
             }
-            component {
-                id(TodoId.Api.REPOSITORY)
+            component(TodoId.Api.REPOSITORY) {
                 name("repository")
                 description("queries the database")
                 technology("JPA")
 
-                relationship {
-                    destinationId(TodoId.DATABASE)
+                relationship(TodoId.DATABASE) {
                     description("issues queries to the datbase")
                     technology("JDBC")
                 }
             }
         }
-        container {
-            id(TodoId.DATABASE)
+        container(TodoId.DATABASE) {
             name("database")
             description("the main database")
             technology("MySQL")
