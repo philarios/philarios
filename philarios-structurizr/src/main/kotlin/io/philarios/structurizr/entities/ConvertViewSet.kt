@@ -20,6 +20,7 @@ import com.structurizr.view.Styles as SStyles
 import com.structurizr.view.SystemContextView as SSystemContextView
 import com.structurizr.view.SystemLandscapeView as SSystemLandscapeView
 import com.structurizr.view.Terminology as STerminology
+import com.structurizr.view.ViewSortOrder as SViewSortOrder
 import com.structurizr.view.ViewSet as SViewSet
 
 fun ViewSet.convert(viewSet: SViewSet, elementMap: ElementMap) = viewSet.also {
@@ -110,6 +111,7 @@ private fun Configuration.convert(configuration: SConfiguration) = configuration
     branding?.let { branding -> branding.convert(it.branding) }
     styles?.let { styles -> styles.convert(it.styles) }
     terminology?.let { terminology -> terminology.convert(it.terminology) }
+    viewSortOrder?.let { viewSortOrder -> it.viewSortOrder = viewSortOrder.convert() }
 }
 
 private fun Branding.convert(branding: SBranding) = branding.also {
@@ -131,6 +133,7 @@ private fun ElementStyle.convert(styles: SStyles) = styles.addElementStyle(tag).
     color?.let { color -> it.color = color }
     fontSize?.let { fontSize -> it.fontSize = fontSize }
     shape?.let { shape -> it.shape = shape.convert() }
+    icon?.let { icon -> it.icon = icon }
     border?.let { border -> it.border = border.convert() }
     opacity?.let { opacity -> it.opacity = opacity }
     metadata?.let { metadata -> it.metadata = metadata }
@@ -182,4 +185,11 @@ private fun Terminology.convert(terminology: STerminology) = terminology.also {
     component?.let { component -> it.component = component }
     code?.let { code -> it.code = code }
     deploymentNode?.let { deploymentNode -> it.deploymentNode = deploymentNode }
+    relationship?.let { relationship -> it.relationship = relationship }
+}
+
+private fun ViewSortOrder.convert() = when (this) {
+    ViewSortOrder.Default -> SViewSortOrder.Default
+    ViewSortOrder.Type -> SViewSortOrder.Type
+    ViewSortOrder.Key -> SViewSortOrder.Key
 }

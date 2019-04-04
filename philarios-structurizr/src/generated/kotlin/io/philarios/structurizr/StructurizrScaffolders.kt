@@ -162,3 +162,19 @@ class TerminologyScaffolder<in C>(internal val spec: TerminologySpec<C>) : Scaff
         return builder.shell
     }
 }
+
+class WorkspaceConfigurationScaffolder<in C>(internal val spec: WorkspaceConfigurationSpec<C>) : Scaffolder<C, WorkspaceConfiguration> {
+    override fun createScaffold(context: C): Scaffold<WorkspaceConfiguration> {
+        val builder = WorkspaceConfigurationShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+class UserScaffolder<in C>(internal val spec: UserSpec<C>) : Scaffolder<C, User> {
+    override fun createScaffold(context: C): Scaffold<User> {
+        val builder = UserShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}

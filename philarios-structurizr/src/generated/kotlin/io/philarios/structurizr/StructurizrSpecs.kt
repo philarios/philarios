@@ -39,3 +39,7 @@ class ElementStyleSpec<in C>(internal val body: ElementStyleBuilder<C>.() -> Uni
 class RelationshipStyleSpec<in C>(internal val body: RelationshipStyleBuilder<C>.() -> Unit)
 
 class TerminologySpec<in C>(internal val body: TerminologyBuilder<C>.() -> Unit)
+
+class WorkspaceConfigurationSpec<in C>(internal val body: WorkspaceConfigurationBuilder<C>.() -> Unit)
+
+class UserSpec<in C>(internal val body: UserBuilder<C>.() -> Unit)

@@ -31,6 +31,14 @@ interface WorkspaceBuilder<out C> {
 
     fun viewSet(value: ViewSet)
 
+    fun configuration(body: WorkspaceConfigurationBuilder<C>.() -> Unit)
+
+    fun configuration(spec: WorkspaceConfigurationSpec<C>)
+
+    fun configuration(ref: WorkspaceConfigurationRef)
+
+    fun configuration(value: WorkspaceConfiguration)
+
     fun include(body: WorkspaceBuilder<C>.() -> Unit)
 
     fun include(spec: WorkspaceSpec<C>)
@@ -570,6 +578,8 @@ interface ConfigurationBuilder<out C> {
 
     fun terminology(value: Terminology)
 
+    fun viewSortOrder(value: ViewSortOrder)
+
     fun include(body: ConfigurationBuilder<C>.() -> Unit)
 
     fun include(spec: ConfigurationSpec<C>)
@@ -686,6 +696,8 @@ interface ElementStyleBuilder<out C> {
 
     fun shape(value: Shape)
 
+    fun icon(value: String)
+
     fun border(value: Border)
 
     fun opacity(value: Int)
@@ -760,6 +772,8 @@ interface TerminologyBuilder<out C> {
 
     fun deploymentNode(value: String)
 
+    fun relationship(value: String)
+
     fun include(body: TerminologyBuilder<C>.() -> Unit)
 
     fun include(spec: TerminologySpec<C>)
@@ -771,4 +785,52 @@ interface TerminologyBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, body: TerminologyBuilder<C2>.() -> Unit)
 
     fun <C2> includeForEach(context: Iterable<C2>, spec: TerminologySpec<C2>)
+}
+
+@DslBuilder
+interface WorkspaceConfigurationBuilder<out C> {
+    val context: C
+
+    fun user(body: UserBuilder<C>.() -> Unit)
+
+    fun user(spec: UserSpec<C>)
+
+    fun user(ref: UserRef)
+
+    fun user(value: User)
+
+    fun users(users: List<User>)
+
+    fun include(body: WorkspaceConfigurationBuilder<C>.() -> Unit)
+
+    fun include(spec: WorkspaceConfigurationSpec<C>)
+
+    fun <C2> include(context: C2, body: WorkspaceConfigurationBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: WorkspaceConfigurationSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: WorkspaceConfigurationBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: WorkspaceConfigurationSpec<C2>)
+}
+
+@DslBuilder
+interface UserBuilder<out C> {
+    val context: C
+
+    fun username(value: String)
+
+    fun role(value: Role)
+
+    fun include(body: UserBuilder<C>.() -> Unit)
+
+    fun include(spec: UserSpec<C>)
+
+    fun <C2> include(context: C2, body: UserBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: UserSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: UserBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: UserSpec<C2>)
 }

@@ -11,6 +11,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("description", option(StringType))
         field("model", option(ref("Model")))
         field("viewSet", option(ref("ViewSet")))
+        field("configuration", option(ref("WorkspaceConfiguration")))
     }
 
     struct("Model") {
@@ -178,6 +179,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("branding", option(ref("Branding")))
         field("styles", option(ref("Styles")))
         field("terminology", option(ref("Terminology")))
+        field("viewSortOrder", option(ref("ViewSortOrder")))
     }
 
     struct("Branding") {
@@ -203,6 +205,7 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("color", option(StringType))
         field("fontSize", option(IntType))
         field("shape", option(ref("Shape")))
+        field("icon", option(StringType))
         field("border", option(ref("Border")))
         field("opacity", option(IntType))
         field("metadata", option(BooleanType))
@@ -255,5 +258,26 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("component", option(StringType))
         field("code", option(StringType))
         field("deploymentNode", option(StringType))
+        field("relationship", option(StringType))
+    }
+
+    enum("ViewSortOrder") {
+        value("Default")
+        value("Type")
+        value("Key")
+    }
+
+    struct("WorkspaceConfiguration") {
+        field("users", list(ref("User")))
+    }
+
+    struct("User") {
+        field("username", StringType)
+        field("role", ref("Role"))
+    }
+
+    enum("Role") {
+        value("ReadWrite")
+        value("ReadOnly")
     }
 }

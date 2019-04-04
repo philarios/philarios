@@ -9,7 +9,8 @@ data class Workspace(
         val name: String,
         val description: String?,
         val model: Model?,
-        val viewSet: ViewSet?
+        val viewSet: ViewSet?,
+        val configuration: WorkspaceConfiguration?
 )
 
 data class Model(val people: List<Person>, val softwareSystems: List<SoftwareSystem>)
@@ -169,7 +170,8 @@ enum class PaperSize {
 data class Configuration(
         val branding: Branding?,
         val styles: Styles?,
-        val terminology: Terminology?
+        val terminology: Terminology?,
+        val viewSortOrder: ViewSortOrder?
 )
 
 data class Branding(val logo: String?, val font: Font?)
@@ -186,6 +188,7 @@ data class ElementStyle(
         val color: String?,
         val fontSize: Int?,
         val shape: Shape?,
+        val icon: String?,
         val border: Border?,
         val opacity: Int?,
         val metadata: Boolean?,
@@ -251,5 +254,24 @@ data class Terminology(
         val container: String?,
         val component: String?,
         val code: String?,
-        val deploymentNode: String?
+        val deploymentNode: String?,
+        val relationship: String?
 )
+
+enum class ViewSortOrder {
+    Default,
+
+    Type,
+
+    Key
+}
+
+data class WorkspaceConfiguration(val users: List<User>)
+
+data class User(val username: String, val role: Role)
+
+enum class Role {
+    ReadWrite,
+
+    ReadOnly
+}

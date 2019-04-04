@@ -13,19 +13,22 @@ internal data class WorkspaceShell(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var model: Scaffold<Model>? = null,
-        var viewSet: Scaffold<ViewSet>? = null
+        var viewSet: Scaffold<ViewSet>? = null,
+        var configuration: Scaffold<WorkspaceConfiguration>? = null
 ) : Scaffold<Workspace> {
     override suspend fun resolve(registry: Registry): Workspace {
         checkNotNull(name) { "Workspace is missing the name property" }
         coroutineScope {
             model?.let{ launch { it.resolve(registry) } }
             viewSet?.let{ launch { it.resolve(registry) } }
+            configuration?.let{ launch { it.resolve(registry) } }
         }
         val value = Workspace(
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             model?.let{ it.resolve(registry) },
-            viewSet?.let{ it.resolve(registry) }
+            viewSet?.let{ it.resolve(registry) },
+            configuration?.let{ it.resolve(registry) }
         )
         return value
     }
@@ -328,7 +331,8 @@ internal data class DynamicViewShell(
 internal data class ConfigurationShell(
         var branding: Scaffold<Branding>? = null,
         var styles: Scaffold<Styles>? = null,
-        var terminology: Scaffold<Terminology>? = null
+        var terminology: Scaffold<Terminology>? = null,
+        var viewSortOrder: Scaffold<ViewSortOrder>? = null
 ) : Scaffold<Configuration> {
     override suspend fun resolve(registry: Registry): Configuration {
         coroutineScope {
@@ -339,7 +343,8 @@ internal data class ConfigurationShell(
         val value = Configuration(
             branding?.let{ it.resolve(registry) },
             styles?.let{ it.resolve(registry) },
-            terminology?.let{ it.resolve(registry) }
+            terminology?.let{ it.resolve(registry) },
+            viewSortOrder?.let{ it.resolve(registry) }
         )
         return value
     }
@@ -391,6 +396,7 @@ internal data class ElementStyleShell(
         var color: Scaffold<String>? = null,
         var fontSize: Scaffold<Int>? = null,
         var shape: Scaffold<Shape>? = null,
+        var icon: Scaffold<String>? = null,
         var border: Scaffold<Border>? = null,
         var opacity: Scaffold<Int>? = null,
         var metadata: Scaffold<Boolean>? = null,
@@ -406,6 +412,7 @@ internal data class ElementStyleShell(
             color?.let{ it.resolve(registry) },
             fontSize?.let{ it.resolve(registry) },
             shape?.let{ it.resolve(registry) },
+            icon?.let{ it.resolve(registry) },
             border?.let{ it.resolve(registry) },
             opacity?.let{ it.resolve(registry) },
             metadata?.let{ it.resolve(registry) },
@@ -450,7 +457,8 @@ internal data class TerminologyShell(
         var container: Scaffold<String>? = null,
         var component: Scaffold<String>? = null,
         var code: Scaffold<String>? = null,
-        var deploymentNode: Scaffold<String>? = null
+        var deploymentNode: Scaffold<String>? = null,
+        var relationship: Scaffold<String>? = null
 ) : Scaffold<Terminology> {
     override suspend fun resolve(registry: Registry): Terminology {
         val value = Terminology(
@@ -460,7 +468,32 @@ internal data class TerminologyShell(
             container?.let{ it.resolve(registry) },
             component?.let{ it.resolve(registry) },
             code?.let{ it.resolve(registry) },
-            deploymentNode?.let{ it.resolve(registry) }
+            deploymentNode?.let{ it.resolve(registry) },
+            relationship?.let{ it.resolve(registry) }
+        )
+        return value
+    }
+}
+
+internal data class WorkspaceConfigurationShell(var users: List<Scaffold<User>>? = null) : Scaffold<WorkspaceConfiguration> {
+    override suspend fun resolve(registry: Registry): WorkspaceConfiguration {
+        coroutineScope {
+            users?.let{ it.forEach { launch { it.resolve(registry) } } }
+        }
+        val value = WorkspaceConfiguration(
+            users.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+internal data class UserShell(var username: Scaffold<String>? = null, var role: Scaffold<Role>? = null) : Scaffold<User> {
+    override suspend fun resolve(registry: Registry): User {
+        checkNotNull(username) { "User is missing the username property" }
+        checkNotNull(role) { "User is missing the role property" }
+        val value = User(
+            username!!.let{ it.resolve(registry) },
+            role!!.let{ it.resolve(registry) }
         )
         return value
     }

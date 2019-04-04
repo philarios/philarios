@@ -42,3 +42,7 @@ class ElementStyleRef(key: String) : Scaffold<ElementStyle> by io.philarios.core
 class RelationshipStyleRef(key: String) : Scaffold<RelationshipStyle> by io.philarios.core.RegistryRef(io.philarios.structurizr.RelationshipStyle::class, key)
 
 class TerminologyRef(key: String) : Scaffold<Terminology> by io.philarios.core.RegistryRef(io.philarios.structurizr.Terminology::class, key)
+
+class WorkspaceConfigurationRef(key: String) : Scaffold<WorkspaceConfiguration> by io.philarios.core.RegistryRef(io.philarios.structurizr.WorkspaceConfiguration::class, key)
+
+class UserRef(key: String) : Scaffold<User> by io.philarios.core.RegistryRef(io.philarios.structurizr.User::class, key)

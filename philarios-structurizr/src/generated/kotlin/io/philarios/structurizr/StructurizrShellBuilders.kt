@@ -50,6 +50,22 @@ internal class WorkspaceShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(viewSet = Wrapper(value))
     }
 
+    override fun configuration(body: WorkspaceConfigurationBuilder<C>.() -> Unit) {
+        shell = shell.copy(configuration = WorkspaceConfigurationScaffolder<C>(WorkspaceConfigurationSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun configuration(spec: WorkspaceConfigurationSpec<C>) {
+        shell = shell.copy(configuration = WorkspaceConfigurationScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun configuration(ref: WorkspaceConfigurationRef) {
+        shell = shell.copy(configuration = ref)
+    }
+
+    override fun configuration(value: WorkspaceConfiguration) {
+        shell = shell.copy(configuration = Wrapper(value))
+    }
+
     override fun include(body: WorkspaceBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -1167,6 +1183,10 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
         shell = shell.copy(terminology = Wrapper(value))
     }
 
+    override fun viewSortOrder(value: ViewSortOrder) {
+        shell = shell.copy(viewSortOrder = Wrapper(value))
+    }
+
     override fun include(body: ConfigurationBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -1411,6 +1431,10 @@ internal class ElementStyleShellBuilder<out C>(override val context: C, internal
         shell = shell.copy(shape = Wrapper(value))
     }
 
+    override fun icon(value: String) {
+        shell = shell.copy(icon = Wrapper(value))
+    }
+
     override fun border(value: Border) {
         shell = shell.copy(border = Wrapper(value))
     }
@@ -1565,6 +1589,10 @@ internal class TerminologyShellBuilder<out C>(override val context: C, internal 
         shell = shell.copy(deploymentNode = Wrapper(value))
     }
 
+    override fun relationship(value: String) {
+        shell = shell.copy(relationship = Wrapper(value))
+    }
+
     override fun include(body: TerminologyBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -1596,6 +1624,108 @@ internal class TerminologyShellBuilder<out C>(override val context: C, internal 
     private fun <C2> split(context: C2): TerminologyShellBuilder<C2> = TerminologyShellBuilder(context, shell)
 
     private fun <C2> merge(other: TerminologyShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class WorkspaceConfigurationShellBuilder<out C>(override val context: C, internal var shell: WorkspaceConfigurationShell = WorkspaceConfigurationShell()) : WorkspaceConfigurationBuilder<C> {
+    override fun user(body: UserBuilder<C>.() -> Unit) {
+        shell = shell.copy(users = shell.users.orEmpty() + UserScaffolder<C>(UserSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun user(spec: UserSpec<C>) {
+        shell = shell.copy(users = shell.users.orEmpty() + UserScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun user(ref: UserRef) {
+        shell = shell.copy(users = shell.users.orEmpty() + ref)
+    }
+
+    override fun user(value: User) {
+        shell = shell.copy(users = shell.users.orEmpty() + Wrapper(value))
+    }
+
+    override fun users(users: List<User>) {
+        shell = shell.copy(users = shell.users.orEmpty() + users.map { Wrapper(it) })
+    }
+
+    override fun include(body: WorkspaceConfigurationBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: WorkspaceConfigurationSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: WorkspaceConfigurationBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: WorkspaceConfigurationSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkspaceConfigurationBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkspaceConfigurationSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): WorkspaceConfigurationShellBuilder<C2> = WorkspaceConfigurationShellBuilder(context, shell)
+
+    private fun <C2> merge(other: WorkspaceConfigurationShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+@DslBuilder
+internal class UserShellBuilder<out C>(override val context: C, internal var shell: UserShell = UserShell()) : UserBuilder<C> {
+    override fun username(value: String) {
+        shell = shell.copy(username = Wrapper(value))
+    }
+
+    override fun role(value: Role) {
+        shell = shell.copy(role = Wrapper(value))
+    }
+
+    override fun include(body: UserBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: UserSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: UserBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: UserSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: UserBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: UserSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): UserShellBuilder<C2> = UserShellBuilder(context, shell)
+
+    private fun <C2> merge(other: UserShellBuilder<C2>) {
         this.shell = other.shell
     }
 }
