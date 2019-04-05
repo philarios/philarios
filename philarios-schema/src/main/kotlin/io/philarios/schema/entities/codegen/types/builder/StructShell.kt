@@ -8,7 +8,9 @@ import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
 
-internal fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
+internal val builderShellTypeSpecs = createTypeBuilderTypeSpec(Struct::builderShellTypeSpec)
+
+private fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
     return TypeSpec.classBuilder(shellBuilderTypeName.rawType)
             .addModifiers(KModifier.INTERNAL)
             .addSuperinterface(builderTypeName)

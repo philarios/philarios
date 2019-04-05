@@ -6,7 +6,9 @@ import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
 
-internal fun Struct.builderInterfaceTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
+internal val builderInterfaceTypeSpecs = createTypeBuilderTypeSpec(Struct::builderInterfaceTypeSpec)
+
+private fun Struct.builderInterfaceTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
     return TypeSpec.interfaceBuilder(builderTypeName.rawType)
             .addAnnotation(DslBuilder::class.className)
             .addTypeVariable(TypeVariableName("C", KModifier.OUT))

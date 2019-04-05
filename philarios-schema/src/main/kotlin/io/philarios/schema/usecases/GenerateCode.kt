@@ -24,7 +24,7 @@ class GenerateCode(
     }
 
     operator fun invoke(schema: Schema) {
-        fileSpecWriter.writeFileSpecs(schema.fileSpecs)
+        fileSpecWriter.writeFileSpecs(schema.fileSpecs())
     }
 
 }
