@@ -1,5 +1,6 @@
 package io.philarios.schema
 
+import io.philarios.core.Deferred
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
@@ -278,28 +279,23 @@ interface MapTypeBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, spec: MapTypeSpec<C2>)
 }
 
-sealed class TypeRef<T : Type> : Scaffold<T>
+sealed class TypeRef<T : Type> {
+    internal abstract val key: String
+}
 
-class StructRef(key: String) : TypeRef<Struct>(),
-        Scaffold<Struct> by io.philarios.core.RegistryRef(io.philarios.schema.Struct::class, key)
+class StructRef(override val key: String) : TypeRef<Struct>()
 
-class UnionRef(key: String) : TypeRef<Union>(),
-        Scaffold<Union> by io.philarios.core.RegistryRef(io.philarios.schema.Union::class, key)
+class UnionRef(override val key: String) : TypeRef<Union>()
 
-class EnumTypeRef(key: String) : TypeRef<EnumType>(),
-        Scaffold<EnumType> by io.philarios.core.RegistryRef(io.philarios.schema.EnumType::class, key)
+class EnumTypeRef(override val key: String) : TypeRef<EnumType>()
 
-class RefTypeRef(key: String) : TypeRef<RefType>(),
-        Scaffold<RefType> by io.philarios.core.RegistryRef(io.philarios.schema.RefType::class, key)
+class RefTypeRef(override val key: String) : TypeRef<RefType>()
 
-class OptionTypeRef(key: String) : TypeRef<OptionType>(),
-        Scaffold<OptionType> by io.philarios.core.RegistryRef(io.philarios.schema.OptionType::class, key)
+class OptionTypeRef(override val key: String) : TypeRef<OptionType>()
 
-class ListTypeRef(key: String) : TypeRef<ListType>(),
-        Scaffold<ListType> by io.philarios.core.RegistryRef(io.philarios.schema.ListType::class, key)
+class ListTypeRef(override val key: String) : TypeRef<ListType>()
 
-class MapTypeRef(key: String) : TypeRef<MapType>(),
-        Scaffold<MapType> by io.philarios.core.RegistryRef(io.philarios.schema.MapType::class, key)
+class MapTypeRef(override val key: String) : TypeRef<MapType>()
 
 internal sealed class TypeShell
 
@@ -437,7 +433,7 @@ internal class StructShellBuilder<out C>(override val context: C, internal var s
     }
 
     override fun field(ref: FieldRef) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + ref)
+        shell = shell.copy(fields = shell.fields.orEmpty() + Deferred(ref.key))
     }
 
     override fun field(value: Field) {
@@ -502,7 +498,7 @@ internal class UnionShellBuilder<out C>(override val context: C, internal var sh
     }
 
     override fun shape(ref: StructRef) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + ref)
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + Deferred(ref.key))
     }
 
     override fun shape(value: Struct) {
@@ -653,7 +649,7 @@ internal class OptionTypeShellBuilder<out C>(override val context: C, internal v
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = ref)
+        shell = shell.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
@@ -702,7 +698,7 @@ internal class ListTypeShellBuilder<out C>(override val context: C, internal var
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = ref)
+        shell = shell.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
@@ -751,7 +747,7 @@ internal class MapTypeShellBuilder<out C>(override val context: C, internal var 
     }
 
     override fun <T : Type> keyType(ref: TypeRef<T>) {
-        shell = shell.copy(keyType = ref)
+        shell = shell.copy(keyType = Deferred(ref.key))
     }
 
     override fun <T : Type> keyType(value: T) {
@@ -763,7 +759,7 @@ internal class MapTypeShellBuilder<out C>(override val context: C, internal var 
     }
 
     override fun <T : Type> valueType(ref: TypeRef<T>) {
-        shell = shell.copy(valueType = ref)
+        shell = shell.copy(valueType = Deferred(ref.key))
     }
 
     override fun <T : Type> valueType(value: T) {

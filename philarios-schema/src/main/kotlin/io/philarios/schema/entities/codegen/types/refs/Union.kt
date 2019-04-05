@@ -1,9 +1,6 @@
 package io.philarios.schema.entities.codegen.types.refs
 
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.TypeVariableName
+import com.squareup.kotlinpoet.*
 import io.philarios.core.Scaffold
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.className
@@ -18,7 +15,9 @@ private val Union.superclassRefTypeSpec
         TypeSpec.classBuilder(refClassName)
                 .addModifiers(KModifier.SEALED)
                 .addTypeVariable(TypeVariableName("T", className))
-                .addSuperinterface(ParameterizedTypeName.get(Scaffold::class.className, TypeVariableName("T")))
+                .addProperty(PropertySpec.builder("key", String::class)
+                        .addModifiers(KModifier.INTERNAL, KModifier.ABSTRACT)
+                        .build())
                 .build()
 
 private val Union.shapeRefTypeSpecs

@@ -1,5 +1,6 @@
 package io.philarios.schema
 
+import io.philarios.core.Deferred
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
@@ -46,7 +47,7 @@ interface SchemaBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, spec: SchemaSpec<C2>)
 }
 
-class SchemaRef(key: String) : Scaffold<Schema> by io.philarios.core.RegistryRef(io.philarios.schema.Schema::class, key)
+class SchemaRef(internal val key: String)
 
 internal data class SchemaShell(
         var pkg: Scaffold<String>? = null,
@@ -84,7 +85,7 @@ internal class SchemaShellBuilder<out C>(override val context: C, internal var s
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(types = shell.types.orEmpty() + ref)
+        shell = shell.copy(types = shell.types.orEmpty() + Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {

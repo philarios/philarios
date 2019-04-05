@@ -1,5 +1,6 @@
 package io.philarios.schema
 
+import io.philarios.core.Deferred
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
@@ -49,7 +50,7 @@ interface FieldBuilder<out C> {
     fun <C2> includeForEach(context: Iterable<C2>, spec: FieldSpec<C2>)
 }
 
-class FieldRef(key: String) : Scaffold<Field> by io.philarios.core.RegistryRef(io.philarios.schema.Field::class, key)
+class FieldRef(internal val key: String)
 
 internal data class FieldShell(
         var name: Scaffold<String>? = null,
@@ -92,7 +93,7 @@ internal class FieldShellBuilder<out C>(override val context: C, internal var sh
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = ref)
+        shell = shell.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {

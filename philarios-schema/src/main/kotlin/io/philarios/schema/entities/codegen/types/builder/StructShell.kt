@@ -1,6 +1,7 @@
 package io.philarios.schema.entities.codegen.types.builder
 
 import com.squareup.kotlinpoet.*
+import io.philarios.core.Deferred
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Wrapper
@@ -101,7 +102,7 @@ private val ParameterFunction.SetParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = ref)", name)
+                .addStatement("shell = shell.copy(%L = %T(ref.key))", name, Deferred::class.className)
                 .build()
     }
 
@@ -153,7 +154,7 @@ private val ParameterFunction.AddParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + ref)", name, name)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(ref.key))", name, name, Deferred::class.className)
                 .build()
     }
 
@@ -222,8 +223,8 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithRef.parameterFunSp
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),ref))",
-                        name, name, Wrapper::class.className, "key")
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(ref.key)))",
+                        name, name, Wrapper::class.className, "key", Deferred::class.className)
                 .build()
     }
 
@@ -306,8 +307,8 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithRef.parameterFu
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),ref)))",
-                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key")
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(ref.key))))",
+                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", Deferred::class.className)
                 .build()
     }
 
