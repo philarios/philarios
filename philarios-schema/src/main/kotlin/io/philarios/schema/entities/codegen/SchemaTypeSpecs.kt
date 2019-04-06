@@ -18,14 +18,20 @@ internal data class Classifier(
         val kind: Kind
 )
 
-internal enum class Kind(val groupName: String) {
-    MODEL("Models"),
-    SPEC("Specs"),
-    REF("Refs"),
-    SHELL("Shells"),
-    BUILDER("Builders"),
-    BUILDER_SHELL("ShellBuilders"),
-    SCAFFOLDER("Scaffolders")
+internal enum class Kind(val fileName: String, val layer: Layer) {
+    MODEL("Models", Layer.MODEL),
+    SPEC("Specs", Layer.SPEC),
+    BUILDER("Builders", Layer.SPEC),
+    REF("Refs", Layer.SPEC),
+    SHELL("Shells", Layer.SCAFFOLD),
+    BUILDER_SHELL("ShellBuilders", Layer.SCAFFOLD),
+    SCAFFOLDER("Scaffolders", Layer.SCAFFOLD)
+}
+
+internal enum class Layer(val fileName: String) {
+    MODEL("Model"),
+    SPEC("Spec"),
+    SCAFFOLD("Scaffolding")
 }
 
 internal fun Schema.typeSpecsByClassifer(): Map<Classifier, List<TypeSpec>> {
@@ -48,8 +54,8 @@ internal fun Type.typeSpecsByKind(typeRefs: Map<RefType, Type>): Map<Kind, List<
             Kind.SPEC to specTypeSpecs,
             Kind.BUILDER to builderInterfaceTypeSpecs(typeRefs),
             Kind.REF to refTypeSpecs,
-            Kind.SHELL to shellTypeSpecs(typeRefs),
+            Kind.SCAFFOLDER to scaffolderTypeSpecs,
             Kind.BUILDER_SHELL to builderShellTypeSpecs(typeRefs),
-            Kind.SCAFFOLDER to scaffolderTypeSpecs
+            Kind.SHELL to shellTypeSpecs(typeRefs)
     )
 }
