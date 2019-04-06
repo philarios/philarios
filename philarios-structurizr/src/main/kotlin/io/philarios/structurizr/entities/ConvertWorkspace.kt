@@ -1,5 +1,6 @@
 package io.philarios.structurizr.entities
 
+import io.philarios.structurizr.Role
 import io.philarios.structurizr.Workspace
 import io.philarios.structurizr.WorkspaceConfiguration
 import com.structurizr.Workspace as SWorkspace

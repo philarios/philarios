@@ -28,3 +28,8 @@ fun FileSpec.Builder.addStaticImports(vararg imports: Import) =
         }
 
 fun FileSpec.Builder.addStaticImports(imports: List<Import>) = addStaticImports(*imports.toTypedArray())
+
+data class Comment(val format: String, val args: List<Any>)
+
+fun FileSpec.Builder.addComment(comment: Comment) =
+        addComment(comment.format, *comment.args.toTypedArray())

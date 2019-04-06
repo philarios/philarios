@@ -1,3 +1,10 @@
+// The implementation specifics required for materializing the specs into the model classes.
+//
+// Unless you are really curious about how the sausage gets made there is almost no reason to take a look at this
+// file. The approach taken is rather opinionated and changes to this file are the most frequent.
+//
+// In case you want to report any issues or bugs with the materialization process, please feel free to open an
+// issue in the project's repository.
 package io.philarios.terraform
 
 import io.philarios.core.Deferred

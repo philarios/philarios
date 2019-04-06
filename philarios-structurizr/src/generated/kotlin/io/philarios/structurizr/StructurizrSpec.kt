@@ -1,3 +1,13 @@
+// The builder interfaces needed to create type-safe specs.
+//
+// The specs and builders are located one layer below the model. While they need to reference the model classes
+// for obvious reasons, they should still be as un-opinionated as possible and should not depend on any
+// implementation details. This allows you to write specs without depending on how the specs are actually
+// materialized.
+//
+// It is inevitable to take an at least somewhat opinionated approach while designing interfaces and some of the
+// decisions reflect this. However, since comments or concerns are always welcome, please feel free to open an
+// issue in the project's repository.
 package io.philarios.structurizr
 
 import io.philarios.core.DslBuilder

@@ -30,7 +30,7 @@ object GenerateCircleCIConfig {
                             ?.let { it as? ObjectNode }
                             ?.let { it.put("version", 2) }
 
-                    val writer = FileWriter(".circleci/config.yml")
+                    val writer = FileWriter("../.circleci/config.yml")
 
                     objectMapper.writeValue(writer, tree)
                 }

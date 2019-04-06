@@ -1,5 +1,6 @@
 package io.philarios.structurizr.sugar
 
+import io.philarios.structurizr.Location
 import io.philarios.structurizr.PersonBuilder
 import io.philarios.structurizr.RelationshipBuilder
 
