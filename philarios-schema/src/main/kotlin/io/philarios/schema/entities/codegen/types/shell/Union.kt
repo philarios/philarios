@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import io.philarios.schema.RefType
 import io.philarios.schema.Type
 import io.philarios.schema.Union
+import io.philarios.schema.entities.codegen.util.className
 import io.philarios.schema.entities.codegen.util.shellClassName
 
 internal fun Union.shellTypeSpecs(typeRefs: Map<RefType, Type>) =
@@ -18,4 +19,4 @@ private val Union.superclassShellTypeSpec
                 .build()
 
 private fun Union.shapeShellTypeSpecs(typeRefs: Map<RefType, Type>) =
-        shapes.map { it.shellTypeSpec(typeRefs, this.shellClassName) }
+        shapes.map { it.shellTypeSpec(typeRefs, this.className, this.shellClassName) }

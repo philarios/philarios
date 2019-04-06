@@ -1,16 +1,17 @@
 package io.philarios.schema.entities.codegen.types.shell
 
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import io.philarios.util.registry.Registry
 import io.philarios.schema.*
 import io.philarios.schema.entities.codegen.util.className
 import io.philarios.schema.entities.codegen.util.escapedName
 import io.philarios.util.kotlinpoet.Statement
 import io.philarios.util.kotlinpoet.addStatements
+import io.philarios.util.registry.Registry
 
-internal fun Struct.resolveFun(typeRefs: Map<RefType, Type>): FunSpec =
+internal fun Struct.resolveFun(typeRefs: Map<RefType, Type>, superclass: ClassName?): FunSpec =
         FunSpec.builder("resolve")
                 .addModifiers(KModifier.OVERRIDE)
                 .addModifiers(KModifier.SUSPEND)
@@ -18,19 +19,17 @@ internal fun Struct.resolveFun(typeRefs: Map<RefType, Type>): FunSpec =
                         .builder("registry", Registry::class.className)
                         .build())
                 .returns(className)
-                .addStatements(resolveStatements(typeRefs))
+                .addStatements(resolveStatements(typeRefs, superclass))
                 .addStatement("return value")
                 .build()
 
-private fun Struct.resolveStatements(typeRefs: Map<RefType, Type>): List<Statement> =
+private fun Struct.resolveStatements(typeRefs: Map<RefType, Type>, superclass: ClassName?): List<Statement> =
         listOf(
                 checkChildrenStatements,
                 resolveChildrenStatements(typeRefs),
                 createValueStatements(typeRefs),
-                listOf(putIntoRegistryStatement)
-        )
-                .flatten()
-                .mapNotNull { it }
+                getPutIntoRegistryStatements(superclass)
+        ).flatten()
 
 private val Struct.checkChildrenStatements: List<Statement>
     get() = fields
@@ -53,7 +52,8 @@ private fun Struct.createValueStatements(typeRefs: Map<RefType, Type>): List<Sta
         listOf(Statement("val value = %T(", listOf(className))) +
                 fields
                         .map { it.resolveStatement(typeRefs) }
-                        .mapIndexed { index, statement -> // TODO simplify this
+                        .mapIndexed { index, statement ->
+                            // TODO simplify this
                             if (index == fields.size - 1) {
                                 statement
                             } else {
@@ -62,14 +62,19 @@ private fun Struct.createValueStatements(typeRefs: Map<RefType, Type>): List<Sta
                         } +
                 Statement(")")
 
-private val Struct.putIntoRegistryStatement: Statement?
-    get() =
-        keyField?.let { keyField ->
+private fun Struct.getPutIntoRegistryStatements(superclass: ClassName?): List<Statement> {
+    return keyField?.let { keyField ->
+        listOf(Statement(
+                "registry.put(%T::class, value.%L, value)",
+                listOf(className, keyField.escapedName)
+        )) + superclass?.let {
             Statement(
                     "registry.put(%T::class, value.%L, value)",
-                    listOf(className, keyField.escapedName)
+                    listOf(it, keyField.escapedName)
             )
         }
+    }.orEmpty().mapNotNull { it }
+}
 
 private fun Field.resolveJobStatement(typeRefs: Map<RefType, Type>): Statement? =
         copy(type = type.resolveRefs(typeRefs))

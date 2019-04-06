@@ -17,4 +17,8 @@ internal class MapRegistry : Registry {
         map[Key(clazz, key)] = value
     }
 
+    override fun close() {
+        // TODO implement this method or just delete this class
+    }
+
 }

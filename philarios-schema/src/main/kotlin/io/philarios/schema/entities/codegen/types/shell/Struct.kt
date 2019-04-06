@@ -10,20 +10,28 @@ import io.philarios.schema.entities.codegen.util.scaffoldTypeName
 import io.philarios.schema.entities.codegen.util.shellClassName
 import io.philarios.util.kotlinpoet.superclass
 
-internal fun Struct.shellTypeSpec(typeRefs: Map<RefType, Type>, superclass: ClassName? = null) = when {
+internal fun Struct.shellTypeSpec(
+        typeRefs: Map<RefType, Type>,
+        superclass: ClassName? = null,
+        shellSuperclass: ClassName? = null
+) = when {
     fields.isEmpty() -> null
-    else -> dataClassShellTypeSpec(typeRefs, superclass)
+    else -> dataClassShellTypeSpec(typeRefs, superclass, shellSuperclass)
 }
 
-private fun Struct.dataClassShellTypeSpec(typeRefs: Map<RefType, Type>, superclass: ClassName? = null) =
+private fun Struct.dataClassShellTypeSpec(
+        typeRefs: Map<RefType, Type>,
+        superclass: ClassName?,
+        shellSuperclass: ClassName?
+) =
         TypeSpec.classBuilder(shellClassName)
                 .addSuperinterface(scaffoldTypeName)
-                .superclass(superclass)
+                .superclass(shellSuperclass)
                 .addModifiers(KModifier.INTERNAL)
                 .addModifiers(KModifier.DATA)
                 .primaryConstructor(dataClassShellConstructorSpec(typeRefs))
                 .addProperties(fields.map { field -> field.getFieldPropertySpec(typeRefs) })
-                .addFunction(resolveFun(typeRefs))
+                .addFunction(resolveFun(typeRefs, superclass))
                 .build()
 
 private fun Struct.dataClassShellConstructorSpec(typeRefs: Map<RefType, Type>) =

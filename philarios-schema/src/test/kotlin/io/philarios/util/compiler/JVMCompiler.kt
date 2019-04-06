@@ -24,6 +24,7 @@ object JvmCompiler {
             noReflect = true
             skipRuntimeVersionCheck = true
             reportPerf = true
+            jvmTarget = "1.8"
         }
 
         val jvmCompiler = K2JVMCompiler()

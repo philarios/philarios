@@ -632,6 +632,7 @@ internal data class StructShell(
             fields.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         registry.put(Struct::class, value.name, value)
+        registry.put(Type::class, value.name, value)
         return value
     }
 }
@@ -652,6 +653,7 @@ internal data class UnionShell(
             shapes.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         registry.put(Union::class, value.name, value)
+        registry.put(Type::class, value.name, value)
         return value
     }
 }
@@ -669,6 +671,7 @@ internal data class EnumTypeShell(
             values.orEmpty().let{ it.map { it.resolve(registry) } }
         )
         registry.put(EnumType::class, value.name, value)
+        registry.put(Type::class, value.name, value)
         return value
     }
 }
@@ -682,6 +685,7 @@ internal data class RefTypeShell(var pkg: Scaffold<String>? = null, var name: Sc
             name!!.let{ it.resolve(registry) }
         )
         registry.put(RefType::class, value.name, value)
+        registry.put(Type::class, value.name, value)
         return value
     }
 }
