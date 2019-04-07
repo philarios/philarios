@@ -10,9 +10,9 @@ to do and why it was originally created. It gives some directions on where to go
 in using the library. In that case, please also make sure to take a look at the prerequisites before diving deeper.
 
 ## Context
-This library is intended to provide a way to write type-safe configurations in Kotlin instead of writing YAML or 
-JSON-based configuration files. These days almost every system can be configured using YAML which is nice on the one
-hand but also prone to errors and redundant code on the other.
+This library is intended to provide a way to write type-safe specs in Kotlin instead of writing YAML or JSON-based
+configuration files. These days almost every system can be configured using YAML which is nice on the one hand but also
+prone to errors and redundant code on the other.
 
 Which means that instead of writing this:
 ```yaml
@@ -83,11 +83,11 @@ read in combination with the reference page on [Type-Safe Builders](https://kotl
 Depending on what you want to achieve by using this library, i.e. what your objective is, you should be looking at the
 documentation of different submodules.
 
-### Getting started with replacing configuration files (YAML, JSON, HCL) with type-safe configuration
+### Getting started with replacing configuration files (YAML, JSON, HCL) with type-safe specs
 The library currently supports a number of different systems, all of which I have created because I used them in the
 past or I am currently using them. 
 
-* The [CircleCI](philarios-circleci) module contains a DSL for writing CircleCI configurations
+* The [CircleCI](philarios-circleci) module contains specs for writing CircleCI configurations
 * The [Concourse](philarios-concourse) module describes how to create Concourse pipeline configurations
 * The [Terraform](philarios-terraform) module allows you to write arbitrary Terraform configurations in a type-safe way
 

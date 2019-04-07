@@ -16,7 +16,7 @@
 title: Philarios
 email: contact@philarios.io
 description: >-
-  Kotlin DSL schemas for common DevOps configurations and a meta-schema to create your own DSLs
+  Type-safe specs written in Kotlin
 baseurl: ""
 url: "https://philarios.github.io/"
 twitter_username: philarios2
