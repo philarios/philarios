@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Design decisions
-nav_order: 101
+nav_order: 1
 permalink: design-decisions
 ---
 

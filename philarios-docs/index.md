@@ -71,7 +71,7 @@ together to create a library for writing configuration files in a type-safe way.
 attempting to) designing a microservice-oriented architecture and I was missing some way of specifying the high-level 
 dependencies between services. This lead me to generalize the type-safe configuration generator for arbitrary schemas.
 
-Please feel free to read through [Design decisions](design-decisions) if you are interested in more details.
+Please feel free to read through [Design decisions](philarios-core/design-decisions) if you are interested in more details.
 
 ## Prerequisites
 Since this library is entirely written in Kotlin familiarity with the language is definitely a plus. The 
