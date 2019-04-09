@@ -22,9 +22,11 @@ fun <C, T : Any> SoftwareSystemBuilder<C>.relationship(destinationId: T, body: R
 
 fun <C> SoftwareSystemBuilder<C>.internal() {
     location(Location.Internal)
+    tag("Internal")
 }
 
 fun <C> SoftwareSystemBuilder<C>.external() {
     location(Location.External)
+    tag("External")
 }
 
