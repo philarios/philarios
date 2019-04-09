@@ -51,6 +51,14 @@ interface WorkspaceBuilder<out C> {
 
     fun configuration(value: WorkspaceConfiguration)
 
+    fun documentation(body: DocumentationBuilder<C>.() -> Unit)
+
+    fun documentation(spec: DocumentationSpec<C>)
+
+    fun documentation(ref: DocumentationRef)
+
+    fun documentation(value: Documentation)
+
     fun include(body: WorkspaceBuilder<C>.() -> Unit)
 
     fun include(spec: WorkspaceSpec<C>)
@@ -932,3 +940,69 @@ interface UserBuilder<out C> {
 }
 
 class UserRef(internal val key: String)
+
+class DocumentationSpec<in C>(internal val body: DocumentationBuilder<C>.() -> Unit)
+
+@DslBuilder
+interface DocumentationBuilder<out C> {
+    val context: C
+
+    fun decision(body: DecisionBuilder<C>.() -> Unit)
+
+    fun decision(spec: DecisionSpec<C>)
+
+    fun decision(ref: DecisionRef)
+
+    fun decision(value: Decision)
+
+    fun decisions(decisions: List<Decision>)
+
+    fun include(body: DocumentationBuilder<C>.() -> Unit)
+
+    fun include(spec: DocumentationSpec<C>)
+
+    fun <C2> include(context: C2, body: DocumentationBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: DocumentationSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: DocumentationBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: DocumentationSpec<C2>)
+}
+
+class DocumentationRef(internal val key: String)
+
+class DecisionSpec<in C>(internal val body: DecisionBuilder<C>.() -> Unit)
+
+@DslBuilder
+interface DecisionBuilder<out C> {
+    val context: C
+
+    fun elementId(value: String)
+
+    fun id(value: String)
+
+    fun date(value: String)
+
+    fun title(value: String)
+
+    fun status(value: DecisionStatus)
+
+    fun content(value: String)
+
+    fun format(value: Format)
+
+    fun include(body: DecisionBuilder<C>.() -> Unit)
+
+    fun include(spec: DecisionSpec<C>)
+
+    fun <C2> include(context: C2, body: DecisionBuilder<C2>.() -> Unit)
+
+    fun <C2> include(context: C2, spec: DecisionSpec<C2>)
+
+    fun <C2> includeForEach(context: Iterable<C2>, body: DecisionBuilder<C2>.() -> Unit)
+
+    fun <C2> includeForEach(context: Iterable<C2>, spec: DecisionSpec<C2>)
+}
+
+class DecisionRef(internal val key: String)

@@ -30,6 +30,18 @@ val workspace = WorkspaceSpec<Any?> {
             }
         }
     }
+
+    documentation {
+        decision {
+            id("test")
+            elementId(TodoId.ROOT.hierarchicalId())
+            date("2019-04-19")
+            title("Test the decision log")
+            status(DecisionStatus.Proposed)
+            content("asdf")
+            format(Format.Markdown)
+        }
+    }
 }
 
 private fun ModelBuilder<Any?>.people() {

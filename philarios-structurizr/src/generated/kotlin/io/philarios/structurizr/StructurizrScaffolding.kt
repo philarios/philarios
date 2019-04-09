@@ -87,6 +87,22 @@ internal class WorkspaceShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(configuration = Wrapper(value))
     }
 
+    override fun documentation(body: DocumentationBuilder<C>.() -> Unit) {
+        shell = shell.copy(documentation = DocumentationScaffolder<C>(DocumentationSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun documentation(spec: DocumentationSpec<C>) {
+        shell = shell.copy(documentation = DocumentationScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun documentation(ref: DocumentationRef) {
+        shell = shell.copy(documentation = Deferred(ref.key))
+    }
+
+    override fun documentation(value: Documentation) {
+        shell = shell.copy(documentation = Wrapper(value))
+    }
+
     override fun include(body: WorkspaceBuilder<C>.() -> Unit) {
         apply(body)
     }
@@ -127,7 +143,8 @@ internal data class WorkspaceShell(
         var description: Scaffold<String>? = null,
         var model: Scaffold<Model>? = null,
         var viewSet: Scaffold<ViewSet>? = null,
-        var configuration: Scaffold<WorkspaceConfiguration>? = null
+        var configuration: Scaffold<WorkspaceConfiguration>? = null,
+        var documentation: Scaffold<Documentation>? = null
 ) : Scaffold<Workspace> {
     override suspend fun resolve(registry: Registry): Workspace {
         checkNotNull(name) { "Workspace is missing the name property" }
@@ -135,13 +152,15 @@ internal data class WorkspaceShell(
             model?.let{ launch { it.resolve(registry) } }
             viewSet?.let{ launch { it.resolve(registry) } }
             configuration?.let{ launch { it.resolve(registry) } }
+            documentation?.let{ launch { it.resolve(registry) } }
         }
         val value = Workspace(
             name!!.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             model?.let{ it.resolve(registry) },
             viewSet?.let{ it.resolve(registry) },
-            configuration?.let{ it.resolve(registry) }
+            configuration?.let{ it.resolve(registry) },
+            documentation?.let{ it.resolve(registry) }
         )
         return value
     }
@@ -2404,6 +2423,186 @@ internal data class UserShell(var username: Scaffold<String>? = null, var role: 
         val value = User(
             username!!.let{ it.resolve(registry) },
             role!!.let{ it.resolve(registry) }
+        )
+        return value
+    }
+}
+
+class DocumentationScaffolder<in C>(internal val spec: DocumentationSpec<C>) : Scaffolder<C, Documentation> {
+    override fun createScaffold(context: C): Scaffold<Documentation> {
+        val builder = DocumentationShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+@DslBuilder
+internal class DocumentationShellBuilder<out C>(override val context: C, internal var shell: DocumentationShell = DocumentationShell()) : DocumentationBuilder<C> {
+    override fun decision(body: DecisionBuilder<C>.() -> Unit) {
+        shell = shell.copy(decisions = shell.decisions.orEmpty() + DecisionScaffolder<C>(DecisionSpec<C>(body)).createScaffold(context))
+    }
+
+    override fun decision(spec: DecisionSpec<C>) {
+        shell = shell.copy(decisions = shell.decisions.orEmpty() + DecisionScaffolder<C>(spec).createScaffold(context))
+    }
+
+    override fun decision(ref: DecisionRef) {
+        shell = shell.copy(decisions = shell.decisions.orEmpty() + Deferred(ref.key))
+    }
+
+    override fun decision(value: Decision) {
+        shell = shell.copy(decisions = shell.decisions.orEmpty() + Wrapper(value))
+    }
+
+    override fun decisions(decisions: List<Decision>) {
+        shell = shell.copy(decisions = shell.decisions.orEmpty() + decisions.map { Wrapper(it) })
+    }
+
+    override fun include(body: DocumentationBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: DocumentationSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: DocumentationBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: DocumentationSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: DocumentationBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: DocumentationSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): DocumentationShellBuilder<C2> = DocumentationShellBuilder(context, shell)
+
+    private fun <C2> merge(other: DocumentationShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+internal data class DocumentationShell(var decisions: List<Scaffold<Decision>>? = null) : Scaffold<Documentation> {
+    override suspend fun resolve(registry: Registry): Documentation {
+        coroutineScope {
+            decisions?.let{ it.forEach { launch { it.resolve(registry) } } }
+        }
+        val value = Documentation(
+            decisions.orEmpty().let{ it.map { it.resolve(registry) } }
+        )
+        return value
+    }
+}
+
+class DecisionScaffolder<in C>(internal val spec: DecisionSpec<C>) : Scaffolder<C, Decision> {
+    override fun createScaffold(context: C): Scaffold<Decision> {
+        val builder = DecisionShellBuilder<C>(context)
+        builder.apply(spec.body)
+        return builder.shell
+    }
+}
+
+@DslBuilder
+internal class DecisionShellBuilder<out C>(override val context: C, internal var shell: DecisionShell = DecisionShell()) : DecisionBuilder<C> {
+    override fun elementId(value: String) {
+        shell = shell.copy(elementId = Wrapper(value))
+    }
+
+    override fun id(value: String) {
+        shell = shell.copy(id = Wrapper(value))
+    }
+
+    override fun date(value: String) {
+        shell = shell.copy(date = Wrapper(value))
+    }
+
+    override fun title(value: String) {
+        shell = shell.copy(title = Wrapper(value))
+    }
+
+    override fun status(value: DecisionStatus) {
+        shell = shell.copy(status = Wrapper(value))
+    }
+
+    override fun content(value: String) {
+        shell = shell.copy(content = Wrapper(value))
+    }
+
+    override fun format(value: Format) {
+        shell = shell.copy(format = Wrapper(value))
+    }
+
+    override fun include(body: DecisionBuilder<C>.() -> Unit) {
+        apply(body)
+    }
+
+    override fun include(spec: DecisionSpec<C>) {
+        apply(spec.body)
+    }
+
+    override fun <C2> include(context: C2, body: DecisionBuilder<C2>.() -> Unit) {
+        val builder = split(context)
+        builder.apply(body)
+        merge(builder)
+    }
+
+    override fun <C2> include(context: C2, spec: DecisionSpec<C2>) {
+        val builder = split(context)
+        builder.apply(spec.body)
+        merge(builder)
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, body: DecisionBuilder<C2>.() -> Unit) {
+        context.forEach { include(it, body) }
+    }
+
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: DecisionSpec<C2>) {
+        context.forEach { include(it, spec) }
+    }
+
+    private fun <C2> split(context: C2): DecisionShellBuilder<C2> = DecisionShellBuilder(context, shell)
+
+    private fun <C2> merge(other: DecisionShellBuilder<C2>) {
+        this.shell = other.shell
+    }
+}
+
+internal data class DecisionShell(
+        var elementId: Scaffold<String>? = null,
+        var id: Scaffold<String>? = null,
+        var date: Scaffold<String>? = null,
+        var title: Scaffold<String>? = null,
+        var status: Scaffold<DecisionStatus>? = null,
+        var content: Scaffold<String>? = null,
+        var format: Scaffold<Format>? = null
+) : Scaffold<Decision> {
+    override suspend fun resolve(registry: Registry): Decision {
+        checkNotNull(elementId) { "Decision is missing the elementId property" }
+        checkNotNull(id) { "Decision is missing the id property" }
+        checkNotNull(date) { "Decision is missing the date property" }
+        checkNotNull(title) { "Decision is missing the title property" }
+        checkNotNull(status) { "Decision is missing the status property" }
+        checkNotNull(content) { "Decision is missing the content property" }
+        checkNotNull(format) { "Decision is missing the format property" }
+        val value = Decision(
+            elementId!!.let{ it.resolve(registry) },
+            id!!.let{ it.resolve(registry) },
+            date!!.let{ it.resolve(registry) },
+            title!!.let{ it.resolve(registry) },
+            status!!.let{ it.resolve(registry) },
+            content!!.let{ it.resolve(registry) },
+            format!!.let{ it.resolve(registry) }
         )
         return value
     }

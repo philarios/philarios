@@ -12,8 +12,16 @@ val structurizrSchema = SchemaSpec<Any?> {
         field("model", option(ref("Model")))
         field("viewSet", option(ref("ViewSet")))
         field("configuration", option(ref("WorkspaceConfiguration")))
+        field("documentation", option(ref("Documentation")))
     }
 
+    include(modelSchema)
+    include(viewSchema)
+    include(configurationSchema)
+    include(documentationSchema)
+}
+
+val modelSchema = SchemaSpec<Any?> {
     struct("Model") {
         field("people", list(ref("Person"))) {
             singularName("person")
@@ -77,7 +85,9 @@ val structurizrSchema = SchemaSpec<Any?> {
         value("Synchronous")
         value("Asynchronous")
     }
+}
 
+val viewSchema = SchemaSpec<Any?> {
     struct("ViewSet") {
         field("systemLandscapeViews", option(list(ref("SystemLandscapeView"))))
         field("systemContextViews", option(list(ref("SystemContextView"))))
@@ -266,7 +276,9 @@ val structurizrSchema = SchemaSpec<Any?> {
         value("Type")
         value("Key")
     }
+}
 
+val configurationSchema = SchemaSpec<Any?> {
     struct("WorkspaceConfiguration") {
         field("users", list(ref("User")))
     }
@@ -279,5 +291,34 @@ val structurizrSchema = SchemaSpec<Any?> {
     enum("Role") {
         value("ReadWrite")
         value("ReadOnly")
+    }
+}
+
+val documentationSchema = SchemaSpec<Any?> {
+    struct("Documentation") {
+        field("decisions", list(ref("Decision")))
+    }
+
+    struct("Decision") {
+        field("elementId", StringType)
+        field("id", StringType)
+        field("date", StringType)
+        field("title", StringType)
+        field("status", ref("DecisionStatus"))
+        field("content", StringType)
+        field("format", ref("Format"))
+    }
+
+    enum("DecisionStatus") {
+        value("Proposed")
+        value("Accepted")
+        value("Superseded")
+        value("Deprecated")
+        value("Rejected")
+    }
+
+    enum("Format") {
+        value("Markdown")
+        value("AsciiDoc")
     }
 }

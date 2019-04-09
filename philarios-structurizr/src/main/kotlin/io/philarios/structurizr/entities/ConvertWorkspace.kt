@@ -26,8 +26,9 @@ import com.structurizr.view.Terminology as STerminology
 import com.structurizr.view.ViewSet as SViewSet
 
 fun Workspace.convert() = SWorkspace(name, description).also {
-    val elementMap = model?.convert(it.model)
-    viewSet?.convert(it.views, elementMap.orEmpty())
+    val elementMap = model?.convert(it.model).orEmpty()
+    viewSet?.convert(it.views, elementMap)
+    documentation?.convert(it.documentation, elementMap)
     configuration?.convert(it.configuration)
 }
 

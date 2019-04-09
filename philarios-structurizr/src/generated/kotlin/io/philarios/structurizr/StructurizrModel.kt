@@ -18,7 +18,8 @@ data class Workspace(
         val description: String?,
         val model: Model?,
         val viewSet: ViewSet?,
-        val configuration: WorkspaceConfiguration?
+        val configuration: WorkspaceConfiguration?,
+        val documentation: Documentation?
 )
 
 data class Model(val people: List<Person>, val softwareSystems: List<SoftwareSystem>)
@@ -282,4 +283,34 @@ enum class Role {
     ReadWrite,
 
     ReadOnly
+}
+
+data class Documentation(val decisions: List<Decision>)
+
+data class Decision(
+        val elementId: String,
+        val id: String,
+        val date: String,
+        val title: String,
+        val status: DecisionStatus,
+        val content: String,
+        val format: Format
+)
+
+enum class DecisionStatus {
+    Proposed,
+
+    Accepted,
+
+    Superseded,
+
+    Deprecated,
+
+    Rejected
+}
+
+enum class Format {
+    Markdown,
+
+    AsciiDoc
 }
