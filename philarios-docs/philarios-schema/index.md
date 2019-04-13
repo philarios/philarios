@@ -8,14 +8,24 @@ permalink: philarios-schema
 ---
 
 # Getting started
+This small tutorial is aimed at teaching you the basics of Philarios schemas.
 
 ## Prerequisites
+Since this module does not depend on any external systems, it is enough to have a solid grasp on Kotlin [Type-Safe Builders](https://kotlinlang.org/docs/reference/type-safe-builders.html)
+in order to proceed. Since the meta-schema is structured using types similar to [algebraic data types](https://en.wikipedia.org/wiki/Algebraic_data_type),
+it would also be great if you had at least some exposure to those.
 
 ## Goal
+Getting started with the Philarios Schema module means to write your own first schema and then using it to define some
+parameterized instances of your model.
 
 ## Walkthrough
+Without any further ado let us get started!
 
 ### Setup
+As usual when trying out some new software I would recommend to just create a new Kotlin project in Intellij using
+Gradle. Because the project is primarily hosted on bintray, for now, please add the repository to your `build.gradle`
+file in addition to the two dependencies for the `core` module and the `schema` module.
 
 ```
 repositories {
