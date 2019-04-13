@@ -22,16 +22,16 @@ import kotlin.collections.Map
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class ConfigurationScaffolder<in C>(internal val spec: ConfigurationSpec<C>) : Scaffolder<C, Configuration> {
-    override fun createScaffold(context: C): Scaffold<Configuration> {
-        val builder = ConfigurationShellBuilder<C>(context)
+class TerraformScaffolder<in C>(internal val spec: TerraformSpec<C>) : Scaffolder<C, Terraform> {
+    override fun createScaffold(context: C): Scaffold<Terraform> {
+        val builder = TerraformShellBuilder<C>(context)
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class ConfigurationShellBuilder<out C>(override val context: C, internal var shell: ConfigurationShell = ConfigurationShell()) : ConfigurationBuilder<C> {
+internal class TerraformShellBuilder<out C>(override val context: C, internal var shell: TerraformShell = TerraformShell()) : TerraformBuilder<C> {
     override fun resource(body: ResourceBuilder<C>.() -> Unit) {
         shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder<C>(ResourceSpec<C>(body)).createScaffold(context))
     }
@@ -132,49 +132,49 @@ internal class ConfigurationShellBuilder<out C>(override val context: C, interna
         shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { Wrapper(it) })
     }
 
-    override fun include(body: ConfigurationBuilder<C>.() -> Unit) {
+    override fun include(body: TerraformBuilder<C>.() -> Unit) {
         apply(body)
     }
 
-    override fun include(spec: ConfigurationSpec<C>) {
+    override fun include(spec: TerraformSpec<C>) {
         apply(spec.body)
     }
 
-    override fun <C2> include(context: C2, body: ConfigurationBuilder<C2>.() -> Unit) {
+    override fun <C2> include(context: C2, body: TerraformBuilder<C2>.() -> Unit) {
         val builder = split(context)
         builder.apply(body)
         merge(builder)
     }
 
-    override fun <C2> include(context: C2, spec: ConfigurationSpec<C2>) {
+    override fun <C2> include(context: C2, spec: TerraformSpec<C2>) {
         val builder = split(context)
         builder.apply(spec.body)
         merge(builder)
     }
 
-    override fun <C2> includeForEach(context: Iterable<C2>, body: ConfigurationBuilder<C2>.() -> Unit) {
+    override fun <C2> includeForEach(context: Iterable<C2>, body: TerraformBuilder<C2>.() -> Unit) {
         context.forEach { include(it, body) }
     }
 
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: ConfigurationSpec<C2>) {
+    override fun <C2> includeForEach(context: Iterable<C2>, spec: TerraformSpec<C2>) {
         context.forEach { include(it, spec) }
     }
 
-    private fun <C2> split(context: C2): ConfigurationShellBuilder<C2> = ConfigurationShellBuilder(context, shell)
+    private fun <C2> split(context: C2): TerraformShellBuilder<C2> = TerraformShellBuilder(context, shell)
 
-    private fun <C2> merge(other: ConfigurationShellBuilder<C2>) {
+    private fun <C2> merge(other: TerraformShellBuilder<C2>) {
         this.shell = other.shell
     }
 }
 
-internal data class ConfigurationShell(
+internal data class TerraformShell(
         var resources: List<Scaffold<Resource>>? = null,
         var dataSources: List<Scaffold<DataSource>>? = null,
         var providers: List<Scaffold<Provider>>? = null,
         var variables: List<Scaffold<Variable>>? = null,
         var outputs: List<Scaffold<Output>>? = null
-) : Scaffold<Configuration> {
-    override suspend fun resolve(registry: Registry): Configuration {
+) : Scaffold<Terraform> {
+    override suspend fun resolve(registry: Registry): Terraform {
         coroutineScope {
             resources?.let{ it.forEach { launch { it.resolve(registry) } } }
             dataSources?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -182,7 +182,7 @@ internal data class ConfigurationShell(
             variables?.let{ it.forEach { launch { it.resolve(registry) } } }
             outputs?.let{ it.forEach { launch { it.resolve(registry) } } }
         }
-        val value = Configuration(
+        val value = Terraform(
             resources.orEmpty().let{ it.map { it.resolve(registry) } },
             dataSources.orEmpty().let{ it.map { it.resolve(registry) } },
             providers.orEmpty().let{ it.map { it.resolve(registry) } },

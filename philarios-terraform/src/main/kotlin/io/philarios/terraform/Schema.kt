@@ -7,7 +7,7 @@ val terraformSchema = SchemaSpec<Any?> {
     pkg("io.philarios.terraform")
 
     type(StructSpec {
-        name("Configuration")
+        name("Terraform")
 
         field {
             name("resources")

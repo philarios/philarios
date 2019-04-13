@@ -18,10 +18,10 @@ import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 
-class ConfigurationSpec<in C>(internal val body: ConfigurationBuilder<C>.() -> Unit)
+class TerraformSpec<in C>(internal val body: TerraformBuilder<C>.() -> Unit)
 
 @DslBuilder
-interface ConfigurationBuilder<out C> {
+interface TerraformBuilder<out C> {
     val context: C
 
     fun resource(body: ResourceBuilder<C>.() -> Unit)
@@ -74,20 +74,20 @@ interface ConfigurationBuilder<out C> {
 
     fun outputs(outputs: List<Output>)
 
-    fun include(body: ConfigurationBuilder<C>.() -> Unit)
+    fun include(body: TerraformBuilder<C>.() -> Unit)
 
-    fun include(spec: ConfigurationSpec<C>)
+    fun include(spec: TerraformSpec<C>)
 
-    fun <C2> include(context: C2, body: ConfigurationBuilder<C2>.() -> Unit)
+    fun <C2> include(context: C2, body: TerraformBuilder<C2>.() -> Unit)
 
-    fun <C2> include(context: C2, spec: ConfigurationSpec<C2>)
+    fun <C2> include(context: C2, spec: TerraformSpec<C2>)
 
-    fun <C2> includeForEach(context: Iterable<C2>, body: ConfigurationBuilder<C2>.() -> Unit)
+    fun <C2> includeForEach(context: Iterable<C2>, body: TerraformBuilder<C2>.() -> Unit)
 
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ConfigurationSpec<C2>)
+    fun <C2> includeForEach(context: Iterable<C2>, spec: TerraformSpec<C2>)
 }
 
-class ConfigurationRef(internal val key: String)
+class TerraformRef(internal val key: String)
 
 class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit)
 

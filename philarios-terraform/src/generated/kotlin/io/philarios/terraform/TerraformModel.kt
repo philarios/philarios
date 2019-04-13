@@ -13,7 +13,7 @@ import kotlin.String
 import kotlin.collections.List
 import kotlin.collections.Map
 
-data class Configuration(
+data class Terraform(
         val resources: List<Resource>,
         val dataSources: List<DataSource>,
         val providers: List<Provider>,
