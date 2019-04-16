@@ -20,7 +20,7 @@ import kotlin.collections.List
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class SchemaScaffolder<in C>(internal val spec: SchemaSpec<C>) : Scaffolder<C, Schema> {
+class SchemaScaffolder<C>(internal val spec: SchemaSpec<C>) : Scaffolder<C, Schema> {
     override fun createScaffold(context: C): Scaffold<Schema> {
         val builder = SchemaShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -29,7 +29,7 @@ class SchemaScaffolder<in C>(internal val spec: SchemaSpec<C>) : Scaffolder<C, S
 }
 
 @DslBuilder
-internal class SchemaShellBuilder<out C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
+internal class SchemaShellBuilder<C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -131,7 +131,7 @@ class TypeScaffolder<in C, out T : Type>(internal val spec: TypeSpec<C, T>) : Sc
     }
 }
 
-class StructScaffolder<in C>(internal val spec: StructSpec<C>) : Scaffolder<C, Struct> {
+class StructScaffolder<C>(internal val spec: StructSpec<C>) : Scaffolder<C, Struct> {
     override fun createScaffold(context: C): Scaffold<Struct> {
         val builder = StructShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -139,7 +139,7 @@ class StructScaffolder<in C>(internal val spec: StructSpec<C>) : Scaffolder<C, S
     }
 }
 
-class UnionScaffolder<in C>(internal val spec: UnionSpec<C>) : Scaffolder<C, Union> {
+class UnionScaffolder<C>(internal val spec: UnionSpec<C>) : Scaffolder<C, Union> {
     override fun createScaffold(context: C): Scaffold<Union> {
         val builder = UnionShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -147,7 +147,7 @@ class UnionScaffolder<in C>(internal val spec: UnionSpec<C>) : Scaffolder<C, Uni
     }
 }
 
-class EnumTypeScaffolder<in C>(internal val spec: EnumTypeSpec<C>) : Scaffolder<C, EnumType> {
+class EnumTypeScaffolder<C>(internal val spec: EnumTypeSpec<C>) : Scaffolder<C, EnumType> {
     override fun createScaffold(context: C): Scaffold<EnumType> {
         val builder = EnumTypeShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -155,7 +155,7 @@ class EnumTypeScaffolder<in C>(internal val spec: EnumTypeSpec<C>) : Scaffolder<
     }
 }
 
-class RefTypeScaffolder<in C>(internal val spec: RefTypeSpec<C>) : Scaffolder<C, RefType> {
+class RefTypeScaffolder<C>(internal val spec: RefTypeSpec<C>) : Scaffolder<C, RefType> {
     override fun createScaffold(context: C): Scaffold<RefType> {
         val builder = RefTypeShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -163,7 +163,7 @@ class RefTypeScaffolder<in C>(internal val spec: RefTypeSpec<C>) : Scaffolder<C,
     }
 }
 
-class OptionTypeScaffolder<in C>(internal val spec: OptionTypeSpec<C>) : Scaffolder<C, OptionType> {
+class OptionTypeScaffolder<C>(internal val spec: OptionTypeSpec<C>) : Scaffolder<C, OptionType> {
     override fun createScaffold(context: C): Scaffold<OptionType> {
         val builder = OptionTypeShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -171,7 +171,7 @@ class OptionTypeScaffolder<in C>(internal val spec: OptionTypeSpec<C>) : Scaffol
     }
 }
 
-class ListTypeScaffolder<in C>(internal val spec: ListTypeSpec<C>) : Scaffolder<C, ListType> {
+class ListTypeScaffolder<C>(internal val spec: ListTypeSpec<C>) : Scaffolder<C, ListType> {
     override fun createScaffold(context: C): Scaffold<ListType> {
         val builder = ListTypeShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -179,7 +179,7 @@ class ListTypeScaffolder<in C>(internal val spec: ListTypeSpec<C>) : Scaffolder<
     }
 }
 
-class MapTypeScaffolder<in C>(internal val spec: MapTypeSpec<C>) : Scaffolder<C, MapType> {
+class MapTypeScaffolder<C>(internal val spec: MapTypeSpec<C>) : Scaffolder<C, MapType> {
     override fun createScaffold(context: C): Scaffold<MapType> {
         val builder = MapTypeShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -187,48 +187,48 @@ class MapTypeScaffolder<in C>(internal val spec: MapTypeSpec<C>) : Scaffolder<C,
     }
 }
 
-class BooleanTypeScaffolder<in C>(internal val spec: BooleanTypeSpec<C>) : Scaffolder<C, BooleanType> {
+class BooleanTypeScaffolder<C>(internal val spec: BooleanTypeSpec<C>) : Scaffolder<C, BooleanType> {
     override fun createScaffold(context: C): Scaffold<BooleanType> = Wrapper(BooleanType)
 }
 
-class DoubleTypeScaffolder<in C>(internal val spec: DoubleTypeSpec<C>) : Scaffolder<C, DoubleType> {
+class DoubleTypeScaffolder<C>(internal val spec: DoubleTypeSpec<C>) : Scaffolder<C, DoubleType> {
     override fun createScaffold(context: C): Scaffold<DoubleType> = Wrapper(DoubleType)
 }
 
-class FloatTypeScaffolder<in C>(internal val spec: FloatTypeSpec<C>) : Scaffolder<C, FloatType> {
+class FloatTypeScaffolder<C>(internal val spec: FloatTypeSpec<C>) : Scaffolder<C, FloatType> {
     override fun createScaffold(context: C): Scaffold<FloatType> = Wrapper(FloatType)
 }
 
-class LongTypeScaffolder<in C>(internal val spec: LongTypeSpec<C>) : Scaffolder<C, LongType> {
+class LongTypeScaffolder<C>(internal val spec: LongTypeSpec<C>) : Scaffolder<C, LongType> {
     override fun createScaffold(context: C): Scaffold<LongType> = Wrapper(LongType)
 }
 
-class IntTypeScaffolder<in C>(internal val spec: IntTypeSpec<C>) : Scaffolder<C, IntType> {
+class IntTypeScaffolder<C>(internal val spec: IntTypeSpec<C>) : Scaffolder<C, IntType> {
     override fun createScaffold(context: C): Scaffold<IntType> = Wrapper(IntType)
 }
 
-class ShortTypeScaffolder<in C>(internal val spec: ShortTypeSpec<C>) : Scaffolder<C, ShortType> {
+class ShortTypeScaffolder<C>(internal val spec: ShortTypeSpec<C>) : Scaffolder<C, ShortType> {
     override fun createScaffold(context: C): Scaffold<ShortType> = Wrapper(ShortType)
 }
 
-class ByteTypeScaffolder<in C>(internal val spec: ByteTypeSpec<C>) : Scaffolder<C, ByteType> {
+class ByteTypeScaffolder<C>(internal val spec: ByteTypeSpec<C>) : Scaffolder<C, ByteType> {
     override fun createScaffold(context: C): Scaffold<ByteType> = Wrapper(ByteType)
 }
 
-class CharacterTypeScaffolder<in C>(internal val spec: CharacterTypeSpec<C>) : Scaffolder<C, CharacterType> {
+class CharacterTypeScaffolder<C>(internal val spec: CharacterTypeSpec<C>) : Scaffolder<C, CharacterType> {
     override fun createScaffold(context: C): Scaffold<CharacterType> = Wrapper(CharacterType)
 }
 
-class StringTypeScaffolder<in C>(internal val spec: StringTypeSpec<C>) : Scaffolder<C, StringType> {
+class StringTypeScaffolder<C>(internal val spec: StringTypeSpec<C>) : Scaffolder<C, StringType> {
     override fun createScaffold(context: C): Scaffold<StringType> = Wrapper(StringType)
 }
 
-class AnyTypeScaffolder<in C>(internal val spec: AnyTypeSpec<C>) : Scaffolder<C, AnyType> {
+class AnyTypeScaffolder<C>(internal val spec: AnyTypeSpec<C>) : Scaffolder<C, AnyType> {
     override fun createScaffold(context: C): Scaffold<AnyType> = Wrapper(AnyType)
 }
 
 @DslBuilder
-internal class StructShellBuilder<out C>(override val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
+internal class StructShellBuilder<C>(override val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -293,7 +293,7 @@ internal class StructShellBuilder<out C>(override val context: C, internal var s
 }
 
 @DslBuilder
-internal class UnionShellBuilder<out C>(override val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
+internal class UnionShellBuilder<C>(override val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -358,7 +358,7 @@ internal class UnionShellBuilder<out C>(override val context: C, internal var sh
 }
 
 @DslBuilder
-internal class EnumTypeShellBuilder<out C>(override val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
+internal class EnumTypeShellBuilder<C>(override val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -411,7 +411,7 @@ internal class EnumTypeShellBuilder<out C>(override val context: C, internal var
 }
 
 @DslBuilder
-internal class RefTypeShellBuilder<out C>(override val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
+internal class RefTypeShellBuilder<C>(override val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -456,7 +456,7 @@ internal class RefTypeShellBuilder<out C>(override val context: C, internal var 
 }
 
 @DslBuilder
-internal class OptionTypeShellBuilder<out C>(override val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
+internal class OptionTypeShellBuilder<C>(override val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
     override fun <T : Type> type(spec: TypeSpec<C, T>) {
         shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
@@ -505,7 +505,7 @@ internal class OptionTypeShellBuilder<out C>(override val context: C, internal v
 }
 
 @DslBuilder
-internal class ListTypeShellBuilder<out C>(override val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
+internal class ListTypeShellBuilder<C>(override val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
     override fun <T : Type> type(spec: TypeSpec<C, T>) {
         shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
@@ -554,7 +554,7 @@ internal class ListTypeShellBuilder<out C>(override val context: C, internal var
 }
 
 @DslBuilder
-internal class MapTypeShellBuilder<out C>(override val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
+internal class MapTypeShellBuilder<C>(override val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
     override fun <T : Type> keyType(spec: TypeSpec<C, T>) {
         shell = shell.copy(keyType = TypeScaffolder<C, Type>(spec).createScaffold(context))
     }
@@ -735,7 +735,7 @@ internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueT
     }
 }
 
-class FieldScaffolder<in C>(internal val spec: FieldSpec<C>) : Scaffolder<C, Field> {
+class FieldScaffolder<C>(internal val spec: FieldSpec<C>) : Scaffolder<C, Field> {
     override fun createScaffold(context: C): Scaffold<Field> {
         val builder = FieldShellBuilder<C>(context)
         builder.apply(spec.body)
@@ -744,7 +744,7 @@ class FieldScaffolder<in C>(internal val spec: FieldSpec<C>) : Scaffolder<C, Fie
 }
 
 @DslBuilder
-internal class FieldShellBuilder<out C>(override val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
+internal class FieldShellBuilder<C>(override val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }

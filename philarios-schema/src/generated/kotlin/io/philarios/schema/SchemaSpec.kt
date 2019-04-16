@@ -10,16 +10,18 @@
 // issue in the project's repository.
 package io.philarios.schema
 
+import io.philarios.core.Builder
 import io.philarios.core.DslBuilder
+import io.philarios.core.Spec
 import kotlin.Boolean
 import kotlin.String
 import kotlin.collections.Iterable
 import kotlin.collections.List
 
-class SchemaSpec<in C>(internal val body: SchemaBuilder<C>.() -> Unit)
+class SchemaSpec<C>(override val body: SchemaBuilder<C>.() -> Unit) : Spec<SchemaBuilder<C>>
 
 @DslBuilder
-interface SchemaBuilder<out C> {
+interface SchemaBuilder<C> : Builder<SchemaSpec<C>, SchemaBuilder<C>> {
     val context: C
 
     fun pkg(value: String)
@@ -49,42 +51,49 @@ class SchemaRef(internal val key: String)
 
 sealed class TypeSpec<in C, out T : Type>
 
-class StructSpec<in C>(internal val body: StructBuilder<C>.() -> Unit) : TypeSpec<C, Struct>()
+class StructSpec<C>(override val body: StructBuilder<C>.() -> Unit) : TypeSpec<C, Struct>(),
+        Spec<StructBuilder<C>>
 
-class UnionSpec<in C>(internal val body: UnionBuilder<C>.() -> Unit) : TypeSpec<C, Union>()
+class UnionSpec<C>(override val body: UnionBuilder<C>.() -> Unit) : TypeSpec<C, Union>(),
+        Spec<UnionBuilder<C>>
 
-class EnumTypeSpec<in C>(internal val body: EnumTypeBuilder<C>.() -> Unit) : TypeSpec<C, EnumType>()
+class EnumTypeSpec<C>(override val body: EnumTypeBuilder<C>.() -> Unit) : TypeSpec<C, EnumType>(),
+        Spec<EnumTypeBuilder<C>>
 
-class RefTypeSpec<in C>(internal val body: RefTypeBuilder<C>.() -> Unit) : TypeSpec<C, RefType>()
+class RefTypeSpec<C>(override val body: RefTypeBuilder<C>.() -> Unit) : TypeSpec<C, RefType>(),
+        Spec<RefTypeBuilder<C>>
 
-class OptionTypeSpec<in C>(internal val body: OptionTypeBuilder<C>.() -> Unit) : TypeSpec<C, OptionType>()
+class OptionTypeSpec<C>(override val body: OptionTypeBuilder<C>.() -> Unit) : TypeSpec<C, OptionType>(),
+        Spec<OptionTypeBuilder<C>>
 
-class ListTypeSpec<in C>(internal val body: ListTypeBuilder<C>.() -> Unit) : TypeSpec<C, ListType>()
+class ListTypeSpec<C>(override val body: ListTypeBuilder<C>.() -> Unit) : TypeSpec<C, ListType>(),
+        Spec<ListTypeBuilder<C>>
 
-class MapTypeSpec<in C>(internal val body: MapTypeBuilder<C>.() -> Unit) : TypeSpec<C, MapType>()
+class MapTypeSpec<C>(override val body: MapTypeBuilder<C>.() -> Unit) : TypeSpec<C, MapType>(),
+        Spec<MapTypeBuilder<C>>
 
-class BooleanTypeSpec<in C> : TypeSpec<C, BooleanType>()
+class BooleanTypeSpec<C> : TypeSpec<C, BooleanType>()
 
-class DoubleTypeSpec<in C> : TypeSpec<C, DoubleType>()
+class DoubleTypeSpec<C> : TypeSpec<C, DoubleType>()
 
-class FloatTypeSpec<in C> : TypeSpec<C, FloatType>()
+class FloatTypeSpec<C> : TypeSpec<C, FloatType>()
 
-class LongTypeSpec<in C> : TypeSpec<C, LongType>()
+class LongTypeSpec<C> : TypeSpec<C, LongType>()
 
-class IntTypeSpec<in C> : TypeSpec<C, IntType>()
+class IntTypeSpec<C> : TypeSpec<C, IntType>()
 
-class ShortTypeSpec<in C> : TypeSpec<C, ShortType>()
+class ShortTypeSpec<C> : TypeSpec<C, ShortType>()
 
-class ByteTypeSpec<in C> : TypeSpec<C, ByteType>()
+class ByteTypeSpec<C> : TypeSpec<C, ByteType>()
 
-class CharacterTypeSpec<in C> : TypeSpec<C, CharacterType>()
+class CharacterTypeSpec<C> : TypeSpec<C, CharacterType>()
 
-class StringTypeSpec<in C> : TypeSpec<C, StringType>()
+class StringTypeSpec<C> : TypeSpec<C, StringType>()
 
-class AnyTypeSpec<in C> : TypeSpec<C, AnyType>()
+class AnyTypeSpec<C> : TypeSpec<C, AnyType>()
 
 @DslBuilder
-interface StructBuilder<out C> {
+interface StructBuilder<C> : Builder<StructSpec<C>, StructBuilder<C>> {
     val context: C
 
     fun pkg(value: String)
@@ -115,7 +124,7 @@ interface StructBuilder<out C> {
 }
 
 @DslBuilder
-interface UnionBuilder<out C> {
+interface UnionBuilder<C> : Builder<UnionSpec<C>, UnionBuilder<C>> {
     val context: C
 
     fun pkg(value: String)
@@ -146,7 +155,7 @@ interface UnionBuilder<out C> {
 }
 
 @DslBuilder
-interface EnumTypeBuilder<out C> {
+interface EnumTypeBuilder<C> : Builder<EnumTypeSpec<C>, EnumTypeBuilder<C>> {
     val context: C
 
     fun pkg(value: String)
@@ -171,7 +180,7 @@ interface EnumTypeBuilder<out C> {
 }
 
 @DslBuilder
-interface RefTypeBuilder<out C> {
+interface RefTypeBuilder<C> : Builder<RefTypeSpec<C>, RefTypeBuilder<C>> {
     val context: C
 
     fun pkg(value: String)
@@ -192,7 +201,7 @@ interface RefTypeBuilder<out C> {
 }
 
 @DslBuilder
-interface OptionTypeBuilder<out C> {
+interface OptionTypeBuilder<C> : Builder<OptionTypeSpec<C>, OptionTypeBuilder<C>> {
     val context: C
 
     fun <T : Type> type(spec: TypeSpec<C, T>)
@@ -215,7 +224,7 @@ interface OptionTypeBuilder<out C> {
 }
 
 @DslBuilder
-interface ListTypeBuilder<out C> {
+interface ListTypeBuilder<C> : Builder<ListTypeSpec<C>, ListTypeBuilder<C>> {
     val context: C
 
     fun <T : Type> type(spec: TypeSpec<C, T>)
@@ -238,7 +247,7 @@ interface ListTypeBuilder<out C> {
 }
 
 @DslBuilder
-interface MapTypeBuilder<out C> {
+interface MapTypeBuilder<C> : Builder<MapTypeSpec<C>, MapTypeBuilder<C>> {
     val context: C
 
     fun <T : Type> keyType(spec: TypeSpec<C, T>)
@@ -284,10 +293,10 @@ class ListTypeRef(override val key: String) : TypeRef<ListType>()
 
 class MapTypeRef(override val key: String) : TypeRef<MapType>()
 
-class FieldSpec<in C>(internal val body: FieldBuilder<C>.() -> Unit)
+class FieldSpec<C>(override val body: FieldBuilder<C>.() -> Unit) : Spec<FieldBuilder<C>>
 
 @DslBuilder
-interface FieldBuilder<out C> {
+interface FieldBuilder<C> : Builder<FieldSpec<C>, FieldBuilder<C>> {
     val context: C
 
     fun name(value: String)

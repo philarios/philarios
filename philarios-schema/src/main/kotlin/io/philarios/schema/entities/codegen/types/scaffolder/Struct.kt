@@ -17,7 +17,7 @@ internal val Struct.scaffolderTypeSpec
 private val Struct.objectScaffolderTypeSpec
     get() =
         TypeSpec.classBuilder(scaffolderClassName)
-                .addTypeVariable(TypeVariableName("C", KModifier.IN))
+                .addTypeVariable(TypeVariableName("C"))
                 .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, TypeVariableName("C"), className))
                 .addProperty(PropertySpec
                         .builder("spec", specTypeName)
@@ -40,7 +40,7 @@ private val Struct.objectScaffolderTypeSpec
 private val Struct.dataClassScaffolderTypeSpec
     get() =
         TypeSpec.classBuilder(scaffolderClassName)
-                .addTypeVariable(TypeVariableName("C", KModifier.IN))
+                .addTypeVariable(TypeVariableName("C"))
                 .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, TypeVariableName("C"), className))
                 .addProperty(PropertySpec
                         .builder("spec", specTypeName)

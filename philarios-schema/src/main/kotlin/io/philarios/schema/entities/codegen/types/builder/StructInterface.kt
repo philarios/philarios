@@ -1,7 +1,9 @@
 package io.philarios.schema.entities.codegen.types.builder
 
 import com.squareup.kotlinpoet.*
+import io.philarios.core.Builder
 import io.philarios.core.DslBuilder
+import io.philarios.core.Spec
 import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
@@ -10,8 +12,9 @@ internal val builderInterfaceTypeSpecs = createTypeBuilderTypeSpec(Struct::build
 
 private fun Struct.builderInterfaceTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
     return TypeSpec.interfaceBuilder(builderTypeName.rawType)
+            .addSuperinterface(ParameterizedTypeName.get(Builder::class.className, specTypeName, builderTypeName))
             .addAnnotation(DslBuilder::class.className)
-            .addTypeVariable(TypeVariableName("C", KModifier.OUT))
+            .addTypeVariable(TypeVariableName("C"))
             .addProperty(PropertySpec
                     .builder("context", TypeVariableName("C"))
                     .build())

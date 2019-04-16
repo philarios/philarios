@@ -16,7 +16,7 @@ private fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFuncti
             .addModifiers(KModifier.INTERNAL)
             .addSuperinterface(builderTypeName)
             .addAnnotation(DslBuilder::class.className)
-            .addTypeVariable(TypeVariableName("C", KModifier.OUT))
+            .addTypeVariable(TypeVariableName("C"))
             .primaryConstructor(constructor(this))
             .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
                     .addModifiers(KModifier.OVERRIDE)
