@@ -2,7 +2,7 @@ package io.philarios.terraform.gateways.serializers
 
 import io.philarios.terraform.*
 
-fun Configuration.serializeToHCL(): String {
+fun Terraform.serializeToHCL(): String {
     return listOf(
             providers.map { it.serializeToHCL() },
             dataSources.map { it.serializeToHCL() },
