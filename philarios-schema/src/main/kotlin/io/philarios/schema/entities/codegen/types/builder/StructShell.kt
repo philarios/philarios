@@ -12,30 +12,21 @@ import io.philarios.schema.entities.codegen.util.*
 internal val builderShellTypeSpecs = createTypeBuilderTypeSpec(Struct::builderShellTypeSpec)
 
 private fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
-    return TypeSpec.classBuilder(shellBuilderTypeName.rawType)
+    return TypeSpec.classBuilder(shellBuilderClassName)
             .addModifiers(KModifier.INTERNAL)
-            .addSuperinterface(builderTypeName)
+            .addSuperinterface(builderClassName)
             .addAnnotation(DslBuilder::class.className)
-            .addTypeVariable(TypeVariableName("C"))
             .primaryConstructor(constructor(this))
-            .addProperty(PropertySpec.builder("context", TypeVariableName("C"))
-                    .addModifiers(KModifier.OVERRIDE)
-                    .initializer("context")
-                    .build())
             .addProperty(PropertySpec.builder("shell", shellClassName, KModifier.INTERNAL)
                     .initializer("shell")
                     .mutable(true)
                     .build())
             .addFunctions(parameterFunctions.map { it.parameterFunSpec })
-            .addFunctions(includeFunctions)
-            .addFunction(splitFunction)
-            .addFunction(mergeFunction)
             .build()
 }
 
 private fun constructor(type: Struct): FunSpec {
     return FunSpec.constructorBuilder()
-            .addParameter(contextParameterSpec)
             .addParameter(ParameterSpec.builder("shell", type.shellClassName)
                     .defaultValue("%T()", type.shellClassName)
                     .build())
@@ -76,7 +67,7 @@ private val ParameterFunction.SetParameterFunctionWithBody.parameterFunSpec
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(fieldType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(%T(body)).createScaffold(context))", name, fieldType.scaffolderTypeName, fieldType.specTypeName)
+                .addStatement("shell = shell.copy(%L = %T(%T(body)).createScaffold())", name, fieldType.scaffolderTypeName, fieldType.specTypeName)
                 .build()
     }
 
@@ -89,7 +80,7 @@ private val ParameterFunction.SetParameterFunctionWithSpec.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(spec).createScaffold(context))", name, fieldType.scaffolderTypeName)
+                .addStatement("shell = shell.copy(%L = %T(spec).createScaffold())", name, fieldType.scaffolderTypeName)
                 .build()
     }
 
@@ -126,7 +117,7 @@ private val ParameterFunction.AddParameterFunctionWithBody.parameterFunSpec
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(listType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%T(body)).createScaffold(context))", name, name, listType.scaffolderTypeName, listType.specTypeName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%T(body)).createScaffold())", name, name, listType.scaffolderTypeName, listType.specTypeName)
                 .build()
     }
 
@@ -140,7 +131,7 @@ private val ParameterFunction.AddParameterFunctionWithSpec.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(spec).createScaffold(context))", name, name, listType.scaffolderTypeName)
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(spec).createScaffold())", name, name, listType.scaffolderTypeName)
                 .build()
     }
 
@@ -191,7 +182,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithBody.parameterFunS
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(%T(body)).createScaffold(context)))",
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(%T(body)).createScaffold()))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
@@ -207,7 +198,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithSpec.parameterFunS
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(spec).createScaffold(context)))",
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(spec).createScaffold()))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
@@ -275,7 +266,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithBody.parameterF
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(%T(%L),%T(%T(body)).createScaffold(context))))",
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(%T(%L),%T(%T(body)).createScaffold())))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
@@ -291,7 +282,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithSpec.parameterF
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(spec).createScaffold(context))))",
+                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(spec).createScaffold())))",
                         name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
@@ -350,92 +341,3 @@ private val ParameterFunction.AddPutAllParameterFunctionWithWrapper.parameterFun
                         name, name, name, Wrapper::class.className, "it.key", Wrapper::class.className, "it.value")
                 .build()
     }
-
-private val Struct.includeFunctions
-    get() = listOf(
-            includeFunctionWithBody,
-            includeFunctionWithSpec,
-            includeFunctionWithContextAndBody,
-            includeFunctionWithContextAndSpec,
-            includeForEachFunctionWithBody,
-            includeForEachFunctionWithSpec
-    )
-
-private val Struct.includeFunctionWithBody
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.OVERRIDE)
-                .addParameter(bodyParameterSpec)
-                .addStatement("apply(body)")
-                .build()
-
-private val Struct.includeFunctionWithSpec
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.OVERRIDE)
-                .addParameter(specParameterSpec)
-                .addStatement("apply(spec.body)")
-                .build()
-
-private val Struct.includeFunctionWithContextAndBody
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.OVERRIDE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .addParameter(otherBodyParameterSpec)
-                .addStatement("val builder = split(context)")
-                .addStatement("builder.apply(body)")
-                .addStatement("merge(builder)")
-                .build()
-
-private val Struct.includeFunctionWithContextAndSpec
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.OVERRIDE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .addParameter(otherSpecParameterSpec)
-                .addStatement("val builder = split(context)")
-                .addStatement("builder.apply(spec.body)")
-                .addStatement("merge(builder)")
-                .build()
-
-private val Struct.includeForEachFunctionWithBody
-    get() =
-        FunSpec.builder("includeForEach")
-                .addModifiers(KModifier.OVERRIDE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextIterableParameterSpec)
-                .addParameter(otherBodyParameterSpec)
-                .addStatement("context.forEach { include(it, body) }")
-                .build()
-
-private val Struct.includeForEachFunctionWithSpec
-    get() =
-        FunSpec.builder("includeForEach")
-                .addModifiers(KModifier.OVERRIDE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextIterableParameterSpec)
-                .addParameter(otherSpecParameterSpec)
-                .addStatement("context.forEach { include(it, spec) }")
-                .build()
-
-private val Struct.splitFunction
-    get() =
-        FunSpec.builder("split")
-                .addModifiers(KModifier.PRIVATE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .returns(otherShellBuilderTypeName)
-                .addStatement("return %T(context, shell)", otherShellBuilderTypeName.rawType)
-                .build()
-
-private val Struct.mergeFunction
-    get() =
-        FunSpec.builder("merge")
-                .addModifiers(KModifier.PRIVATE)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter("other", otherShellBuilderTypeName)
-                .addStatement("this.shell = other.shell")
-                .build()

@@ -14,45 +14,44 @@ import io.philarios.core.Scaffolder
 import io.philarios.core.Wrapper
 import io.philarios.util.registry.Registry
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class EntryScaffolder<in C, out T : Entry>(internal val spec: EntrySpec<C, T>) : Scaffolder<C, T> {
-    override fun createScaffold(context: C): Scaffold<T> {
+class EntryScaffolder<out T : Entry>(internal val spec: EntrySpec<T>) : Scaffolder<T> {
+    override fun createScaffold(): Scaffold<T> {
         val result = when (spec) {
-            is DirectorySpec<C> -> DirectoryScaffolder(spec).createScaffold(context)
-            is FileSpec<C> -> FileScaffolder(spec).createScaffold(context)
+            is DirectorySpec -> DirectoryScaffolder(spec).createScaffold()
+            is FileSpec -> FileScaffolder(spec).createScaffold()
         }
         return result as Scaffold<T>
     }
 }
 
-class DirectoryScaffolder<in C>(internal val spec: DirectorySpec<C>) : Scaffolder<C, Directory> {
-    override fun createScaffold(context: C): Scaffold<Directory> {
-        val builder = DirectoryShellBuilder<C>(context)
+class DirectoryScaffolder(internal val spec: DirectorySpec) : Scaffolder<Directory> {
+    override fun createScaffold(): Scaffold<Directory> {
+        val builder = DirectoryShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class FileScaffolder<in C>(internal val spec: FileSpec<C>) : Scaffolder<C, File> {
-    override fun createScaffold(context: C): Scaffold<File> {
-        val builder = FileShellBuilder<C>(context)
+class FileScaffolder(internal val spec: FileSpec) : Scaffolder<File> {
+    override fun createScaffold(): Scaffold<File> {
+        val builder = FileShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class DirectoryShellBuilder<out C>(override val context: C, internal var shell: DirectoryShell = DirectoryShell()) : DirectoryBuilder<C> {
+internal class DirectoryShellBuilder(internal var shell: DirectoryShell = DirectoryShell()) : DirectoryBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun <T : Entry> entry(spec: EntrySpec<C, T>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + EntryScaffolder<C, Entry>(spec).createScaffold(context))
+    override fun <T : Entry> entry(spec: EntrySpec<T>) {
+        shell = shell.copy(entries = shell.entries.orEmpty() + EntryScaffolder<Entry>(spec).createScaffold())
     }
 
     override fun <T : Entry> entry(ref: EntryRef<T>) {
@@ -62,84 +61,16 @@ internal class DirectoryShellBuilder<out C>(override val context: C, internal va
     override fun <T : Entry> entry(value: T) {
         shell = shell.copy(entries = shell.entries.orEmpty() + Wrapper(value))
     }
-
-    override fun include(body: DirectoryBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: DirectorySpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: DirectoryBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: DirectorySpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: DirectoryBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: DirectorySpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): DirectoryShellBuilder<C2> = DirectoryShellBuilder(context, shell)
-
-    private fun <C2> merge(other: DirectoryShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class FileShellBuilder<out C>(override val context: C, internal var shell: FileShell = FileShell()) : FileBuilder<C> {
+internal class FileShellBuilder(internal var shell: FileShell = FileShell()) : FileBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
 
     override fun content(value: String) {
         shell = shell.copy(content = Wrapper(value))
-    }
-
-    override fun include(body: FileBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: FileSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: FileBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: FileSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: FileBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: FileSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): FileShellBuilder<C2> = FileShellBuilder(context, shell)
-
-    private fun <C2> merge(other: FileShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 

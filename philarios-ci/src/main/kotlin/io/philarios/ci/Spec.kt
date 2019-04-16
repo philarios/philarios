@@ -2,7 +2,7 @@ package io.philarios.ci
 
 import io.philarios.circleci.*
 
-val spec = CircleCISpec<Any?> {
+val spec = CircleCISpec {
     version("2")
 
     jobs("snapshot-build") {
@@ -36,13 +36,13 @@ val spec = CircleCISpec<Any?> {
     }
 }
 
-private fun JobBuilder<Any?>.gradleDocker() {
+private fun JobBuilder.gradleDocker() {
     docker {
         image("gradle:4.10.3")
     }
 }
 
-private fun WorkflowJobBuilder<Any?>.snapshotFilters() {
+private fun WorkflowJobBuilder.snapshotFilters() {
     filters {
         branches {
             only("master")
@@ -50,7 +50,7 @@ private fun WorkflowJobBuilder<Any?>.snapshotFilters() {
     }
 }
 
-private fun WorkflowJobBuilder<Any?>.releaseFilters() {
+private fun WorkflowJobBuilder.releaseFilters() {
     filters {
         branches {
             ignore("/.*/")

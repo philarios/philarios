@@ -2,46 +2,47 @@ package io.philarios.terraform.sugar
 
 import io.philarios.terraform.*
 
-fun <C> TerraformBuilder<C>.resource(type: String, name: String, body: ResourceBuilder<C>.() -> Unit) {
+fun TerraformBuilder.resource(type: String, name: String, body: ResourceBuilder.() -> Unit) {
     resource {
         type(type)
         name(name)
-        include(body)
+        +(body)
+        apply(body)
     }
 }
 
-operator fun <C> ResourceBuilder<C>.set(key: String, value: Any) = config(key, value)
+operator fun ResourceBuilder.set(key: String, value: Any) = config(key, value)
 
-fun <C> TerraformBuilder<C>.data(type: String, name: String, body: DataSourceBuilder<C>.() -> Unit) {
+fun TerraformBuilder.data(type: String, name: String, body: DataSourceBuilder.() -> Unit) {
     dataSource {
         type(type)
         name(name)
-        include(body)
+        +(body)
     }
 }
 
-operator fun <C> DataSourceBuilder<C>.set(key: String, value: Any) = config(key, value)
+operator fun DataSourceBuilder.set(key: String, value: Any) = config(key, value)
 
-fun <C> TerraformBuilder<C>.provider(name: String, body: ProviderBuilder<C>.() -> Unit) {
+fun TerraformBuilder.provider(name: String, body: ProviderBuilder.() -> Unit) {
     provider {
         name(name)
-        include(body)
+        +(body)
     }
 }
 
-operator fun <C> ProviderBuilder<C>.set(key: String, value: Any) = config(key, value)
+operator fun ProviderBuilder.set(key: String, value: Any) = config(key, value)
 
-fun <C> TerraformBuilder<C>.variable(name: String, body: VariableBuilder<C>.() -> Unit) {
+fun TerraformBuilder.variable(name: String, body: VariableBuilder.() -> Unit) {
     variable {
         name(name)
-        include(body)
+        +(body)
     }
 }
 
-fun <C> TerraformBuilder<C>.output(name: String, body: OutputBuilder<C>.() -> Unit) {
+fun TerraformBuilder.output(name: String, body: OutputBuilder.() -> Unit) {
     output {
         name(name)
-        include(body)
+        +(body)
     }
 }
 

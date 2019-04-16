@@ -95,42 +95,30 @@ val Type.refClassName
     get() = className("Ref")
 
 val Type.scaffolderTypeName
-    get() = when (this) {
-        is Union -> ParameterizedTypeName.get(scaffolderClassName, TypeVariableName("C", KModifier.IN), typeName)
-        else -> ParameterizedTypeName.get(scaffolderClassName, TypeVariableName("C", KModifier.IN))
+    get(): TypeName = when (this) {
+        is Union -> ParameterizedTypeName.get(scaffolderClassName, typeName)
+        else -> scaffolderClassName
     }
 
 val Type.scaffolderClassName
     get() = className("Scaffolder")
 
 val Type.specTypeName
-    get() = when (this) {
-        is Union -> ParameterizedTypeName.get(specClassName, TypeVariableName("C", KModifier.IN), TypeVariableName("T"))
-        else -> ParameterizedTypeName.get(specClassName, TypeVariableName("C", KModifier.IN))
+    get(): TypeName = when (this) {
+        is Union -> ParameterizedTypeName.get(specClassName, TypeVariableName("T"))
+        else -> specClassName
     }
 
 val Type.specClassName
     get() = className("Spec")
 
-val Type.otherSpecTypeName
-    get() = ParameterizedTypeName.get(className("Spec"), TypeVariableName("C2", KModifier.IN))
+val Type.builderClassName
+    get() = className("Builder")
 
-val Type.builderTypeName
-    get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C"))
-
-val Type.otherBuilderTypeName
-    get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("C2"))
-
-val Type.shellBuilderTypeName
-    get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C"))
-
-val Type.otherShellBuilderTypeName
-    get() = ParameterizedTypeName.get(className("ShellBuilder"), TypeVariableName("C2"))
+val Type.shellBuilderClassName
+    get() = className("ShellBuilder")
 
 val Type.bodyLambdaTypeName
-    get() = LambdaTypeName.get(builderTypeName, emptyList(), ClassName("", "Unit"))
-
-val Type.otherBodyLambdaTypeName
-    get() = LambdaTypeName.get(otherBuilderTypeName, emptyList(), ClassName("", "Unit"))
+    get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))
 
 val KClass<*>.className get() = ClassName.bestGuess(qualifiedName!!)

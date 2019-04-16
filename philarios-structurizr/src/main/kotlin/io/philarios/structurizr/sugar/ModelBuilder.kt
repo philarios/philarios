@@ -4,14 +4,14 @@ import io.philarios.structurizr.ModelBuilder
 import io.philarios.structurizr.PersonBuilder
 import io.philarios.structurizr.SoftwareSystemBuilder
 
-fun <C, T : Any> ModelBuilder<C>.person(id: T, body: PersonBuilder<C>.() -> Unit = {}) {
+fun <T : Any> ModelBuilder.person(id: T, body: PersonBuilder.() -> Unit = {}) {
     person {
         id(id)
         apply(body)
     }
 }
 
-fun <C, T : Any> ModelBuilder<C>.softwareSystem(id: T, body: SoftwareSystemBuilder<C>.() -> Unit = {}) {
+fun <T : Any> ModelBuilder.softwareSystem(id: T, body: SoftwareSystemBuilder.() -> Unit = {}) {
     softwareSystem {
         id(id)
         apply(body)

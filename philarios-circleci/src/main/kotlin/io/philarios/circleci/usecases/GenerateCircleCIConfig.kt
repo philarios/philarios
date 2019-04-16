@@ -9,6 +9,7 @@ import io.philarios.circleci.CircleCIScaffolder
 import io.philarios.circleci.CircleCISpec
 import io.philarios.core.emptyContext
 import io.philarios.core.map
+import io.philarios.core.mapScaffolder
 import java.io.FileWriter
 
 object GenerateCircleCIConfig {
@@ -20,9 +21,9 @@ object GenerateCircleCIConfig {
         setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
     }
 
-    suspend operator fun invoke(spec: CircleCISpec<Any?>) {
+    suspend operator fun invoke(spec: CircleCISpec) {
         emptyContext()
-                .map(CircleCIScaffolder(spec))
+                .mapScaffolder { CircleCIScaffolder(spec) }
                 .map {
                     // We have to manually inject the version into the workflows map
                     val tree = objectMapper.valueToTree<ObjectNode>(it)

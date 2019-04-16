@@ -10,23 +10,22 @@
 // issue in the project's repository.
 package io.philarios.terraform
 
+import io.philarios.core.Builder
 import io.philarios.core.DslBuilder
+import io.philarios.core.Spec
 import kotlin.Any
 import kotlin.Pair
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 
-class TerraformSpec<in C>(internal val body: TerraformBuilder<C>.() -> Unit)
+class TerraformSpec(override val body: TerraformBuilder.() -> Unit) : Spec<TerraformBuilder>
 
 @DslBuilder
-interface TerraformBuilder<out C> {
-    val context: C
+interface TerraformBuilder : Builder<TerraformSpec, TerraformBuilder> {
+    fun resource(body: ResourceBuilder.() -> Unit)
 
-    fun resource(body: ResourceBuilder<C>.() -> Unit)
-
-    fun resource(spec: ResourceSpec<C>)
+    fun resource(spec: ResourceSpec)
 
     fun resource(ref: ResourceRef)
 
@@ -34,9 +33,9 @@ interface TerraformBuilder<out C> {
 
     fun resources(resources: List<Resource>)
 
-    fun dataSource(body: DataSourceBuilder<C>.() -> Unit)
+    fun dataSource(body: DataSourceBuilder.() -> Unit)
 
-    fun dataSource(spec: DataSourceSpec<C>)
+    fun dataSource(spec: DataSourceSpec)
 
     fun dataSource(ref: DataSourceRef)
 
@@ -44,9 +43,9 @@ interface TerraformBuilder<out C> {
 
     fun dataSources(dataSources: List<DataSource>)
 
-    fun provider(body: ProviderBuilder<C>.() -> Unit)
+    fun provider(body: ProviderBuilder.() -> Unit)
 
-    fun provider(spec: ProviderSpec<C>)
+    fun provider(spec: ProviderSpec)
 
     fun provider(ref: ProviderRef)
 
@@ -54,9 +53,9 @@ interface TerraformBuilder<out C> {
 
     fun providers(providers: List<Provider>)
 
-    fun variable(body: VariableBuilder<C>.() -> Unit)
+    fun variable(body: VariableBuilder.() -> Unit)
 
-    fun variable(spec: VariableSpec<C>)
+    fun variable(spec: VariableSpec)
 
     fun variable(ref: VariableRef)
 
@@ -64,37 +63,23 @@ interface TerraformBuilder<out C> {
 
     fun variables(variables: List<Variable>)
 
-    fun output(body: OutputBuilder<C>.() -> Unit)
+    fun output(body: OutputBuilder.() -> Unit)
 
-    fun output(spec: OutputSpec<C>)
+    fun output(spec: OutputSpec)
 
     fun output(ref: OutputRef)
 
     fun output(value: Output)
 
     fun outputs(outputs: List<Output>)
-
-    fun include(body: TerraformBuilder<C>.() -> Unit)
-
-    fun include(spec: TerraformSpec<C>)
-
-    fun <C2> include(context: C2, body: TerraformBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TerraformSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TerraformBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TerraformSpec<C2>)
 }
 
 class TerraformRef(internal val key: String)
 
-class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit)
+class ResourceSpec(override val body: ResourceBuilder.() -> Unit) : Spec<ResourceBuilder>
 
 @DslBuilder
-interface ResourceBuilder<out C> {
-    val context: C
-
+interface ResourceBuilder : Builder<ResourceSpec, ResourceBuilder> {
     fun type(value: String)
 
     fun name(value: String)
@@ -104,28 +89,14 @@ interface ResourceBuilder<out C> {
     fun config(pair: Pair<String, Any>)
 
     fun config(config: Map<String, Any>)
-
-    fun include(body: ResourceBuilder<C>.() -> Unit)
-
-    fun include(spec: ResourceSpec<C>)
-
-    fun <C2> include(context: C2, body: ResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ResourceSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ResourceSpec<C2>)
 }
 
 class ResourceRef(internal val key: String)
 
-class DataSourceSpec<in C>(internal val body: DataSourceBuilder<C>.() -> Unit)
+class DataSourceSpec(override val body: DataSourceBuilder.() -> Unit) : Spec<DataSourceBuilder>
 
 @DslBuilder
-interface DataSourceBuilder<out C> {
-    val context: C
-
+interface DataSourceBuilder : Builder<DataSourceSpec, DataSourceBuilder> {
     fun type(value: String)
 
     fun name(value: String)
@@ -135,28 +106,14 @@ interface DataSourceBuilder<out C> {
     fun config(pair: Pair<String, Any>)
 
     fun config(config: Map<String, Any>)
-
-    fun include(body: DataSourceBuilder<C>.() -> Unit)
-
-    fun include(spec: DataSourceSpec<C>)
-
-    fun <C2> include(context: C2, body: DataSourceBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: DataSourceSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: DataSourceBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: DataSourceSpec<C2>)
 }
 
 class DataSourceRef(internal val key: String)
 
-class ProviderSpec<in C>(internal val body: ProviderBuilder<C>.() -> Unit)
+class ProviderSpec(override val body: ProviderBuilder.() -> Unit) : Spec<ProviderBuilder>
 
 @DslBuilder
-interface ProviderBuilder<out C> {
-    val context: C
-
+interface ProviderBuilder : Builder<ProviderSpec, ProviderBuilder> {
     fun name(value: String)
 
     fun config(key: String, value: Any)
@@ -164,70 +121,30 @@ interface ProviderBuilder<out C> {
     fun config(pair: Pair<String, Any>)
 
     fun config(config: Map<String, Any>)
-
-    fun include(body: ProviderBuilder<C>.() -> Unit)
-
-    fun include(spec: ProviderSpec<C>)
-
-    fun <C2> include(context: C2, body: ProviderBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ProviderSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ProviderBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ProviderSpec<C2>)
 }
 
 class ProviderRef(internal val key: String)
 
-class VariableSpec<in C>(internal val body: VariableBuilder<C>.() -> Unit)
+class VariableSpec(override val body: VariableBuilder.() -> Unit) : Spec<VariableBuilder>
 
 @DslBuilder
-interface VariableBuilder<out C> {
-    val context: C
-
+interface VariableBuilder : Builder<VariableSpec, VariableBuilder> {
     fun name(value: String)
 
     fun type(value: String)
 
     fun default(value: Any)
-
-    fun include(body: VariableBuilder<C>.() -> Unit)
-
-    fun include(spec: VariableSpec<C>)
-
-    fun <C2> include(context: C2, body: VariableBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: VariableSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: VariableBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: VariableSpec<C2>)
 }
 
 class VariableRef(internal val key: String)
 
-class OutputSpec<in C>(internal val body: OutputBuilder<C>.() -> Unit)
+class OutputSpec(override val body: OutputBuilder.() -> Unit) : Spec<OutputBuilder>
 
 @DslBuilder
-interface OutputBuilder<out C> {
-    val context: C
-
+interface OutputBuilder : Builder<OutputSpec, OutputBuilder> {
     fun name(value: String)
 
     fun value(value: Any)
-
-    fun include(body: OutputBuilder<C>.() -> Unit)
-
-    fun include(spec: OutputSpec<C>)
-
-    fun <C2> include(context: C2, body: OutputBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: OutputSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: OutputBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: OutputSpec<C2>)
 }
 
 class OutputRef(internal val key: String)

@@ -1,7 +1,7 @@
 package io.philarios.jsonschema.entities
 
-import io.philarios.core.contextOf
-import io.philarios.core.map
+import io.philarios.core.emptyContext
+import io.philarios.core.mapScaffolder
 import io.philarios.core.unwrap
 import io.philarios.schema.BooleanType
 import io.philarios.schema.Schema
@@ -37,8 +37,8 @@ class JsonSchemaSchemaSpec : Spek({
 
 private fun runJsonSchemaSchema(jsonSchemaObject: JsonSchemaObject): Schema {
     return runBlocking {
-        contextOf(jsonSchemaObject)
-                .map(SchemaScaffolder(jsonSchemaSchema("", "")))
+        emptyContext()
+                .mapScaffolder { SchemaScaffolder(jsonSchemaSchema("", "", jsonSchemaObject)) }
                 .unwrap()
     }
 }

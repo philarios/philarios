@@ -1,70 +1,70 @@
 package io.philarios.schema
 
-fun <C> SchemaBuilder<C>.enum(name: String, body: EnumTypeBuilder<C>.() -> Unit = {}) {
+fun SchemaBuilder.enum(name: String, body: EnumTypeBuilder.() -> Unit = {}) {
     type(EnumTypeSpec {
         name(name)
         apply(body)
     })
 }
 
-fun <C> SchemaBuilder<C>.struct(name: String, body: StructBuilder<C>.() -> Unit = {}) {
+fun SchemaBuilder.struct(name: String, body: StructBuilder.() -> Unit = {}) {
     type(StructSpec {
         name(name)
         apply(body)
     })
 }
 
-fun <C> SchemaBuilder<C>.union(name: String, body: UnionBuilder<C>.() -> Unit = {}) {
+fun SchemaBuilder.union(name: String, body: UnionBuilder.() -> Unit = {}) {
     type(UnionSpec {
         name(name)
         apply(body)
     })
 }
 
-fun <C> UnionBuilder<C>.shape(name: String, body: StructBuilder<C>.() -> Unit = {}) {
+fun UnionBuilder.shape(name: String, body: StructBuilder.() -> Unit = {}) {
     shape {
         name(name)
         apply(body)
     }
 }
 
-fun <C> StructBuilder<C>.field(name: String, body: FieldBuilder<C>.() -> Unit = {}) {
+fun StructBuilder.field(name: String, body: FieldBuilder.() -> Unit = {}) {
     field {
         name(name)
         apply(body)
     }
 }
 
-fun <C> StructBuilder<C>.field(name: String, type: Type, body: FieldBuilder<C>.() -> Unit = {}) {
+fun StructBuilder.field(name: String, type: Type, body: FieldBuilder.() -> Unit = {}) {
     field(name) {
         type(type)
         apply(body)
     }
 }
 
-fun <C, T : Type> StructBuilder<C>.field(name: String, type: TypeSpec<C, T>, body: FieldBuilder<C>.() -> Unit = {}) {
+fun <T : Type> StructBuilder.field(name: String, type: TypeSpec<T>, body: FieldBuilder.() -> Unit = {}) {
     field(name) {
         type(type)
         apply(body)
     }
 }
 
-fun <C, T : Type> option(type: TypeSpec<C, T>) = OptionTypeSpec<C> {
+fun <T : Type> option(type: TypeSpec<T>) = OptionTypeSpec {
     type(type)
 }
 
-fun <C> option(type: Type) = OptionTypeSpec<C> {
+fun option(type: Type) = OptionTypeSpec {
     type(type)
 }
 
-fun <C, T : Type> list(type: TypeSpec<C, T>) = ListTypeSpec<C> {
+fun <T : Type> list(type: TypeSpec<T>) = ListTypeSpec {
     type(type)
 }
 
-fun <C> list(type: Type) = ListTypeSpec<C> {
+fun list(type: Type) = ListTypeSpec {
     type(type)
 }
 
-fun <C> ref(name: String) = RefTypeSpec<C> {
+fun ref(name: String) = RefTypeSpec {
     name(name)
 }

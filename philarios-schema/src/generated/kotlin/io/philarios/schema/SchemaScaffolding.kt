@@ -15,21 +15,20 @@ import io.philarios.core.Wrapper
 import io.philarios.util.registry.Registry
 import kotlin.Boolean
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class SchemaScaffolder<C>(internal val spec: SchemaSpec<C>) : Scaffolder<C, Schema> {
-    override fun createScaffold(context: C): Scaffold<Schema> {
-        val builder = SchemaShellBuilder<C>(context)
+class SchemaScaffolder(internal val spec: SchemaSpec) : Scaffolder<Schema> {
+    override fun createScaffold(): Scaffold<Schema> {
+        val builder = SchemaShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class SchemaShellBuilder<C>(override val context: C, internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder<C> {
+internal class SchemaShellBuilder(internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -38,8 +37,8 @@ internal class SchemaShellBuilder<C>(override val context: C, internal var shell
         shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun <T : Type> type(spec: TypeSpec<C, T>) {
-        shell = shell.copy(types = shell.types.orEmpty() + TypeScaffolder<C, Type>(spec).createScaffold(context))
+    override fun <T : Type> type(spec: TypeSpec<T>) {
+        shell = shell.copy(types = shell.types.orEmpty() + TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
@@ -48,40 +47,6 @@ internal class SchemaShellBuilder<C>(override val context: C, internal var shell
 
     override fun <T : Type> type(value: T) {
         shell = shell.copy(types = shell.types.orEmpty() + Wrapper(value))
-    }
-
-    override fun include(body: SchemaBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: SchemaSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: SchemaBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: SchemaSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: SchemaBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: SchemaSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SchemaShellBuilder<C2> = SchemaShellBuilder(context, shell)
-
-    private fun <C2> merge(other: SchemaShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -106,129 +71,129 @@ internal data class SchemaShell(
     }
 }
 
-class TypeScaffolder<in C, out T : Type>(internal val spec: TypeSpec<C, T>) : Scaffolder<C, T> {
-    override fun createScaffold(context: C): Scaffold<T> {
+class TypeScaffolder<out T : Type>(internal val spec: TypeSpec<T>) : Scaffolder<T> {
+    override fun createScaffold(): Scaffold<T> {
         val result = when (spec) {
-            is StructSpec<C> -> StructScaffolder(spec).createScaffold(context)
-            is UnionSpec<C> -> UnionScaffolder(spec).createScaffold(context)
-            is EnumTypeSpec<C> -> EnumTypeScaffolder(spec).createScaffold(context)
-            is RefTypeSpec<C> -> RefTypeScaffolder(spec).createScaffold(context)
-            is OptionTypeSpec<C> -> OptionTypeScaffolder(spec).createScaffold(context)
-            is ListTypeSpec<C> -> ListTypeScaffolder(spec).createScaffold(context)
-            is MapTypeSpec<C> -> MapTypeScaffolder(spec).createScaffold(context)
-            is BooleanTypeSpec<C> -> BooleanTypeScaffolder(spec).createScaffold(context)
-            is DoubleTypeSpec<C> -> DoubleTypeScaffolder(spec).createScaffold(context)
-            is FloatTypeSpec<C> -> FloatTypeScaffolder(spec).createScaffold(context)
-            is LongTypeSpec<C> -> LongTypeScaffolder(spec).createScaffold(context)
-            is IntTypeSpec<C> -> IntTypeScaffolder(spec).createScaffold(context)
-            is ShortTypeSpec<C> -> ShortTypeScaffolder(spec).createScaffold(context)
-            is ByteTypeSpec<C> -> ByteTypeScaffolder(spec).createScaffold(context)
-            is CharacterTypeSpec<C> -> CharacterTypeScaffolder(spec).createScaffold(context)
-            is StringTypeSpec<C> -> StringTypeScaffolder(spec).createScaffold(context)
-            is AnyTypeSpec<C> -> AnyTypeScaffolder(spec).createScaffold(context)
+            is StructSpec -> StructScaffolder(spec).createScaffold()
+            is UnionSpec -> UnionScaffolder(spec).createScaffold()
+            is EnumTypeSpec -> EnumTypeScaffolder(spec).createScaffold()
+            is RefTypeSpec -> RefTypeScaffolder(spec).createScaffold()
+            is OptionTypeSpec -> OptionTypeScaffolder(spec).createScaffold()
+            is ListTypeSpec -> ListTypeScaffolder(spec).createScaffold()
+            is MapTypeSpec -> MapTypeScaffolder(spec).createScaffold()
+            is BooleanTypeSpec -> BooleanTypeScaffolder(spec).createScaffold()
+            is DoubleTypeSpec -> DoubleTypeScaffolder(spec).createScaffold()
+            is FloatTypeSpec -> FloatTypeScaffolder(spec).createScaffold()
+            is LongTypeSpec -> LongTypeScaffolder(spec).createScaffold()
+            is IntTypeSpec -> IntTypeScaffolder(spec).createScaffold()
+            is ShortTypeSpec -> ShortTypeScaffolder(spec).createScaffold()
+            is ByteTypeSpec -> ByteTypeScaffolder(spec).createScaffold()
+            is CharacterTypeSpec -> CharacterTypeScaffolder(spec).createScaffold()
+            is StringTypeSpec -> StringTypeScaffolder(spec).createScaffold()
+            is AnyTypeSpec -> AnyTypeScaffolder(spec).createScaffold()
         }
         return result as Scaffold<T>
     }
 }
 
-class StructScaffolder<C>(internal val spec: StructSpec<C>) : Scaffolder<C, Struct> {
-    override fun createScaffold(context: C): Scaffold<Struct> {
-        val builder = StructShellBuilder<C>(context)
+class StructScaffolder(internal val spec: StructSpec) : Scaffolder<Struct> {
+    override fun createScaffold(): Scaffold<Struct> {
+        val builder = StructShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class UnionScaffolder<C>(internal val spec: UnionSpec<C>) : Scaffolder<C, Union> {
-    override fun createScaffold(context: C): Scaffold<Union> {
-        val builder = UnionShellBuilder<C>(context)
+class UnionScaffolder(internal val spec: UnionSpec) : Scaffolder<Union> {
+    override fun createScaffold(): Scaffold<Union> {
+        val builder = UnionShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class EnumTypeScaffolder<C>(internal val spec: EnumTypeSpec<C>) : Scaffolder<C, EnumType> {
-    override fun createScaffold(context: C): Scaffold<EnumType> {
-        val builder = EnumTypeShellBuilder<C>(context)
+class EnumTypeScaffolder(internal val spec: EnumTypeSpec) : Scaffolder<EnumType> {
+    override fun createScaffold(): Scaffold<EnumType> {
+        val builder = EnumTypeShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class RefTypeScaffolder<C>(internal val spec: RefTypeSpec<C>) : Scaffolder<C, RefType> {
-    override fun createScaffold(context: C): Scaffold<RefType> {
-        val builder = RefTypeShellBuilder<C>(context)
+class RefTypeScaffolder(internal val spec: RefTypeSpec) : Scaffolder<RefType> {
+    override fun createScaffold(): Scaffold<RefType> {
+        val builder = RefTypeShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class OptionTypeScaffolder<C>(internal val spec: OptionTypeSpec<C>) : Scaffolder<C, OptionType> {
-    override fun createScaffold(context: C): Scaffold<OptionType> {
-        val builder = OptionTypeShellBuilder<C>(context)
+class OptionTypeScaffolder(internal val spec: OptionTypeSpec) : Scaffolder<OptionType> {
+    override fun createScaffold(): Scaffold<OptionType> {
+        val builder = OptionTypeShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class ListTypeScaffolder<C>(internal val spec: ListTypeSpec<C>) : Scaffolder<C, ListType> {
-    override fun createScaffold(context: C): Scaffold<ListType> {
-        val builder = ListTypeShellBuilder<C>(context)
+class ListTypeScaffolder(internal val spec: ListTypeSpec) : Scaffolder<ListType> {
+    override fun createScaffold(): Scaffold<ListType> {
+        val builder = ListTypeShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class MapTypeScaffolder<C>(internal val spec: MapTypeSpec<C>) : Scaffolder<C, MapType> {
-    override fun createScaffold(context: C): Scaffold<MapType> {
-        val builder = MapTypeShellBuilder<C>(context)
+class MapTypeScaffolder(internal val spec: MapTypeSpec) : Scaffolder<MapType> {
+    override fun createScaffold(): Scaffold<MapType> {
+        val builder = MapTypeShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class BooleanTypeScaffolder<C>(internal val spec: BooleanTypeSpec<C>) : Scaffolder<C, BooleanType> {
-    override fun createScaffold(context: C): Scaffold<BooleanType> = Wrapper(BooleanType)
+class BooleanTypeScaffolder(internal val spec: BooleanTypeSpec) : Scaffolder<BooleanType> {
+    override fun createScaffold(): Scaffold<BooleanType> = Wrapper(BooleanType)
 }
 
-class DoubleTypeScaffolder<C>(internal val spec: DoubleTypeSpec<C>) : Scaffolder<C, DoubleType> {
-    override fun createScaffold(context: C): Scaffold<DoubleType> = Wrapper(DoubleType)
+class DoubleTypeScaffolder(internal val spec: DoubleTypeSpec) : Scaffolder<DoubleType> {
+    override fun createScaffold(): Scaffold<DoubleType> = Wrapper(DoubleType)
 }
 
-class FloatTypeScaffolder<C>(internal val spec: FloatTypeSpec<C>) : Scaffolder<C, FloatType> {
-    override fun createScaffold(context: C): Scaffold<FloatType> = Wrapper(FloatType)
+class FloatTypeScaffolder(internal val spec: FloatTypeSpec) : Scaffolder<FloatType> {
+    override fun createScaffold(): Scaffold<FloatType> = Wrapper(FloatType)
 }
 
-class LongTypeScaffolder<C>(internal val spec: LongTypeSpec<C>) : Scaffolder<C, LongType> {
-    override fun createScaffold(context: C): Scaffold<LongType> = Wrapper(LongType)
+class LongTypeScaffolder(internal val spec: LongTypeSpec) : Scaffolder<LongType> {
+    override fun createScaffold(): Scaffold<LongType> = Wrapper(LongType)
 }
 
-class IntTypeScaffolder<C>(internal val spec: IntTypeSpec<C>) : Scaffolder<C, IntType> {
-    override fun createScaffold(context: C): Scaffold<IntType> = Wrapper(IntType)
+class IntTypeScaffolder(internal val spec: IntTypeSpec) : Scaffolder<IntType> {
+    override fun createScaffold(): Scaffold<IntType> = Wrapper(IntType)
 }
 
-class ShortTypeScaffolder<C>(internal val spec: ShortTypeSpec<C>) : Scaffolder<C, ShortType> {
-    override fun createScaffold(context: C): Scaffold<ShortType> = Wrapper(ShortType)
+class ShortTypeScaffolder(internal val spec: ShortTypeSpec) : Scaffolder<ShortType> {
+    override fun createScaffold(): Scaffold<ShortType> = Wrapper(ShortType)
 }
 
-class ByteTypeScaffolder<C>(internal val spec: ByteTypeSpec<C>) : Scaffolder<C, ByteType> {
-    override fun createScaffold(context: C): Scaffold<ByteType> = Wrapper(ByteType)
+class ByteTypeScaffolder(internal val spec: ByteTypeSpec) : Scaffolder<ByteType> {
+    override fun createScaffold(): Scaffold<ByteType> = Wrapper(ByteType)
 }
 
-class CharacterTypeScaffolder<C>(internal val spec: CharacterTypeSpec<C>) : Scaffolder<C, CharacterType> {
-    override fun createScaffold(context: C): Scaffold<CharacterType> = Wrapper(CharacterType)
+class CharacterTypeScaffolder(internal val spec: CharacterTypeSpec) : Scaffolder<CharacterType> {
+    override fun createScaffold(): Scaffold<CharacterType> = Wrapper(CharacterType)
 }
 
-class StringTypeScaffolder<C>(internal val spec: StringTypeSpec<C>) : Scaffolder<C, StringType> {
-    override fun createScaffold(context: C): Scaffold<StringType> = Wrapper(StringType)
+class StringTypeScaffolder(internal val spec: StringTypeSpec) : Scaffolder<StringType> {
+    override fun createScaffold(): Scaffold<StringType> = Wrapper(StringType)
 }
 
-class AnyTypeScaffolder<C>(internal val spec: AnyTypeSpec<C>) : Scaffolder<C, AnyType> {
-    override fun createScaffold(context: C): Scaffold<AnyType> = Wrapper(AnyType)
+class AnyTypeScaffolder(internal val spec: AnyTypeSpec) : Scaffolder<AnyType> {
+    override fun createScaffold(): Scaffold<AnyType> = Wrapper(AnyType)
 }
 
 @DslBuilder
-internal class StructShellBuilder<C>(override val context: C, internal var shell: StructShell = StructShell()) : StructBuilder<C> {
+internal class StructShellBuilder(internal var shell: StructShell = StructShell()) : StructBuilder {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -237,12 +202,12 @@ internal class StructShellBuilder<C>(override val context: C, internal var shell
         shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun field(body: FieldBuilder<C>.() -> Unit) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder<C>(FieldSpec<C>(body)).createScaffold(context))
+    override fun field(body: FieldBuilder.() -> Unit) {
+        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder(FieldSpec(body)).createScaffold())
     }
 
-    override fun field(spec: FieldSpec<C>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder<C>(spec).createScaffold(context))
+    override fun field(spec: FieldSpec) {
+        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder(spec).createScaffold())
     }
 
     override fun field(ref: FieldRef) {
@@ -256,44 +221,10 @@ internal class StructShellBuilder<C>(override val context: C, internal var shell
     override fun fields(fields: List<Field>) {
         shell = shell.copy(fields = shell.fields.orEmpty() + fields.map { Wrapper(it) })
     }
-
-    override fun include(body: StructBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: StructSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: StructBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: StructSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: StructBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: StructSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StructShellBuilder<C2> = StructShellBuilder(context, shell)
-
-    private fun <C2> merge(other: StructShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class UnionShellBuilder<C>(override val context: C, internal var shell: UnionShell = UnionShell()) : UnionBuilder<C> {
+internal class UnionShellBuilder(internal var shell: UnionShell = UnionShell()) : UnionBuilder {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -302,12 +233,12 @@ internal class UnionShellBuilder<C>(override val context: C, internal var shell:
         shell = shell.copy(name = Wrapper(value))
     }
 
-    override fun shape(body: StructBuilder<C>.() -> Unit) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder<C>(StructSpec<C>(body)).createScaffold(context))
+    override fun shape(body: StructBuilder.() -> Unit) {
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder(StructSpec(body)).createScaffold())
     }
 
-    override fun shape(spec: StructSpec<C>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder<C>(spec).createScaffold(context))
+    override fun shape(spec: StructSpec) {
+        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder(spec).createScaffold())
     }
 
     override fun shape(ref: StructRef) {
@@ -321,44 +252,10 @@ internal class UnionShellBuilder<C>(override val context: C, internal var shell:
     override fun shapes(shapes: List<Struct>) {
         shell = shell.copy(shapes = shell.shapes.orEmpty() + shapes.map { Wrapper(it) })
     }
-
-    override fun include(body: UnionBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: UnionSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: UnionBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: UnionSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: UnionBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: UnionSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): UnionShellBuilder<C2> = UnionShellBuilder(context, shell)
-
-    private fun <C2> merge(other: UnionShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class EnumTypeShellBuilder<C>(override val context: C, internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder<C> {
+internal class EnumTypeShellBuilder(internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -374,44 +271,10 @@ internal class EnumTypeShellBuilder<C>(override val context: C, internal var she
     override fun values(values: List<String>) {
         shell = shell.copy(values = shell.values.orEmpty() + values.map { Wrapper(it) })
     }
-
-    override fun include(body: EnumTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: EnumTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: EnumTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: EnumTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: EnumTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: EnumTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): EnumTypeShellBuilder<C2> = EnumTypeShellBuilder(context, shell)
-
-    private fun <C2> merge(other: EnumTypeShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class RefTypeShellBuilder<C>(override val context: C, internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder<C> {
+internal class RefTypeShellBuilder(internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder {
     override fun pkg(value: String) {
         shell = shell.copy(pkg = Wrapper(value))
     }
@@ -419,46 +282,12 @@ internal class RefTypeShellBuilder<C>(override val context: C, internal var shel
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
-
-    override fun include(body: RefTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: RefTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: RefTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: RefTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RefTypeShellBuilder<C2> = RefTypeShellBuilder(context, shell)
-
-    private fun <C2> merge(other: RefTypeShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class OptionTypeShellBuilder<C>(override val context: C, internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder<C> {
-    override fun <T : Type> type(spec: TypeSpec<C, T>) {
-        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
+internal class OptionTypeShellBuilder(internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder {
+    override fun <T : Type> type(spec: TypeSpec<T>) {
+        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
@@ -468,46 +297,12 @@ internal class OptionTypeShellBuilder<C>(override val context: C, internal var s
     override fun <T : Type> type(value: T) {
         shell = shell.copy(type = Wrapper(value))
     }
-
-    override fun include(body: OptionTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: OptionTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: OptionTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: OptionTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: OptionTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: OptionTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): OptionTypeShellBuilder<C2> = OptionTypeShellBuilder(context, shell)
-
-    private fun <C2> merge(other: OptionTypeShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class ListTypeShellBuilder<C>(override val context: C, internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder<C> {
-    override fun <T : Type> type(spec: TypeSpec<C, T>) {
-        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
+internal class ListTypeShellBuilder(internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder {
+    override fun <T : Type> type(spec: TypeSpec<T>) {
+        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
@@ -517,46 +312,12 @@ internal class ListTypeShellBuilder<C>(override val context: C, internal var she
     override fun <T : Type> type(value: T) {
         shell = shell.copy(type = Wrapper(value))
     }
-
-    override fun include(body: ListTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: ListTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: ListTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: ListTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: ListTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: ListTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): ListTypeShellBuilder<C2> = ListTypeShellBuilder(context, shell)
-
-    private fun <C2> merge(other: ListTypeShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class MapTypeShellBuilder<C>(override val context: C, internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder<C> {
-    override fun <T : Type> keyType(spec: TypeSpec<C, T>) {
-        shell = shell.copy(keyType = TypeScaffolder<C, Type>(spec).createScaffold(context))
+internal class MapTypeShellBuilder(internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder {
+    override fun <T : Type> keyType(spec: TypeSpec<T>) {
+        shell = shell.copy(keyType = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> keyType(ref: TypeRef<T>) {
@@ -567,8 +328,8 @@ internal class MapTypeShellBuilder<C>(override val context: C, internal var shel
         shell = shell.copy(keyType = Wrapper(value))
     }
 
-    override fun <T : Type> valueType(spec: TypeSpec<C, T>) {
-        shell = shell.copy(valueType = TypeScaffolder<C, Type>(spec).createScaffold(context))
+    override fun <T : Type> valueType(spec: TypeSpec<T>) {
+        shell = shell.copy(valueType = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> valueType(ref: TypeRef<T>) {
@@ -577,40 +338,6 @@ internal class MapTypeShellBuilder<C>(override val context: C, internal var shel
 
     override fun <T : Type> valueType(value: T) {
         shell = shell.copy(valueType = Wrapper(value))
-    }
-
-    override fun include(body: MapTypeBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: MapTypeSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: MapTypeBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: MapTypeSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: MapTypeBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: MapTypeSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): MapTypeShellBuilder<C2> = MapTypeShellBuilder(context, shell)
-
-    private fun <C2> merge(other: MapTypeShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -735,16 +462,16 @@ internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueT
     }
 }
 
-class FieldScaffolder<C>(internal val spec: FieldSpec<C>) : Scaffolder<C, Field> {
-    override fun createScaffold(context: C): Scaffold<Field> {
-        val builder = FieldShellBuilder<C>(context)
+class FieldScaffolder(internal val spec: FieldSpec) : Scaffolder<Field> {
+    override fun createScaffold(): Scaffold<Field> {
+        val builder = FieldShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class FieldShellBuilder<C>(override val context: C, internal var shell: FieldShell = FieldShell()) : FieldBuilder<C> {
+internal class FieldShellBuilder(internal var shell: FieldShell = FieldShell()) : FieldBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
@@ -757,8 +484,8 @@ internal class FieldShellBuilder<C>(override val context: C, internal var shell:
         shell = shell.copy(singularName = Wrapper(value))
     }
 
-    override fun <T : Type> type(spec: TypeSpec<C, T>) {
-        shell = shell.copy(type = TypeScaffolder<C, Type>(spec).createScaffold(context))
+    override fun <T : Type> type(spec: TypeSpec<T>) {
+        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
@@ -767,40 +494,6 @@ internal class FieldShellBuilder<C>(override val context: C, internal var shell:
 
     override fun <T : Type> type(value: T) {
         shell = shell.copy(type = Wrapper(value))
-    }
-
-    override fun include(body: FieldBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: FieldSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: FieldBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: FieldSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: FieldBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: FieldSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): FieldShellBuilder<C2> = FieldShellBuilder(context, shell)
-
-    private fun <C2> merge(other: FieldShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 

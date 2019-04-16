@@ -17,8 +17,7 @@ internal val Struct.scaffolderTypeSpec
 private val Struct.objectScaffolderTypeSpec
     get() =
         TypeSpec.classBuilder(scaffolderClassName)
-                .addTypeVariable(TypeVariableName("C"))
-                .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, TypeVariableName("C"), className))
+                .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, className))
                 .addProperty(PropertySpec
                         .builder("spec", specTypeName)
                         .addModifiers(KModifier.INTERNAL)
@@ -29,7 +28,6 @@ private val Struct.objectScaffolderTypeSpec
                         .build())
                 .addFunction(FunSpec.builder("createScaffold")
                         .addModifiers(KModifier.OVERRIDE)
-                        .addParameter(contextParameterSpec)
                         .returns(scaffoldTypeName)
                         .addStatements(
                                 Statement("return %T(%T)", listOf(Wrapper::class.className, className))
@@ -40,8 +38,7 @@ private val Struct.objectScaffolderTypeSpec
 private val Struct.dataClassScaffolderTypeSpec
     get() =
         TypeSpec.classBuilder(scaffolderClassName)
-                .addTypeVariable(TypeVariableName("C"))
-                .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, TypeVariableName("C"), className))
+                .addSuperinterface(ParameterizedTypeName.get(Scaffolder::class.className, className))
                 .addProperty(PropertySpec
                         .builder("spec", specTypeName)
                         .addModifiers(KModifier.INTERNAL)
@@ -52,10 +49,9 @@ private val Struct.dataClassScaffolderTypeSpec
                         .build())
                 .addFunction(FunSpec.builder("createScaffold")
                         .addModifiers(KModifier.OVERRIDE)
-                        .addParameter(contextParameterSpec)
                         .returns(scaffoldTypeName)
                         .addStatements(
-                                Statement("val builder = %T(context)", listOf(shellBuilderTypeName)),
+                                Statement("val builder = %T()", listOf(shellBuilderClassName)),
                                 Statement("builder.apply(spec.body)"),
                                 Statement("return builder.shell")
                         )

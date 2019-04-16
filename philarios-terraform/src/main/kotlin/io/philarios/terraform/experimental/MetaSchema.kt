@@ -3,8 +3,8 @@ package io.philarios.terraform.experimental
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.philarios.core.contextOf
-import io.philarios.core.map
+import io.philarios.core.emptyContext
+import io.philarios.core.mapScaffolder
 import io.philarios.schema.*
 import io.philarios.schema.usecases.generateCode
 
@@ -42,12 +42,6 @@ data class SchemaDefinition(
 typealias SchemaInfo = Map<String, SchemaDefinition>
 
 @TerraformExperimental
-data class NamedSchemaInfo(
-        val name: String,
-        val schemaInfo: SchemaInfo
-)
-
-@TerraformExperimental
 data class ResourceProviderSchema(
         val name: String,
         val type: String,
@@ -58,44 +52,38 @@ data class ResourceProviderSchema(
 )
 
 @TerraformExperimental
-val providerSchema = SchemaSpec<ResourceProviderSchema> {
+fun providerSchema(schema: ResourceProviderSchema) = SchemaSpec {
     name("ProviderAWS")
     pkg("io.philarios.terraform.sugar.provider.aws")
 
-    struct(context.name.capitalize()) {
+    struct(schema.name.capitalize()) {
         field("provider", ref("Provider"))
         field("resources", list(ref("Resource")))
         field("dataSources", list(ref("DataSource")))
     }
 
-    include(NamedSchemaInfo("Provider", context.provider)) {
-        type(schemaInfoStruct)
-    }
+    type(schemaInfoStruct("Provider", schema.provider))
 
     union("DataSource") {
-        includeForEach(context.dataSources.map {
-            NamedSchemaInfo("Data${it.key.split("_").map { it.capitalize() }.joinToString("") { it }}", it.value)
-        }) {
-            shape(schemaInfoStruct)
+        schema.dataSources.forEach {
+            shape(schemaInfoStruct("Data${it.key.split("_").map { it.capitalize() }.joinToString("") { it }}", it.value))
         }
     }
 
     union("Resource") {
-        includeForEach(context.resources.map {
-            NamedSchemaInfo(it.key.split("_").map { it.capitalize() }.joinToString("") { it }, it.value)
-        }) {
-            shape(schemaInfoStruct)
+        schema.resources.forEach {
+            shape(schemaInfoStruct(it.key.split("_").map { it.capitalize() }.joinToString("") { it }, it.value))
         }
     }
 }
 
 @TerraformExperimental
-val schemaInfoStruct = StructSpec<NamedSchemaInfo> {
-    name(context.name)
+fun schemaInfoStruct(name: String, schemaInfo: SchemaInfo) = StructSpec {
+    name(name)
 
-    includeForEach(context.schemaInfo.entries) {
+    schemaInfo.entries.forEach {
         field {
-            name(context.key)
+            name(it.key)
             type(StringType)
         }
     }
@@ -110,8 +98,8 @@ suspend fun main() {
 
     val value = objectMapper.readValue<ResourceProviderSchema>(resource)
 
-    val schema = contextOf(value)
-            .map(SchemaScaffolder(providerSchema))
+    val schema = emptyContext()
+            .mapScaffolder { SchemaScaffolder(providerSchema(value)) }
             .value
 
     println(schema)

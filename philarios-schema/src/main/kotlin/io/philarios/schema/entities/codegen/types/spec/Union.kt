@@ -5,6 +5,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.className
+import io.philarios.schema.entities.codegen.util.specClassName
 import io.philarios.schema.entities.codegen.util.specTypeName
 
 internal val Union.specTypeSpecs
@@ -13,12 +14,11 @@ internal val Union.specTypeSpecs
 
 private val Union.superclassSpecTypeSpec
     get() =
-        TypeSpec.classBuilder(specTypeName.rawType)
+        TypeSpec.classBuilder(specClassName)
                 .addModifiers(KModifier.SEALED)
-                .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addTypeVariable(TypeVariableName("T", KModifier.OUT).withBounds(className))
                 .build()
 
 internal val Union.shapeSpecTypeSpecs
     get() =
-        shapes.map { it.specTypeSpec(specTypeName.rawType) }
+        shapes.map { it.specTypeSpec(specClassName) }

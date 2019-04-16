@@ -2,30 +2,30 @@ package io.philarios.structurizr.sugar
 
 import io.philarios.structurizr.*
 
-fun <C, T : Any> SoftwareSystemBuilder<C>.id(id: T) {
+fun <T : Any> SoftwareSystemBuilder.id(id: T) {
     id(id.hierarchicalId())
 }
 
-fun <C, T : Any> SoftwareSystemBuilder<C>.container(id: T, body: ContainerBuilder<C>.() -> Unit = {}) {
+fun <T : Any> SoftwareSystemBuilder.container(id: T, body: ContainerBuilder.() -> Unit = {}) {
     container {
         id(id)
         apply(body)
     }
 }
 
-fun <C, T : Any> SoftwareSystemBuilder<C>.relationship(destinationId: T, body: RelationshipBuilder<C>.() -> Unit = {}) {
+fun <T : Any> SoftwareSystemBuilder.relationship(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
     relationship {
         destinationId(destinationId)
         apply(body)
     }
 }
 
-fun <C> SoftwareSystemBuilder<C>.internal() {
+fun  SoftwareSystemBuilder.internal() {
     location(Location.Internal)
     tag("Internal")
 }
 
-fun <C> SoftwareSystemBuilder<C>.external() {
+fun  SoftwareSystemBuilder.external() {
     location(Location.External)
     tag("External")
 }

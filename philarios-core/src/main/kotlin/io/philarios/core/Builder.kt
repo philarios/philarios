@@ -8,6 +8,7 @@ interface Spec<B> {
 }
 typealias Body<B> = B.() -> Unit
 
+@DslBuilder
 interface Builder<S : Spec<B>, B : Builder<S, B>> {
     val genericContext: GenericContext
         get() = NopGenericContext

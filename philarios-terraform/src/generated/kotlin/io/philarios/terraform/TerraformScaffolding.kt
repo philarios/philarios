@@ -16,28 +16,27 @@ import io.philarios.util.registry.Registry
 import kotlin.Any
 import kotlin.Pair
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class TerraformScaffolder<in C>(internal val spec: TerraformSpec<C>) : Scaffolder<C, Terraform> {
-    override fun createScaffold(context: C): Scaffold<Terraform> {
-        val builder = TerraformShellBuilder<C>(context)
+class TerraformScaffolder(internal val spec: TerraformSpec) : Scaffolder<Terraform> {
+    override fun createScaffold(): Scaffold<Terraform> {
+        val builder = TerraformShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class TerraformShellBuilder<out C>(override val context: C, internal var shell: TerraformShell = TerraformShell()) : TerraformBuilder<C> {
-    override fun resource(body: ResourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder<C>(ResourceSpec<C>(body)).createScaffold(context))
+internal class TerraformShellBuilder(internal var shell: TerraformShell = TerraformShell()) : TerraformBuilder {
+    override fun resource(body: ResourceBuilder.() -> Unit) {
+        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(ResourceSpec(body)).createScaffold())
     }
 
-    override fun resource(spec: ResourceSpec<C>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder<C>(spec).createScaffold(context))
+    override fun resource(spec: ResourceSpec) {
+        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(spec).createScaffold())
     }
 
     override fun resource(ref: ResourceRef) {
@@ -52,12 +51,12 @@ internal class TerraformShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { Wrapper(it) })
     }
 
-    override fun dataSource(body: DataSourceBuilder<C>.() -> Unit) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder<C>(DataSourceSpec<C>(body)).createScaffold(context))
+    override fun dataSource(body: DataSourceBuilder.() -> Unit) {
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder(DataSourceSpec(body)).createScaffold())
     }
 
-    override fun dataSource(spec: DataSourceSpec<C>) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder<C>(spec).createScaffold(context))
+    override fun dataSource(spec: DataSourceSpec) {
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder(spec).createScaffold())
     }
 
     override fun dataSource(ref: DataSourceRef) {
@@ -72,12 +71,12 @@ internal class TerraformShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(dataSources = shell.dataSources.orEmpty() + dataSources.map { Wrapper(it) })
     }
 
-    override fun provider(body: ProviderBuilder<C>.() -> Unit) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder<C>(ProviderSpec<C>(body)).createScaffold(context))
+    override fun provider(body: ProviderBuilder.() -> Unit) {
+        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder(ProviderSpec(body)).createScaffold())
     }
 
-    override fun provider(spec: ProviderSpec<C>) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder<C>(spec).createScaffold(context))
+    override fun provider(spec: ProviderSpec) {
+        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder(spec).createScaffold())
     }
 
     override fun provider(ref: ProviderRef) {
@@ -92,12 +91,12 @@ internal class TerraformShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(providers = shell.providers.orEmpty() + providers.map { Wrapper(it) })
     }
 
-    override fun variable(body: VariableBuilder<C>.() -> Unit) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder<C>(VariableSpec<C>(body)).createScaffold(context))
+    override fun variable(body: VariableBuilder.() -> Unit) {
+        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder(VariableSpec(body)).createScaffold())
     }
 
-    override fun variable(spec: VariableSpec<C>) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder<C>(spec).createScaffold(context))
+    override fun variable(spec: VariableSpec) {
+        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder(spec).createScaffold())
     }
 
     override fun variable(ref: VariableRef) {
@@ -112,12 +111,12 @@ internal class TerraformShellBuilder<out C>(override val context: C, internal va
         shell = shell.copy(variables = shell.variables.orEmpty() + variables.map { Wrapper(it) })
     }
 
-    override fun output(body: OutputBuilder<C>.() -> Unit) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder<C>(OutputSpec<C>(body)).createScaffold(context))
+    override fun output(body: OutputBuilder.() -> Unit) {
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder(OutputSpec(body)).createScaffold())
     }
 
-    override fun output(spec: OutputSpec<C>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder<C>(spec).createScaffold(context))
+    override fun output(spec: OutputSpec) {
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder(spec).createScaffold())
     }
 
     override fun output(ref: OutputRef) {
@@ -130,40 +129,6 @@ internal class TerraformShellBuilder<out C>(override val context: C, internal va
 
     override fun outputs(outputs: List<Output>) {
         shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { Wrapper(it) })
-    }
-
-    override fun include(body: TerraformBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: TerraformSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: TerraformBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: TerraformSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: TerraformBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: TerraformSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): TerraformShellBuilder<C2> = TerraformShellBuilder(context, shell)
-
-    private fun <C2> merge(other: TerraformShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -193,16 +158,16 @@ internal data class TerraformShell(
     }
 }
 
-class ResourceScaffolder<in C>(internal val spec: ResourceSpec<C>) : Scaffolder<C, Resource> {
-    override fun createScaffold(context: C): Scaffold<Resource> {
-        val builder = ResourceShellBuilder<C>(context)
+class ResourceScaffolder(internal val spec: ResourceSpec) : Scaffolder<Resource> {
+    override fun createScaffold(): Scaffold<Resource> {
+        val builder = ResourceShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class ResourceShellBuilder<out C>(override val context: C, internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder<C> {
+internal class ResourceShellBuilder(internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder {
     override fun type(value: String) {
         shell = shell.copy(type = Wrapper(value))
     }
@@ -221,40 +186,6 @@ internal class ResourceShellBuilder<out C>(override val context: C, internal var
 
     override fun config(config: Map<String, Any>) {
         shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
-    }
-
-    override fun include(body: ResourceBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: ResourceSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: ResourceBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: ResourceSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: ResourceBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: ResourceSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): ResourceShellBuilder<C2> = ResourceShellBuilder(context, shell)
-
-    private fun <C2> merge(other: ResourceShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -275,16 +206,16 @@ internal data class ResourceShell(
     }
 }
 
-class DataSourceScaffolder<in C>(internal val spec: DataSourceSpec<C>) : Scaffolder<C, DataSource> {
-    override fun createScaffold(context: C): Scaffold<DataSource> {
-        val builder = DataSourceShellBuilder<C>(context)
+class DataSourceScaffolder(internal val spec: DataSourceSpec) : Scaffolder<DataSource> {
+    override fun createScaffold(): Scaffold<DataSource> {
+        val builder = DataSourceShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class DataSourceShellBuilder<out C>(override val context: C, internal var shell: DataSourceShell = DataSourceShell()) : DataSourceBuilder<C> {
+internal class DataSourceShellBuilder(internal var shell: DataSourceShell = DataSourceShell()) : DataSourceBuilder {
     override fun type(value: String) {
         shell = shell.copy(type = Wrapper(value))
     }
@@ -303,40 +234,6 @@ internal class DataSourceShellBuilder<out C>(override val context: C, internal v
 
     override fun config(config: Map<String, Any>) {
         shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
-    }
-
-    override fun include(body: DataSourceBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: DataSourceSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: DataSourceBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: DataSourceSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: DataSourceBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: DataSourceSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): DataSourceShellBuilder<C2> = DataSourceShellBuilder(context, shell)
-
-    private fun <C2> merge(other: DataSourceShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -357,16 +254,16 @@ internal data class DataSourceShell(
     }
 }
 
-class ProviderScaffolder<in C>(internal val spec: ProviderSpec<C>) : Scaffolder<C, Provider> {
-    override fun createScaffold(context: C): Scaffold<Provider> {
-        val builder = ProviderShellBuilder<C>(context)
+class ProviderScaffolder(internal val spec: ProviderSpec) : Scaffolder<Provider> {
+    override fun createScaffold(): Scaffold<Provider> {
+        val builder = ProviderShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class ProviderShellBuilder<out C>(override val context: C, internal var shell: ProviderShell = ProviderShell()) : ProviderBuilder<C> {
+internal class ProviderShellBuilder(internal var shell: ProviderShell = ProviderShell()) : ProviderBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
@@ -382,40 +279,6 @@ internal class ProviderShellBuilder<out C>(override val context: C, internal var
     override fun config(config: Map<String, Any>) {
         shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
-
-    override fun include(body: ProviderBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: ProviderSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: ProviderBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: ProviderSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: ProviderBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: ProviderSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): ProviderShellBuilder<C2> = ProviderShellBuilder(context, shell)
-
-    private fun <C2> merge(other: ProviderShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 internal data class ProviderShell(var name: Scaffold<String>? = null, var config: Map<Scaffold<String>, Scaffold<Any>>? = null) : Scaffold<Provider> {
@@ -429,16 +292,16 @@ internal data class ProviderShell(var name: Scaffold<String>? = null, var config
     }
 }
 
-class VariableScaffolder<in C>(internal val spec: VariableSpec<C>) : Scaffolder<C, Variable> {
-    override fun createScaffold(context: C): Scaffold<Variable> {
-        val builder = VariableShellBuilder<C>(context)
+class VariableScaffolder(internal val spec: VariableSpec) : Scaffolder<Variable> {
+    override fun createScaffold(): Scaffold<Variable> {
+        val builder = VariableShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class VariableShellBuilder<out C>(override val context: C, internal var shell: VariableShell = VariableShell()) : VariableBuilder<C> {
+internal class VariableShellBuilder(internal var shell: VariableShell = VariableShell()) : VariableBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
@@ -449,40 +312,6 @@ internal class VariableShellBuilder<out C>(override val context: C, internal var
 
     override fun default(value: Any) {
         shell = shell.copy(default = Wrapper(value))
-    }
-
-    override fun include(body: VariableBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: VariableSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: VariableBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: VariableSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: VariableBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: VariableSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): VariableShellBuilder<C2> = VariableShellBuilder(context, shell)
-
-    private fun <C2> merge(other: VariableShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -504,56 +333,22 @@ internal data class VariableShell(
     }
 }
 
-class OutputScaffolder<in C>(internal val spec: OutputSpec<C>) : Scaffolder<C, Output> {
-    override fun createScaffold(context: C): Scaffold<Output> {
-        val builder = OutputShellBuilder<C>(context)
+class OutputScaffolder(internal val spec: OutputSpec) : Scaffolder<Output> {
+    override fun createScaffold(): Scaffold<Output> {
+        val builder = OutputShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class OutputShellBuilder<out C>(override val context: C, internal var shell: OutputShell = OutputShell()) : OutputBuilder<C> {
+internal class OutputShellBuilder(internal var shell: OutputShell = OutputShell()) : OutputBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
 
     override fun value(value: Any) {
         shell = shell.copy(value = Wrapper(value))
-    }
-
-    override fun include(body: OutputBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: OutputSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: OutputBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: OutputSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: OutputBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: OutputSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): OutputShellBuilder<C2> = OutputShellBuilder(context, shell)
-
-    private fun <C2> merge(other: OutputShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 

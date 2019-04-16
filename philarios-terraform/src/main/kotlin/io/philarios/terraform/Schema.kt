@@ -2,7 +2,7 @@ package io.philarios.terraform
 
 import io.philarios.schema.*
 
-val terraformSchema = SchemaSpec<Any?> {
+val terraformSchema = SchemaSpec {
     name("Terraform")
     pkg("io.philarios.terraform")
 

@@ -15,149 +15,103 @@ import io.philarios.core.DslBuilder
 import io.philarios.core.Spec
 import kotlin.Boolean
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 
-class SchemaSpec<C>(override val body: SchemaBuilder<C>.() -> Unit) : Spec<SchemaBuilder<C>>
+class SchemaSpec(override val body: SchemaBuilder.() -> Unit) : Spec<SchemaBuilder>
 
 @DslBuilder
-interface SchemaBuilder<C> : Builder<SchemaSpec<C>, SchemaBuilder<C>> {
-    val context: C
-
+interface SchemaBuilder : Builder<SchemaSpec, SchemaBuilder> {
     fun pkg(value: String)
 
     fun name(value: String)
 
-    fun <T : Type> type(spec: TypeSpec<C, T>)
+    fun <T : Type> type(spec: TypeSpec<T>)
 
     fun <T : Type> type(ref: TypeRef<T>)
 
     fun <T : Type> type(value: T)
-
-    fun include(body: SchemaBuilder<C>.() -> Unit)
-
-    fun include(spec: SchemaSpec<C>)
-
-    fun <C2> include(context: C2, body: SchemaBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: SchemaSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: SchemaBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: SchemaSpec<C2>)
 }
 
 class SchemaRef(internal val key: String)
 
-sealed class TypeSpec<in C, out T : Type>
+sealed class TypeSpec<out T : Type>
 
-class StructSpec<C>(override val body: StructBuilder<C>.() -> Unit) : TypeSpec<C, Struct>(),
-        Spec<StructBuilder<C>>
+class StructSpec(override val body: StructBuilder.() -> Unit) : TypeSpec<Struct>(),
+        Spec<StructBuilder>
 
-class UnionSpec<C>(override val body: UnionBuilder<C>.() -> Unit) : TypeSpec<C, Union>(),
-        Spec<UnionBuilder<C>>
+class UnionSpec(override val body: UnionBuilder.() -> Unit) : TypeSpec<Union>(), Spec<UnionBuilder>
 
-class EnumTypeSpec<C>(override val body: EnumTypeBuilder<C>.() -> Unit) : TypeSpec<C, EnumType>(),
-        Spec<EnumTypeBuilder<C>>
+class EnumTypeSpec(override val body: EnumTypeBuilder.() -> Unit) : TypeSpec<EnumType>(),
+        Spec<EnumTypeBuilder>
 
-class RefTypeSpec<C>(override val body: RefTypeBuilder<C>.() -> Unit) : TypeSpec<C, RefType>(),
-        Spec<RefTypeBuilder<C>>
+class RefTypeSpec(override val body: RefTypeBuilder.() -> Unit) : TypeSpec<RefType>(),
+        Spec<RefTypeBuilder>
 
-class OptionTypeSpec<C>(override val body: OptionTypeBuilder<C>.() -> Unit) : TypeSpec<C, OptionType>(),
-        Spec<OptionTypeBuilder<C>>
+class OptionTypeSpec(override val body: OptionTypeBuilder.() -> Unit) : TypeSpec<OptionType>(),
+        Spec<OptionTypeBuilder>
 
-class ListTypeSpec<C>(override val body: ListTypeBuilder<C>.() -> Unit) : TypeSpec<C, ListType>(),
-        Spec<ListTypeBuilder<C>>
+class ListTypeSpec(override val body: ListTypeBuilder.() -> Unit) : TypeSpec<ListType>(),
+        Spec<ListTypeBuilder>
 
-class MapTypeSpec<C>(override val body: MapTypeBuilder<C>.() -> Unit) : TypeSpec<C, MapType>(),
-        Spec<MapTypeBuilder<C>>
+class MapTypeSpec(override val body: MapTypeBuilder.() -> Unit) : TypeSpec<MapType>(),
+        Spec<MapTypeBuilder>
 
-class BooleanTypeSpec<C> : TypeSpec<C, BooleanType>()
+class BooleanTypeSpec : TypeSpec<BooleanType>()
 
-class DoubleTypeSpec<C> : TypeSpec<C, DoubleType>()
+class DoubleTypeSpec : TypeSpec<DoubleType>()
 
-class FloatTypeSpec<C> : TypeSpec<C, FloatType>()
+class FloatTypeSpec : TypeSpec<FloatType>()
 
-class LongTypeSpec<C> : TypeSpec<C, LongType>()
+class LongTypeSpec : TypeSpec<LongType>()
 
-class IntTypeSpec<C> : TypeSpec<C, IntType>()
+class IntTypeSpec : TypeSpec<IntType>()
 
-class ShortTypeSpec<C> : TypeSpec<C, ShortType>()
+class ShortTypeSpec : TypeSpec<ShortType>()
 
-class ByteTypeSpec<C> : TypeSpec<C, ByteType>()
+class ByteTypeSpec : TypeSpec<ByteType>()
 
-class CharacterTypeSpec<C> : TypeSpec<C, CharacterType>()
+class CharacterTypeSpec : TypeSpec<CharacterType>()
 
-class StringTypeSpec<C> : TypeSpec<C, StringType>()
+class StringTypeSpec : TypeSpec<StringType>()
 
-class AnyTypeSpec<C> : TypeSpec<C, AnyType>()
+class AnyTypeSpec : TypeSpec<AnyType>()
 
 @DslBuilder
-interface StructBuilder<C> : Builder<StructSpec<C>, StructBuilder<C>> {
-    val context: C
-
+interface StructBuilder : Builder<StructSpec, StructBuilder> {
     fun pkg(value: String)
 
     fun name(value: String)
 
-    fun field(body: FieldBuilder<C>.() -> Unit)
+    fun field(body: FieldBuilder.() -> Unit)
 
-    fun field(spec: FieldSpec<C>)
+    fun field(spec: FieldSpec)
 
     fun field(ref: FieldRef)
 
     fun field(value: Field)
 
     fun fields(fields: List<Field>)
-
-    fun include(body: StructBuilder<C>.() -> Unit)
-
-    fun include(spec: StructSpec<C>)
-
-    fun <C2> include(context: C2, body: StructBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: StructSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: StructBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: StructSpec<C2>)
 }
 
 @DslBuilder
-interface UnionBuilder<C> : Builder<UnionSpec<C>, UnionBuilder<C>> {
-    val context: C
-
+interface UnionBuilder : Builder<UnionSpec, UnionBuilder> {
     fun pkg(value: String)
 
     fun name(value: String)
 
-    fun shape(body: StructBuilder<C>.() -> Unit)
+    fun shape(body: StructBuilder.() -> Unit)
 
-    fun shape(spec: StructSpec<C>)
+    fun shape(spec: StructSpec)
 
     fun shape(ref: StructRef)
 
     fun shape(value: Struct)
 
     fun shapes(shapes: List<Struct>)
-
-    fun include(body: UnionBuilder<C>.() -> Unit)
-
-    fun include(spec: UnionSpec<C>)
-
-    fun <C2> include(context: C2, body: UnionBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: UnionSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: UnionBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: UnionSpec<C2>)
 }
 
 @DslBuilder
-interface EnumTypeBuilder<C> : Builder<EnumTypeSpec<C>, EnumTypeBuilder<C>> {
-    val context: C
-
+interface EnumTypeBuilder : Builder<EnumTypeSpec, EnumTypeBuilder> {
     fun pkg(value: String)
 
     fun name(value: String)
@@ -165,114 +119,46 @@ interface EnumTypeBuilder<C> : Builder<EnumTypeSpec<C>, EnumTypeBuilder<C>> {
     fun value(value: String)
 
     fun values(values: List<String>)
-
-    fun include(body: EnumTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: EnumTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: EnumTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: EnumTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: EnumTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: EnumTypeSpec<C2>)
 }
 
 @DslBuilder
-interface RefTypeBuilder<C> : Builder<RefTypeSpec<C>, RefTypeBuilder<C>> {
-    val context: C
-
+interface RefTypeBuilder : Builder<RefTypeSpec, RefTypeBuilder> {
     fun pkg(value: String)
 
     fun name(value: String)
-
-    fun include(body: RefTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: RefTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: RefTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: RefTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: RefTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: RefTypeSpec<C2>)
 }
 
 @DslBuilder
-interface OptionTypeBuilder<C> : Builder<OptionTypeSpec<C>, OptionTypeBuilder<C>> {
-    val context: C
-
-    fun <T : Type> type(spec: TypeSpec<C, T>)
+interface OptionTypeBuilder : Builder<OptionTypeSpec, OptionTypeBuilder> {
+    fun <T : Type> type(spec: TypeSpec<T>)
 
     fun <T : Type> type(ref: TypeRef<T>)
 
     fun <T : Type> type(value: T)
-
-    fun include(body: OptionTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: OptionTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: OptionTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: OptionTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: OptionTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: OptionTypeSpec<C2>)
 }
 
 @DslBuilder
-interface ListTypeBuilder<C> : Builder<ListTypeSpec<C>, ListTypeBuilder<C>> {
-    val context: C
-
-    fun <T : Type> type(spec: TypeSpec<C, T>)
+interface ListTypeBuilder : Builder<ListTypeSpec, ListTypeBuilder> {
+    fun <T : Type> type(spec: TypeSpec<T>)
 
     fun <T : Type> type(ref: TypeRef<T>)
 
     fun <T : Type> type(value: T)
-
-    fun include(body: ListTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: ListTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: ListTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ListTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ListTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ListTypeSpec<C2>)
 }
 
 @DslBuilder
-interface MapTypeBuilder<C> : Builder<MapTypeSpec<C>, MapTypeBuilder<C>> {
-    val context: C
-
-    fun <T : Type> keyType(spec: TypeSpec<C, T>)
+interface MapTypeBuilder : Builder<MapTypeSpec, MapTypeBuilder> {
+    fun <T : Type> keyType(spec: TypeSpec<T>)
 
     fun <T : Type> keyType(ref: TypeRef<T>)
 
     fun <T : Type> keyType(value: T)
 
-    fun <T : Type> valueType(spec: TypeSpec<C, T>)
+    fun <T : Type> valueType(spec: TypeSpec<T>)
 
     fun <T : Type> valueType(ref: TypeRef<T>)
 
     fun <T : Type> valueType(value: T)
-
-    fun include(body: MapTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: MapTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: MapTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: MapTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: MapTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: MapTypeSpec<C2>)
 }
 
 sealed class TypeRef<T : Type> {
@@ -293,35 +179,21 @@ class ListTypeRef(override val key: String) : TypeRef<ListType>()
 
 class MapTypeRef(override val key: String) : TypeRef<MapType>()
 
-class FieldSpec<C>(override val body: FieldBuilder<C>.() -> Unit) : Spec<FieldBuilder<C>>
+class FieldSpec(override val body: FieldBuilder.() -> Unit) : Spec<FieldBuilder>
 
 @DslBuilder
-interface FieldBuilder<C> : Builder<FieldSpec<C>, FieldBuilder<C>> {
-    val context: C
-
+interface FieldBuilder : Builder<FieldSpec, FieldBuilder> {
     fun name(value: String)
 
     fun key(value: Boolean)
 
     fun singularName(value: String)
 
-    fun <T : Type> type(spec: TypeSpec<C, T>)
+    fun <T : Type> type(spec: TypeSpec<T>)
 
     fun <T : Type> type(ref: TypeRef<T>)
 
     fun <T : Type> type(value: T)
-
-    fun include(body: FieldBuilder<C>.() -> Unit)
-
-    fun include(spec: FieldSpec<C>)
-
-    fun <C2> include(context: C2, body: FieldBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: FieldSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: FieldBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: FieldSpec<C2>)
 }
 
 class FieldRef(internal val key: String)

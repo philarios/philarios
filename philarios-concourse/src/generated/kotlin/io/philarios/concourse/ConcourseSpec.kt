@@ -10,91 +10,62 @@
 // issue in the project's repository.
 package io.philarios.concourse
 
+import io.philarios.core.Builder
 import io.philarios.core.DslBuilder
+import io.philarios.core.Spec
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.Int
 import kotlin.Pair
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 
-class ConcourseSpec<in C>(internal val body: ConcourseBuilder<C>.() -> Unit)
+class ConcourseSpec(override val body: ConcourseBuilder.() -> Unit) : Spec<ConcourseBuilder>
 
 @DslBuilder
-interface ConcourseBuilder<out C> {
-    val context: C
+interface ConcourseBuilder : Builder<ConcourseSpec, ConcourseBuilder> {
+    fun team(body: TeamBuilder.() -> Unit)
 
-    fun team(body: TeamBuilder<C>.() -> Unit)
-
-    fun team(spec: TeamSpec<C>)
+    fun team(spec: TeamSpec)
 
     fun team(ref: TeamRef)
 
     fun team(value: Team)
 
     fun teams(teams: List<Team>)
-
-    fun include(body: ConcourseBuilder<C>.() -> Unit)
-
-    fun include(spec: ConcourseSpec<C>)
-
-    fun <C2> include(context: C2, body: ConcourseBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ConcourseSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ConcourseBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ConcourseSpec<C2>)
 }
 
 class ConcourseRef(internal val key: String)
 
-class TeamSpec<in C>(internal val body: TeamBuilder<C>.() -> Unit)
+class TeamSpec(override val body: TeamBuilder.() -> Unit) : Spec<TeamBuilder>
 
 @DslBuilder
-interface TeamBuilder<out C> {
-    val context: C
-
+interface TeamBuilder : Builder<TeamSpec, TeamBuilder> {
     fun name(value: String)
 
-    fun pipeline(body: PipelineBuilder<C>.() -> Unit)
+    fun pipeline(body: PipelineBuilder.() -> Unit)
 
-    fun pipeline(spec: PipelineSpec<C>)
+    fun pipeline(spec: PipelineSpec)
 
     fun pipeline(ref: PipelineRef)
 
     fun pipeline(value: Pipeline)
 
     fun pipelines(pipelines: List<Pipeline>)
-
-    fun include(body: TeamBuilder<C>.() -> Unit)
-
-    fun include(spec: TeamSpec<C>)
-
-    fun <C2> include(context: C2, body: TeamBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TeamSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TeamBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TeamSpec<C2>)
 }
 
 class TeamRef(internal val key: String)
 
-class PipelineSpec<in C>(internal val body: PipelineBuilder<C>.() -> Unit)
+class PipelineSpec(override val body: PipelineBuilder.() -> Unit) : Spec<PipelineBuilder>
 
 @DslBuilder
-interface PipelineBuilder<out C> {
-    val context: C
-
+interface PipelineBuilder : Builder<PipelineSpec, PipelineBuilder> {
     fun name(value: String)
 
-    fun job(body: JobBuilder<C>.() -> Unit)
+    fun job(body: JobBuilder.() -> Unit)
 
-    fun job(spec: JobSpec<C>)
+    fun job(spec: JobSpec)
 
     fun job(ref: JobRef)
 
@@ -102,9 +73,9 @@ interface PipelineBuilder<out C> {
 
     fun jobs(jobs: List<Job>)
 
-    fun resource(body: ResourceBuilder<C>.() -> Unit)
+    fun resource(body: ResourceBuilder.() -> Unit)
 
-    fun resource(spec: ResourceSpec<C>)
+    fun resource(spec: ResourceSpec)
 
     fun resource(ref: ResourceRef)
 
@@ -112,9 +83,9 @@ interface PipelineBuilder<out C> {
 
     fun resources(resources: List<Resource>)
 
-    fun resource_type(body: ResourceTypeBuilder<C>.() -> Unit)
+    fun resource_type(body: ResourceTypeBuilder.() -> Unit)
 
-    fun resource_type(spec: ResourceTypeSpec<C>)
+    fun resource_type(spec: ResourceTypeSpec)
 
     fun resource_type(ref: ResourceTypeRef)
 
@@ -122,40 +93,26 @@ interface PipelineBuilder<out C> {
 
     fun resource_types(resource_types: List<ResourceType>)
 
-    fun group(body: GroupBuilder<C>.() -> Unit)
+    fun group(body: GroupBuilder.() -> Unit)
 
-    fun group(spec: GroupSpec<C>)
+    fun group(spec: GroupSpec)
 
     fun group(ref: GroupRef)
 
     fun group(value: Group)
 
     fun groups(groups: List<Group>)
-
-    fun include(body: PipelineBuilder<C>.() -> Unit)
-
-    fun include(spec: PipelineSpec<C>)
-
-    fun <C2> include(context: C2, body: PipelineBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: PipelineSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: PipelineBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: PipelineSpec<C2>)
 }
 
 class PipelineRef(internal val key: String)
 
-class JobSpec<in C>(internal val body: JobBuilder<C>.() -> Unit)
+class JobSpec(override val body: JobBuilder.() -> Unit) : Spec<JobBuilder>
 
 @DslBuilder
-interface JobBuilder<out C> {
-    val context: C
-
+interface JobBuilder : Builder<JobSpec, JobBuilder> {
     fun name(value: String)
 
-    fun <T : Step> plan(spec: StepSpec<C, T>)
+    fun <T : Step> plan(spec: StepSpec<T>)
 
     fun <T : Step> plan(ref: StepRef<T>)
 
@@ -177,63 +134,50 @@ interface JobBuilder<out C> {
 
     fun interruptible(value: Boolean)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
     fun <T : Step> ensure(value: T)
-
-    fun include(body: JobBuilder<C>.() -> Unit)
-
-    fun include(spec: JobSpec<C>)
-
-    fun <C2> include(context: C2, body: JobBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: JobSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: JobBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: JobSpec<C2>)
 }
 
 class JobRef(internal val key: String)
 
-sealed class StepSpec<in C, out T : Step>
+sealed class StepSpec<out T : Step>
 
-class GetSpec<in C>(internal val body: GetBuilder<C>.() -> Unit) : StepSpec<C, Get>()
+class GetSpec(override val body: GetBuilder.() -> Unit) : StepSpec<Get>(), Spec<GetBuilder>
 
-class PutSpec<in C>(internal val body: PutBuilder<C>.() -> Unit) : StepSpec<C, Put>()
+class PutSpec(override val body: PutBuilder.() -> Unit) : StepSpec<Put>(), Spec<PutBuilder>
 
-class TaskSpec<in C>(internal val body: TaskBuilder<C>.() -> Unit) : StepSpec<C, Task>()
+class TaskSpec(override val body: TaskBuilder.() -> Unit) : StepSpec<Task>(), Spec<TaskBuilder>
 
-class AggregateSpec<in C>(internal val body: AggregateBuilder<C>.() -> Unit) : StepSpec<C, Aggregate>()
+class AggregateSpec(override val body: AggregateBuilder.() -> Unit) : StepSpec<Aggregate>(),
+        Spec<AggregateBuilder>
 
-class DoSpec<in C>(internal val body: DoBuilder<C>.() -> Unit) : StepSpec<C, Do>()
+class DoSpec(override val body: DoBuilder.() -> Unit) : StepSpec<Do>(), Spec<DoBuilder>
 
-class TrySpec<in C>(internal val body: TryBuilder<C>.() -> Unit) : StepSpec<C, Try>()
+class TrySpec(override val body: TryBuilder.() -> Unit) : StepSpec<Try>(), Spec<TryBuilder>
 
 @DslBuilder
-interface GetBuilder<out C> {
-    val context: C
-
+interface GetBuilder : Builder<GetSpec, GetBuilder> {
     fun get(value: String)
 
     fun resource(value: String)
@@ -252,25 +196,25 @@ interface GetBuilder<out C> {
 
     fun trigger(value: Boolean)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -283,24 +227,10 @@ interface GetBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: GetBuilder<C>.() -> Unit)
-
-    fun include(spec: GetSpec<C>)
-
-    fun <C2> include(context: C2, body: GetBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: GetSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: GetBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: GetSpec<C2>)
 }
 
 @DslBuilder
-interface PutBuilder<out C> {
-    val context: C
-
+interface PutBuilder : Builder<PutSpec, PutBuilder> {
     fun put(value: String)
 
     fun resource(value: String)
@@ -317,25 +247,25 @@ interface PutBuilder<out C> {
 
     fun get_params(get_params: Map<String, Any>)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -348,29 +278,15 @@ interface PutBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: PutBuilder<C>.() -> Unit)
-
-    fun include(spec: PutSpec<C>)
-
-    fun <C2> include(context: C2, body: PutBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: PutSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: PutBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: PutSpec<C2>)
 }
 
 @DslBuilder
-interface TaskBuilder<out C> {
-    val context: C
-
+interface TaskBuilder : Builder<TaskSpec, TaskBuilder> {
     fun task(value: String)
 
-    fun config(body: TaskConfigBuilder<C>.() -> Unit)
+    fun config(body: TaskConfigBuilder.() -> Unit)
 
-    fun config(spec: TaskConfigSpec<C>)
+    fun config(spec: TaskConfigSpec)
 
     fun config(ref: TaskConfigRef)
 
@@ -400,25 +316,25 @@ interface TaskBuilder<out C> {
 
     fun output_mapping(output_mapping: Map<String, String>)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -431,49 +347,35 @@ interface TaskBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: TaskBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskSpec<C2>)
 }
 
 @DslBuilder
-interface AggregateBuilder<out C> {
-    val context: C
-
-    fun <T : Step> aggregate(spec: StepSpec<C, T>)
+interface AggregateBuilder : Builder<AggregateSpec, AggregateBuilder> {
+    fun <T : Step> aggregate(spec: StepSpec<T>)
 
     fun <T : Step> aggregate(ref: StepRef<T>)
 
     fun <T : Step> aggregate(value: T)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -486,49 +388,35 @@ interface AggregateBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: AggregateBuilder<C>.() -> Unit)
-
-    fun include(spec: AggregateSpec<C>)
-
-    fun <C2> include(context: C2, body: AggregateBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: AggregateSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: AggregateBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: AggregateSpec<C2>)
 }
 
 @DslBuilder
-interface DoBuilder<out C> {
-    val context: C
-
-    fun <T : Step> `do`(spec: StepSpec<C, T>)
+interface DoBuilder : Builder<DoSpec, DoBuilder> {
+    fun <T : Step> `do`(spec: StepSpec<T>)
 
     fun <T : Step> `do`(ref: StepRef<T>)
 
     fun <T : Step> `do`(value: T)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -541,49 +429,35 @@ interface DoBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: DoBuilder<C>.() -> Unit)
-
-    fun include(spec: DoSpec<C>)
-
-    fun <C2> include(context: C2, body: DoBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: DoSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: DoBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: DoSpec<C2>)
 }
 
 @DslBuilder
-interface TryBuilder<out C> {
-    val context: C
-
-    fun <T : Step> `try`(spec: StepSpec<C, T>)
+interface TryBuilder : Builder<TrySpec, TryBuilder> {
+    fun <T : Step> `try`(spec: StepSpec<T>)
 
     fun <T : Step> `try`(ref: StepRef<T>)
 
     fun <T : Step> `try`(value: T)
 
-    fun <T : Step> on_success(spec: StepSpec<C, T>)
+    fun <T : Step> on_success(spec: StepSpec<T>)
 
     fun <T : Step> on_success(ref: StepRef<T>)
 
     fun <T : Step> on_success(value: T)
 
-    fun <T : Step> on_failure(spec: StepSpec<C, T>)
+    fun <T : Step> on_failure(spec: StepSpec<T>)
 
     fun <T : Step> on_failure(ref: StepRef<T>)
 
     fun <T : Step> on_failure(value: T)
 
-    fun <T : Step> on_abort(spec: StepSpec<C, T>)
+    fun <T : Step> on_abort(spec: StepSpec<T>)
 
     fun <T : Step> on_abort(ref: StepRef<T>)
 
     fun <T : Step> on_abort(value: T)
 
-    fun <T : Step> ensure(spec: StepSpec<C, T>)
+    fun <T : Step> ensure(spec: StepSpec<T>)
 
     fun <T : Step> ensure(ref: StepRef<T>)
 
@@ -596,18 +470,6 @@ interface TryBuilder<out C> {
     fun timeout(value: String)
 
     fun attempts(value: Int)
-
-    fun include(body: TryBuilder<C>.() -> Unit)
-
-    fun include(spec: TrySpec<C>)
-
-    fun <C2> include(context: C2, body: TryBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TrySpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TryBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TrySpec<C2>)
 }
 
 sealed class StepRef<T : Step> {
@@ -626,17 +488,15 @@ class DoRef(override val key: String) : StepRef<Do>()
 
 class TryRef(override val key: String) : StepRef<Try>()
 
-class TaskConfigSpec<in C>(internal val body: TaskConfigBuilder<C>.() -> Unit)
+class TaskConfigSpec(override val body: TaskConfigBuilder.() -> Unit) : Spec<TaskConfigBuilder>
 
 @DslBuilder
-interface TaskConfigBuilder<out C> {
-    val context: C
-
+interface TaskConfigBuilder : Builder<TaskConfigSpec, TaskConfigBuilder> {
     fun platform(value: String)
 
-    fun image_resource(body: TaskResourceBuilder<C>.() -> Unit)
+    fun image_resource(body: TaskResourceBuilder.() -> Unit)
 
-    fun image_resource(spec: TaskResourceSpec<C>)
+    fun image_resource(spec: TaskResourceSpec)
 
     fun image_resource(ref: TaskResourceRef)
 
@@ -644,9 +504,9 @@ interface TaskConfigBuilder<out C> {
 
     fun rootfs_uri(value: String)
 
-    fun input(body: TaskInputBuilder<C>.() -> Unit)
+    fun input(body: TaskInputBuilder.() -> Unit)
 
-    fun input(spec: TaskInputSpec<C>)
+    fun input(spec: TaskInputSpec)
 
     fun input(ref: TaskInputRef)
 
@@ -654,9 +514,9 @@ interface TaskConfigBuilder<out C> {
 
     fun inputs(inputs: List<TaskInput>)
 
-    fun output(body: TaskOutputBuilder<C>.() -> Unit)
+    fun output(body: TaskOutputBuilder.() -> Unit)
 
-    fun output(spec: TaskOutputSpec<C>)
+    fun output(spec: TaskOutputSpec)
 
     fun output(ref: TaskOutputRef)
 
@@ -664,9 +524,9 @@ interface TaskConfigBuilder<out C> {
 
     fun outputs(outputs: List<TaskOutput>)
 
-    fun cache(body: TaskCacheBuilder<C>.() -> Unit)
+    fun cache(body: TaskCacheBuilder.() -> Unit)
 
-    fun cache(spec: TaskCacheSpec<C>)
+    fun cache(spec: TaskCacheSpec)
 
     fun cache(ref: TaskCacheRef)
 
@@ -674,9 +534,9 @@ interface TaskConfigBuilder<out C> {
 
     fun caches(caches: List<TaskCache>)
 
-    fun run(body: TaskRunConfigBuilder<C>.() -> Unit)
+    fun run(body: TaskRunConfigBuilder.() -> Unit)
 
-    fun run(spec: TaskRunConfigSpec<C>)
+    fun run(spec: TaskRunConfigSpec)
 
     fun run(ref: TaskRunConfigRef)
 
@@ -687,28 +547,14 @@ interface TaskConfigBuilder<out C> {
     fun params(pair: Pair<String, Any>)
 
     fun params(params: Map<String, Any>)
-
-    fun include(body: TaskConfigBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskConfigSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskConfigBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskConfigSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskConfigBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskConfigSpec<C2>)
 }
 
 class TaskConfigRef(internal val key: String)
 
-class TaskResourceSpec<in C>(internal val body: TaskResourceBuilder<C>.() -> Unit)
+class TaskResourceSpec(override val body: TaskResourceBuilder.() -> Unit) : Spec<TaskResourceBuilder>
 
 @DslBuilder
-interface TaskResourceBuilder<out C> {
-    val context: C
-
+interface TaskResourceBuilder : Builder<TaskResourceSpec, TaskResourceBuilder> {
     fun type(value: String)
 
     fun source(key: String, value: Any)
@@ -728,103 +574,47 @@ interface TaskResourceBuilder<out C> {
     fun version(pair: Pair<String, String>)
 
     fun version(version: Map<String, String>)
-
-    fun include(body: TaskResourceBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskResourceSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskResourceSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskResourceSpec<C2>)
 }
 
 class TaskResourceRef(internal val key: String)
 
-class TaskInputSpec<in C>(internal val body: TaskInputBuilder<C>.() -> Unit)
+class TaskInputSpec(override val body: TaskInputBuilder.() -> Unit) : Spec<TaskInputBuilder>
 
 @DslBuilder
-interface TaskInputBuilder<out C> {
-    val context: C
-
+interface TaskInputBuilder : Builder<TaskInputSpec, TaskInputBuilder> {
     fun name(value: String)
 
     fun path(value: String)
 
     fun optional(value: Boolean)
-
-    fun include(body: TaskInputBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskInputSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskInputBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskInputSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskInputBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskInputSpec<C2>)
 }
 
 class TaskInputRef(internal val key: String)
 
-class TaskOutputSpec<in C>(internal val body: TaskOutputBuilder<C>.() -> Unit)
+class TaskOutputSpec(override val body: TaskOutputBuilder.() -> Unit) : Spec<TaskOutputBuilder>
 
 @DslBuilder
-interface TaskOutputBuilder<out C> {
-    val context: C
-
+interface TaskOutputBuilder : Builder<TaskOutputSpec, TaskOutputBuilder> {
     fun name(value: String)
 
     fun path(value: String)
-
-    fun include(body: TaskOutputBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskOutputSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskOutputBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskOutputSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskOutputBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskOutputSpec<C2>)
 }
 
 class TaskOutputRef(internal val key: String)
 
-class TaskCacheSpec<in C>(internal val body: TaskCacheBuilder<C>.() -> Unit)
+class TaskCacheSpec(override val body: TaskCacheBuilder.() -> Unit) : Spec<TaskCacheBuilder>
 
 @DslBuilder
-interface TaskCacheBuilder<out C> {
-    val context: C
-
+interface TaskCacheBuilder : Builder<TaskCacheSpec, TaskCacheBuilder> {
     fun path(value: String)
-
-    fun include(body: TaskCacheBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskCacheSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskCacheBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskCacheSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskCacheBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskCacheSpec<C2>)
 }
 
 class TaskCacheRef(internal val key: String)
 
-class TaskRunConfigSpec<in C>(internal val body: TaskRunConfigBuilder<C>.() -> Unit)
+class TaskRunConfigSpec(override val body: TaskRunConfigBuilder.() -> Unit) : Spec<TaskRunConfigBuilder>
 
 @DslBuilder
-interface TaskRunConfigBuilder<out C> {
-    val context: C
-
+interface TaskRunConfigBuilder : Builder<TaskRunConfigSpec, TaskRunConfigBuilder> {
     fun path(value: String)
 
     fun arg(value: String)
@@ -834,28 +624,14 @@ interface TaskRunConfigBuilder<out C> {
     fun dir(value: String)
 
     fun user(value: String)
-
-    fun include(body: TaskRunConfigBuilder<C>.() -> Unit)
-
-    fun include(spec: TaskRunConfigSpec<C>)
-
-    fun <C2> include(context: C2, body: TaskRunConfigBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: TaskRunConfigSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: TaskRunConfigBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: TaskRunConfigSpec<C2>)
 }
 
 class TaskRunConfigRef(internal val key: String)
 
-class ResourceSpec<in C>(internal val body: ResourceBuilder<C>.() -> Unit)
+class ResourceSpec(override val body: ResourceBuilder.() -> Unit) : Spec<ResourceBuilder>
 
 @DslBuilder
-interface ResourceBuilder<out C> {
-    val context: C
-
+interface ResourceBuilder : Builder<ResourceSpec, ResourceBuilder> {
     fun name(value: String)
 
     fun type(value: String)
@@ -873,28 +649,14 @@ interface ResourceBuilder<out C> {
     fun tags(tags: List<String>)
 
     fun webhook_token(value: String)
-
-    fun include(body: ResourceBuilder<C>.() -> Unit)
-
-    fun include(spec: ResourceSpec<C>)
-
-    fun <C2> include(context: C2, body: ResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ResourceSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ResourceBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ResourceSpec<C2>)
 }
 
 class ResourceRef(internal val key: String)
 
-class ResourceTypeSpec<in C>(internal val body: ResourceTypeBuilder<C>.() -> Unit)
+class ResourceTypeSpec(override val body: ResourceTypeBuilder.() -> Unit) : Spec<ResourceTypeBuilder>
 
 @DslBuilder
-interface ResourceTypeBuilder<out C> {
-    val context: C
-
+interface ResourceTypeBuilder : Builder<ResourceTypeSpec, ResourceTypeBuilder> {
     fun name(value: String)
 
     fun type(value: String)
@@ -916,28 +678,14 @@ interface ResourceTypeBuilder<out C> {
     fun tag(value: String)
 
     fun tags(tags: List<String>)
-
-    fun include(body: ResourceTypeBuilder<C>.() -> Unit)
-
-    fun include(spec: ResourceTypeSpec<C>)
-
-    fun <C2> include(context: C2, body: ResourceTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: ResourceTypeSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: ResourceTypeBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: ResourceTypeSpec<C2>)
 }
 
 class ResourceTypeRef(internal val key: String)
 
-class GroupSpec<in C>(internal val body: GroupBuilder<C>.() -> Unit)
+class GroupSpec(override val body: GroupBuilder.() -> Unit) : Spec<GroupBuilder>
 
 @DslBuilder
-interface GroupBuilder<out C> {
-    val context: C
-
+interface GroupBuilder : Builder<GroupSpec, GroupBuilder> {
     fun name(value: String)
 
     fun job(value: String)
@@ -947,18 +695,6 @@ interface GroupBuilder<out C> {
     fun resource(value: String)
 
     fun resources(resources: List<String>)
-
-    fun include(body: GroupBuilder<C>.() -> Unit)
-
-    fun include(spec: GroupSpec<C>)
-
-    fun <C2> include(context: C2, body: GroupBuilder<C2>.() -> Unit)
-
-    fun <C2> include(context: C2, spec: GroupSpec<C2>)
-
-    fun <C2> includeForEach(context: Iterable<C2>, body: GroupBuilder<C2>.() -> Unit)
-
-    fun <C2> includeForEach(context: Iterable<C2>, spec: GroupSpec<C2>)
 }
 
 class GroupRef(internal val key: String)

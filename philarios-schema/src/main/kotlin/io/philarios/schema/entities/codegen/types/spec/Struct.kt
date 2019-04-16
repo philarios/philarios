@@ -14,20 +14,18 @@ internal fun Struct.specTypeSpec(superclass: ClassName? = null) =
         }
 
 private fun Struct.objectSpecTypeSpec(superclass: ClassName?) =
-        TypeSpec.classBuilder(specTypeName.rawType)
-                .addTypeVariable(TypeVariableName("C"))
+        TypeSpec.classBuilder(specClassName)
                 .runIfNotNull(superclass) {
-                    superclass(ParameterizedTypeName.get(it, TypeVariableName("C"), className))
+                    superclass(ParameterizedTypeName.get(it, className))
                 }
                 .build()
 
 private fun Struct.dataClassSpecTypeSpec(superclass: ClassName?) =
-        TypeSpec.classBuilder(specTypeName.rawType)
-                .addTypeVariable(TypeVariableName("C"))
+        TypeSpec.classBuilder(specClassName)
                 .runIfNotNull(superclass) {
-                    superclass(ParameterizedTypeName.get(it, TypeVariableName("C"), className))
+                    superclass(ParameterizedTypeName.get(it, className))
                 }
-                .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, builderTypeName))
+                .addSuperinterface(ParameterizedTypeName.get(Spec::class.className, builderClassName))
                 .addProperty(PropertySpec
                         .builder("body", bodyLambdaTypeName)
                         .addModifiers(KModifier.OVERRIDE)

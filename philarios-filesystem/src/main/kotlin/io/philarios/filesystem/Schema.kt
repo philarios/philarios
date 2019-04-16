@@ -2,7 +2,7 @@ package io.philarios.filesystem
 
 import io.philarios.schema.*
 
-val fileSystemSchema = SchemaSpec<Any?> {
+val fileSystemSchema = SchemaSpec {
     name("FileSystem")
     pkg("io.philarios.filesystem")
 

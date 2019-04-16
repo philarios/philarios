@@ -15,11 +15,9 @@ internal val Union.scaffolderTypeSpecs
 private val Union.superclassScaffolderTypeSpec
     get() =
         TypeSpec.classBuilder(scaffolderClassName)
-                .addTypeVariable(TypeVariableName("C", KModifier.IN))
                 .addTypeVariable(TypeVariableName("T", KModifier.OUT).withBounds(className))
                 .addSuperinterface(ParameterizedTypeName.get(
                         Scaffolder::class.className,
-                        TypeVariableName("C"),
                         TypeVariableName("T")
                 ))
                 .addProperty(PropertySpec
@@ -32,14 +30,13 @@ private val Union.superclassScaffolderTypeSpec
                         .build())
                 .addFunction(FunSpec.builder("createScaffold")
                         .addModifiers(KModifier.OVERRIDE)
-                        .addParameter(contextParameterSpec)
                         .returns(ParameterizedTypeName.get(Scaffold::class.className, TypeVariableName("T")))
                         .addStatements(
                                 listOf(
                                         listOf(Statement("val result = when (spec) {")),
                                         shapes.map {
                                             Statement(
-                                                    "%>is %T -> %T(spec).createScaffold(context)%<",
+                                                    "%>is %T -> %T(spec).createScaffold()%<",
                                                     listOf(it.specTypeName, it.scaffolderClassName)
                                             )
                                         },

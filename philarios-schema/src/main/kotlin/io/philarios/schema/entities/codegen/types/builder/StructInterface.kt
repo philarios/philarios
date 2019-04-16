@@ -3,7 +3,6 @@ package io.philarios.schema.entities.codegen.types.builder
 import com.squareup.kotlinpoet.*
 import io.philarios.core.Builder
 import io.philarios.core.DslBuilder
-import io.philarios.core.Spec
 import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
@@ -11,15 +10,10 @@ import io.philarios.schema.entities.codegen.util.*
 internal val builderInterfaceTypeSpecs = createTypeBuilderTypeSpec(Struct::builderInterfaceTypeSpec)
 
 private fun Struct.builderInterfaceTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
-    return TypeSpec.interfaceBuilder(builderTypeName.rawType)
-            .addSuperinterface(ParameterizedTypeName.get(Builder::class.className, specTypeName, builderTypeName))
+    return TypeSpec.interfaceBuilder(builderClassName)
+            .addSuperinterface(ParameterizedTypeName.get(Builder::class.className, specTypeName, builderClassName))
             .addAnnotation(DslBuilder::class.className)
-            .addTypeVariable(TypeVariableName("C"))
-            .addProperty(PropertySpec
-                    .builder("context", TypeVariableName("C"))
-                    .build())
             .addFunctions(parameterFunctions.map { it.parameterFunSpec })
-            .addFunctions(includeFunctions)
             .build()
 }
 
@@ -294,63 +288,3 @@ private val ParameterFunction.AddPutAllParameterFunctionWithWrapper.parameterFun
                 .addParameter(ParameterSpec.builder(name, typeName).build())
                 .build()
     }
-
-private val Struct.includeFunctions
-    get() = listOf(
-            includeFunctionWithBody,
-            includeFunctionWithSpec,
-            includeFunctionWithContextAndBody,
-            includeFunctionWithContextAndSpec,
-            includeForEachFunctionWithBody,
-            includeForEachFunctionWithSpec
-    )
-
-private val Struct.includeFunctionWithBody
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.ABSTRACT)
-                .addParameter(bodyParameterSpec)
-                .build()
-
-private val Struct.includeFunctionWithSpec
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.ABSTRACT)
-                .addParameter(specParameterSpec)
-                .build()
-
-private val Struct.includeFunctionWithContextAndBody
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.ABSTRACT)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .addParameter(otherBodyParameterSpec)
-                .build()
-
-private val Struct.includeFunctionWithContextAndSpec
-    get() =
-        FunSpec.builder("include")
-                .addModifiers(KModifier.ABSTRACT)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextParameterSpec)
-                .addParameter(otherSpecParameterSpec)
-                .build()
-
-private val Struct.includeForEachFunctionWithBody
-    get() =
-        FunSpec.builder("includeForEach")
-                .addModifiers(KModifier.ABSTRACT)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextIterableParameterSpec)
-                .addParameter(otherBodyParameterSpec)
-                .build()
-
-private val Struct.includeForEachFunctionWithSpec
-    get() =
-        FunSpec.builder("includeForEach")
-                .addModifiers(KModifier.ABSTRACT)
-                .addTypeVariable(TypeVariableName("C2"))
-                .addParameter(otherContextIterableParameterSpec)
-                .addParameter(otherSpecParameterSpec)
-                .build()

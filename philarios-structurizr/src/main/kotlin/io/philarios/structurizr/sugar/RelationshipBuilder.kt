@@ -3,14 +3,14 @@ package io.philarios.structurizr.sugar
 import io.philarios.structurizr.InteractionStyle
 import io.philarios.structurizr.RelationshipBuilder
 
-fun <C, T : Any> RelationshipBuilder<C>.destinationId(id: T) {
+fun <T : Any> RelationshipBuilder.destinationId(id: T) {
     destinationId(id.hierarchicalId())
 }
 
-fun <C> RelationshipBuilder<C>.synchronous() {
+fun  RelationshipBuilder.synchronous() {
     interactionStyle(InteractionStyle.Synchronous)
 }
 
-fun <C> RelationshipBuilder<C>.asynchronous() {
+fun  RelationshipBuilder.asynchronous() {
     interactionStyle(InteractionStyle.Asynchronous)
 }

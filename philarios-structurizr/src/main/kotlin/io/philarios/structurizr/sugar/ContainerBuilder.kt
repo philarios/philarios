@@ -4,18 +4,18 @@ import io.philarios.structurizr.ComponentBuilder
 import io.philarios.structurizr.ContainerBuilder
 import io.philarios.structurizr.RelationshipBuilder
 
-fun <C, T : Any> ContainerBuilder<C>.id(id: T) {
+fun <T : Any> ContainerBuilder.id(id: T) {
     id(id.hierarchicalId())
 }
 
-fun <C, T : Any> ContainerBuilder<C>.component(id: T, body: ComponentBuilder<C>.() -> Unit = {}) {
+fun <T : Any> ContainerBuilder.component(id: T, body: ComponentBuilder.() -> Unit = {}) {
     component {
         id(id)
         apply(body)
     }
 }
 
-fun <C, T : Any> ContainerBuilder<C>.relationship(destinationId: T, body: RelationshipBuilder<C>.() -> Unit = {}) {
+fun <T : Any> ContainerBuilder.relationship(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
     relationship {
         destinationId(destinationId)
         apply(body)

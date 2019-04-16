@@ -13,13 +13,14 @@ fun <C> contextOf(value: C): Context<C> = ValueContext(value)
 
 internal class ValueContext<out C>(override val value: C) : Context<C>
 
-suspend fun <C, T : Any> Context<C>.map(
-        scaffolder: Scaffolder<C, T>,
-        registry: Registry = emptyRegistry()
+// TODO this is not staying like this (probably)
+suspend fun <C, T : Any> Context<C>.mapScaffolder(
+        registry: Registry = emptyRegistry(),
+        scaffolder: (C) -> Scaffolder<T>
 ): Context<T> {
     return contextOf(value.let {
-        scaffolder
-                .createScaffold(it)
+        scaffolder(it)
+                .createScaffold()
                 .resolve(registry)
     })
 }

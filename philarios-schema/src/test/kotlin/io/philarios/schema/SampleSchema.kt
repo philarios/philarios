@@ -1,17 +1,17 @@
 package io.philarios.schema
 
-val sampleSpec = SchemaSpec<Any?> {
+val sampleSpec = SchemaSpec {
     pkg("io.philarios.schema")
     name("Sample")
 
     struct("Empty")
 
-    include(primitivesSpecs)
-    include(containerSpecs)
-    include(mixedSpecs)
+    +primitivesSpecs
+    +containerSpecs
+    +mixedSpecs
 }
 
-val primitivesSpecs = SchemaSpec<Any?> {
+val primitivesSpecs = SchemaSpec {
     struct("BooleanValue") {
         field("value") {
             type(BooleanType)
@@ -64,7 +64,7 @@ val primitivesSpecs = SchemaSpec<Any?> {
     }
 }
 
-val containerSpecs = SchemaSpec<Any?> {
+val containerSpecs = SchemaSpec {
     struct("OptionValue") {
         field("value") {
             type(OptionTypeSpec {
@@ -89,7 +89,7 @@ val containerSpecs = SchemaSpec<Any?> {
     }
 }
 
-val mixedSpecs = SchemaSpec<Any?> {
+val mixedSpecs = SchemaSpec {
     struct("Simple") {
         field("value") {
             type(StringType)

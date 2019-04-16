@@ -3,7 +3,7 @@ package io.philarios.structurizr
 import io.philarios.structurizr.sugar.*
 import io.philarios.structurizr.usecases.putWorkspaceSpec
 
-val workspace = WorkspaceSpec<Any?> {
+val workspace = WorkspaceSpec {
     name("Test")
     description("This is a test workspace")
 
@@ -44,7 +44,7 @@ val workspace = WorkspaceSpec<Any?> {
     }
 }
 
-private fun ModelBuilder<Any?>.people() {
+private fun ModelBuilder.people() {
     person(PersonId.ADMIN) {
         name("Admin")
         description("An admin user of the system")
@@ -67,7 +67,7 @@ private fun ModelBuilder<Any?>.people() {
     }
 }
 
-private fun ModelBuilder<Any?>.indexingSoftwareSystem() {
+private fun ModelBuilder.indexingSoftwareSystem() {
     softwareSystem(IndexingId.ROOT) {
         name("Indexing")
         description("Indexes the todo list for machine learning magic")
@@ -81,7 +81,7 @@ private fun ModelBuilder<Any?>.indexingSoftwareSystem() {
     }
 }
 
-private fun ModelBuilder<Any?>.todoSoftwareSystem() {
+private fun ModelBuilder.todoSoftwareSystem() {
     softwareSystem {
         id(TodoId.ROOT)
         name("Todo App")
@@ -140,7 +140,7 @@ private fun ModelBuilder<Any?>.todoSoftwareSystem() {
     }
 }
 
-private fun ViewSetBuilder<Any?>.landscapeView() {
+private fun ViewSetBuilder.landscapeView() {
     systemLandscapeView {
         id(SYSTEM)
         description("Shows entire software landscape of the todo system")
@@ -152,7 +152,7 @@ private fun ViewSetBuilder<Any?>.landscapeView() {
     }
 }
 
-private fun ViewSetBuilder<Any?>.todoViews() {
+private fun ViewSetBuilder.todoViews() {
     systemContextView {
         id(TodoId.ROOT)
         description("Shows the context of the todo system")

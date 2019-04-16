@@ -3,8 +3,8 @@ package io.philarios.core
 import io.philarios.util.registry.Registry
 import kotlin.reflect.KClass
 
-interface Scaffolder<in C, out T : Any> {
-    fun createScaffold(context: C): Scaffold<T>
+interface Scaffolder<out T : Any> {
+    fun createScaffold(): Scaffold<T>
 }
 
 interface Scaffold<out T : Any> {

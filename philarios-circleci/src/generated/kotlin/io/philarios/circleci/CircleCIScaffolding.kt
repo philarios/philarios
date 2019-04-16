@@ -17,32 +17,31 @@ import kotlin.Boolean
 import kotlin.Int
 import kotlin.Pair
 import kotlin.String
-import kotlin.collections.Iterable
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class CircleCIScaffolder<in C>(internal val spec: CircleCISpec<C>) : Scaffolder<C, CircleCI> {
-    override fun createScaffold(context: C): Scaffold<CircleCI> {
-        val builder = CircleCIShellBuilder<C>(context)
+class CircleCIScaffolder(internal val spec: CircleCISpec) : Scaffolder<CircleCI> {
+    override fun createScaffold(): Scaffold<CircleCI> {
+        val builder = CircleCIShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class CircleCIShellBuilder<out C>(override val context: C, internal var shell: CircleCIShell = CircleCIShell()) : CircleCIBuilder<C> {
+internal class CircleCIShellBuilder(internal var shell: CircleCIShell = CircleCIShell()) : CircleCIBuilder {
     override fun version(value: String) {
         shell = shell.copy(version = Wrapper(value))
     }
 
-    override fun jobs(key: String, body: JobBuilder<C>.() -> Unit) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + Pair(Wrapper(key),JobScaffolder<C>(JobSpec<C>(body)).createScaffold(context)))
+    override fun jobs(key: String, body: JobBuilder.() -> Unit) {
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + Pair(Wrapper(key),JobScaffolder(JobSpec(body)).createScaffold()))
     }
 
-    override fun jobs(key: String, spec: JobSpec<C>) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + Pair(Wrapper(key),JobScaffolder<C>(spec).createScaffold(context)))
+    override fun jobs(key: String, spec: JobSpec) {
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + Pair(Wrapper(key),JobScaffolder(spec).createScaffold()))
     }
 
     override fun jobs(key: String, ref: JobRef) {
@@ -53,12 +52,12 @@ internal class CircleCIShellBuilder<out C>(override val context: C, internal var
         shell = shell.copy(jobs = shell.jobs.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
     }
 
-    override fun workflows(key: String, body: WorkflowBuilder<C>.() -> Unit) {
-        shell = shell.copy(workflows = shell.workflows.orEmpty() + Pair(Wrapper(key),WorkflowScaffolder<C>(WorkflowSpec<C>(body)).createScaffold(context)))
+    override fun workflows(key: String, body: WorkflowBuilder.() -> Unit) {
+        shell = shell.copy(workflows = shell.workflows.orEmpty() + Pair(Wrapper(key),WorkflowScaffolder(WorkflowSpec(body)).createScaffold()))
     }
 
-    override fun workflows(key: String, spec: WorkflowSpec<C>) {
-        shell = shell.copy(workflows = shell.workflows.orEmpty() + Pair(Wrapper(key),WorkflowScaffolder<C>(spec).createScaffold(context)))
+    override fun workflows(key: String, spec: WorkflowSpec) {
+        shell = shell.copy(workflows = shell.workflows.orEmpty() + Pair(Wrapper(key),WorkflowScaffolder(spec).createScaffold()))
     }
 
     override fun workflows(key: String, ref: WorkflowRef) {
@@ -67,40 +66,6 @@ internal class CircleCIShellBuilder<out C>(override val context: C, internal var
 
     override fun workflows(key: String, value: Workflow) {
         shell = shell.copy(workflows = shell.workflows.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
-    }
-
-    override fun include(body: CircleCIBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: CircleCISpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: CircleCIBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: CircleCISpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: CircleCIBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: CircleCISpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): CircleCIShellBuilder<C2> = CircleCIShellBuilder(context, shell)
-
-    private fun <C2> merge(other: CircleCIShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -123,22 +88,22 @@ internal data class CircleCIShell(
     }
 }
 
-class JobScaffolder<in C>(internal val spec: JobSpec<C>) : Scaffolder<C, Job> {
-    override fun createScaffold(context: C): Scaffold<Job> {
-        val builder = JobShellBuilder<C>(context)
+class JobScaffolder(internal val spec: JobSpec) : Scaffolder<Job> {
+    override fun createScaffold(): Scaffold<Job> {
+        val builder = JobShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class JobShellBuilder<out C>(override val context: C, internal var shell: JobShell = JobShell()) : JobBuilder<C> {
-    override fun docker(body: DockerExecutorBuilder<C>.() -> Unit) {
-        shell = shell.copy(docker = shell.docker.orEmpty() + DockerExecutorScaffolder<C>(DockerExecutorSpec<C>(body)).createScaffold(context))
+internal class JobShellBuilder(internal var shell: JobShell = JobShell()) : JobBuilder {
+    override fun docker(body: DockerExecutorBuilder.() -> Unit) {
+        shell = shell.copy(docker = shell.docker.orEmpty() + DockerExecutorScaffolder(DockerExecutorSpec(body)).createScaffold())
     }
 
-    override fun docker(spec: DockerExecutorSpec<C>) {
-        shell = shell.copy(docker = shell.docker.orEmpty() + DockerExecutorScaffolder<C>(spec).createScaffold(context))
+    override fun docker(spec: DockerExecutorSpec) {
+        shell = shell.copy(docker = shell.docker.orEmpty() + DockerExecutorScaffolder(spec).createScaffold())
     }
 
     override fun docker(ref: DockerExecutorRef) {
@@ -157,12 +122,12 @@ internal class JobShellBuilder<out C>(override val context: C, internal var shel
         shell = shell.copy(resource_class = Wrapper(value))
     }
 
-    override fun machine(body: MachineExecutorBuilder<C>.() -> Unit) {
-        shell = shell.copy(machine = MachineExecutorScaffolder<C>(MachineExecutorSpec<C>(body)).createScaffold(context))
+    override fun machine(body: MachineExecutorBuilder.() -> Unit) {
+        shell = shell.copy(machine = MachineExecutorScaffolder(MachineExecutorSpec(body)).createScaffold())
     }
 
-    override fun machine(spec: MachineExecutorSpec<C>) {
-        shell = shell.copy(machine = MachineExecutorScaffolder<C>(spec).createScaffold(context))
+    override fun machine(spec: MachineExecutorSpec) {
+        shell = shell.copy(machine = MachineExecutorScaffolder(spec).createScaffold())
     }
 
     override fun machine(ref: MachineExecutorRef) {
@@ -173,12 +138,12 @@ internal class JobShellBuilder<out C>(override val context: C, internal var shel
         shell = shell.copy(machine = Wrapper(value))
     }
 
-    override fun macos(body: MacosExecutorBuilder<C>.() -> Unit) {
-        shell = shell.copy(macos = MacosExecutorScaffolder<C>(MacosExecutorSpec<C>(body)).createScaffold(context))
+    override fun macos(body: MacosExecutorBuilder.() -> Unit) {
+        shell = shell.copy(macos = MacosExecutorScaffolder(MacosExecutorSpec(body)).createScaffold())
     }
 
-    override fun macos(spec: MacosExecutorSpec<C>) {
-        shell = shell.copy(macos = MacosExecutorScaffolder<C>(spec).createScaffold(context))
+    override fun macos(spec: MacosExecutorSpec) {
+        shell = shell.copy(macos = MacosExecutorScaffolder(spec).createScaffold())
     }
 
     override fun macos(ref: MacosExecutorRef) {
@@ -193,8 +158,8 @@ internal class JobShellBuilder<out C>(override val context: C, internal var shel
         shell = shell.copy(shell = Wrapper(value))
     }
 
-    override fun <T : Step> step(spec: StepSpec<C, T>) {
-        shell = shell.copy(steps = shell.steps.orEmpty() + StepScaffolder<C, Step>(spec).createScaffold(context))
+    override fun <T : Step> step(spec: StepSpec<T>) {
+        shell = shell.copy(steps = shell.steps.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> step(ref: StepRef<T>) {
@@ -236,40 +201,6 @@ internal class JobShellBuilder<out C>(override val context: C, internal var shel
     override fun branches(branches: Map<String, String>) {
         shell = shell.copy(branches = shell.branches.orEmpty() + branches.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
-
-    override fun include(body: JobBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: JobSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: JobBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: JobSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: JobBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: JobSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): JobShellBuilder<C2> = JobShellBuilder(context, shell)
-
-    private fun <C2> merge(other: JobShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 internal data class JobShell(
@@ -307,16 +238,16 @@ internal data class JobShell(
     }
 }
 
-class DockerExecutorScaffolder<in C>(internal val spec: DockerExecutorSpec<C>) : Scaffolder<C, DockerExecutor> {
-    override fun createScaffold(context: C): Scaffold<DockerExecutor> {
-        val builder = DockerExecutorShellBuilder<C>(context)
+class DockerExecutorScaffolder(internal val spec: DockerExecutorSpec) : Scaffolder<DockerExecutor> {
+    override fun createScaffold(): Scaffold<DockerExecutor> {
+        val builder = DockerExecutorShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class DockerExecutorShellBuilder<out C>(override val context: C, internal var shell: DockerExecutorShell = DockerExecutorShell()) : DockerExecutorBuilder<C> {
+internal class DockerExecutorShellBuilder(internal var shell: DockerExecutorShell = DockerExecutorShell()) : DockerExecutorBuilder {
     override fun image(value: String) {
         shell = shell.copy(image = Wrapper(value))
     }
@@ -353,12 +284,12 @@ internal class DockerExecutorShellBuilder<out C>(override val context: C, intern
         shell = shell.copy(environment = shell.environment.orEmpty() + environment.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
     }
 
-    override fun auth(body: AuthBuilder<C>.() -> Unit) {
-        shell = shell.copy(auth = AuthScaffolder<C>(AuthSpec<C>(body)).createScaffold(context))
+    override fun auth(body: AuthBuilder.() -> Unit) {
+        shell = shell.copy(auth = AuthScaffolder(AuthSpec(body)).createScaffold())
     }
 
-    override fun auth(spec: AuthSpec<C>) {
-        shell = shell.copy(auth = AuthScaffolder<C>(spec).createScaffold(context))
+    override fun auth(spec: AuthSpec) {
+        shell = shell.copy(auth = AuthScaffolder(spec).createScaffold())
     }
 
     override fun auth(ref: AuthRef) {
@@ -369,12 +300,12 @@ internal class DockerExecutorShellBuilder<out C>(override val context: C, intern
         shell = shell.copy(auth = Wrapper(value))
     }
 
-    override fun aws_auth(body: AwsAuthBuilder<C>.() -> Unit) {
-        shell = shell.copy(aws_auth = AwsAuthScaffolder<C>(AwsAuthSpec<C>(body)).createScaffold(context))
+    override fun aws_auth(body: AwsAuthBuilder.() -> Unit) {
+        shell = shell.copy(aws_auth = AwsAuthScaffolder(AwsAuthSpec(body)).createScaffold())
     }
 
-    override fun aws_auth(spec: AwsAuthSpec<C>) {
-        shell = shell.copy(aws_auth = AwsAuthScaffolder<C>(spec).createScaffold(context))
+    override fun aws_auth(spec: AwsAuthSpec) {
+        shell = shell.copy(aws_auth = AwsAuthScaffolder(spec).createScaffold())
     }
 
     override fun aws_auth(ref: AwsAuthRef) {
@@ -383,40 +314,6 @@ internal class DockerExecutorShellBuilder<out C>(override val context: C, intern
 
     override fun aws_auth(value: AwsAuth) {
         shell = shell.copy(aws_auth = Wrapper(value))
-    }
-
-    override fun include(body: DockerExecutorBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: DockerExecutorSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: DockerExecutorBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: DockerExecutorSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: DockerExecutorBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: DockerExecutorSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): DockerExecutorShellBuilder<C2> = DockerExecutorShellBuilder(context, shell)
-
-    private fun <C2> merge(other: DockerExecutorShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -447,56 +344,22 @@ internal data class DockerExecutorShell(
     }
 }
 
-class AuthScaffolder<in C>(internal val spec: AuthSpec<C>) : Scaffolder<C, Auth> {
-    override fun createScaffold(context: C): Scaffold<Auth> {
-        val builder = AuthShellBuilder<C>(context)
+class AuthScaffolder(internal val spec: AuthSpec) : Scaffolder<Auth> {
+    override fun createScaffold(): Scaffold<Auth> {
+        val builder = AuthShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class AuthShellBuilder<out C>(override val context: C, internal var shell: AuthShell = AuthShell()) : AuthBuilder<C> {
+internal class AuthShellBuilder(internal var shell: AuthShell = AuthShell()) : AuthBuilder {
     override fun username(value: String) {
         shell = shell.copy(username = Wrapper(value))
     }
 
     override fun password(value: String) {
         shell = shell.copy(password = Wrapper(value))
-    }
-
-    override fun include(body: AuthBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AuthSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AuthBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AuthSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AuthBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AuthSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AuthShellBuilder<C2> = AuthShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AuthShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -510,56 +373,22 @@ internal data class AuthShell(var username: Scaffold<String>? = null, var passwo
     }
 }
 
-class AwsAuthScaffolder<in C>(internal val spec: AwsAuthSpec<C>) : Scaffolder<C, AwsAuth> {
-    override fun createScaffold(context: C): Scaffold<AwsAuth> {
-        val builder = AwsAuthShellBuilder<C>(context)
+class AwsAuthScaffolder(internal val spec: AwsAuthSpec) : Scaffolder<AwsAuth> {
+    override fun createScaffold(): Scaffold<AwsAuth> {
+        val builder = AwsAuthShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class AwsAuthShellBuilder<out C>(override val context: C, internal var shell: AwsAuthShell = AwsAuthShell()) : AwsAuthBuilder<C> {
+internal class AwsAuthShellBuilder(internal var shell: AwsAuthShell = AwsAuthShell()) : AwsAuthBuilder {
     override fun aws_access_key_id(value: String) {
         shell = shell.copy(aws_access_key_id = Wrapper(value))
     }
 
     override fun aws_secret_access_key(value: String) {
         shell = shell.copy(aws_secret_access_key = Wrapper(value))
-    }
-
-    override fun include(body: AwsAuthBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AwsAuthSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AwsAuthBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AwsAuthSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AwsAuthBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AwsAuthSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AwsAuthShellBuilder<C2> = AwsAuthShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AwsAuthShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -573,56 +402,22 @@ internal data class AwsAuthShell(var aws_access_key_id: Scaffold<String>? = null
     }
 }
 
-class MachineExecutorScaffolder<in C>(internal val spec: MachineExecutorSpec<C>) : Scaffolder<C, MachineExecutor> {
-    override fun createScaffold(context: C): Scaffold<MachineExecutor> {
-        val builder = MachineExecutorShellBuilder<C>(context)
+class MachineExecutorScaffolder(internal val spec: MachineExecutorSpec) : Scaffolder<MachineExecutor> {
+    override fun createScaffold(): Scaffold<MachineExecutor> {
+        val builder = MachineExecutorShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class MachineExecutorShellBuilder<out C>(override val context: C, internal var shell: MachineExecutorShell = MachineExecutorShell()) : MachineExecutorBuilder<C> {
+internal class MachineExecutorShellBuilder(internal var shell: MachineExecutorShell = MachineExecutorShell()) : MachineExecutorBuilder {
     override fun enabled(value: Boolean) {
         shell = shell.copy(enabled = Wrapper(value))
     }
 
     override fun image(value: String) {
         shell = shell.copy(image = Wrapper(value))
-    }
-
-    override fun include(body: MachineExecutorBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: MachineExecutorSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: MachineExecutorBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: MachineExecutorSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: MachineExecutorBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: MachineExecutorSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): MachineExecutorShellBuilder<C2> = MachineExecutorShellBuilder(context, shell)
-
-    private fun <C2> merge(other: MachineExecutorShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -636,52 +431,18 @@ internal data class MachineExecutorShell(var enabled: Scaffold<Boolean>? = null,
     }
 }
 
-class MacosExecutorScaffolder<in C>(internal val spec: MacosExecutorSpec<C>) : Scaffolder<C, MacosExecutor> {
-    override fun createScaffold(context: C): Scaffold<MacosExecutor> {
-        val builder = MacosExecutorShellBuilder<C>(context)
+class MacosExecutorScaffolder(internal val spec: MacosExecutorSpec) : Scaffolder<MacosExecutor> {
+    override fun createScaffold(): Scaffold<MacosExecutor> {
+        val builder = MacosExecutorShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class MacosExecutorShellBuilder<out C>(override val context: C, internal var shell: MacosExecutorShell = MacosExecutorShell()) : MacosExecutorBuilder<C> {
+internal class MacosExecutorShellBuilder(internal var shell: MacosExecutorShell = MacosExecutorShell()) : MacosExecutorBuilder {
     override fun xcode(value: String) {
         shell = shell.copy(xcode = Wrapper(value))
-    }
-
-    override fun include(body: MacosExecutorBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: MacosExecutorSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: MacosExecutorBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: MacosExecutorSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: MacosExecutorBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: MacosExecutorSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): MacosExecutorShellBuilder<C2> = MacosExecutorShellBuilder(context, shell)
-
-    private fun <C2> merge(other: MacosExecutorShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -694,121 +455,121 @@ internal data class MacosExecutorShell(var xcode: Scaffold<String>? = null) : Sc
     }
 }
 
-class StepScaffolder<in C, out T : Step>(internal val spec: StepSpec<C, T>) : Scaffolder<C, T> {
-    override fun createScaffold(context: C): Scaffold<T> {
+class StepScaffolder<out T : Step>(internal val spec: StepSpec<T>) : Scaffolder<T> {
+    override fun createScaffold(): Scaffold<T> {
         val result = when (spec) {
-            is RunStepSpec<C> -> RunStepScaffolder(spec).createScaffold(context)
-            is CheckoutStepSpec<C> -> CheckoutStepScaffolder(spec).createScaffold(context)
-            is SetupRemoteDockerStepSpec<C> -> SetupRemoteDockerStepScaffolder(spec).createScaffold(context)
-            is SaveCacheStepSpec<C> -> SaveCacheStepScaffolder(spec).createScaffold(context)
-            is RestoreCacheStepSpec<C> -> RestoreCacheStepScaffolder(spec).createScaffold(context)
-            is DeployStepSpec<C> -> DeployStepScaffolder(spec).createScaffold(context)
-            is StoreArtifactsStepSpec<C> -> StoreArtifactsStepScaffolder(spec).createScaffold(context)
-            is StoreTestResultsStepSpec<C> -> StoreTestResultsStepScaffolder(spec).createScaffold(context)
-            is PersistToWorkspaceStepSpec<C> -> PersistToWorkspaceStepScaffolder(spec).createScaffold(context)
-            is AttachWorkspaceStepSpec<C> -> AttachWorkspaceStepScaffolder(spec).createScaffold(context)
-            is AddSshKeysStepSpec<C> -> AddSshKeysStepScaffolder(spec).createScaffold(context)
+            is RunStepSpec -> RunStepScaffolder(spec).createScaffold()
+            is CheckoutStepSpec -> CheckoutStepScaffolder(spec).createScaffold()
+            is SetupRemoteDockerStepSpec -> SetupRemoteDockerStepScaffolder(spec).createScaffold()
+            is SaveCacheStepSpec -> SaveCacheStepScaffolder(spec).createScaffold()
+            is RestoreCacheStepSpec -> RestoreCacheStepScaffolder(spec).createScaffold()
+            is DeployStepSpec -> DeployStepScaffolder(spec).createScaffold()
+            is StoreArtifactsStepSpec -> StoreArtifactsStepScaffolder(spec).createScaffold()
+            is StoreTestResultsStepSpec -> StoreTestResultsStepScaffolder(spec).createScaffold()
+            is PersistToWorkspaceStepSpec -> PersistToWorkspaceStepScaffolder(spec).createScaffold()
+            is AttachWorkspaceStepSpec -> AttachWorkspaceStepScaffolder(spec).createScaffold()
+            is AddSshKeysStepSpec -> AddSshKeysStepScaffolder(spec).createScaffold()
         }
         return result as Scaffold<T>
     }
 }
 
-class RunStepScaffolder<in C>(internal val spec: RunStepSpec<C>) : Scaffolder<C, RunStep> {
-    override fun createScaffold(context: C): Scaffold<RunStep> {
-        val builder = RunStepShellBuilder<C>(context)
+class RunStepScaffolder(internal val spec: RunStepSpec) : Scaffolder<RunStep> {
+    override fun createScaffold(): Scaffold<RunStep> {
+        val builder = RunStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class CheckoutStepScaffolder<in C>(internal val spec: CheckoutStepSpec<C>) : Scaffolder<C, CheckoutStep> {
-    override fun createScaffold(context: C): Scaffold<CheckoutStep> {
-        val builder = CheckoutStepShellBuilder<C>(context)
+class CheckoutStepScaffolder(internal val spec: CheckoutStepSpec) : Scaffolder<CheckoutStep> {
+    override fun createScaffold(): Scaffold<CheckoutStep> {
+        val builder = CheckoutStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class SetupRemoteDockerStepScaffolder<in C>(internal val spec: SetupRemoteDockerStepSpec<C>) : Scaffolder<C, SetupRemoteDockerStep> {
-    override fun createScaffold(context: C): Scaffold<SetupRemoteDockerStep> {
-        val builder = SetupRemoteDockerStepShellBuilder<C>(context)
+class SetupRemoteDockerStepScaffolder(internal val spec: SetupRemoteDockerStepSpec) : Scaffolder<SetupRemoteDockerStep> {
+    override fun createScaffold(): Scaffold<SetupRemoteDockerStep> {
+        val builder = SetupRemoteDockerStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class SaveCacheStepScaffolder<in C>(internal val spec: SaveCacheStepSpec<C>) : Scaffolder<C, SaveCacheStep> {
-    override fun createScaffold(context: C): Scaffold<SaveCacheStep> {
-        val builder = SaveCacheStepShellBuilder<C>(context)
+class SaveCacheStepScaffolder(internal val spec: SaveCacheStepSpec) : Scaffolder<SaveCacheStep> {
+    override fun createScaffold(): Scaffold<SaveCacheStep> {
+        val builder = SaveCacheStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class RestoreCacheStepScaffolder<in C>(internal val spec: RestoreCacheStepSpec<C>) : Scaffolder<C, RestoreCacheStep> {
-    override fun createScaffold(context: C): Scaffold<RestoreCacheStep> {
-        val builder = RestoreCacheStepShellBuilder<C>(context)
+class RestoreCacheStepScaffolder(internal val spec: RestoreCacheStepSpec) : Scaffolder<RestoreCacheStep> {
+    override fun createScaffold(): Scaffold<RestoreCacheStep> {
+        val builder = RestoreCacheStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class DeployStepScaffolder<in C>(internal val spec: DeployStepSpec<C>) : Scaffolder<C, DeployStep> {
-    override fun createScaffold(context: C): Scaffold<DeployStep> {
-        val builder = DeployStepShellBuilder<C>(context)
+class DeployStepScaffolder(internal val spec: DeployStepSpec) : Scaffolder<DeployStep> {
+    override fun createScaffold(): Scaffold<DeployStep> {
+        val builder = DeployStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class StoreArtifactsStepScaffolder<in C>(internal val spec: StoreArtifactsStepSpec<C>) : Scaffolder<C, StoreArtifactsStep> {
-    override fun createScaffold(context: C): Scaffold<StoreArtifactsStep> {
-        val builder = StoreArtifactsStepShellBuilder<C>(context)
+class StoreArtifactsStepScaffolder(internal val spec: StoreArtifactsStepSpec) : Scaffolder<StoreArtifactsStep> {
+    override fun createScaffold(): Scaffold<StoreArtifactsStep> {
+        val builder = StoreArtifactsStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class StoreTestResultsStepScaffolder<in C>(internal val spec: StoreTestResultsStepSpec<C>) : Scaffolder<C, StoreTestResultsStep> {
-    override fun createScaffold(context: C): Scaffold<StoreTestResultsStep> {
-        val builder = StoreTestResultsStepShellBuilder<C>(context)
+class StoreTestResultsStepScaffolder(internal val spec: StoreTestResultsStepSpec) : Scaffolder<StoreTestResultsStep> {
+    override fun createScaffold(): Scaffold<StoreTestResultsStep> {
+        val builder = StoreTestResultsStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class PersistToWorkspaceStepScaffolder<in C>(internal val spec: PersistToWorkspaceStepSpec<C>) : Scaffolder<C, PersistToWorkspaceStep> {
-    override fun createScaffold(context: C): Scaffold<PersistToWorkspaceStep> {
-        val builder = PersistToWorkspaceStepShellBuilder<C>(context)
+class PersistToWorkspaceStepScaffolder(internal val spec: PersistToWorkspaceStepSpec) : Scaffolder<PersistToWorkspaceStep> {
+    override fun createScaffold(): Scaffold<PersistToWorkspaceStep> {
+        val builder = PersistToWorkspaceStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class AttachWorkspaceStepScaffolder<in C>(internal val spec: AttachWorkspaceStepSpec<C>) : Scaffolder<C, AttachWorkspaceStep> {
-    override fun createScaffold(context: C): Scaffold<AttachWorkspaceStep> {
-        val builder = AttachWorkspaceStepShellBuilder<C>(context)
+class AttachWorkspaceStepScaffolder(internal val spec: AttachWorkspaceStepSpec) : Scaffolder<AttachWorkspaceStep> {
+    override fun createScaffold(): Scaffold<AttachWorkspaceStep> {
+        val builder = AttachWorkspaceStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
-class AddSshKeysStepScaffolder<in C>(internal val spec: AddSshKeysStepSpec<C>) : Scaffolder<C, AddSshKeysStep> {
-    override fun createScaffold(context: C): Scaffold<AddSshKeysStep> {
-        val builder = AddSshKeysStepShellBuilder<C>(context)
+class AddSshKeysStepScaffolder(internal val spec: AddSshKeysStepSpec) : Scaffolder<AddSshKeysStep> {
+    override fun createScaffold(): Scaffold<AddSshKeysStep> {
+        val builder = AddSshKeysStepShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class RunStepShellBuilder<out C>(override val context: C, internal var shell: RunStepShell = RunStepShell()) : RunStepBuilder<C> {
-    override fun run(body: RunBuilder<C>.() -> Unit) {
-        shell = shell.copy(run = RunScaffolder<C>(RunSpec<C>(body)).createScaffold(context))
+internal class RunStepShellBuilder(internal var shell: RunStepShell = RunStepShell()) : RunStepBuilder {
+    override fun run(body: RunBuilder.() -> Unit) {
+        shell = shell.copy(run = RunScaffolder(RunSpec(body)).createScaffold())
     }
 
-    override fun run(spec: RunSpec<C>) {
-        shell = shell.copy(run = RunScaffolder<C>(spec).createScaffold(context))
+    override fun run(spec: RunSpec) {
+        shell = shell.copy(run = RunScaffolder(spec).createScaffold())
     }
 
     override fun run(ref: RunRef) {
@@ -818,50 +579,16 @@ internal class RunStepShellBuilder<out C>(override val context: C, internal var 
     override fun run(value: Run) {
         shell = shell.copy(run = Wrapper(value))
     }
-
-    override fun include(body: RunStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: RunStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: RunStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: RunStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: RunStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: RunStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RunStepShellBuilder<C2> = RunStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: RunStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class CheckoutStepShellBuilder<out C>(override val context: C, internal var shell: CheckoutStepShell = CheckoutStepShell()) : CheckoutStepBuilder<C> {
-    override fun checkout(body: CheckoutBuilder<C>.() -> Unit) {
-        shell = shell.copy(checkout = CheckoutScaffolder<C>(CheckoutSpec<C>(body)).createScaffold(context))
+internal class CheckoutStepShellBuilder(internal var shell: CheckoutStepShell = CheckoutStepShell()) : CheckoutStepBuilder {
+    override fun checkout(body: CheckoutBuilder.() -> Unit) {
+        shell = shell.copy(checkout = CheckoutScaffolder(CheckoutSpec(body)).createScaffold())
     }
 
-    override fun checkout(spec: CheckoutSpec<C>) {
-        shell = shell.copy(checkout = CheckoutScaffolder<C>(spec).createScaffold(context))
+    override fun checkout(spec: CheckoutSpec) {
+        shell = shell.copy(checkout = CheckoutScaffolder(spec).createScaffold())
     }
 
     override fun checkout(ref: CheckoutRef) {
@@ -871,50 +598,16 @@ internal class CheckoutStepShellBuilder<out C>(override val context: C, internal
     override fun checkout(value: Checkout) {
         shell = shell.copy(checkout = Wrapper(value))
     }
-
-    override fun include(body: CheckoutStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: CheckoutStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: CheckoutStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: CheckoutStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: CheckoutStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: CheckoutStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): CheckoutStepShellBuilder<C2> = CheckoutStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: CheckoutStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class SetupRemoteDockerStepShellBuilder<out C>(override val context: C, internal var shell: SetupRemoteDockerStepShell = SetupRemoteDockerStepShell()) : SetupRemoteDockerStepBuilder<C> {
-    override fun setup_remote_docker(body: SetupRemoteDockerBuilder<C>.() -> Unit) {
-        shell = shell.copy(setup_remote_docker = SetupRemoteDockerScaffolder<C>(SetupRemoteDockerSpec<C>(body)).createScaffold(context))
+internal class SetupRemoteDockerStepShellBuilder(internal var shell: SetupRemoteDockerStepShell = SetupRemoteDockerStepShell()) : SetupRemoteDockerStepBuilder {
+    override fun setup_remote_docker(body: SetupRemoteDockerBuilder.() -> Unit) {
+        shell = shell.copy(setup_remote_docker = SetupRemoteDockerScaffolder(SetupRemoteDockerSpec(body)).createScaffold())
     }
 
-    override fun setup_remote_docker(spec: SetupRemoteDockerSpec<C>) {
-        shell = shell.copy(setup_remote_docker = SetupRemoteDockerScaffolder<C>(spec).createScaffold(context))
+    override fun setup_remote_docker(spec: SetupRemoteDockerSpec) {
+        shell = shell.copy(setup_remote_docker = SetupRemoteDockerScaffolder(spec).createScaffold())
     }
 
     override fun setup_remote_docker(ref: SetupRemoteDockerRef) {
@@ -924,50 +617,16 @@ internal class SetupRemoteDockerStepShellBuilder<out C>(override val context: C,
     override fun setup_remote_docker(value: SetupRemoteDocker) {
         shell = shell.copy(setup_remote_docker = Wrapper(value))
     }
-
-    override fun include(body: SetupRemoteDockerStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: SetupRemoteDockerStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: SetupRemoteDockerStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: SetupRemoteDockerStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: SetupRemoteDockerStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: SetupRemoteDockerStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SetupRemoteDockerStepShellBuilder<C2> = SetupRemoteDockerStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: SetupRemoteDockerStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class SaveCacheStepShellBuilder<out C>(override val context: C, internal var shell: SaveCacheStepShell = SaveCacheStepShell()) : SaveCacheStepBuilder<C> {
-    override fun save_cache(body: SaveCacheBuilder<C>.() -> Unit) {
-        shell = shell.copy(save_cache = SaveCacheScaffolder<C>(SaveCacheSpec<C>(body)).createScaffold(context))
+internal class SaveCacheStepShellBuilder(internal var shell: SaveCacheStepShell = SaveCacheStepShell()) : SaveCacheStepBuilder {
+    override fun save_cache(body: SaveCacheBuilder.() -> Unit) {
+        shell = shell.copy(save_cache = SaveCacheScaffolder(SaveCacheSpec(body)).createScaffold())
     }
 
-    override fun save_cache(spec: SaveCacheSpec<C>) {
-        shell = shell.copy(save_cache = SaveCacheScaffolder<C>(spec).createScaffold(context))
+    override fun save_cache(spec: SaveCacheSpec) {
+        shell = shell.copy(save_cache = SaveCacheScaffolder(spec).createScaffold())
     }
 
     override fun save_cache(ref: SaveCacheRef) {
@@ -977,50 +636,16 @@ internal class SaveCacheStepShellBuilder<out C>(override val context: C, interna
     override fun save_cache(value: SaveCache) {
         shell = shell.copy(save_cache = Wrapper(value))
     }
-
-    override fun include(body: SaveCacheStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: SaveCacheStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: SaveCacheStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: SaveCacheStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: SaveCacheStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: SaveCacheStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SaveCacheStepShellBuilder<C2> = SaveCacheStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: SaveCacheStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class RestoreCacheStepShellBuilder<out C>(override val context: C, internal var shell: RestoreCacheStepShell = RestoreCacheStepShell()) : RestoreCacheStepBuilder<C> {
-    override fun restore_cache(body: RestoreCacheBuilder<C>.() -> Unit) {
-        shell = shell.copy(restore_cache = RestoreCacheScaffolder<C>(RestoreCacheSpec<C>(body)).createScaffold(context))
+internal class RestoreCacheStepShellBuilder(internal var shell: RestoreCacheStepShell = RestoreCacheStepShell()) : RestoreCacheStepBuilder {
+    override fun restore_cache(body: RestoreCacheBuilder.() -> Unit) {
+        shell = shell.copy(restore_cache = RestoreCacheScaffolder(RestoreCacheSpec(body)).createScaffold())
     }
 
-    override fun restore_cache(spec: RestoreCacheSpec<C>) {
-        shell = shell.copy(restore_cache = RestoreCacheScaffolder<C>(spec).createScaffold(context))
+    override fun restore_cache(spec: RestoreCacheSpec) {
+        shell = shell.copy(restore_cache = RestoreCacheScaffolder(spec).createScaffold())
     }
 
     override fun restore_cache(ref: RestoreCacheRef) {
@@ -1030,50 +655,16 @@ internal class RestoreCacheStepShellBuilder<out C>(override val context: C, inte
     override fun restore_cache(value: RestoreCache) {
         shell = shell.copy(restore_cache = Wrapper(value))
     }
-
-    override fun include(body: RestoreCacheStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: RestoreCacheStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: RestoreCacheStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: RestoreCacheStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: RestoreCacheStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: RestoreCacheStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RestoreCacheStepShellBuilder<C2> = RestoreCacheStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: RestoreCacheStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class DeployStepShellBuilder<out C>(override val context: C, internal var shell: DeployStepShell = DeployStepShell()) : DeployStepBuilder<C> {
-    override fun deploy(body: RunBuilder<C>.() -> Unit) {
-        shell = shell.copy(deploy = RunScaffolder<C>(RunSpec<C>(body)).createScaffold(context))
+internal class DeployStepShellBuilder(internal var shell: DeployStepShell = DeployStepShell()) : DeployStepBuilder {
+    override fun deploy(body: RunBuilder.() -> Unit) {
+        shell = shell.copy(deploy = RunScaffolder(RunSpec(body)).createScaffold())
     }
 
-    override fun deploy(spec: RunSpec<C>) {
-        shell = shell.copy(deploy = RunScaffolder<C>(spec).createScaffold(context))
+    override fun deploy(spec: RunSpec) {
+        shell = shell.copy(deploy = RunScaffolder(spec).createScaffold())
     }
 
     override fun deploy(ref: RunRef) {
@@ -1083,50 +674,16 @@ internal class DeployStepShellBuilder<out C>(override val context: C, internal v
     override fun deploy(value: Run) {
         shell = shell.copy(deploy = Wrapper(value))
     }
-
-    override fun include(body: DeployStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: DeployStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: DeployStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: DeployStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: DeployStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: DeployStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): DeployStepShellBuilder<C2> = DeployStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: DeployStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class StoreArtifactsStepShellBuilder<out C>(override val context: C, internal var shell: StoreArtifactsStepShell = StoreArtifactsStepShell()) : StoreArtifactsStepBuilder<C> {
-    override fun store_artifacts(body: StoreArtifactsBuilder<C>.() -> Unit) {
-        shell = shell.copy(store_artifacts = StoreArtifactsScaffolder<C>(StoreArtifactsSpec<C>(body)).createScaffold(context))
+internal class StoreArtifactsStepShellBuilder(internal var shell: StoreArtifactsStepShell = StoreArtifactsStepShell()) : StoreArtifactsStepBuilder {
+    override fun store_artifacts(body: StoreArtifactsBuilder.() -> Unit) {
+        shell = shell.copy(store_artifacts = StoreArtifactsScaffolder(StoreArtifactsSpec(body)).createScaffold())
     }
 
-    override fun store_artifacts(spec: StoreArtifactsSpec<C>) {
-        shell = shell.copy(store_artifacts = StoreArtifactsScaffolder<C>(spec).createScaffold(context))
+    override fun store_artifacts(spec: StoreArtifactsSpec) {
+        shell = shell.copy(store_artifacts = StoreArtifactsScaffolder(spec).createScaffold())
     }
 
     override fun store_artifacts(ref: StoreArtifactsRef) {
@@ -1136,50 +693,16 @@ internal class StoreArtifactsStepShellBuilder<out C>(override val context: C, in
     override fun store_artifacts(value: StoreArtifacts) {
         shell = shell.copy(store_artifacts = Wrapper(value))
     }
-
-    override fun include(body: StoreArtifactsStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: StoreArtifactsStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: StoreArtifactsStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: StoreArtifactsStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: StoreArtifactsStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: StoreArtifactsStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StoreArtifactsStepShellBuilder<C2> = StoreArtifactsStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: StoreArtifactsStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class StoreTestResultsStepShellBuilder<out C>(override val context: C, internal var shell: StoreTestResultsStepShell = StoreTestResultsStepShell()) : StoreTestResultsStepBuilder<C> {
-    override fun store_test_results(body: StoreTestResultsBuilder<C>.() -> Unit) {
-        shell = shell.copy(store_test_results = StoreTestResultsScaffolder<C>(StoreTestResultsSpec<C>(body)).createScaffold(context))
+internal class StoreTestResultsStepShellBuilder(internal var shell: StoreTestResultsStepShell = StoreTestResultsStepShell()) : StoreTestResultsStepBuilder {
+    override fun store_test_results(body: StoreTestResultsBuilder.() -> Unit) {
+        shell = shell.copy(store_test_results = StoreTestResultsScaffolder(StoreTestResultsSpec(body)).createScaffold())
     }
 
-    override fun store_test_results(spec: StoreTestResultsSpec<C>) {
-        shell = shell.copy(store_test_results = StoreTestResultsScaffolder<C>(spec).createScaffold(context))
+    override fun store_test_results(spec: StoreTestResultsSpec) {
+        shell = shell.copy(store_test_results = StoreTestResultsScaffolder(spec).createScaffold())
     }
 
     override fun store_test_results(ref: StoreTestResultsRef) {
@@ -1189,50 +712,16 @@ internal class StoreTestResultsStepShellBuilder<out C>(override val context: C, 
     override fun store_test_results(value: StoreTestResults) {
         shell = shell.copy(store_test_results = Wrapper(value))
     }
-
-    override fun include(body: StoreTestResultsStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: StoreTestResultsStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: StoreTestResultsStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: StoreTestResultsStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: StoreTestResultsStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: StoreTestResultsStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StoreTestResultsStepShellBuilder<C2> = StoreTestResultsStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: StoreTestResultsStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class PersistToWorkspaceStepShellBuilder<out C>(override val context: C, internal var shell: PersistToWorkspaceStepShell = PersistToWorkspaceStepShell()) : PersistToWorkspaceStepBuilder<C> {
-    override fun persist_to_workspace(body: PersistToWorkspaceBuilder<C>.() -> Unit) {
-        shell = shell.copy(persist_to_workspace = PersistToWorkspaceScaffolder<C>(PersistToWorkspaceSpec<C>(body)).createScaffold(context))
+internal class PersistToWorkspaceStepShellBuilder(internal var shell: PersistToWorkspaceStepShell = PersistToWorkspaceStepShell()) : PersistToWorkspaceStepBuilder {
+    override fun persist_to_workspace(body: PersistToWorkspaceBuilder.() -> Unit) {
+        shell = shell.copy(persist_to_workspace = PersistToWorkspaceScaffolder(PersistToWorkspaceSpec(body)).createScaffold())
     }
 
-    override fun persist_to_workspace(spec: PersistToWorkspaceSpec<C>) {
-        shell = shell.copy(persist_to_workspace = PersistToWorkspaceScaffolder<C>(spec).createScaffold(context))
+    override fun persist_to_workspace(spec: PersistToWorkspaceSpec) {
+        shell = shell.copy(persist_to_workspace = PersistToWorkspaceScaffolder(spec).createScaffold())
     }
 
     override fun persist_to_workspace(ref: PersistToWorkspaceRef) {
@@ -1242,50 +731,16 @@ internal class PersistToWorkspaceStepShellBuilder<out C>(override val context: C
     override fun persist_to_workspace(value: PersistToWorkspace) {
         shell = shell.copy(persist_to_workspace = Wrapper(value))
     }
-
-    override fun include(body: PersistToWorkspaceStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: PersistToWorkspaceStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: PersistToWorkspaceStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: PersistToWorkspaceStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: PersistToWorkspaceStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: PersistToWorkspaceStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): PersistToWorkspaceStepShellBuilder<C2> = PersistToWorkspaceStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: PersistToWorkspaceStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class AttachWorkspaceStepShellBuilder<out C>(override val context: C, internal var shell: AttachWorkspaceStepShell = AttachWorkspaceStepShell()) : AttachWorkspaceStepBuilder<C> {
-    override fun attach_workspace(body: AttachWorkspaceBuilder<C>.() -> Unit) {
-        shell = shell.copy(attach_workspace = AttachWorkspaceScaffolder<C>(AttachWorkspaceSpec<C>(body)).createScaffold(context))
+internal class AttachWorkspaceStepShellBuilder(internal var shell: AttachWorkspaceStepShell = AttachWorkspaceStepShell()) : AttachWorkspaceStepBuilder {
+    override fun attach_workspace(body: AttachWorkspaceBuilder.() -> Unit) {
+        shell = shell.copy(attach_workspace = AttachWorkspaceScaffolder(AttachWorkspaceSpec(body)).createScaffold())
     }
 
-    override fun attach_workspace(spec: AttachWorkspaceSpec<C>) {
-        shell = shell.copy(attach_workspace = AttachWorkspaceScaffolder<C>(spec).createScaffold(context))
+    override fun attach_workspace(spec: AttachWorkspaceSpec) {
+        shell = shell.copy(attach_workspace = AttachWorkspaceScaffolder(spec).createScaffold())
     }
 
     override fun attach_workspace(ref: AttachWorkspaceRef) {
@@ -1295,50 +750,16 @@ internal class AttachWorkspaceStepShellBuilder<out C>(override val context: C, i
     override fun attach_workspace(value: AttachWorkspace) {
         shell = shell.copy(attach_workspace = Wrapper(value))
     }
-
-    override fun include(body: AttachWorkspaceStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AttachWorkspaceStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AttachWorkspaceStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AttachWorkspaceStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AttachWorkspaceStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AttachWorkspaceStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AttachWorkspaceStepShellBuilder<C2> = AttachWorkspaceStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AttachWorkspaceStepShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 @DslBuilder
-internal class AddSshKeysStepShellBuilder<out C>(override val context: C, internal var shell: AddSshKeysStepShell = AddSshKeysStepShell()) : AddSshKeysStepBuilder<C> {
-    override fun add_ssh_keys(body: AddSshKeysBuilder<C>.() -> Unit) {
-        shell = shell.copy(add_ssh_keys = AddSshKeysScaffolder<C>(AddSshKeysSpec<C>(body)).createScaffold(context))
+internal class AddSshKeysStepShellBuilder(internal var shell: AddSshKeysStepShell = AddSshKeysStepShell()) : AddSshKeysStepBuilder {
+    override fun add_ssh_keys(body: AddSshKeysBuilder.() -> Unit) {
+        shell = shell.copy(add_ssh_keys = AddSshKeysScaffolder(AddSshKeysSpec(body)).createScaffold())
     }
 
-    override fun add_ssh_keys(spec: AddSshKeysSpec<C>) {
-        shell = shell.copy(add_ssh_keys = AddSshKeysScaffolder<C>(spec).createScaffold(context))
+    override fun add_ssh_keys(spec: AddSshKeysSpec) {
+        shell = shell.copy(add_ssh_keys = AddSshKeysScaffolder(spec).createScaffold())
     }
 
     override fun add_ssh_keys(ref: AddSshKeysRef) {
@@ -1347,40 +768,6 @@ internal class AddSshKeysStepShellBuilder<out C>(override val context: C, intern
 
     override fun add_ssh_keys(value: AddSshKeys) {
         shell = shell.copy(add_ssh_keys = Wrapper(value))
-    }
-
-    override fun include(body: AddSshKeysStepBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AddSshKeysStepSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AddSshKeysStepBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AddSshKeysStepSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AddSshKeysStepBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AddSshKeysStepSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AddSshKeysStepShellBuilder<C2> = AddSshKeysStepShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AddSshKeysStepShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1528,16 +915,16 @@ internal data class AddSshKeysStepShell(var add_ssh_keys: Scaffold<AddSshKeys>? 
     }
 }
 
-class RunScaffolder<in C>(internal val spec: RunSpec<C>) : Scaffolder<C, Run> {
-    override fun createScaffold(context: C): Scaffold<Run> {
-        val builder = RunShellBuilder<C>(context)
+class RunScaffolder(internal val spec: RunSpec) : Scaffolder<Run> {
+    override fun createScaffold(): Scaffold<Run> {
+        val builder = RunShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class RunShellBuilder<out C>(override val context: C, internal var shell: RunShell = RunShell()) : RunBuilder<C> {
+internal class RunShellBuilder(internal var shell: RunShell = RunShell()) : RunBuilder {
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
     }
@@ -1577,40 +964,6 @@ internal class RunShellBuilder<out C>(override val context: C, internal var shel
     override fun `when`(value: When) {
         shell = shell.copy(`when` = Wrapper(value))
     }
-
-    override fun include(body: RunBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: RunSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: RunBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: RunSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: RunBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: RunSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RunShellBuilder<C2> = RunShellBuilder(context, shell)
-
-    private fun <C2> merge(other: RunShellBuilder<C2>) {
-        this.shell = other.shell
-    }
 }
 
 internal data class RunShell(
@@ -1638,52 +991,18 @@ internal data class RunShell(
     }
 }
 
-class CheckoutScaffolder<in C>(internal val spec: CheckoutSpec<C>) : Scaffolder<C, Checkout> {
-    override fun createScaffold(context: C): Scaffold<Checkout> {
-        val builder = CheckoutShellBuilder<C>(context)
+class CheckoutScaffolder(internal val spec: CheckoutSpec) : Scaffolder<Checkout> {
+    override fun createScaffold(): Scaffold<Checkout> {
+        val builder = CheckoutShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class CheckoutShellBuilder<out C>(override val context: C, internal var shell: CheckoutShell = CheckoutShell()) : CheckoutBuilder<C> {
+internal class CheckoutShellBuilder(internal var shell: CheckoutShell = CheckoutShell()) : CheckoutBuilder {
     override fun path(value: String) {
         shell = shell.copy(path = Wrapper(value))
-    }
-
-    override fun include(body: CheckoutBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: CheckoutSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: CheckoutBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: CheckoutSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: CheckoutBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: CheckoutSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): CheckoutShellBuilder<C2> = CheckoutShellBuilder(context, shell)
-
-    private fun <C2> merge(other: CheckoutShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1696,56 +1015,22 @@ internal data class CheckoutShell(var path: Scaffold<String>? = null) : Scaffold
     }
 }
 
-class SetupRemoteDockerScaffolder<in C>(internal val spec: SetupRemoteDockerSpec<C>) : Scaffolder<C, SetupRemoteDocker> {
-    override fun createScaffold(context: C): Scaffold<SetupRemoteDocker> {
-        val builder = SetupRemoteDockerShellBuilder<C>(context)
+class SetupRemoteDockerScaffolder(internal val spec: SetupRemoteDockerSpec) : Scaffolder<SetupRemoteDocker> {
+    override fun createScaffold(): Scaffold<SetupRemoteDocker> {
+        val builder = SetupRemoteDockerShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class SetupRemoteDockerShellBuilder<out C>(override val context: C, internal var shell: SetupRemoteDockerShell = SetupRemoteDockerShell()) : SetupRemoteDockerBuilder<C> {
+internal class SetupRemoteDockerShellBuilder(internal var shell: SetupRemoteDockerShell = SetupRemoteDockerShell()) : SetupRemoteDockerBuilder {
     override fun docker_layer_caching(value: Boolean) {
         shell = shell.copy(docker_layer_caching = Wrapper(value))
     }
 
     override fun version(value: String) {
         shell = shell.copy(version = Wrapper(value))
-    }
-
-    override fun include(body: SetupRemoteDockerBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: SetupRemoteDockerSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: SetupRemoteDockerBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: SetupRemoteDockerSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: SetupRemoteDockerBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: SetupRemoteDockerSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SetupRemoteDockerShellBuilder<C2> = SetupRemoteDockerShellBuilder(context, shell)
-
-    private fun <C2> merge(other: SetupRemoteDockerShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1759,16 +1044,16 @@ internal data class SetupRemoteDockerShell(var docker_layer_caching: Scaffold<Bo
     }
 }
 
-class SaveCacheScaffolder<in C>(internal val spec: SaveCacheSpec<C>) : Scaffolder<C, SaveCache> {
-    override fun createScaffold(context: C): Scaffold<SaveCache> {
-        val builder = SaveCacheShellBuilder<C>(context)
+class SaveCacheScaffolder(internal val spec: SaveCacheSpec) : Scaffolder<SaveCache> {
+    override fun createScaffold(): Scaffold<SaveCache> {
+        val builder = SaveCacheShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class SaveCacheShellBuilder<out C>(override val context: C, internal var shell: SaveCacheShell = SaveCacheShell()) : SaveCacheBuilder<C> {
+internal class SaveCacheShellBuilder(internal var shell: SaveCacheShell = SaveCacheShell()) : SaveCacheBuilder {
     override fun path(value: String) {
         shell = shell.copy(paths = shell.paths.orEmpty() + Wrapper(value))
     }
@@ -1787,40 +1072,6 @@ internal class SaveCacheShellBuilder<out C>(override val context: C, internal va
 
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
-    }
-
-    override fun include(body: SaveCacheBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: SaveCacheSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: SaveCacheBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: SaveCacheSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: SaveCacheBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: SaveCacheSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): SaveCacheShellBuilder<C2> = SaveCacheShellBuilder(context, shell)
-
-    private fun <C2> merge(other: SaveCacheShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1841,16 +1092,16 @@ internal data class SaveCacheShell(
     }
 }
 
-class RestoreCacheScaffolder<in C>(internal val spec: RestoreCacheSpec<C>) : Scaffolder<C, RestoreCache> {
-    override fun createScaffold(context: C): Scaffold<RestoreCache> {
-        val builder = RestoreCacheShellBuilder<C>(context)
+class RestoreCacheScaffolder(internal val spec: RestoreCacheSpec) : Scaffolder<RestoreCache> {
+    override fun createScaffold(): Scaffold<RestoreCache> {
+        val builder = RestoreCacheShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class RestoreCacheShellBuilder<out C>(override val context: C, internal var shell: RestoreCacheShell = RestoreCacheShell()) : RestoreCacheBuilder<C> {
+internal class RestoreCacheShellBuilder(internal var shell: RestoreCacheShell = RestoreCacheShell()) : RestoreCacheBuilder {
     override fun key(value: String) {
         shell = shell.copy(keys = shell.keys.orEmpty() + Wrapper(value))
     }
@@ -1861,40 +1112,6 @@ internal class RestoreCacheShellBuilder<out C>(override val context: C, internal
 
     override fun name(value: String) {
         shell = shell.copy(name = Wrapper(value))
-    }
-
-    override fun include(body: RestoreCacheBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: RestoreCacheSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: RestoreCacheBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: RestoreCacheSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: RestoreCacheBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: RestoreCacheSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): RestoreCacheShellBuilder<C2> = RestoreCacheShellBuilder(context, shell)
-
-    private fun <C2> merge(other: RestoreCacheShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1908,56 +1125,22 @@ internal data class RestoreCacheShell(var keys: List<Scaffold<String>>? = null, 
     }
 }
 
-class StoreArtifactsScaffolder<in C>(internal val spec: StoreArtifactsSpec<C>) : Scaffolder<C, StoreArtifacts> {
-    override fun createScaffold(context: C): Scaffold<StoreArtifacts> {
-        val builder = StoreArtifactsShellBuilder<C>(context)
+class StoreArtifactsScaffolder(internal val spec: StoreArtifactsSpec) : Scaffolder<StoreArtifacts> {
+    override fun createScaffold(): Scaffold<StoreArtifacts> {
+        val builder = StoreArtifactsShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class StoreArtifactsShellBuilder<out C>(override val context: C, internal var shell: StoreArtifactsShell = StoreArtifactsShell()) : StoreArtifactsBuilder<C> {
+internal class StoreArtifactsShellBuilder(internal var shell: StoreArtifactsShell = StoreArtifactsShell()) : StoreArtifactsBuilder {
     override fun path(value: String) {
         shell = shell.copy(path = Wrapper(value))
     }
 
     override fun destination(value: String) {
         shell = shell.copy(destination = Wrapper(value))
-    }
-
-    override fun include(body: StoreArtifactsBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: StoreArtifactsSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: StoreArtifactsBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: StoreArtifactsSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: StoreArtifactsBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: StoreArtifactsSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StoreArtifactsShellBuilder<C2> = StoreArtifactsShellBuilder(context, shell)
-
-    private fun <C2> merge(other: StoreArtifactsShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -1971,52 +1154,18 @@ internal data class StoreArtifactsShell(var path: Scaffold<String>? = null, var 
     }
 }
 
-class StoreTestResultsScaffolder<in C>(internal val spec: StoreTestResultsSpec<C>) : Scaffolder<C, StoreTestResults> {
-    override fun createScaffold(context: C): Scaffold<StoreTestResults> {
-        val builder = StoreTestResultsShellBuilder<C>(context)
+class StoreTestResultsScaffolder(internal val spec: StoreTestResultsSpec) : Scaffolder<StoreTestResults> {
+    override fun createScaffold(): Scaffold<StoreTestResults> {
+        val builder = StoreTestResultsShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class StoreTestResultsShellBuilder<out C>(override val context: C, internal var shell: StoreTestResultsShell = StoreTestResultsShell()) : StoreTestResultsBuilder<C> {
+internal class StoreTestResultsShellBuilder(internal var shell: StoreTestResultsShell = StoreTestResultsShell()) : StoreTestResultsBuilder {
     override fun path(value: String) {
         shell = shell.copy(path = Wrapper(value))
-    }
-
-    override fun include(body: StoreTestResultsBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: StoreTestResultsSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: StoreTestResultsBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: StoreTestResultsSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: StoreTestResultsBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: StoreTestResultsSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): StoreTestResultsShellBuilder<C2> = StoreTestResultsShellBuilder(context, shell)
-
-    private fun <C2> merge(other: StoreTestResultsShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2029,16 +1178,16 @@ internal data class StoreTestResultsShell(var path: Scaffold<String>? = null) : 
     }
 }
 
-class PersistToWorkspaceScaffolder<in C>(internal val spec: PersistToWorkspaceSpec<C>) : Scaffolder<C, PersistToWorkspace> {
-    override fun createScaffold(context: C): Scaffold<PersistToWorkspace> {
-        val builder = PersistToWorkspaceShellBuilder<C>(context)
+class PersistToWorkspaceScaffolder(internal val spec: PersistToWorkspaceSpec) : Scaffolder<PersistToWorkspace> {
+    override fun createScaffold(): Scaffold<PersistToWorkspace> {
+        val builder = PersistToWorkspaceShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class PersistToWorkspaceShellBuilder<out C>(override val context: C, internal var shell: PersistToWorkspaceShell = PersistToWorkspaceShell()) : PersistToWorkspaceBuilder<C> {
+internal class PersistToWorkspaceShellBuilder(internal var shell: PersistToWorkspaceShell = PersistToWorkspaceShell()) : PersistToWorkspaceBuilder {
     override fun root(value: String) {
         shell = shell.copy(root = Wrapper(value))
     }
@@ -2049,40 +1198,6 @@ internal class PersistToWorkspaceShellBuilder<out C>(override val context: C, in
 
     override fun paths(paths: List<String>) {
         shell = shell.copy(paths = shell.paths.orEmpty() + paths.map { Wrapper(it) })
-    }
-
-    override fun include(body: PersistToWorkspaceBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: PersistToWorkspaceSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: PersistToWorkspaceBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: PersistToWorkspaceSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: PersistToWorkspaceBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: PersistToWorkspaceSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): PersistToWorkspaceShellBuilder<C2> = PersistToWorkspaceShellBuilder(context, shell)
-
-    private fun <C2> merge(other: PersistToWorkspaceShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2096,52 +1211,18 @@ internal data class PersistToWorkspaceShell(var root: Scaffold<String>? = null, 
     }
 }
 
-class AttachWorkspaceScaffolder<in C>(internal val spec: AttachWorkspaceSpec<C>) : Scaffolder<C, AttachWorkspace> {
-    override fun createScaffold(context: C): Scaffold<AttachWorkspace> {
-        val builder = AttachWorkspaceShellBuilder<C>(context)
+class AttachWorkspaceScaffolder(internal val spec: AttachWorkspaceSpec) : Scaffolder<AttachWorkspace> {
+    override fun createScaffold(): Scaffold<AttachWorkspace> {
+        val builder = AttachWorkspaceShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class AttachWorkspaceShellBuilder<out C>(override val context: C, internal var shell: AttachWorkspaceShell = AttachWorkspaceShell()) : AttachWorkspaceBuilder<C> {
+internal class AttachWorkspaceShellBuilder(internal var shell: AttachWorkspaceShell = AttachWorkspaceShell()) : AttachWorkspaceBuilder {
     override fun at(value: String) {
         shell = shell.copy(at = Wrapper(value))
-    }
-
-    override fun include(body: AttachWorkspaceBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AttachWorkspaceSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AttachWorkspaceBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AttachWorkspaceSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AttachWorkspaceBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AttachWorkspaceSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AttachWorkspaceShellBuilder<C2> = AttachWorkspaceShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AttachWorkspaceShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2154,56 +1235,22 @@ internal data class AttachWorkspaceShell(var at: Scaffold<String>? = null) : Sca
     }
 }
 
-class AddSshKeysScaffolder<in C>(internal val spec: AddSshKeysSpec<C>) : Scaffolder<C, AddSshKeys> {
-    override fun createScaffold(context: C): Scaffold<AddSshKeys> {
-        val builder = AddSshKeysShellBuilder<C>(context)
+class AddSshKeysScaffolder(internal val spec: AddSshKeysSpec) : Scaffolder<AddSshKeys> {
+    override fun createScaffold(): Scaffold<AddSshKeys> {
+        val builder = AddSshKeysShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class AddSshKeysShellBuilder<out C>(override val context: C, internal var shell: AddSshKeysShell = AddSshKeysShell()) : AddSshKeysBuilder<C> {
+internal class AddSshKeysShellBuilder(internal var shell: AddSshKeysShell = AddSshKeysShell()) : AddSshKeysBuilder {
     override fun fingerprint(value: String) {
         shell = shell.copy(fingerprints = shell.fingerprints.orEmpty() + Wrapper(value))
     }
 
     override fun fingerprints(fingerprints: List<String>) {
         shell = shell.copy(fingerprints = shell.fingerprints.orEmpty() + fingerprints.map { Wrapper(it) })
-    }
-
-    override fun include(body: AddSshKeysBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: AddSshKeysSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: AddSshKeysBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: AddSshKeysSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: AddSshKeysBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: AddSshKeysSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): AddSshKeysShellBuilder<C2> = AddSshKeysShellBuilder(context, shell)
-
-    private fun <C2> merge(other: AddSshKeysShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2216,22 +1263,22 @@ internal data class AddSshKeysShell(var fingerprints: List<Scaffold<String>>? = 
     }
 }
 
-class WorkflowScaffolder<in C>(internal val spec: WorkflowSpec<C>) : Scaffolder<C, Workflow> {
-    override fun createScaffold(context: C): Scaffold<Workflow> {
-        val builder = WorkflowShellBuilder<C>(context)
+class WorkflowScaffolder(internal val spec: WorkflowSpec) : Scaffolder<Workflow> {
+    override fun createScaffold(): Scaffold<Workflow> {
+        val builder = WorkflowShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowShellBuilder<out C>(override val context: C, internal var shell: WorkflowShell = WorkflowShell()) : WorkflowBuilder<C> {
-    override fun trigger(body: WorkflowTriggerBuilder<C>.() -> Unit) {
-        shell = shell.copy(triggers = shell.triggers.orEmpty() + WorkflowTriggerScaffolder<C>(WorkflowTriggerSpec<C>(body)).createScaffold(context))
+internal class WorkflowShellBuilder(internal var shell: WorkflowShell = WorkflowShell()) : WorkflowBuilder {
+    override fun trigger(body: WorkflowTriggerBuilder.() -> Unit) {
+        shell = shell.copy(triggers = shell.triggers.orEmpty() + WorkflowTriggerScaffolder(WorkflowTriggerSpec(body)).createScaffold())
     }
 
-    override fun trigger(spec: WorkflowTriggerSpec<C>) {
-        shell = shell.copy(triggers = shell.triggers.orEmpty() + WorkflowTriggerScaffolder<C>(spec).createScaffold(context))
+    override fun trigger(spec: WorkflowTriggerSpec) {
+        shell = shell.copy(triggers = shell.triggers.orEmpty() + WorkflowTriggerScaffolder(spec).createScaffold())
     }
 
     override fun trigger(ref: WorkflowTriggerRef) {
@@ -2246,12 +1293,12 @@ internal class WorkflowShellBuilder<out C>(override val context: C, internal var
         shell = shell.copy(triggers = shell.triggers.orEmpty() + triggers.map { Wrapper(it) })
     }
 
-    override fun jobs(key: String, body: WorkflowJobBuilder<C>.() -> Unit) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(Wrapper(key),WorkflowJobScaffolder<C>(WorkflowJobSpec<C>(body)).createScaffold(context))))
+    override fun jobs(key: String, body: WorkflowJobBuilder.() -> Unit) {
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(Wrapper(key),WorkflowJobScaffolder(WorkflowJobSpec(body)).createScaffold())))
     }
 
-    override fun jobs(key: String, spec: WorkflowJobSpec<C>) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(Wrapper(key),WorkflowJobScaffolder<C>(spec).createScaffold(context))))
+    override fun jobs(key: String, spec: WorkflowJobSpec) {
+        shell = shell.copy(jobs = shell.jobs.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(Wrapper(key),WorkflowJobScaffolder(spec).createScaffold())))
     }
 
     override fun jobs(key: String, ref: WorkflowJobRef) {
@@ -2260,40 +1307,6 @@ internal class WorkflowShellBuilder<out C>(override val context: C, internal var
 
     override fun jobs(key: String, value: WorkflowJob) {
         shell = shell.copy(jobs = shell.jobs.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(Wrapper(key),Wrapper(value))))
-    }
-
-    override fun include(body: WorkflowBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowShellBuilder<C2> = WorkflowShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2311,22 +1324,22 @@ internal data class WorkflowShell(var triggers: List<Scaffold<WorkflowTrigger>>?
     }
 }
 
-class WorkflowTriggerScaffolder<in C>(internal val spec: WorkflowTriggerSpec<C>) : Scaffolder<C, WorkflowTrigger> {
-    override fun createScaffold(context: C): Scaffold<WorkflowTrigger> {
-        val builder = WorkflowTriggerShellBuilder<C>(context)
+class WorkflowTriggerScaffolder(internal val spec: WorkflowTriggerSpec) : Scaffolder<WorkflowTrigger> {
+    override fun createScaffold(): Scaffold<WorkflowTrigger> {
+        val builder = WorkflowTriggerShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowTriggerShellBuilder<out C>(override val context: C, internal var shell: WorkflowTriggerShell = WorkflowTriggerShell()) : WorkflowTriggerBuilder<C> {
-    override fun schedule(body: WorkflowTriggerScheduleBuilder<C>.() -> Unit) {
-        shell = shell.copy(schedule = WorkflowTriggerScheduleScaffolder<C>(WorkflowTriggerScheduleSpec<C>(body)).createScaffold(context))
+internal class WorkflowTriggerShellBuilder(internal var shell: WorkflowTriggerShell = WorkflowTriggerShell()) : WorkflowTriggerBuilder {
+    override fun schedule(body: WorkflowTriggerScheduleBuilder.() -> Unit) {
+        shell = shell.copy(schedule = WorkflowTriggerScheduleScaffolder(WorkflowTriggerScheduleSpec(body)).createScaffold())
     }
 
-    override fun schedule(spec: WorkflowTriggerScheduleSpec<C>) {
-        shell = shell.copy(schedule = WorkflowTriggerScheduleScaffolder<C>(spec).createScaffold(context))
+    override fun schedule(spec: WorkflowTriggerScheduleSpec) {
+        shell = shell.copy(schedule = WorkflowTriggerScheduleScaffolder(spec).createScaffold())
     }
 
     override fun schedule(ref: WorkflowTriggerScheduleRef) {
@@ -2335,40 +1348,6 @@ internal class WorkflowTriggerShellBuilder<out C>(override val context: C, inter
 
     override fun schedule(value: WorkflowTriggerSchedule) {
         shell = shell.copy(schedule = Wrapper(value))
-    }
-
-    override fun include(body: WorkflowTriggerBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowTriggerSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowTriggerBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowTriggerSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowTriggerBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowTriggerSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowTriggerShellBuilder<C2> = WorkflowTriggerShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowTriggerShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2384,26 +1363,26 @@ internal data class WorkflowTriggerShell(var schedule: Scaffold<WorkflowTriggerS
     }
 }
 
-class WorkflowTriggerScheduleScaffolder<in C>(internal val spec: WorkflowTriggerScheduleSpec<C>) : Scaffolder<C, WorkflowTriggerSchedule> {
-    override fun createScaffold(context: C): Scaffold<WorkflowTriggerSchedule> {
-        val builder = WorkflowTriggerScheduleShellBuilder<C>(context)
+class WorkflowTriggerScheduleScaffolder(internal val spec: WorkflowTriggerScheduleSpec) : Scaffolder<WorkflowTriggerSchedule> {
+    override fun createScaffold(): Scaffold<WorkflowTriggerSchedule> {
+        val builder = WorkflowTriggerScheduleShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowTriggerScheduleShellBuilder<out C>(override val context: C, internal var shell: WorkflowTriggerScheduleShell = WorkflowTriggerScheduleShell()) : WorkflowTriggerScheduleBuilder<C> {
+internal class WorkflowTriggerScheduleShellBuilder(internal var shell: WorkflowTriggerScheduleShell = WorkflowTriggerScheduleShell()) : WorkflowTriggerScheduleBuilder {
     override fun cron(value: String) {
         shell = shell.copy(cron = Wrapper(value))
     }
 
-    override fun filters(body: WorkflowTriggerScheduleBuilder<C>.() -> Unit) {
-        shell = shell.copy(filters = WorkflowTriggerScheduleScaffolder<C>(WorkflowTriggerScheduleSpec<C>(body)).createScaffold(context))
+    override fun filters(body: WorkflowTriggerScheduleBuilder.() -> Unit) {
+        shell = shell.copy(filters = WorkflowTriggerScheduleScaffolder(WorkflowTriggerScheduleSpec(body)).createScaffold())
     }
 
-    override fun filters(spec: WorkflowTriggerScheduleSpec<C>) {
-        shell = shell.copy(filters = WorkflowTriggerScheduleScaffolder<C>(spec).createScaffold(context))
+    override fun filters(spec: WorkflowTriggerScheduleSpec) {
+        shell = shell.copy(filters = WorkflowTriggerScheduleScaffolder(spec).createScaffold())
     }
 
     override fun filters(ref: WorkflowTriggerScheduleRef) {
@@ -2412,40 +1391,6 @@ internal class WorkflowTriggerScheduleShellBuilder<out C>(override val context: 
 
     override fun filters(value: WorkflowTriggerSchedule) {
         shell = shell.copy(filters = Wrapper(value))
-    }
-
-    override fun include(body: WorkflowTriggerScheduleBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowTriggerScheduleSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowTriggerScheduleBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowTriggerScheduleSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowTriggerScheduleBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowTriggerScheduleSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowTriggerScheduleShellBuilder<C2> = WorkflowTriggerScheduleShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowTriggerScheduleShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2462,22 +1407,22 @@ internal data class WorkflowTriggerScheduleShell(var cron: Scaffold<String>? = n
     }
 }
 
-class WorkflowTriggerScheduleFiltersScaffolder<in C>(internal val spec: WorkflowTriggerScheduleFiltersSpec<C>) : Scaffolder<C, WorkflowTriggerScheduleFilters> {
-    override fun createScaffold(context: C): Scaffold<WorkflowTriggerScheduleFilters> {
-        val builder = WorkflowTriggerScheduleFiltersShellBuilder<C>(context)
+class WorkflowTriggerScheduleFiltersScaffolder(internal val spec: WorkflowTriggerScheduleFiltersSpec) : Scaffolder<WorkflowTriggerScheduleFilters> {
+    override fun createScaffold(): Scaffold<WorkflowTriggerScheduleFilters> {
+        val builder = WorkflowTriggerScheduleFiltersShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowTriggerScheduleFiltersShellBuilder<out C>(override val context: C, internal var shell: WorkflowTriggerScheduleFiltersShell = WorkflowTriggerScheduleFiltersShell()) : WorkflowTriggerScheduleFiltersBuilder<C> {
-    override fun branches(body: FilterBuilder<C>.() -> Unit) {
-        shell = shell.copy(branches = FilterScaffolder<C>(FilterSpec<C>(body)).createScaffold(context))
+internal class WorkflowTriggerScheduleFiltersShellBuilder(internal var shell: WorkflowTriggerScheduleFiltersShell = WorkflowTriggerScheduleFiltersShell()) : WorkflowTriggerScheduleFiltersBuilder {
+    override fun branches(body: FilterBuilder.() -> Unit) {
+        shell = shell.copy(branches = FilterScaffolder(FilterSpec(body)).createScaffold())
     }
 
-    override fun branches(spec: FilterSpec<C>) {
-        shell = shell.copy(branches = FilterScaffolder<C>(spec).createScaffold(context))
+    override fun branches(spec: FilterSpec) {
+        shell = shell.copy(branches = FilterScaffolder(spec).createScaffold())
     }
 
     override fun branches(ref: FilterRef) {
@@ -2486,40 +1431,6 @@ internal class WorkflowTriggerScheduleFiltersShellBuilder<out C>(override val co
 
     override fun branches(value: Filter) {
         shell = shell.copy(branches = Wrapper(value))
-    }
-
-    override fun include(body: WorkflowTriggerScheduleFiltersBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowTriggerScheduleFiltersSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowTriggerScheduleFiltersBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowTriggerScheduleFiltersSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowTriggerScheduleFiltersBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowTriggerScheduleFiltersSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowTriggerScheduleFiltersShellBuilder<C2> = WorkflowTriggerScheduleFiltersShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowTriggerScheduleFiltersShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2535,16 +1446,16 @@ internal data class WorkflowTriggerScheduleFiltersShell(var branches: Scaffold<F
     }
 }
 
-class WorkflowJobScaffolder<in C>(internal val spec: WorkflowJobSpec<C>) : Scaffolder<C, WorkflowJob> {
-    override fun createScaffold(context: C): Scaffold<WorkflowJob> {
-        val builder = WorkflowJobShellBuilder<C>(context)
+class WorkflowJobScaffolder(internal val spec: WorkflowJobSpec) : Scaffolder<WorkflowJob> {
+    override fun createScaffold(): Scaffold<WorkflowJob> {
+        val builder = WorkflowJobShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowJobShellBuilder<out C>(override val context: C, internal var shell: WorkflowJobShell = WorkflowJobShell()) : WorkflowJobBuilder<C> {
+internal class WorkflowJobShellBuilder(internal var shell: WorkflowJobShell = WorkflowJobShell()) : WorkflowJobBuilder {
     override fun require(value: String) {
         shell = shell.copy(requires = shell.requires.orEmpty() + Wrapper(value))
     }
@@ -2561,12 +1472,12 @@ internal class WorkflowJobShellBuilder<out C>(override val context: C, internal 
         shell = shell.copy(type = Wrapper(value))
     }
 
-    override fun filters(body: WorkflowJobFilterBuilder<C>.() -> Unit) {
-        shell = shell.copy(filters = WorkflowJobFilterScaffolder<C>(WorkflowJobFilterSpec<C>(body)).createScaffold(context))
+    override fun filters(body: WorkflowJobFilterBuilder.() -> Unit) {
+        shell = shell.copy(filters = WorkflowJobFilterScaffolder(WorkflowJobFilterSpec(body)).createScaffold())
     }
 
-    override fun filters(spec: WorkflowJobFilterSpec<C>) {
-        shell = shell.copy(filters = WorkflowJobFilterScaffolder<C>(spec).createScaffold(context))
+    override fun filters(spec: WorkflowJobFilterSpec) {
+        shell = shell.copy(filters = WorkflowJobFilterScaffolder(spec).createScaffold())
     }
 
     override fun filters(ref: WorkflowJobFilterRef) {
@@ -2575,40 +1486,6 @@ internal class WorkflowJobShellBuilder<out C>(override val context: C, internal 
 
     override fun filters(value: WorkflowJobFilter) {
         shell = shell.copy(filters = Wrapper(value))
-    }
-
-    override fun include(body: WorkflowJobBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowJobSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowJobBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowJobSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowJobBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowJobSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowJobShellBuilder<C2> = WorkflowJobShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowJobShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2632,22 +1509,22 @@ internal data class WorkflowJobShell(
     }
 }
 
-class WorkflowJobFilterScaffolder<in C>(internal val spec: WorkflowJobFilterSpec<C>) : Scaffolder<C, WorkflowJobFilter> {
-    override fun createScaffold(context: C): Scaffold<WorkflowJobFilter> {
-        val builder = WorkflowJobFilterShellBuilder<C>(context)
+class WorkflowJobFilterScaffolder(internal val spec: WorkflowJobFilterSpec) : Scaffolder<WorkflowJobFilter> {
+    override fun createScaffold(): Scaffold<WorkflowJobFilter> {
+        val builder = WorkflowJobFilterShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class WorkflowJobFilterShellBuilder<out C>(override val context: C, internal var shell: WorkflowJobFilterShell = WorkflowJobFilterShell()) : WorkflowJobFilterBuilder<C> {
-    override fun branches(body: FilterBuilder<C>.() -> Unit) {
-        shell = shell.copy(branches = FilterScaffolder<C>(FilterSpec<C>(body)).createScaffold(context))
+internal class WorkflowJobFilterShellBuilder(internal var shell: WorkflowJobFilterShell = WorkflowJobFilterShell()) : WorkflowJobFilterBuilder {
+    override fun branches(body: FilterBuilder.() -> Unit) {
+        shell = shell.copy(branches = FilterScaffolder(FilterSpec(body)).createScaffold())
     }
 
-    override fun branches(spec: FilterSpec<C>) {
-        shell = shell.copy(branches = FilterScaffolder<C>(spec).createScaffold(context))
+    override fun branches(spec: FilterSpec) {
+        shell = shell.copy(branches = FilterScaffolder(spec).createScaffold())
     }
 
     override fun branches(ref: FilterRef) {
@@ -2658,12 +1535,12 @@ internal class WorkflowJobFilterShellBuilder<out C>(override val context: C, int
         shell = shell.copy(branches = Wrapper(value))
     }
 
-    override fun tags(body: FilterBuilder<C>.() -> Unit) {
-        shell = shell.copy(tags = FilterScaffolder<C>(FilterSpec<C>(body)).createScaffold(context))
+    override fun tags(body: FilterBuilder.() -> Unit) {
+        shell = shell.copy(tags = FilterScaffolder(FilterSpec(body)).createScaffold())
     }
 
-    override fun tags(spec: FilterSpec<C>) {
-        shell = shell.copy(tags = FilterScaffolder<C>(spec).createScaffold(context))
+    override fun tags(spec: FilterSpec) {
+        shell = shell.copy(tags = FilterScaffolder(spec).createScaffold())
     }
 
     override fun tags(ref: FilterRef) {
@@ -2672,40 +1549,6 @@ internal class WorkflowJobFilterShellBuilder<out C>(override val context: C, int
 
     override fun tags(value: Filter) {
         shell = shell.copy(tags = Wrapper(value))
-    }
-
-    override fun include(body: WorkflowJobFilterBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: WorkflowJobFilterSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: WorkflowJobFilterBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: WorkflowJobFilterSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: WorkflowJobFilterBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: WorkflowJobFilterSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): WorkflowJobFilterShellBuilder<C2> = WorkflowJobFilterShellBuilder(context, shell)
-
-    private fun <C2> merge(other: WorkflowJobFilterShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 
@@ -2723,16 +1566,16 @@ internal data class WorkflowJobFilterShell(var branches: Scaffold<Filter>? = nul
     }
 }
 
-class FilterScaffolder<in C>(internal val spec: FilterSpec<C>) : Scaffolder<C, Filter> {
-    override fun createScaffold(context: C): Scaffold<Filter> {
-        val builder = FilterShellBuilder<C>(context)
+class FilterScaffolder(internal val spec: FilterSpec) : Scaffolder<Filter> {
+    override fun createScaffold(): Scaffold<Filter> {
+        val builder = FilterShellBuilder()
         builder.apply(spec.body)
         return builder.shell
     }
 }
 
 @DslBuilder
-internal class FilterShellBuilder<out C>(override val context: C, internal var shell: FilterShell = FilterShell()) : FilterBuilder<C> {
+internal class FilterShellBuilder(internal var shell: FilterShell = FilterShell()) : FilterBuilder {
     override fun only(value: String) {
         shell = shell.copy(only = shell.only.orEmpty() + Wrapper(value))
     }
@@ -2747,40 +1590,6 @@ internal class FilterShellBuilder<out C>(override val context: C, internal var s
 
     override fun ignore(ignore: List<String>) {
         shell = shell.copy(ignore = shell.ignore.orEmpty() + ignore.map { Wrapper(it) })
-    }
-
-    override fun include(body: FilterBuilder<C>.() -> Unit) {
-        apply(body)
-    }
-
-    override fun include(spec: FilterSpec<C>) {
-        apply(spec.body)
-    }
-
-    override fun <C2> include(context: C2, body: FilterBuilder<C2>.() -> Unit) {
-        val builder = split(context)
-        builder.apply(body)
-        merge(builder)
-    }
-
-    override fun <C2> include(context: C2, spec: FilterSpec<C2>) {
-        val builder = split(context)
-        builder.apply(spec.body)
-        merge(builder)
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, body: FilterBuilder<C2>.() -> Unit) {
-        context.forEach { include(it, body) }
-    }
-
-    override fun <C2> includeForEach(context: Iterable<C2>, spec: FilterSpec<C2>) {
-        context.forEach { include(it, spec) }
-    }
-
-    private fun <C2> split(context: C2): FilterShellBuilder<C2> = FilterShellBuilder(context, shell)
-
-    private fun <C2> merge(other: FilterShellBuilder<C2>) {
-        this.shell = other.shell
     }
 }
 

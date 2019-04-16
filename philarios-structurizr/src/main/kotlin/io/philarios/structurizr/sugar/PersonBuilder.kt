@@ -4,22 +4,22 @@ import io.philarios.structurizr.Location
 import io.philarios.structurizr.PersonBuilder
 import io.philarios.structurizr.RelationshipBuilder
 
-fun <C, T : Any> PersonBuilder<C>.id(id: T) {
+fun <T : Any> PersonBuilder.id(id: T) {
     id(id.hierarchicalId())
 }
 
-fun <C, T : Any> PersonBuilder<C>.relationship(destinationId: T, body: RelationshipBuilder<C>.() -> Unit = {}) {
+fun <T : Any> PersonBuilder.relationship(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
     relationship {
         destinationId(destinationId)
         apply(body)
     }
 }
 
-fun <C> PersonBuilder<C>.internal() {
+fun  PersonBuilder.internal() {
     location(Location.Internal)
 }
 
-fun <C> PersonBuilder<C>.external() {
+fun  PersonBuilder.external() {
     location(Location.External)
 }
 

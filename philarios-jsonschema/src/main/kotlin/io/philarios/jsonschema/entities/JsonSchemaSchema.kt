@@ -3,27 +3,28 @@ package io.philarios.jsonschema.entities
 import io.philarios.schema.*
 import io.philarios.schema.Type
 
-internal fun jsonSchemaSchema(pkg: String, schemaName: String) = SchemaSpec<JsonSchemaObject> {
-    pkg(pkg)
-    name(schemaName)
+internal fun jsonSchemaSchema(pkg: String, schemaName: String, jsonSchemaObject: JsonSchemaObject) =
+        SchemaSpec {
+            pkg(pkg)
+            name(schemaName)
 
-    type(context.type(schemaName))
+            type(jsonSchemaObject.type(schemaName))
 
-    context.definitions
-            ?.map { it.value.type(it.key.capitalize()) }
-            ?.forEach {
-                type(it)
-            }
-}
+            jsonSchemaObject.definitions
+                    ?.map { it.value.type(it.key.capitalize()) }
+                    ?.forEach {
+                        type(it)
+                    }
+        }
 
-private fun JsonSchema.type(name: String? = null): TypeSpec<JsonSchemaObject, Type> = when (this) {
+private fun JsonSchema.type(name: String? = null): TypeSpec<Type> = when (this) {
     is JsonSchemaBoolean -> throw unsupportedBooleanSchema
     is JsonSchemaObject -> type(name)
 }
 
-private fun JsonSchemaObject.type(name: String? = null): TypeSpec<JsonSchemaObject, Type> = when (type) {
+private fun JsonSchemaObject.type(name: String? = null): TypeSpec<Type> = when (type) {
     is TypeSimpleType -> {
-        val spec: TypeSpec<JsonSchemaObject, Type> = when (type.value) {
+        val spec: TypeSpec<Type> = when (type.value) {
             SimpleType.`null` -> throw unsupportedNullType
             SimpleType.boolean -> BooleanTypeSpec()
             SimpleType.integer -> IntTypeSpec()
