@@ -18,8 +18,12 @@ internal fun jsonSchemaSchema(pkg: String, schemaName: String) = SchemaSpec<Json
 
 private fun JsonSchema.type(name: String? = null): TypeSpec<JsonSchemaObject, Type> = when (this) {
     is JsonSchemaBoolean -> throw unsupportedBooleanSchema
-    is JsonSchemaObject -> when (type) {
-        is TypeSimpleType -> when (type.value) {
+    is JsonSchemaObject -> type(name)
+}
+
+private fun JsonSchemaObject.type(name: String? = null): TypeSpec<JsonSchemaObject, Type> = when (type) {
+    is TypeSimpleType -> {
+        val spec: TypeSpec<JsonSchemaObject, Type> = when (type.value) {
             SimpleType.`null` -> throw unsupportedNullType
             SimpleType.boolean -> BooleanTypeSpec()
             SimpleType.integer -> IntTypeSpec()
@@ -60,27 +64,28 @@ private fun JsonSchema.type(name: String? = null): TypeSpec<JsonSchemaObject, Ty
                 else -> throw unsupportedObjectType
             }
         }
-        is TypeSimpleTypeArray -> throw unsupportedMultiType
-        null -> when {
-            `$ref` != null -> RefTypeSpec {
-                name(`$ref`.substringAfter("#/definitions/").capitalize())
-            }
-            enum != null && name != null -> EnumTypeSpec<JsonSchemaObject> {
-                name(name)
-                values(enum)
-            }
-            oneOf != null && title != null -> UnionSpec<JsonSchemaObject> {
-                name(title)
-                oneOf
-                        .map { it.type() }
-                        .filter { it is StructSpec }
-                        .map { it as StructSpec }
-                        .forEach {
-                            shape(it)
-                        }
-            }
-            else -> throw unsupportedFields
+        spec
+    }
+    is TypeSimpleTypeArray -> throw unsupportedMultiType
+    null -> when {
+        `$ref` != null -> RefTypeSpec {
+            name(`$ref`.substringAfter("#/definitions/").capitalize())
         }
+        enum != null && name != null -> EnumTypeSpec {
+            name(name)
+            values(enum)
+        }
+        oneOf != null && title != null -> UnionSpec {
+            name(title)
+            oneOf
+                    .map { it.type() }
+                    .filter { it is StructSpec }
+                    .map { it as StructSpec }
+                    .forEach {
+                        shape(it)
+                    }
+        }
+        else -> throw unsupportedFields
     }
 }
 
