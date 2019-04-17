@@ -13,15 +13,9 @@ interface Builder<S : Spec<B>, B : Builder<S, B>> {
     val genericContext: GenericContext
         get() = NopGenericContext
 
-    operator fun S.unaryPlus() = plus(this)
-
-    operator fun Body<B>.unaryPlus() = plus(this)
-
-    operator fun plus(spec: S) {
-        plus(spec.body)
+    fun apply(spec: S) {
+        val body = spec.body as? Builder<S, B>.() -> Unit ?: return
+        apply(body)
     }
 
-    operator fun plus(body: Body<B>) {
-        this.let { it as? B }?.let(body)
-    }
 }

@@ -6,9 +6,9 @@ val sampleSpec = SchemaSpec {
 
     struct("Empty")
 
-    +primitivesSpecs
-    +containerSpecs
-    +mixedSpecs
+    apply(primitivesSpecs)
+    apply(containerSpecs)
+    apply(mixedSpecs)
 }
 
 val primitivesSpecs = SchemaSpec {

@@ -15,10 +15,10 @@ val structurizrSchema = SchemaSpec {
         field("documentation", option(ref("Documentation")))
     }
 
-    +modelSchema
-    +viewSchema
-    +configurationSchema
-    +documentationSchema
+    apply(modelSchema)
+    apply(viewSchema)
+    apply(configurationSchema)
+    apply(documentationSchema)
 }
 
 val modelSchema = SchemaSpec {
