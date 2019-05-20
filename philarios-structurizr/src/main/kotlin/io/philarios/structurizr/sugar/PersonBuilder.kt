@@ -15,11 +15,16 @@ fun <T : Any> PersonBuilder.relationship(destinationId: T, body: RelationshipBui
     }
 }
 
-fun  PersonBuilder.internal() {
+fun PersonBuilder.internal() {
     location(Location.Internal)
+    tag("Internal")
 }
 
-fun  PersonBuilder.external() {
+fun PersonBuilder.external() {
     location(Location.External)
+    tag("External")
 }
 
+fun PersonBuilder.bot() {
+    tag("Bot")
+}
