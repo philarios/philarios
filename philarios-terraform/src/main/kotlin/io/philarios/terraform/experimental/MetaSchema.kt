@@ -52,7 +52,7 @@ data class ResourceProviderSchema(
 )
 
 @TerraformExperimental
-fun providerSchema(schema: ResourceProviderSchema) = SchemaSpec {
+fun providerSchema(schema: ResourceProviderSchema) = schema {
     name("ProviderAWS")
     pkg("io.philarios.terraform.sugar.provider.aws")
 
@@ -78,7 +78,7 @@ fun providerSchema(schema: ResourceProviderSchema) = SchemaSpec {
 }
 
 @TerraformExperimental
-fun schemaInfoStruct(name: String, schemaInfo: SchemaInfo) = StructSpec {
+fun schemaInfoStruct(name: String, schemaInfo: SchemaInfo) = struct {
     name(name)
 
     schemaInfo.entries.forEach {

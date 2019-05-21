@@ -1,9 +1,11 @@
 package io.philarios.schema.entities.codegen
 
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.TypeSpec
 import io.philarios.schema.RefType
 import io.philarios.schema.Schema
 import io.philarios.schema.Type
+import io.philarios.schema.entities.codegen.functions.spec.specFunSpecs
 import io.philarios.schema.entities.codegen.types.builder.builderInterfaceTypeSpecs
 import io.philarios.schema.entities.codegen.types.builder.builderShellTypeSpecs
 import io.philarios.schema.entities.codegen.types.model.modelTypeSpecs
@@ -34,28 +36,38 @@ internal enum class Layer(val fileName: String) {
     SCAFFOLD("Scaffolding")
 }
 
-internal fun Schema.typeSpecsByClassifer(): Map<Classifier, List<TypeSpec>> {
+internal fun Schema.codeSpecsByClassifier(): Map<Classifier, CodeSpecs> {
     val schemaWithPkg = propagatePkg()
     val typeRefs = schemaWithPkg.buildTypeRefs()
-    return schemaWithPkg.typeSpecsByClassifer(typeRefs)
+    return schemaWithPkg.codeSpecsByClassifier(typeRefs)
 }
 
-internal fun Schema.typeSpecsByClassifer(typeRefs: Map<RefType, Type>): Map<Classifier, List<TypeSpec>> {
+internal fun Schema.codeSpecsByClassifier(typeRefs: Map<RefType, Type>): Map<Classifier, CodeSpecs> {
     return types.flatMap { type ->
         val typeName = type.className.simpleName()
-        type.typeSpecsByKind(typeRefs)
+        type.codeSpecsByKind(typeRefs)
                 .map { Pair(Classifier(typeName, it.key), it.value) }
     }.toMap()
 }
 
-internal fun Type.typeSpecsByKind(typeRefs: Map<RefType, Type>): Map<Kind, List<TypeSpec>> {
+internal fun Type.codeSpecsByKind(typeRefs: Map<RefType, Type>): Map<Kind, CodeSpecs> {
     return mapOf(
-            Kind.MODEL to modelTypeSpecs,
-            Kind.SPEC to specTypeSpecs,
-            Kind.BUILDER to builderInterfaceTypeSpecs(typeRefs),
-            Kind.REF to refTypeSpecs,
-            Kind.SCAFFOLDER to scaffolderTypeSpecs,
-            Kind.BUILDER_SHELL to builderShellTypeSpecs(typeRefs),
-            Kind.SHELL to shellTypeSpecs(typeRefs)
+            Kind.MODEL to CodeSpecs(modelTypeSpecs),
+            Kind.SPEC to CodeSpecs(specTypeSpecs, specFunSpecs),
+            Kind.BUILDER to CodeSpecs(builderInterfaceTypeSpecs(typeRefs)),
+            Kind.REF to CodeSpecs(refTypeSpecs),
+            Kind.SCAFFOLDER to CodeSpecs(scaffolderTypeSpecs),
+            Kind.BUILDER_SHELL to CodeSpecs(builderShellTypeSpecs(typeRefs)),
+            Kind.SHELL to CodeSpecs(shellTypeSpecs(typeRefs))
     )
 }
+
+data class CodeSpecs(
+        val typeSpecs: List<TypeSpec> = emptyList(),
+        val funSpecs: List<FunSpec> = emptyList()
+)
+
+operator fun CodeSpecs.plus(other: CodeSpecs) = CodeSpecs(
+        typeSpecs = typeSpecs + other.typeSpecs,
+        funSpecs = funSpecs + other.funSpecs
+)

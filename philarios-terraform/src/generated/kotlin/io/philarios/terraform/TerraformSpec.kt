@@ -148,3 +148,15 @@ interface OutputBuilder : Builder<OutputSpec, OutputBuilder> {
 }
 
 class OutputRef(internal val key: String)
+
+fun terraform(body: TerraformBuilder.() -> Unit): TerraformSpec = TerraformSpec(body)
+
+fun resource(body: ResourceBuilder.() -> Unit): ResourceSpec = ResourceSpec(body)
+
+fun dataSource(body: DataSourceBuilder.() -> Unit): DataSourceSpec = DataSourceSpec(body)
+
+fun provider(body: ProviderBuilder.() -> Unit): ProviderSpec = ProviderSpec(body)
+
+fun variable(body: VariableBuilder.() -> Unit): VariableSpec = VariableSpec(body)
+
+fun output(body: OutputBuilder.() -> Unit): OutputSpec = OutputSpec(body)

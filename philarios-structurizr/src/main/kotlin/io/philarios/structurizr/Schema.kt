@@ -2,7 +2,7 @@ package io.philarios.structurizr
 
 import io.philarios.schema.*
 
-val structurizrSchema = SchemaSpec {
+val structurizrSchema = schema {
     name("Structurizr")
     pkg("io.philarios.structurizr")
 
@@ -21,7 +21,7 @@ val structurizrSchema = SchemaSpec {
     apply(documentationSchema)
 }
 
-val modelSchema = SchemaSpec {
+val modelSchema = schema {
     struct("Model") {
         field("people", list(ref("Person"))) {
             singularName("person")
@@ -88,7 +88,7 @@ val modelSchema = SchemaSpec {
     }
 }
 
-val viewSchema = SchemaSpec {
+val viewSchema = schema {
     struct("ViewSet") {
         field("systemLandscapeViews", option(list(ref("SystemLandscapeView"))))
         field("systemContextViews", option(list(ref("SystemContextView"))))
@@ -279,7 +279,7 @@ val viewSchema = SchemaSpec {
     }
 }
 
-val configurationSchema = SchemaSpec {
+val configurationSchema = schema {
     struct("WorkspaceConfiguration") {
         field("users", list(ref("User")))
     }
@@ -295,7 +295,7 @@ val configurationSchema = SchemaSpec {
     }
 }
 
-val documentationSchema = SchemaSpec {
+val documentationSchema = schema {
     struct("Documentation") {
         field("decisions", list(ref("Decision")))
     }

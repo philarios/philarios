@@ -47,3 +47,7 @@ sealed class EntryRef<T : Entry> {
 class DirectoryRef(override val key: String) : EntryRef<Directory>()
 
 class FileRef(override val key: String) : EntryRef<File>()
+
+fun directory(body: DirectoryBuilder.() -> Unit): DirectorySpec = DirectorySpec(body)
+
+fun file(body: FileBuilder.() -> Unit): FileSpec = FileSpec(body)

@@ -1,7 +1,11 @@
 package io.philarios.schema.entities.codegen.functions.spec
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.ParameterSpec
 import io.philarios.schema.Struct
+import io.philarios.schema.entities.codegen.util.builderClassName
 import io.philarios.schema.entities.codegen.util.className
 import io.philarios.schema.entities.codegen.util.specClassName
 
@@ -13,20 +17,17 @@ internal val Struct.specFunSpec
         }
 
 internal val Struct.objectSpecFunSpec: FunSpec
-    get() = FunSpec.builder(specTypeName.rawType.simpleName())
-            .returns(specTypeName)
-            .addStatement("return %T()", specTypeName)
+    get() = FunSpec.builder(className.simpleName().decapitalize())
+            .returns(specClassName)
+            .addStatement("return %T()", specClassName)
             .build()
 
 internal val Struct.dataClassSpecFunSpec: FunSpec
-    get() = FunSpec.builder(specTypeName.rawType.simpleName())
+    get() = FunSpec.builder(className.simpleName().decapitalize())
             .addParameter(parameterSpec)
-            .returns(specTypeName)
-            .addStatement("return %T(%L)", specTypeName, "body")
+            .returns(specClassName)
+            .addStatement("return %T(%L)", specClassName, "body")
             .build()
-
-val Struct.specTypeName
-    get() = ParameterizedTypeName.get(specClassName, TypeVariableName("Any?"))
 
 private val Struct.parameterSpec: ParameterSpec
     get() = ParameterSpec
@@ -35,7 +36,4 @@ private val Struct.parameterSpec: ParameterSpec
 
 private val Struct.lambdaTypeName
     get() = LambdaTypeName
-            .get(builderTypeName, emptyList(), ClassName("", "Unit"))
-
-private val Struct.builderTypeName
-    get() = ParameterizedTypeName.get(className("Builder"), TypeVariableName("Any?"))
+            .get(builderClassName, emptyList(), ClassName("", "Unit"))

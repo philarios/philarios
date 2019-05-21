@@ -3,7 +3,7 @@ package io.philarios.structurizr
 import io.philarios.structurizr.sugar.*
 import io.philarios.structurizr.usecases.putWorkspaceSpec
 
-val workspace = WorkspaceSpec {
+val workspace = workspace {
     name("Test")
     description("This is a test workspace")
 

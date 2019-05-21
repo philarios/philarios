@@ -698,3 +698,41 @@ interface GroupBuilder : Builder<GroupSpec, GroupBuilder> {
 }
 
 class GroupRef(internal val key: String)
+
+fun concourse(body: ConcourseBuilder.() -> Unit): ConcourseSpec = ConcourseSpec(body)
+
+fun team(body: TeamBuilder.() -> Unit): TeamSpec = TeamSpec(body)
+
+fun pipeline(body: PipelineBuilder.() -> Unit): PipelineSpec = PipelineSpec(body)
+
+fun job(body: JobBuilder.() -> Unit): JobSpec = JobSpec(body)
+
+fun get(body: GetBuilder.() -> Unit): GetSpec = GetSpec(body)
+
+fun put(body: PutBuilder.() -> Unit): PutSpec = PutSpec(body)
+
+fun task(body: TaskBuilder.() -> Unit): TaskSpec = TaskSpec(body)
+
+fun aggregate(body: AggregateBuilder.() -> Unit): AggregateSpec = AggregateSpec(body)
+
+fun `do`(body: DoBuilder.() -> Unit): DoSpec = DoSpec(body)
+
+fun `try`(body: TryBuilder.() -> Unit): TrySpec = TrySpec(body)
+
+fun taskConfig(body: TaskConfigBuilder.() -> Unit): TaskConfigSpec = TaskConfigSpec(body)
+
+fun taskResource(body: TaskResourceBuilder.() -> Unit): TaskResourceSpec = TaskResourceSpec(body)
+
+fun taskInput(body: TaskInputBuilder.() -> Unit): TaskInputSpec = TaskInputSpec(body)
+
+fun taskOutput(body: TaskOutputBuilder.() -> Unit): TaskOutputSpec = TaskOutputSpec(body)
+
+fun taskCache(body: TaskCacheBuilder.() -> Unit): TaskCacheSpec = TaskCacheSpec(body)
+
+fun taskRunConfig(body: TaskRunConfigBuilder.() -> Unit): TaskRunConfigSpec = TaskRunConfigSpec(body)
+
+fun resource(body: ResourceBuilder.() -> Unit): ResourceSpec = ResourceSpec(body)
+
+fun resourceType(body: ResourceTypeBuilder.() -> Unit): ResourceTypeSpec = ResourceTypeSpec(body)
+
+fun group(body: GroupBuilder.() -> Unit): GroupSpec = GroupSpec(body)

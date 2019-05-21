@@ -673,3 +673,51 @@ interface DecisionBuilder : Builder<DecisionSpec, DecisionBuilder> {
 }
 
 class DecisionRef(internal val key: String)
+
+fun workspace(body: WorkspaceBuilder.() -> Unit): WorkspaceSpec = WorkspaceSpec(body)
+
+fun model(body: ModelBuilder.() -> Unit): ModelSpec = ModelSpec(body)
+
+fun person(body: PersonBuilder.() -> Unit): PersonSpec = PersonSpec(body)
+
+fun softwareSystem(body: SoftwareSystemBuilder.() -> Unit): SoftwareSystemSpec = SoftwareSystemSpec(body)
+
+fun container(body: ContainerBuilder.() -> Unit): ContainerSpec = ContainerSpec(body)
+
+fun component(body: ComponentBuilder.() -> Unit): ComponentSpec = ComponentSpec(body)
+
+fun relationship(body: RelationshipBuilder.() -> Unit): RelationshipSpec = RelationshipSpec(body)
+
+fun viewSet(body: ViewSetBuilder.() -> Unit): ViewSetSpec = ViewSetSpec(body)
+
+fun systemLandscapeView(body: SystemLandscapeViewBuilder.() -> Unit): SystemLandscapeViewSpec = SystemLandscapeViewSpec(body)
+
+fun systemContextView(body: SystemContextViewBuilder.() -> Unit): SystemContextViewSpec = SystemContextViewSpec(body)
+
+fun containerView(body: ContainerViewBuilder.() -> Unit): ContainerViewSpec = ContainerViewSpec(body)
+
+fun componentView(body: ComponentViewBuilder.() -> Unit): ComponentViewSpec = ComponentViewSpec(body)
+
+fun dynamicView(body: DynamicViewBuilder.() -> Unit): DynamicViewSpec = DynamicViewSpec(body)
+
+fun configuration(body: ConfigurationBuilder.() -> Unit): ConfigurationSpec = ConfigurationSpec(body)
+
+fun branding(body: BrandingBuilder.() -> Unit): BrandingSpec = BrandingSpec(body)
+
+fun font(body: FontBuilder.() -> Unit): FontSpec = FontSpec(body)
+
+fun styles(body: StylesBuilder.() -> Unit): StylesSpec = StylesSpec(body)
+
+fun elementStyle(body: ElementStyleBuilder.() -> Unit): ElementStyleSpec = ElementStyleSpec(body)
+
+fun relationshipStyle(body: RelationshipStyleBuilder.() -> Unit): RelationshipStyleSpec = RelationshipStyleSpec(body)
+
+fun terminology(body: TerminologyBuilder.() -> Unit): TerminologySpec = TerminologySpec(body)
+
+fun workspaceConfiguration(body: WorkspaceConfigurationBuilder.() -> Unit): WorkspaceConfigurationSpec = WorkspaceConfigurationSpec(body)
+
+fun user(body: UserBuilder.() -> Unit): UserSpec = UserSpec(body)
+
+fun documentation(body: DocumentationBuilder.() -> Unit): DocumentationSpec = DocumentationSpec(body)
+
+fun decision(body: DecisionBuilder.() -> Unit): DecisionSpec = DecisionSpec(body)

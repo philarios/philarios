@@ -4,7 +4,7 @@ import io.philarios.schema.*
 import io.philarios.schema.Type
 
 internal fun jsonSchemaSchema(pkg: String, schemaName: String, jsonSchemaObject: JsonSchemaObject) =
-        SchemaSpec {
+        schema {
             pkg(pkg)
             name(schemaName)
 

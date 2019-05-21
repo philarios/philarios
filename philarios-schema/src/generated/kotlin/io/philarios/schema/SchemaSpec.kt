@@ -197,3 +197,41 @@ interface FieldBuilder : Builder<FieldSpec, FieldBuilder> {
 }
 
 class FieldRef(internal val key: String)
+
+fun schema(body: SchemaBuilder.() -> Unit): SchemaSpec = SchemaSpec(body)
+
+fun struct(body: StructBuilder.() -> Unit): StructSpec = StructSpec(body)
+
+fun union(body: UnionBuilder.() -> Unit): UnionSpec = UnionSpec(body)
+
+fun enumType(body: EnumTypeBuilder.() -> Unit): EnumTypeSpec = EnumTypeSpec(body)
+
+fun refType(body: RefTypeBuilder.() -> Unit): RefTypeSpec = RefTypeSpec(body)
+
+fun optionType(body: OptionTypeBuilder.() -> Unit): OptionTypeSpec = OptionTypeSpec(body)
+
+fun listType(body: ListTypeBuilder.() -> Unit): ListTypeSpec = ListTypeSpec(body)
+
+fun mapType(body: MapTypeBuilder.() -> Unit): MapTypeSpec = MapTypeSpec(body)
+
+fun booleanType(): BooleanTypeSpec = BooleanTypeSpec()
+
+fun doubleType(): DoubleTypeSpec = DoubleTypeSpec()
+
+fun floatType(): FloatTypeSpec = FloatTypeSpec()
+
+fun longType(): LongTypeSpec = LongTypeSpec()
+
+fun intType(): IntTypeSpec = IntTypeSpec()
+
+fun shortType(): ShortTypeSpec = ShortTypeSpec()
+
+fun byteType(): ByteTypeSpec = ByteTypeSpec()
+
+fun characterType(): CharacterTypeSpec = CharacterTypeSpec()
+
+fun stringType(): StringTypeSpec = StringTypeSpec()
+
+fun anyType(): AnyTypeSpec = AnyTypeSpec()
+
+fun field(body: FieldBuilder.() -> Unit): FieldSpec = FieldSpec(body)

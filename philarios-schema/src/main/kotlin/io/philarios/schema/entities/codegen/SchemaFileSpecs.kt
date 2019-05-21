@@ -9,41 +9,44 @@ internal fun Schema.fileSpecs(): List<FileSpec> {
 }
 
 private fun Schema.fileSpecsByType(): List<FileSpec> {
-    return typeSpecsByClassifer()
+    return codeSpecsByClassifier()
             .entries
             .groupBy { it.key.type }
-            .mapValues { it.value.flatMap { it.value } }
+            .mapValues { it.value.map { it.value }.reduce(CodeSpecs::plus) }
             .map {
                 FileSpec.builder(pkg, it.key)
                         .addStaticImport("kotlinx.coroutines", "coroutineScope", "launch")
-                        .addTypes(it.value)
+                        .addTypes(it.value.typeSpecs)
+                        .addFunctions(it.value.funSpecs)
                         .build()
             }
 }
 
 private fun Schema.fileSpecsByKind(): List<FileSpec> {
-    return typeSpecsByClassifer()
+    return codeSpecsByClassifier()
             .entries
             .groupBy { it.key.kind }
-            .mapValues { it.value.flatMap { it.value } }
+            .mapValues { it.value.map { it.value }.reduce(CodeSpecs::plus) }
             .map {
                 FileSpec.builder(pkg, "$name${it.key.fileName}")
                         .addStaticImport("kotlinx.coroutines", "coroutineScope", "launch")
-                        .addTypes(it.value)
+                        .addTypes(it.value.typeSpecs)
+                        .addFunctions(it.value.funSpecs)
                         .build()
             }
 }
 
 private fun Schema.fileSpecsByLayer(): List<FileSpec> {
-    return typeSpecsByClassifer()
+    return codeSpecsByClassifier()
             .entries
             .groupBy { it.key.kind.layer }
-            .mapValues { it.value.flatMap { it.value } }
+            .mapValues { it.value.map { it.value }.reduce(CodeSpecs::plus) }
             .map {
                 FileSpec.builder(pkg, "$name${it.key.fileName}")
                         .addComment(it.key.comment())
                         .addStaticImports(it.key.imports())
-                        .addTypes(it.value)
+                        .addTypes(it.value.typeSpecs)
+                        .addFunctions(it.value.funSpecs)
                         .build()
             }
 }

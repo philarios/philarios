@@ -1,6 +1,6 @@
 package io.philarios.schema
 
-val schemaSchema = SchemaSpec {
+val schemaSchema = schema {
     name("Schema")
     pkg("io.philarios.schema")
 

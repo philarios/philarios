@@ -631,3 +631,73 @@ interface FilterBuilder : Builder<FilterSpec, FilterBuilder> {
 }
 
 class FilterRef(internal val key: String)
+
+fun circleCI(body: CircleCIBuilder.() -> Unit): CircleCISpec = CircleCISpec(body)
+
+fun job(body: JobBuilder.() -> Unit): JobSpec = JobSpec(body)
+
+fun dockerExecutor(body: DockerExecutorBuilder.() -> Unit): DockerExecutorSpec = DockerExecutorSpec(body)
+
+fun auth(body: AuthBuilder.() -> Unit): AuthSpec = AuthSpec(body)
+
+fun awsAuth(body: AwsAuthBuilder.() -> Unit): AwsAuthSpec = AwsAuthSpec(body)
+
+fun machineExecutor(body: MachineExecutorBuilder.() -> Unit): MachineExecutorSpec = MachineExecutorSpec(body)
+
+fun macosExecutor(body: MacosExecutorBuilder.() -> Unit): MacosExecutorSpec = MacosExecutorSpec(body)
+
+fun runStep(body: RunStepBuilder.() -> Unit): RunStepSpec = RunStepSpec(body)
+
+fun checkoutStep(body: CheckoutStepBuilder.() -> Unit): CheckoutStepSpec = CheckoutStepSpec(body)
+
+fun setupRemoteDockerStep(body: SetupRemoteDockerStepBuilder.() -> Unit): SetupRemoteDockerStepSpec = SetupRemoteDockerStepSpec(body)
+
+fun saveCacheStep(body: SaveCacheStepBuilder.() -> Unit): SaveCacheStepSpec = SaveCacheStepSpec(body)
+
+fun restoreCacheStep(body: RestoreCacheStepBuilder.() -> Unit): RestoreCacheStepSpec = RestoreCacheStepSpec(body)
+
+fun deployStep(body: DeployStepBuilder.() -> Unit): DeployStepSpec = DeployStepSpec(body)
+
+fun storeArtifactsStep(body: StoreArtifactsStepBuilder.() -> Unit): StoreArtifactsStepSpec = StoreArtifactsStepSpec(body)
+
+fun storeTestResultsStep(body: StoreTestResultsStepBuilder.() -> Unit): StoreTestResultsStepSpec = StoreTestResultsStepSpec(body)
+
+fun persistToWorkspaceStep(body: PersistToWorkspaceStepBuilder.() -> Unit): PersistToWorkspaceStepSpec = PersistToWorkspaceStepSpec(body)
+
+fun attachWorkspaceStep(body: AttachWorkspaceStepBuilder.() -> Unit): AttachWorkspaceStepSpec = AttachWorkspaceStepSpec(body)
+
+fun addSshKeysStep(body: AddSshKeysStepBuilder.() -> Unit): AddSshKeysStepSpec = AddSshKeysStepSpec(body)
+
+fun run(body: RunBuilder.() -> Unit): RunSpec = RunSpec(body)
+
+fun checkout(body: CheckoutBuilder.() -> Unit): CheckoutSpec = CheckoutSpec(body)
+
+fun setupRemoteDocker(body: SetupRemoteDockerBuilder.() -> Unit): SetupRemoteDockerSpec = SetupRemoteDockerSpec(body)
+
+fun saveCache(body: SaveCacheBuilder.() -> Unit): SaveCacheSpec = SaveCacheSpec(body)
+
+fun restoreCache(body: RestoreCacheBuilder.() -> Unit): RestoreCacheSpec = RestoreCacheSpec(body)
+
+fun storeArtifacts(body: StoreArtifactsBuilder.() -> Unit): StoreArtifactsSpec = StoreArtifactsSpec(body)
+
+fun storeTestResults(body: StoreTestResultsBuilder.() -> Unit): StoreTestResultsSpec = StoreTestResultsSpec(body)
+
+fun persistToWorkspace(body: PersistToWorkspaceBuilder.() -> Unit): PersistToWorkspaceSpec = PersistToWorkspaceSpec(body)
+
+fun attachWorkspace(body: AttachWorkspaceBuilder.() -> Unit): AttachWorkspaceSpec = AttachWorkspaceSpec(body)
+
+fun addSshKeys(body: AddSshKeysBuilder.() -> Unit): AddSshKeysSpec = AddSshKeysSpec(body)
+
+fun workflow(body: WorkflowBuilder.() -> Unit): WorkflowSpec = WorkflowSpec(body)
+
+fun workflowTrigger(body: WorkflowTriggerBuilder.() -> Unit): WorkflowTriggerSpec = WorkflowTriggerSpec(body)
+
+fun workflowTriggerSchedule(body: WorkflowTriggerScheduleBuilder.() -> Unit): WorkflowTriggerScheduleSpec = WorkflowTriggerScheduleSpec(body)
+
+fun workflowTriggerScheduleFilters(body: WorkflowTriggerScheduleFiltersBuilder.() -> Unit): WorkflowTriggerScheduleFiltersSpec = WorkflowTriggerScheduleFiltersSpec(body)
+
+fun workflowJob(body: WorkflowJobBuilder.() -> Unit): WorkflowJobSpec = WorkflowJobSpec(body)
+
+fun workflowJobFilter(body: WorkflowJobFilterBuilder.() -> Unit): WorkflowJobFilterSpec = WorkflowJobFilterSpec(body)
+
+fun filter(body: FilterBuilder.() -> Unit): FilterSpec = FilterSpec(body)
