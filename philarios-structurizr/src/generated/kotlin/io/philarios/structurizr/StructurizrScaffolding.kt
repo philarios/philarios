@@ -584,6 +584,10 @@ class RelationshipScaffolder(internal val spec: RelationshipSpec) : Scaffolder<R
 
 @DslBuilder
 internal class RelationshipShellBuilder(internal var shell: RelationshipShell = RelationshipShell()) : RelationshipBuilder {
+    override fun sourceId(value: String) {
+        shell = shell.copy(sourceId = Wrapper(value))
+    }
+
     override fun destinationId(value: String) {
         shell = shell.copy(destinationId = Wrapper(value))
     }
@@ -614,6 +618,7 @@ internal class RelationshipShellBuilder(internal var shell: RelationshipShell = 
 }
 
 internal data class RelationshipShell(
+        var sourceId: Scaffold<String>? = null,
         var destinationId: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var technologies: List<Scaffold<String>>? = null,
@@ -621,9 +626,9 @@ internal data class RelationshipShell(
         var tags: List<Scaffold<String>>? = null
 ) : Scaffold<Relationship> {
     override suspend fun resolve(registry: Registry): Relationship {
-        checkNotNull(destinationId) { "Relationship is missing the destinationId property" }
         val value = Relationship(
-            destinationId!!.let{ it.resolve(registry) },
+            sourceId?.let{ it.resolve(registry) },
+            destinationId?.let{ it.resolve(registry) },
             description?.let{ it.resolve(registry) },
             technologies.orEmpty().let{ it.map { it.resolve(registry) } },
             interactionStyle?.let{ it.resolve(registry) },

@@ -68,7 +68,8 @@ val modelSchema = SchemaSpec {
     }
 
     struct("Relationship") {
-        field("destinationId", StringType)
+        field("sourceId", option(StringType))
+        field("destinationId", option(StringType))
         field("description", option(StringType))
         field("technologies", list(StringType))
         field("interactionStyle", option(ref("InteractionStyle")))

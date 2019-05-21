@@ -63,7 +63,8 @@ data class Component(
 )
 
 data class Relationship(
-        val destinationId: String,
+        val sourceId: String?,
+        val destinationId: String?,
         val description: String?,
         val technologies: List<String>,
         val interactionStyle: InteractionStyle?,

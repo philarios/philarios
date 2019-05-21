@@ -15,7 +15,14 @@ fun <T : Any> ContainerBuilder.component(id: T, body: ComponentBuilder.() -> Uni
     }
 }
 
-fun <T : Any> ContainerBuilder.relationship(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
+fun <T : Any> ContainerBuilder.relationshipFrom(sourceId: T, body: RelationshipBuilder.() -> Unit = {}) {
+    relationship {
+        sourceId(sourceId)
+        apply(body)
+    }
+}
+
+fun <T : Any> ContainerBuilder.relationshipTo(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
     relationship {
         destinationId(destinationId)
         apply(body)

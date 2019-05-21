@@ -8,7 +8,14 @@ fun <T : Any> PersonBuilder.id(id: T) {
     id(id.hierarchicalId())
 }
 
-fun <T : Any> PersonBuilder.relationship(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
+fun <T : Any> PersonBuilder.relationshipFrom(sourceId: T, body: RelationshipBuilder.() -> Unit = {}) {
+    relationship {
+        sourceId(sourceId)
+        apply(body)
+    }
+}
+
+fun <T : Any> PersonBuilder.relationshipTo(destinationId: T, body: RelationshipBuilder.() -> Unit = {}) {
     relationship {
         destinationId(destinationId)
         apply(body)

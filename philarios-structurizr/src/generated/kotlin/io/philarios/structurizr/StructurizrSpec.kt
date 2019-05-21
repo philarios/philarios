@@ -232,6 +232,8 @@ class RelationshipSpec(override val body: RelationshipBuilder.() -> Unit) : Spec
 
 @DslBuilder
 interface RelationshipBuilder : Builder<RelationshipSpec, RelationshipBuilder> {
+    fun sourceId(value: String)
+
     fun destinationId(value: String)
 
     fun description(value: String)

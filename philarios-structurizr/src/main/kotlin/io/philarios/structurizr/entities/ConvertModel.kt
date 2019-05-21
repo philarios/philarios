@@ -99,10 +99,25 @@ private fun connectStaticStructureElements(
         id: String,
         relationships: List<Relationship>
 ) {
-    map[id]?.let { source ->
+    map[id]?.let { self ->
         relationships.forEach { relationship ->
-            map[relationship.destinationId]?.let { destination ->
+            check(relationship.sourceId != null || relationship.destinationId != null) {
+                "Neither the sourceId nor the destinationId is set for $relationship"
+            }
+            check(relationship.sourceId == null || relationship.destinationId == null) {
+                "Both the sourceId or the destinationId are set for $relationship"
+            }
+
+            map[relationship.sourceId]?.let { source ->
                 source.uses(
+                        self,
+                        relationship.description,
+                        relationship.technologies.joinTechnologies(),
+                        relationship.interactionStyle?.collect() ?: SInteractionStyle.Synchronous
+                ).also { it!!.addTags(*relationship.tags.toTypedArray()) }
+            }
+            map[relationship.destinationId]?.let { destination ->
+                self.uses(
                         destination,
                         relationship.description,
                         relationship.technologies.joinTechnologies(),

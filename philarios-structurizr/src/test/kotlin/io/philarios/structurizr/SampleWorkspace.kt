@@ -50,7 +50,7 @@ private fun ModelBuilder.people() {
         description("An admin user of the system")
         internal()
 
-        relationship(IndexingId.ROOT) {
+        relationshipTo(IndexingId.ROOT) {
             description("manages the indexing logic")
             technology("brain")
         }
@@ -59,11 +59,6 @@ private fun ModelBuilder.people() {
         name("User")
         description("A normal user")
         external()
-
-        relationship(TodoId.ROOT) {
-            description("uses the app")
-            technology("fingers")
-        }
     }
 }
 
@@ -73,7 +68,7 @@ private fun ModelBuilder.indexingSoftwareSystem() {
         description("Indexes the todo list for machine learning magic")
         internal()
 
-        relationship(TodoId.ROOT) {
+        relationshipTo(TodoId.ROOT) {
             description("reads todo list from")
             technology("Kafka")
             asynchronous()
@@ -88,12 +83,17 @@ private fun ModelBuilder.todoSoftwareSystem() {
         description("A simple todo app")
         internal()
 
+        relationshipFrom(PersonId.USER) {
+            description("uses the app")
+            technology("fingers")
+        }
+
         container(TodoId.APP) {
             name("app")
             description("displays the todo list")
             technology("Android")
 
-            relationship(TodoId.API) {
+            relationshipTo(TodoId.API) {
                 description("sends requests to the API")
                 technology("HTTP")
                 technology("REST")
@@ -104,7 +104,7 @@ private fun ModelBuilder.todoSoftwareSystem() {
             description("answers requests from the app")
             technology("Java")
 
-            relationship(TodoId.DATABASE) {
+            relationshipTo(TodoId.DATABASE) {
                 description("issues queries to the database")
                 technology("JDBC")
             }
@@ -124,7 +124,7 @@ private fun ModelBuilder.todoSoftwareSystem() {
                 description("queries the database")
                 technology("JPA")
 
-                relationship(TodoId.DATABASE) {
+                relationshipTo(TodoId.DATABASE) {
                     description("issues queries to the datbase")
                     technology("JDBC")
                     synchronous()
