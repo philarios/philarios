@@ -56,25 +56,25 @@ class ListTypeSpec(override val body: ListTypeBuilder.() -> Unit) : TypeSpec<Lis
 class MapTypeSpec(override val body: MapTypeBuilder.() -> Unit) : TypeSpec<MapType>(),
         Spec<MapTypeBuilder>
 
-class BooleanTypeSpec : TypeSpec<BooleanType>()
+object BooleanTypeSpec : TypeSpec<BooleanType>()
 
-class DoubleTypeSpec : TypeSpec<DoubleType>()
+object DoubleTypeSpec : TypeSpec<DoubleType>()
 
-class FloatTypeSpec : TypeSpec<FloatType>()
+object FloatTypeSpec : TypeSpec<FloatType>()
 
-class LongTypeSpec : TypeSpec<LongType>()
+object LongTypeSpec : TypeSpec<LongType>()
 
-class IntTypeSpec : TypeSpec<IntType>()
+object IntTypeSpec : TypeSpec<IntType>()
 
-class ShortTypeSpec : TypeSpec<ShortType>()
+object ShortTypeSpec : TypeSpec<ShortType>()
 
-class ByteTypeSpec : TypeSpec<ByteType>()
+object ByteTypeSpec : TypeSpec<ByteType>()
 
-class CharacterTypeSpec : TypeSpec<CharacterType>()
+object CharacterTypeSpec : TypeSpec<CharacterType>()
 
-class StringTypeSpec : TypeSpec<StringType>()
+object StringTypeSpec : TypeSpec<StringType>()
 
-class AnyTypeSpec : TypeSpec<AnyType>()
+object AnyTypeSpec : TypeSpec<AnyType>()
 
 @DslBuilder
 interface StructBuilder : Builder<StructSpec, StructBuilder> {
@@ -214,24 +214,24 @@ fun listType(body: ListTypeBuilder.() -> Unit): ListTypeSpec = ListTypeSpec(body
 
 fun mapType(body: MapTypeBuilder.() -> Unit): MapTypeSpec = MapTypeSpec(body)
 
-fun booleanType(): BooleanTypeSpec = BooleanTypeSpec()
+fun booleanType(): BooleanTypeSpec = BooleanTypeSpec
 
-fun doubleType(): DoubleTypeSpec = DoubleTypeSpec()
+fun doubleType(): DoubleTypeSpec = DoubleTypeSpec
 
-fun floatType(): FloatTypeSpec = FloatTypeSpec()
+fun floatType(): FloatTypeSpec = FloatTypeSpec
 
-fun longType(): LongTypeSpec = LongTypeSpec()
+fun longType(): LongTypeSpec = LongTypeSpec
 
-fun intType(): IntTypeSpec = IntTypeSpec()
+fun intType(): IntTypeSpec = IntTypeSpec
 
-fun shortType(): ShortTypeSpec = ShortTypeSpec()
+fun shortType(): ShortTypeSpec = ShortTypeSpec
 
-fun byteType(): ByteTypeSpec = ByteTypeSpec()
+fun byteType(): ByteTypeSpec = ByteTypeSpec
 
-fun characterType(): CharacterTypeSpec = CharacterTypeSpec()
+fun characterType(): CharacterTypeSpec = CharacterTypeSpec
 
-fun stringType(): StringTypeSpec = StringTypeSpec()
+fun stringType(): StringTypeSpec = StringTypeSpec
 
-fun anyType(): AnyTypeSpec = AnyTypeSpec()
+fun anyType(): AnyTypeSpec = AnyTypeSpec
 
 fun field(body: FieldBuilder.() -> Unit): FieldSpec = FieldSpec(body)

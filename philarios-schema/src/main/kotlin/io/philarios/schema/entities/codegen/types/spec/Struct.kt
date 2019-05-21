@@ -14,7 +14,7 @@ internal fun Struct.specTypeSpec(superclass: ClassName? = null) =
         }
 
 private fun Struct.objectSpecTypeSpec(superclass: ClassName?) =
-        TypeSpec.classBuilder(specClassName)
+        TypeSpec.objectBuilder(specClassName)
                 .runIfNotNull(superclass) {
                     superclass(ParameterizedTypeName.get(it, className))
                 }

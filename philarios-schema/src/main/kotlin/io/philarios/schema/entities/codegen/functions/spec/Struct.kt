@@ -19,7 +19,7 @@ internal val Struct.specFunSpec
 internal val Struct.objectSpecFunSpec: FunSpec
     get() = FunSpec.builder(className.simpleName().decapitalize())
             .returns(specClassName)
-            .addStatement("return %T()", specClassName)
+            .addStatement("return %T", specClassName)
             .build()
 
 internal val Struct.dataClassSpecFunSpec: FunSpec

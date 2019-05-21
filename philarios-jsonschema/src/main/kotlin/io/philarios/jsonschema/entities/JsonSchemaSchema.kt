@@ -26,10 +26,10 @@ private fun JsonSchemaObject.type(name: String? = null): TypeSpec<Type> = when (
     is TypeSimpleType -> {
         val spec: TypeSpec<Type> = when (type.value) {
             SimpleType.`null` -> throw unsupportedNullType
-            SimpleType.boolean -> BooleanTypeSpec()
-            SimpleType.integer -> IntTypeSpec()
-            SimpleType.number -> DoubleTypeSpec()
-            SimpleType.string -> StringTypeSpec()
+            SimpleType.boolean -> BooleanTypeSpec
+            SimpleType.integer -> IntTypeSpec
+            SimpleType.number -> DoubleTypeSpec
+            SimpleType.string -> StringTypeSpec
             SimpleType.array -> when {
                 items is ItemsJsonSchema -> ListTypeSpec {
                     type(items.value.type())
