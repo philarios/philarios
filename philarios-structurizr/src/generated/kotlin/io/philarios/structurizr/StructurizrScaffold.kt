@@ -7,8 +7,8 @@
 // issue in the project's repository.
 package io.philarios.structurizr
 
-import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
+import io.philarios.core.RefScaffold
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
 import io.philarios.core.ValueScaffold
@@ -22,88 +22,88 @@ import kotlinx.coroutines.launch
 
 class WorkspaceScaffolder(internal val spec: WorkspaceSpec) : Scaffolder<Workspace> {
     override fun createScaffold(): Scaffold<Workspace> {
-        val builder = WorkspaceShellBuilder()
+        val builder = WorkspaceScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class WorkspaceShellBuilder(internal var shell: WorkspaceShell = WorkspaceShell()) : WorkspaceBuilder {
+internal class WorkspaceScaffoldBuilder(internal var scaffold: WorkspaceScaffold = WorkspaceScaffold()) : WorkspaceBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun model(body: ModelBuilder.() -> Unit) {
-        shell = shell.copy(model = ModelScaffolder(ModelSpec(body)).createScaffold())
+        scaffold = scaffold.copy(model = ModelScaffolder(ModelSpec(body)).createScaffold())
     }
 
     override fun model(spec: ModelSpec) {
-        shell = shell.copy(model = ModelScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(model = ModelScaffolder(spec).createScaffold())
     }
 
     override fun model(ref: ModelRef) {
-        shell = shell.copy(model = RefScaffold(ref.key))
+        scaffold = scaffold.copy(model = RefScaffold(ref.key))
     }
 
     override fun model(value: Model) {
-        shell = shell.copy(model = ValueScaffold(value))
+        scaffold = scaffold.copy(model = ValueScaffold(value))
     }
 
     override fun viewSet(body: ViewSetBuilder.() -> Unit) {
-        shell = shell.copy(viewSet = ViewSetScaffolder(ViewSetSpec(body)).createScaffold())
+        scaffold = scaffold.copy(viewSet = ViewSetScaffolder(ViewSetSpec(body)).createScaffold())
     }
 
     override fun viewSet(spec: ViewSetSpec) {
-        shell = shell.copy(viewSet = ViewSetScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(viewSet = ViewSetScaffolder(spec).createScaffold())
     }
 
     override fun viewSet(ref: ViewSetRef) {
-        shell = shell.copy(viewSet = RefScaffold(ref.key))
+        scaffold = scaffold.copy(viewSet = RefScaffold(ref.key))
     }
 
     override fun viewSet(value: ViewSet) {
-        shell = shell.copy(viewSet = ValueScaffold(value))
+        scaffold = scaffold.copy(viewSet = ValueScaffold(value))
     }
 
     override fun configuration(body: WorkspaceConfigurationBuilder.() -> Unit) {
-        shell = shell.copy(configuration = WorkspaceConfigurationScaffolder(WorkspaceConfigurationSpec(body)).createScaffold())
+        scaffold = scaffold.copy(configuration = WorkspaceConfigurationScaffolder(WorkspaceConfigurationSpec(body)).createScaffold())
     }
 
     override fun configuration(spec: WorkspaceConfigurationSpec) {
-        shell = shell.copy(configuration = WorkspaceConfigurationScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(configuration = WorkspaceConfigurationScaffolder(spec).createScaffold())
     }
 
     override fun configuration(ref: WorkspaceConfigurationRef) {
-        shell = shell.copy(configuration = RefScaffold(ref.key))
+        scaffold = scaffold.copy(configuration = RefScaffold(ref.key))
     }
 
     override fun configuration(value: WorkspaceConfiguration) {
-        shell = shell.copy(configuration = ValueScaffold(value))
+        scaffold = scaffold.copy(configuration = ValueScaffold(value))
     }
 
     override fun documentation(body: DocumentationBuilder.() -> Unit) {
-        shell = shell.copy(documentation = DocumentationScaffolder(DocumentationSpec(body)).createScaffold())
+        scaffold = scaffold.copy(documentation = DocumentationScaffolder(DocumentationSpec(body)).createScaffold())
     }
 
     override fun documentation(spec: DocumentationSpec) {
-        shell = shell.copy(documentation = DocumentationScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(documentation = DocumentationScaffolder(spec).createScaffold())
     }
 
     override fun documentation(ref: DocumentationRef) {
-        shell = shell.copy(documentation = RefScaffold(ref.key))
+        scaffold = scaffold.copy(documentation = RefScaffold(ref.key))
     }
 
     override fun documentation(value: Documentation) {
-        shell = shell.copy(documentation = ValueScaffold(value))
+        scaffold = scaffold.copy(documentation = ValueScaffold(value))
     }
 }
 
-internal data class WorkspaceShell(
+internal data class WorkspaceScaffold(
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var model: Scaffold<Model>? = null,
@@ -133,56 +133,56 @@ internal data class WorkspaceShell(
 
 class ModelScaffolder(internal val spec: ModelSpec) : Scaffolder<Model> {
     override fun createScaffold(): Scaffold<Model> {
-        val builder = ModelShellBuilder()
+        val builder = ModelScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ModelShellBuilder(internal var shell: ModelShell = ModelShell()) : ModelBuilder {
+internal class ModelScaffoldBuilder(internal var scaffold: ModelScaffold = ModelScaffold()) : ModelBuilder {
     override fun person(body: PersonBuilder.() -> Unit) {
-        shell = shell.copy(people = shell.people.orEmpty() + PersonScaffolder(PersonSpec(body)).createScaffold())
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + PersonScaffolder(PersonSpec(body)).createScaffold())
     }
 
     override fun person(spec: PersonSpec) {
-        shell = shell.copy(people = shell.people.orEmpty() + PersonScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + PersonScaffolder(spec).createScaffold())
     }
 
     override fun person(ref: PersonRef) {
-        shell = shell.copy(people = shell.people.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun person(value: Person) {
-        shell = shell.copy(people = shell.people.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + ValueScaffold(value))
     }
 
     override fun people(people: List<Person>) {
-        shell = shell.copy(people = shell.people.orEmpty() + people.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + people.map { ValueScaffold(it) })
     }
 
     override fun softwareSystem(body: SoftwareSystemBuilder.() -> Unit) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + SoftwareSystemScaffolder(SoftwareSystemSpec(body)).createScaffold())
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + SoftwareSystemScaffolder(SoftwareSystemSpec(body)).createScaffold())
     }
 
     override fun softwareSystem(spec: SoftwareSystemSpec) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + SoftwareSystemScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + SoftwareSystemScaffolder(spec).createScaffold())
     }
 
     override fun softwareSystem(ref: SoftwareSystemRef) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun softwareSystem(value: SoftwareSystem) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + ValueScaffold(value))
     }
 
     override fun softwareSystems(softwareSystems: List<SoftwareSystem>) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
     }
 }
 
-internal data class ModelShell(var people: List<Scaffold<Person>>? = null, var softwareSystems: List<Scaffold<SoftwareSystem>>? = null) : Scaffold<Model> {
+internal data class ModelScaffold(var people: List<Scaffold<Person>>? = null, var softwareSystems: List<Scaffold<SoftwareSystem>>? = null) : Scaffold<Model> {
     override suspend fun resolve(registry: Registry): Model {
         coroutineScope {
             people?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -198,60 +198,60 @@ internal data class ModelShell(var people: List<Scaffold<Person>>? = null, var s
 
 class PersonScaffolder(internal val spec: PersonSpec) : Scaffolder<Person> {
     override fun createScaffold(): Scaffold<Person> {
-        val builder = PersonShellBuilder()
+        val builder = PersonScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class PersonShellBuilder(internal var shell: PersonShell = PersonShell()) : PersonBuilder {
+internal class PersonScaffoldBuilder(internal var scaffold: PersonScaffold = PersonScaffold()) : PersonBuilder {
     override fun id(value: String) {
-        shell = shell.copy(id = ValueScaffold(value))
+        scaffold = scaffold.copy(id = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun location(value: Location) {
-        shell = shell.copy(location = ValueScaffold(value))
+        scaffold = scaffold.copy(location = ValueScaffold(value))
     }
 
     override fun relationship(body: RelationshipBuilder.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
     }
 
     override fun relationship(spec: RelationshipSpec) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
     }
 
     override fun relationship(ref: RelationshipRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun relationship(value: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + ValueScaffold(value))
     }
 
     override fun relationships(relationships: List<Relationship>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class PersonShell(
+internal data class PersonScaffold(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -279,80 +279,80 @@ internal data class PersonShell(
 
 class SoftwareSystemScaffolder(internal val spec: SoftwareSystemSpec) : Scaffolder<SoftwareSystem> {
     override fun createScaffold(): Scaffold<SoftwareSystem> {
-        val builder = SoftwareSystemShellBuilder()
+        val builder = SoftwareSystemScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class SoftwareSystemShellBuilder(internal var shell: SoftwareSystemShell = SoftwareSystemShell()) : SoftwareSystemBuilder {
+internal class SoftwareSystemScaffoldBuilder(internal var scaffold: SoftwareSystemScaffold = SoftwareSystemScaffold()) : SoftwareSystemBuilder {
     override fun id(value: String) {
-        shell = shell.copy(id = ValueScaffold(value))
+        scaffold = scaffold.copy(id = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun location(value: Location) {
-        shell = shell.copy(location = ValueScaffold(value))
+        scaffold = scaffold.copy(location = ValueScaffold(value))
     }
 
     override fun container(body: ContainerBuilder.() -> Unit) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + ContainerScaffolder(ContainerSpec(body)).createScaffold())
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + ContainerScaffolder(ContainerSpec(body)).createScaffold())
     }
 
     override fun container(spec: ContainerSpec) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + ContainerScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + ContainerScaffolder(spec).createScaffold())
     }
 
     override fun container(ref: ContainerRef) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun container(value: Container) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + ValueScaffold(value))
     }
 
     override fun containers(containers: List<Container>) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + containers.map { ValueScaffold(it) })
     }
 
     override fun relationship(body: RelationshipBuilder.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
     }
 
     override fun relationship(spec: RelationshipSpec) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
     }
 
     override fun relationship(ref: RelationshipRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun relationship(value: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + ValueScaffold(value))
     }
 
     override fun relationships(relationships: List<Relationship>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class SoftwareSystemShell(
+internal data class SoftwareSystemScaffold(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -383,84 +383,84 @@ internal data class SoftwareSystemShell(
 
 class ContainerScaffolder(internal val spec: ContainerSpec) : Scaffolder<Container> {
     override fun createScaffold(): Scaffold<Container> {
-        val builder = ContainerShellBuilder()
+        val builder = ContainerScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ContainerShellBuilder(internal var shell: ContainerShell = ContainerShell()) : ContainerBuilder {
+internal class ContainerScaffoldBuilder(internal var scaffold: ContainerScaffold = ContainerScaffold()) : ContainerBuilder {
     override fun id(value: String) {
-        shell = shell.copy(id = ValueScaffold(value))
+        scaffold = scaffold.copy(id = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + ValueScaffold(value))
     }
 
     override fun technologies(technologies: List<String>) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
     }
 
     override fun component(body: ComponentBuilder.() -> Unit) {
-        shell = shell.copy(components = shell.components.orEmpty() + ComponentScaffolder(ComponentSpec(body)).createScaffold())
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + ComponentScaffolder(ComponentSpec(body)).createScaffold())
     }
 
     override fun component(spec: ComponentSpec) {
-        shell = shell.copy(components = shell.components.orEmpty() + ComponentScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + ComponentScaffolder(spec).createScaffold())
     }
 
     override fun component(ref: ComponentRef) {
-        shell = shell.copy(components = shell.components.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun component(value: Component) {
-        shell = shell.copy(components = shell.components.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + ValueScaffold(value))
     }
 
     override fun components(components: List<Component>) {
-        shell = shell.copy(components = shell.components.orEmpty() + components.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + components.map { ValueScaffold(it) })
     }
 
     override fun relationship(body: RelationshipBuilder.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
     }
 
     override fun relationship(spec: RelationshipSpec) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
     }
 
     override fun relationship(ref: RelationshipRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun relationship(value: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + ValueScaffold(value))
     }
 
     override fun relationships(relationships: List<Relationship>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class ContainerShell(
+internal data class ContainerScaffold(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -491,64 +491,64 @@ internal data class ContainerShell(
 
 class ComponentScaffolder(internal val spec: ComponentSpec) : Scaffolder<Component> {
     override fun createScaffold(): Scaffold<Component> {
-        val builder = ComponentShellBuilder()
+        val builder = ComponentScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ComponentShellBuilder(internal var shell: ComponentShell = ComponentShell()) : ComponentBuilder {
+internal class ComponentScaffoldBuilder(internal var scaffold: ComponentScaffold = ComponentScaffold()) : ComponentBuilder {
     override fun id(value: String) {
-        shell = shell.copy(id = ValueScaffold(value))
+        scaffold = scaffold.copy(id = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + ValueScaffold(value))
     }
 
     override fun technologies(technologies: List<String>) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
     }
 
     override fun relationship(body: RelationshipBuilder.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(RelationshipSpec(body)).createScaffold())
     }
 
     override fun relationship(spec: RelationshipSpec) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipScaffolder(spec).createScaffold())
     }
 
     override fun relationship(ref: RelationshipRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun relationship(value: Relationship) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + ValueScaffold(value))
     }
 
     override fun relationships(relationships: List<Relationship>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class ComponentShell(
+internal data class ComponentScaffold(
         var id: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -576,48 +576,48 @@ internal data class ComponentShell(
 
 class RelationshipScaffolder(internal val spec: RelationshipSpec) : Scaffolder<Relationship> {
     override fun createScaffold(): Scaffold<Relationship> {
-        val builder = RelationshipShellBuilder()
+        val builder = RelationshipScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class RelationshipShellBuilder(internal var shell: RelationshipShell = RelationshipShell()) : RelationshipBuilder {
+internal class RelationshipScaffoldBuilder(internal var scaffold: RelationshipScaffold = RelationshipScaffold()) : RelationshipBuilder {
     override fun sourceId(value: String) {
-        shell = shell.copy(sourceId = ValueScaffold(value))
+        scaffold = scaffold.copy(sourceId = ValueScaffold(value))
     }
 
     override fun destinationId(value: String) {
-        shell = shell.copy(destinationId = ValueScaffold(value))
+        scaffold = scaffold.copy(destinationId = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun technology(value: String) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + ValueScaffold(value))
     }
 
     override fun technologies(technologies: List<String>) {
-        shell = shell.copy(technologies = shell.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(technologies = scaffold.technologies.orEmpty() + technologies.map { ValueScaffold(it) })
     }
 
     override fun interactionStyle(value: InteractionStyle) {
-        shell = shell.copy(interactionStyle = ValueScaffold(value))
+        scaffold = scaffold.copy(interactionStyle = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class RelationshipShell(
+internal data class RelationshipScaffold(
         var sourceId: Scaffold<String>? = null,
         var destinationId: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -640,132 +640,132 @@ internal data class RelationshipShell(
 
 class ViewSetScaffolder(internal val spec: ViewSetSpec) : Scaffolder<ViewSet> {
     override fun createScaffold(): Scaffold<ViewSet> {
-        val builder = ViewSetShellBuilder()
+        val builder = ViewSetScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ViewSetShellBuilder(internal var shell: ViewSetShell = ViewSetShell()) : ViewSetBuilder {
+internal class ViewSetScaffoldBuilder(internal var scaffold: ViewSetScaffold = ViewSetScaffold()) : ViewSetBuilder {
     override fun systemLandscapeView(body: SystemLandscapeViewBuilder.() -> Unit) {
-        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder(SystemLandscapeViewSpec(body)).createScaffold())
+        scaffold = scaffold.copy(systemLandscapeViews = scaffold.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder(SystemLandscapeViewSpec(body)).createScaffold())
     }
 
     override fun systemLandscapeView(spec: SystemLandscapeViewSpec) {
-        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(systemLandscapeViews = scaffold.systemLandscapeViews.orEmpty() + SystemLandscapeViewScaffolder(spec).createScaffold())
     }
 
     override fun systemLandscapeView(ref: SystemLandscapeViewRef) {
-        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(systemLandscapeViews = scaffold.systemLandscapeViews.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun systemLandscapeView(value: SystemLandscapeView) {
-        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(systemLandscapeViews = scaffold.systemLandscapeViews.orEmpty() + ValueScaffold(value))
     }
 
     override fun systemLandscapeViews(systemLandscapeViews: List<SystemLandscapeView>) {
-        shell = shell.copy(systemLandscapeViews = shell.systemLandscapeViews.orEmpty() + systemLandscapeViews.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(systemLandscapeViews = scaffold.systemLandscapeViews.orEmpty() + systemLandscapeViews.map { ValueScaffold(it) })
     }
 
     override fun systemContextView(body: SystemContextViewBuilder.() -> Unit) {
-        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + SystemContextViewScaffolder(SystemContextViewSpec(body)).createScaffold())
+        scaffold = scaffold.copy(systemContextViews = scaffold.systemContextViews.orEmpty() + SystemContextViewScaffolder(SystemContextViewSpec(body)).createScaffold())
     }
 
     override fun systemContextView(spec: SystemContextViewSpec) {
-        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + SystemContextViewScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(systemContextViews = scaffold.systemContextViews.orEmpty() + SystemContextViewScaffolder(spec).createScaffold())
     }
 
     override fun systemContextView(ref: SystemContextViewRef) {
-        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(systemContextViews = scaffold.systemContextViews.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun systemContextView(value: SystemContextView) {
-        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(systemContextViews = scaffold.systemContextViews.orEmpty() + ValueScaffold(value))
     }
 
     override fun systemContextViews(systemContextViews: List<SystemContextView>) {
-        shell = shell.copy(systemContextViews = shell.systemContextViews.orEmpty() + systemContextViews.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(systemContextViews = scaffold.systemContextViews.orEmpty() + systemContextViews.map { ValueScaffold(it) })
     }
 
     override fun containerView(body: ContainerViewBuilder.() -> Unit) {
-        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ContainerViewScaffolder(ContainerViewSpec(body)).createScaffold())
+        scaffold = scaffold.copy(containerViews = scaffold.containerViews.orEmpty() + ContainerViewScaffolder(ContainerViewSpec(body)).createScaffold())
     }
 
     override fun containerView(spec: ContainerViewSpec) {
-        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ContainerViewScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(containerViews = scaffold.containerViews.orEmpty() + ContainerViewScaffolder(spec).createScaffold())
     }
 
     override fun containerView(ref: ContainerViewRef) {
-        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(containerViews = scaffold.containerViews.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun containerView(value: ContainerView) {
-        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(containerViews = scaffold.containerViews.orEmpty() + ValueScaffold(value))
     }
 
     override fun containerViews(containerViews: List<ContainerView>) {
-        shell = shell.copy(containerViews = shell.containerViews.orEmpty() + containerViews.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(containerViews = scaffold.containerViews.orEmpty() + containerViews.map { ValueScaffold(it) })
     }
 
     override fun componentView(body: ComponentViewBuilder.() -> Unit) {
-        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ComponentViewScaffolder(ComponentViewSpec(body)).createScaffold())
+        scaffold = scaffold.copy(componentViews = scaffold.componentViews.orEmpty() + ComponentViewScaffolder(ComponentViewSpec(body)).createScaffold())
     }
 
     override fun componentView(spec: ComponentViewSpec) {
-        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ComponentViewScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(componentViews = scaffold.componentViews.orEmpty() + ComponentViewScaffolder(spec).createScaffold())
     }
 
     override fun componentView(ref: ComponentViewRef) {
-        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(componentViews = scaffold.componentViews.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun componentView(value: ComponentView) {
-        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(componentViews = scaffold.componentViews.orEmpty() + ValueScaffold(value))
     }
 
     override fun componentViews(componentViews: List<ComponentView>) {
-        shell = shell.copy(componentViews = shell.componentViews.orEmpty() + componentViews.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(componentViews = scaffold.componentViews.orEmpty() + componentViews.map { ValueScaffold(it) })
     }
 
     override fun dynamicView(body: DynamicViewBuilder.() -> Unit) {
-        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + DynamicViewScaffolder(DynamicViewSpec(body)).createScaffold())
+        scaffold = scaffold.copy(dynamicViews = scaffold.dynamicViews.orEmpty() + DynamicViewScaffolder(DynamicViewSpec(body)).createScaffold())
     }
 
     override fun dynamicView(spec: DynamicViewSpec) {
-        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + DynamicViewScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(dynamicViews = scaffold.dynamicViews.orEmpty() + DynamicViewScaffolder(spec).createScaffold())
     }
 
     override fun dynamicView(ref: DynamicViewRef) {
-        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(dynamicViews = scaffold.dynamicViews.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun dynamicView(value: DynamicView) {
-        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(dynamicViews = scaffold.dynamicViews.orEmpty() + ValueScaffold(value))
     }
 
     override fun dynamicViews(dynamicViews: List<DynamicView>) {
-        shell = shell.copy(dynamicViews = shell.dynamicViews.orEmpty() + dynamicViews.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(dynamicViews = scaffold.dynamicViews.orEmpty() + dynamicViews.map { ValueScaffold(it) })
     }
 
     override fun configuration(body: ConfigurationBuilder.() -> Unit) {
-        shell = shell.copy(configuration = ConfigurationScaffolder(ConfigurationSpec(body)).createScaffold())
+        scaffold = scaffold.copy(configuration = ConfigurationScaffolder(ConfigurationSpec(body)).createScaffold())
     }
 
     override fun configuration(spec: ConfigurationSpec) {
-        shell = shell.copy(configuration = ConfigurationScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(configuration = ConfigurationScaffolder(spec).createScaffold())
     }
 
     override fun configuration(ref: ConfigurationRef) {
-        shell = shell.copy(configuration = RefScaffold(ref.key))
+        scaffold = scaffold.copy(configuration = RefScaffold(ref.key))
     }
 
     override fun configuration(value: Configuration) {
-        shell = shell.copy(configuration = ValueScaffold(value))
+        scaffold = scaffold.copy(configuration = ValueScaffold(value))
     }
 }
 
-internal data class ViewSetShell(
+internal data class ViewSetScaffold(
         var systemLandscapeViews: List<Scaffold<SystemLandscapeView>>? = null,
         var systemContextViews: List<Scaffold<SystemContextView>>? = null,
         var containerViews: List<Scaffold<ContainerView>>? = null,
@@ -796,48 +796,48 @@ internal data class ViewSetShell(
 
 class SystemLandscapeViewScaffolder(internal val spec: SystemLandscapeViewSpec) : Scaffolder<SystemLandscapeView> {
     override fun createScaffold(): Scaffold<SystemLandscapeView> {
-        val builder = SystemLandscapeViewShellBuilder()
+        val builder = SystemLandscapeViewScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class SystemLandscapeViewShellBuilder(internal var shell: SystemLandscapeViewShell = SystemLandscapeViewShell()) : SystemLandscapeViewBuilder {
+internal class SystemLandscapeViewScaffoldBuilder(internal var scaffold: SystemLandscapeViewScaffold = SystemLandscapeViewScaffold()) : SystemLandscapeViewBuilder {
     override fun key(value: String) {
-        shell = shell.copy(key = ValueScaffold(value))
+        scaffold = scaffold.copy(key = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun paperSize(value: PaperSize) {
-        shell = shell.copy(paperSize = ValueScaffold(value))
+        scaffold = scaffold.copy(paperSize = ValueScaffold(value))
     }
 
     override fun softwareSystem(value: String) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + ValueScaffold(value))
     }
 
     override fun softwareSystems(softwareSystems: List<String>) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
     }
 
     override fun person(value: String) {
-        shell = shell.copy(people = shell.people.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + ValueScaffold(value))
     }
 
     override fun people(people: List<String>) {
-        shell = shell.copy(people = shell.people.orEmpty() + people.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + people.map { ValueScaffold(it) })
     }
 }
 
-internal data class SystemLandscapeViewShell(
+internal data class SystemLandscapeViewScaffold(
         var key: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var title: Scaffold<String>? = null,
@@ -861,52 +861,52 @@ internal data class SystemLandscapeViewShell(
 
 class SystemContextViewScaffolder(internal val spec: SystemContextViewSpec) : Scaffolder<SystemContextView> {
     override fun createScaffold(): Scaffold<SystemContextView> {
-        val builder = SystemContextViewShellBuilder()
+        val builder = SystemContextViewScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class SystemContextViewShellBuilder(internal var shell: SystemContextViewShell = SystemContextViewShell()) : SystemContextViewBuilder {
+internal class SystemContextViewScaffoldBuilder(internal var scaffold: SystemContextViewScaffold = SystemContextViewScaffold()) : SystemContextViewBuilder {
     override fun softwareSystemId(value: String) {
-        shell = shell.copy(softwareSystemId = ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystemId = ValueScaffold(value))
     }
 
     override fun key(value: String) {
-        shell = shell.copy(key = ValueScaffold(value))
+        scaffold = scaffold.copy(key = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun paperSize(value: PaperSize) {
-        shell = shell.copy(paperSize = ValueScaffold(value))
+        scaffold = scaffold.copy(paperSize = ValueScaffold(value))
     }
 
     override fun softwareSystem(value: String) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + ValueScaffold(value))
     }
 
     override fun softwareSystems(softwareSystems: List<String>) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
     }
 
     override fun person(value: String) {
-        shell = shell.copy(people = shell.people.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + ValueScaffold(value))
     }
 
     override fun people(people: List<String>) {
-        shell = shell.copy(people = shell.people.orEmpty() + people.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + people.map { ValueScaffold(it) })
     }
 }
 
-internal data class SystemContextViewShell(
+internal data class SystemContextViewScaffold(
         var softwareSystemId: Scaffold<String>? = null,
         var key: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -933,60 +933,60 @@ internal data class SystemContextViewShell(
 
 class ContainerViewScaffolder(internal val spec: ContainerViewSpec) : Scaffolder<ContainerView> {
     override fun createScaffold(): Scaffold<ContainerView> {
-        val builder = ContainerViewShellBuilder()
+        val builder = ContainerViewScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ContainerViewShellBuilder(internal var shell: ContainerViewShell = ContainerViewShell()) : ContainerViewBuilder {
+internal class ContainerViewScaffoldBuilder(internal var scaffold: ContainerViewScaffold = ContainerViewScaffold()) : ContainerViewBuilder {
     override fun softwareSystemId(value: String) {
-        shell = shell.copy(softwareSystemId = ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystemId = ValueScaffold(value))
     }
 
     override fun key(value: String) {
-        shell = shell.copy(key = ValueScaffold(value))
+        scaffold = scaffold.copy(key = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun paperSize(value: PaperSize) {
-        shell = shell.copy(paperSize = ValueScaffold(value))
+        scaffold = scaffold.copy(paperSize = ValueScaffold(value))
     }
 
     override fun softwareSystem(value: String) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + ValueScaffold(value))
     }
 
     override fun softwareSystems(softwareSystems: List<String>) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
     }
 
     override fun person(value: String) {
-        shell = shell.copy(people = shell.people.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + ValueScaffold(value))
     }
 
     override fun people(people: List<String>) {
-        shell = shell.copy(people = shell.people.orEmpty() + people.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + people.map { ValueScaffold(it) })
     }
 
     override fun container(value: String) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + ValueScaffold(value))
     }
 
     override fun containers(containers: List<String>) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + containers.map { ValueScaffold(it) })
     }
 }
 
-internal data class ContainerViewShell(
+internal data class ContainerViewScaffold(
         var softwareSystemId: Scaffold<String>? = null,
         var key: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -1015,68 +1015,68 @@ internal data class ContainerViewShell(
 
 class ComponentViewScaffolder(internal val spec: ComponentViewSpec) : Scaffolder<ComponentView> {
     override fun createScaffold(): Scaffold<ComponentView> {
-        val builder = ComponentViewShellBuilder()
+        val builder = ComponentViewScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ComponentViewShellBuilder(internal var shell: ComponentViewShell = ComponentViewShell()) : ComponentViewBuilder {
+internal class ComponentViewScaffoldBuilder(internal var scaffold: ComponentViewScaffold = ComponentViewScaffold()) : ComponentViewBuilder {
     override fun containerId(value: String) {
-        shell = shell.copy(containerId = ValueScaffold(value))
+        scaffold = scaffold.copy(containerId = ValueScaffold(value))
     }
 
     override fun key(value: String) {
-        shell = shell.copy(key = ValueScaffold(value))
+        scaffold = scaffold.copy(key = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun paperSize(value: PaperSize) {
-        shell = shell.copy(paperSize = ValueScaffold(value))
+        scaffold = scaffold.copy(paperSize = ValueScaffold(value))
     }
 
     override fun softwareSystem(value: String) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + ValueScaffold(value))
     }
 
     override fun softwareSystems(softwareSystems: List<String>) {
-        shell = shell.copy(softwareSystems = shell.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(softwareSystems = scaffold.softwareSystems.orEmpty() + softwareSystems.map { ValueScaffold(it) })
     }
 
     override fun person(value: String) {
-        shell = shell.copy(people = shell.people.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + ValueScaffold(value))
     }
 
     override fun people(people: List<String>) {
-        shell = shell.copy(people = shell.people.orEmpty() + people.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(people = scaffold.people.orEmpty() + people.map { ValueScaffold(it) })
     }
 
     override fun container(value: String) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + ValueScaffold(value))
     }
 
     override fun containers(containers: List<String>) {
-        shell = shell.copy(containers = shell.containers.orEmpty() + containers.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(containers = scaffold.containers.orEmpty() + containers.map { ValueScaffold(it) })
     }
 
     override fun component(value: String) {
-        shell = shell.copy(components = shell.components.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + ValueScaffold(value))
     }
 
     override fun components(components: List<String>) {
-        shell = shell.copy(components = shell.components.orEmpty() + components.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(components = scaffold.components.orEmpty() + components.map { ValueScaffold(it) })
     }
 }
 
-internal data class ComponentViewShell(
+internal data class ComponentViewScaffold(
         var containerId: Scaffold<String>? = null,
         var key: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
@@ -1107,32 +1107,32 @@ internal data class ComponentViewShell(
 
 class DynamicViewScaffolder(internal val spec: DynamicViewSpec) : Scaffolder<DynamicView> {
     override fun createScaffold(): Scaffold<DynamicView> {
-        val builder = DynamicViewShellBuilder()
+        val builder = DynamicViewScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class DynamicViewShellBuilder(internal var shell: DynamicViewShell = DynamicViewShell()) : DynamicViewBuilder {
+internal class DynamicViewScaffoldBuilder(internal var scaffold: DynamicViewScaffold = DynamicViewScaffold()) : DynamicViewBuilder {
     override fun key(value: String) {
-        shell = shell.copy(key = ValueScaffold(value))
+        scaffold = scaffold.copy(key = ValueScaffold(value))
     }
 
     override fun description(value: String) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun paperSize(value: PaperSize) {
-        shell = shell.copy(paperSize = ValueScaffold(value))
+        scaffold = scaffold.copy(paperSize = ValueScaffold(value))
     }
 }
 
-internal data class DynamicViewShell(
+internal data class DynamicViewScaffold(
         var key: Scaffold<String>? = null,
         var description: Scaffold<String>? = null,
         var title: Scaffold<String>? = null,
@@ -1152,68 +1152,68 @@ internal data class DynamicViewShell(
 
 class ConfigurationScaffolder(internal val spec: ConfigurationSpec) : Scaffolder<Configuration> {
     override fun createScaffold(): Scaffold<Configuration> {
-        val builder = ConfigurationShellBuilder()
+        val builder = ConfigurationScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ConfigurationShellBuilder(internal var shell: ConfigurationShell = ConfigurationShell()) : ConfigurationBuilder {
+internal class ConfigurationScaffoldBuilder(internal var scaffold: ConfigurationScaffold = ConfigurationScaffold()) : ConfigurationBuilder {
     override fun branding(body: BrandingBuilder.() -> Unit) {
-        shell = shell.copy(branding = BrandingScaffolder(BrandingSpec(body)).createScaffold())
+        scaffold = scaffold.copy(branding = BrandingScaffolder(BrandingSpec(body)).createScaffold())
     }
 
     override fun branding(spec: BrandingSpec) {
-        shell = shell.copy(branding = BrandingScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(branding = BrandingScaffolder(spec).createScaffold())
     }
 
     override fun branding(ref: BrandingRef) {
-        shell = shell.copy(branding = RefScaffold(ref.key))
+        scaffold = scaffold.copy(branding = RefScaffold(ref.key))
     }
 
     override fun branding(value: Branding) {
-        shell = shell.copy(branding = ValueScaffold(value))
+        scaffold = scaffold.copy(branding = ValueScaffold(value))
     }
 
     override fun styles(body: StylesBuilder.() -> Unit) {
-        shell = shell.copy(styles = StylesScaffolder(StylesSpec(body)).createScaffold())
+        scaffold = scaffold.copy(styles = StylesScaffolder(StylesSpec(body)).createScaffold())
     }
 
     override fun styles(spec: StylesSpec) {
-        shell = shell.copy(styles = StylesScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(styles = StylesScaffolder(spec).createScaffold())
     }
 
     override fun styles(ref: StylesRef) {
-        shell = shell.copy(styles = RefScaffold(ref.key))
+        scaffold = scaffold.copy(styles = RefScaffold(ref.key))
     }
 
     override fun styles(value: Styles) {
-        shell = shell.copy(styles = ValueScaffold(value))
+        scaffold = scaffold.copy(styles = ValueScaffold(value))
     }
 
     override fun terminology(body: TerminologyBuilder.() -> Unit) {
-        shell = shell.copy(terminology = TerminologyScaffolder(TerminologySpec(body)).createScaffold())
+        scaffold = scaffold.copy(terminology = TerminologyScaffolder(TerminologySpec(body)).createScaffold())
     }
 
     override fun terminology(spec: TerminologySpec) {
-        shell = shell.copy(terminology = TerminologyScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(terminology = TerminologyScaffolder(spec).createScaffold())
     }
 
     override fun terminology(ref: TerminologyRef) {
-        shell = shell.copy(terminology = RefScaffold(ref.key))
+        scaffold = scaffold.copy(terminology = RefScaffold(ref.key))
     }
 
     override fun terminology(value: Terminology) {
-        shell = shell.copy(terminology = ValueScaffold(value))
+        scaffold = scaffold.copy(terminology = ValueScaffold(value))
     }
 
     override fun viewSortOrder(value: ViewSortOrder) {
-        shell = shell.copy(viewSortOrder = ValueScaffold(value))
+        scaffold = scaffold.copy(viewSortOrder = ValueScaffold(value))
     }
 }
 
-internal data class ConfigurationShell(
+internal data class ConfigurationScaffold(
         var branding: Scaffold<Branding>? = null,
         var styles: Scaffold<Styles>? = null,
         var terminology: Scaffold<Terminology>? = null,
@@ -1237,36 +1237,36 @@ internal data class ConfigurationShell(
 
 class BrandingScaffolder(internal val spec: BrandingSpec) : Scaffolder<Branding> {
     override fun createScaffold(): Scaffold<Branding> {
-        val builder = BrandingShellBuilder()
+        val builder = BrandingScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class BrandingShellBuilder(internal var shell: BrandingShell = BrandingShell()) : BrandingBuilder {
+internal class BrandingScaffoldBuilder(internal var scaffold: BrandingScaffold = BrandingScaffold()) : BrandingBuilder {
     override fun logo(value: String) {
-        shell = shell.copy(logo = ValueScaffold(value))
+        scaffold = scaffold.copy(logo = ValueScaffold(value))
     }
 
     override fun font(body: FontBuilder.() -> Unit) {
-        shell = shell.copy(font = FontScaffolder(FontSpec(body)).createScaffold())
+        scaffold = scaffold.copy(font = FontScaffolder(FontSpec(body)).createScaffold())
     }
 
     override fun font(spec: FontSpec) {
-        shell = shell.copy(font = FontScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(font = FontScaffolder(spec).createScaffold())
     }
 
     override fun font(ref: FontRef) {
-        shell = shell.copy(font = RefScaffold(ref.key))
+        scaffold = scaffold.copy(font = RefScaffold(ref.key))
     }
 
     override fun font(value: Font) {
-        shell = shell.copy(font = ValueScaffold(value))
+        scaffold = scaffold.copy(font = ValueScaffold(value))
     }
 }
 
-internal data class BrandingShell(var logo: Scaffold<String>? = null, var font: Scaffold<Font>? = null) : Scaffold<Branding> {
+internal data class BrandingScaffold(var logo: Scaffold<String>? = null, var font: Scaffold<Font>? = null) : Scaffold<Branding> {
     override suspend fun resolve(registry: Registry): Branding {
         coroutineScope {
             font?.let{ launch { it.resolve(registry) } }
@@ -1281,24 +1281,24 @@ internal data class BrandingShell(var logo: Scaffold<String>? = null, var font: 
 
 class FontScaffolder(internal val spec: FontSpec) : Scaffolder<Font> {
     override fun createScaffold(): Scaffold<Font> {
-        val builder = FontShellBuilder()
+        val builder = FontScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class FontShellBuilder(internal var shell: FontShell = FontShell()) : FontBuilder {
+internal class FontScaffoldBuilder(internal var scaffold: FontScaffold = FontScaffold()) : FontBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun url(value: String) {
-        shell = shell.copy(url = ValueScaffold(value))
+        scaffold = scaffold.copy(url = ValueScaffold(value))
     }
 }
 
-internal data class FontShell(var name: Scaffold<String>? = null, var url: Scaffold<String>? = null) : Scaffold<Font> {
+internal data class FontScaffold(var name: Scaffold<String>? = null, var url: Scaffold<String>? = null) : Scaffold<Font> {
     override suspend fun resolve(registry: Registry): Font {
         checkNotNull(name) { "Font is missing the name property" }
         val value = Font(
@@ -1311,56 +1311,56 @@ internal data class FontShell(var name: Scaffold<String>? = null, var url: Scaff
 
 class StylesScaffolder(internal val spec: StylesSpec) : Scaffolder<Styles> {
     override fun createScaffold(): Scaffold<Styles> {
-        val builder = StylesShellBuilder()
+        val builder = StylesScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class StylesShellBuilder(internal var shell: StylesShell = StylesShell()) : StylesBuilder {
+internal class StylesScaffoldBuilder(internal var scaffold: StylesScaffold = StylesScaffold()) : StylesBuilder {
     override fun element(body: ElementStyleBuilder.() -> Unit) {
-        shell = shell.copy(elements = shell.elements.orEmpty() + ElementStyleScaffolder(ElementStyleSpec(body)).createScaffold())
+        scaffold = scaffold.copy(elements = scaffold.elements.orEmpty() + ElementStyleScaffolder(ElementStyleSpec(body)).createScaffold())
     }
 
     override fun element(spec: ElementStyleSpec) {
-        shell = shell.copy(elements = shell.elements.orEmpty() + ElementStyleScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(elements = scaffold.elements.orEmpty() + ElementStyleScaffolder(spec).createScaffold())
     }
 
     override fun element(ref: ElementStyleRef) {
-        shell = shell.copy(elements = shell.elements.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(elements = scaffold.elements.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun element(value: ElementStyle) {
-        shell = shell.copy(elements = shell.elements.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(elements = scaffold.elements.orEmpty() + ValueScaffold(value))
     }
 
     override fun elements(elements: List<ElementStyle>) {
-        shell = shell.copy(elements = shell.elements.orEmpty() + elements.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(elements = scaffold.elements.orEmpty() + elements.map { ValueScaffold(it) })
     }
 
     override fun relationship(body: RelationshipStyleBuilder.() -> Unit) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipStyleScaffolder(RelationshipStyleSpec(body)).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipStyleScaffolder(RelationshipStyleSpec(body)).createScaffold())
     }
 
     override fun relationship(spec: RelationshipStyleSpec) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RelationshipStyleScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RelationshipStyleScaffolder(spec).createScaffold())
     }
 
     override fun relationship(ref: RelationshipStyleRef) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun relationship(value: RelationshipStyle) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + ValueScaffold(value))
     }
 
     override fun relationships(relationships: List<RelationshipStyle>) {
-        shell = shell.copy(relationships = shell.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(relationships = scaffold.relationships.orEmpty() + relationships.map { ValueScaffold(it) })
     }
 }
 
-internal data class StylesShell(var elements: List<Scaffold<ElementStyle>>? = null, var relationships: List<Scaffold<RelationshipStyle>>? = null) : Scaffold<Styles> {
+internal data class StylesScaffold(var elements: List<Scaffold<ElementStyle>>? = null, var relationships: List<Scaffold<RelationshipStyle>>? = null) : Scaffold<Styles> {
     override suspend fun resolve(registry: Registry): Styles {
         coroutineScope {
             elements?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -1376,64 +1376,64 @@ internal data class StylesShell(var elements: List<Scaffold<ElementStyle>>? = nu
 
 class ElementStyleScaffolder(internal val spec: ElementStyleSpec) : Scaffolder<ElementStyle> {
     override fun createScaffold(): Scaffold<ElementStyle> {
-        val builder = ElementStyleShellBuilder()
+        val builder = ElementStyleScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ElementStyleShellBuilder(internal var shell: ElementStyleShell = ElementStyleShell()) : ElementStyleBuilder {
+internal class ElementStyleScaffoldBuilder(internal var scaffold: ElementStyleScaffold = ElementStyleScaffold()) : ElementStyleBuilder {
     override fun tag(value: String) {
-        shell = shell.copy(tag = ValueScaffold(value))
+        scaffold = scaffold.copy(tag = ValueScaffold(value))
     }
 
     override fun width(value: Int) {
-        shell = shell.copy(width = ValueScaffold(value))
+        scaffold = scaffold.copy(width = ValueScaffold(value))
     }
 
     override fun height(value: Int) {
-        shell = shell.copy(height = ValueScaffold(value))
+        scaffold = scaffold.copy(height = ValueScaffold(value))
     }
 
     override fun background(value: String) {
-        shell = shell.copy(background = ValueScaffold(value))
+        scaffold = scaffold.copy(background = ValueScaffold(value))
     }
 
     override fun color(value: String) {
-        shell = shell.copy(color = ValueScaffold(value))
+        scaffold = scaffold.copy(color = ValueScaffold(value))
     }
 
     override fun fontSize(value: Int) {
-        shell = shell.copy(fontSize = ValueScaffold(value))
+        scaffold = scaffold.copy(fontSize = ValueScaffold(value))
     }
 
     override fun shape(value: Shape) {
-        shell = shell.copy(shape = ValueScaffold(value))
+        scaffold = scaffold.copy(shape = ValueScaffold(value))
     }
 
     override fun icon(value: String) {
-        shell = shell.copy(icon = ValueScaffold(value))
+        scaffold = scaffold.copy(icon = ValueScaffold(value))
     }
 
     override fun border(value: Border) {
-        shell = shell.copy(border = ValueScaffold(value))
+        scaffold = scaffold.copy(border = ValueScaffold(value))
     }
 
     override fun opacity(value: Int) {
-        shell = shell.copy(opacity = ValueScaffold(value))
+        scaffold = scaffold.copy(opacity = ValueScaffold(value))
     }
 
     override fun metadata(value: Boolean) {
-        shell = shell.copy(metadata = ValueScaffold(value))
+        scaffold = scaffold.copy(metadata = ValueScaffold(value))
     }
 
     override fun description(value: Boolean) {
-        shell = shell.copy(description = ValueScaffold(value))
+        scaffold = scaffold.copy(description = ValueScaffold(value))
     }
 }
 
-internal data class ElementStyleShell(
+internal data class ElementStyleScaffold(
         var tag: Scaffold<String>? = null,
         var width: Scaffold<Int>? = null,
         var height: Scaffold<Int>? = null,
@@ -1469,52 +1469,52 @@ internal data class ElementStyleShell(
 
 class RelationshipStyleScaffolder(internal val spec: RelationshipStyleSpec) : Scaffolder<RelationshipStyle> {
     override fun createScaffold(): Scaffold<RelationshipStyle> {
-        val builder = RelationshipStyleShellBuilder()
+        val builder = RelationshipStyleScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class RelationshipStyleShellBuilder(internal var shell: RelationshipStyleShell = RelationshipStyleShell()) : RelationshipStyleBuilder {
+internal class RelationshipStyleScaffoldBuilder(internal var scaffold: RelationshipStyleScaffold = RelationshipStyleScaffold()) : RelationshipStyleBuilder {
     override fun tag(value: String) {
-        shell = shell.copy(tag = ValueScaffold(value))
+        scaffold = scaffold.copy(tag = ValueScaffold(value))
     }
 
     override fun thickness(value: Int) {
-        shell = shell.copy(thickness = ValueScaffold(value))
+        scaffold = scaffold.copy(thickness = ValueScaffold(value))
     }
 
     override fun color(value: String) {
-        shell = shell.copy(color = ValueScaffold(value))
+        scaffold = scaffold.copy(color = ValueScaffold(value))
     }
 
     override fun fontSize(value: Int) {
-        shell = shell.copy(fontSize = ValueScaffold(value))
+        scaffold = scaffold.copy(fontSize = ValueScaffold(value))
     }
 
     override fun width(value: Int) {
-        shell = shell.copy(width = ValueScaffold(value))
+        scaffold = scaffold.copy(width = ValueScaffold(value))
     }
 
     override fun dashed(value: Boolean) {
-        shell = shell.copy(dashed = ValueScaffold(value))
+        scaffold = scaffold.copy(dashed = ValueScaffold(value))
     }
 
     override fun routing(value: Routing) {
-        shell = shell.copy(routing = ValueScaffold(value))
+        scaffold = scaffold.copy(routing = ValueScaffold(value))
     }
 
     override fun position(value: Int) {
-        shell = shell.copy(position = ValueScaffold(value))
+        scaffold = scaffold.copy(position = ValueScaffold(value))
     }
 
     override fun opacity(value: Int) {
-        shell = shell.copy(opacity = ValueScaffold(value))
+        scaffold = scaffold.copy(opacity = ValueScaffold(value))
     }
 }
 
-internal data class RelationshipStyleShell(
+internal data class RelationshipStyleScaffold(
         var tag: Scaffold<String>? = null,
         var thickness: Scaffold<Int>? = null,
         var color: Scaffold<String>? = null,
@@ -1544,48 +1544,48 @@ internal data class RelationshipStyleShell(
 
 class TerminologyScaffolder(internal val spec: TerminologySpec) : Scaffolder<Terminology> {
     override fun createScaffold(): Scaffold<Terminology> {
-        val builder = TerminologyShellBuilder()
+        val builder = TerminologyScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TerminologyShellBuilder(internal var shell: TerminologyShell = TerminologyShell()) : TerminologyBuilder {
+internal class TerminologyScaffoldBuilder(internal var scaffold: TerminologyScaffold = TerminologyScaffold()) : TerminologyBuilder {
     override fun enterprise(value: String) {
-        shell = shell.copy(enterprise = ValueScaffold(value))
+        scaffold = scaffold.copy(enterprise = ValueScaffold(value))
     }
 
     override fun person(value: String) {
-        shell = shell.copy(person = ValueScaffold(value))
+        scaffold = scaffold.copy(person = ValueScaffold(value))
     }
 
     override fun softwareSystem(value: String) {
-        shell = shell.copy(softwareSystem = ValueScaffold(value))
+        scaffold = scaffold.copy(softwareSystem = ValueScaffold(value))
     }
 
     override fun container(value: String) {
-        shell = shell.copy(container = ValueScaffold(value))
+        scaffold = scaffold.copy(container = ValueScaffold(value))
     }
 
     override fun component(value: String) {
-        shell = shell.copy(component = ValueScaffold(value))
+        scaffold = scaffold.copy(component = ValueScaffold(value))
     }
 
     override fun code(value: String) {
-        shell = shell.copy(code = ValueScaffold(value))
+        scaffold = scaffold.copy(code = ValueScaffold(value))
     }
 
     override fun deploymentNode(value: String) {
-        shell = shell.copy(deploymentNode = ValueScaffold(value))
+        scaffold = scaffold.copy(deploymentNode = ValueScaffold(value))
     }
 
     override fun relationship(value: String) {
-        shell = shell.copy(relationship = ValueScaffold(value))
+        scaffold = scaffold.copy(relationship = ValueScaffold(value))
     }
 }
 
-internal data class TerminologyShell(
+internal data class TerminologyScaffold(
         var enterprise: Scaffold<String>? = null,
         var person: Scaffold<String>? = null,
         var softwareSystem: Scaffold<String>? = null,
@@ -1612,36 +1612,36 @@ internal data class TerminologyShell(
 
 class WorkspaceConfigurationScaffolder(internal val spec: WorkspaceConfigurationSpec) : Scaffolder<WorkspaceConfiguration> {
     override fun createScaffold(): Scaffold<WorkspaceConfiguration> {
-        val builder = WorkspaceConfigurationShellBuilder()
+        val builder = WorkspaceConfigurationScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class WorkspaceConfigurationShellBuilder(internal var shell: WorkspaceConfigurationShell = WorkspaceConfigurationShell()) : WorkspaceConfigurationBuilder {
+internal class WorkspaceConfigurationScaffoldBuilder(internal var scaffold: WorkspaceConfigurationScaffold = WorkspaceConfigurationScaffold()) : WorkspaceConfigurationBuilder {
     override fun user(body: UserBuilder.() -> Unit) {
-        shell = shell.copy(users = shell.users.orEmpty() + UserScaffolder(UserSpec(body)).createScaffold())
+        scaffold = scaffold.copy(users = scaffold.users.orEmpty() + UserScaffolder(UserSpec(body)).createScaffold())
     }
 
     override fun user(spec: UserSpec) {
-        shell = shell.copy(users = shell.users.orEmpty() + UserScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(users = scaffold.users.orEmpty() + UserScaffolder(spec).createScaffold())
     }
 
     override fun user(ref: UserRef) {
-        shell = shell.copy(users = shell.users.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(users = scaffold.users.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun user(value: User) {
-        shell = shell.copy(users = shell.users.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(users = scaffold.users.orEmpty() + ValueScaffold(value))
     }
 
     override fun users(users: List<User>) {
-        shell = shell.copy(users = shell.users.orEmpty() + users.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(users = scaffold.users.orEmpty() + users.map { ValueScaffold(it) })
     }
 }
 
-internal data class WorkspaceConfigurationShell(var users: List<Scaffold<User>>? = null) : Scaffold<WorkspaceConfiguration> {
+internal data class WorkspaceConfigurationScaffold(var users: List<Scaffold<User>>? = null) : Scaffold<WorkspaceConfiguration> {
     override suspend fun resolve(registry: Registry): WorkspaceConfiguration {
         coroutineScope {
             users?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -1655,24 +1655,24 @@ internal data class WorkspaceConfigurationShell(var users: List<Scaffold<User>>?
 
 class UserScaffolder(internal val spec: UserSpec) : Scaffolder<User> {
     override fun createScaffold(): Scaffold<User> {
-        val builder = UserShellBuilder()
+        val builder = UserScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class UserShellBuilder(internal var shell: UserShell = UserShell()) : UserBuilder {
+internal class UserScaffoldBuilder(internal var scaffold: UserScaffold = UserScaffold()) : UserBuilder {
     override fun username(value: String) {
-        shell = shell.copy(username = ValueScaffold(value))
+        scaffold = scaffold.copy(username = ValueScaffold(value))
     }
 
     override fun role(value: Role) {
-        shell = shell.copy(role = ValueScaffold(value))
+        scaffold = scaffold.copy(role = ValueScaffold(value))
     }
 }
 
-internal data class UserShell(var username: Scaffold<String>? = null, var role: Scaffold<Role>? = null) : Scaffold<User> {
+internal data class UserScaffold(var username: Scaffold<String>? = null, var role: Scaffold<Role>? = null) : Scaffold<User> {
     override suspend fun resolve(registry: Registry): User {
         checkNotNull(username) { "User is missing the username property" }
         checkNotNull(role) { "User is missing the role property" }
@@ -1686,36 +1686,36 @@ internal data class UserShell(var username: Scaffold<String>? = null, var role: 
 
 class DocumentationScaffolder(internal val spec: DocumentationSpec) : Scaffolder<Documentation> {
     override fun createScaffold(): Scaffold<Documentation> {
-        val builder = DocumentationShellBuilder()
+        val builder = DocumentationScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class DocumentationShellBuilder(internal var shell: DocumentationShell = DocumentationShell()) : DocumentationBuilder {
+internal class DocumentationScaffoldBuilder(internal var scaffold: DocumentationScaffold = DocumentationScaffold()) : DocumentationBuilder {
     override fun decision(body: DecisionBuilder.() -> Unit) {
-        shell = shell.copy(decisions = shell.decisions.orEmpty() + DecisionScaffolder(DecisionSpec(body)).createScaffold())
+        scaffold = scaffold.copy(decisions = scaffold.decisions.orEmpty() + DecisionScaffolder(DecisionSpec(body)).createScaffold())
     }
 
     override fun decision(spec: DecisionSpec) {
-        shell = shell.copy(decisions = shell.decisions.orEmpty() + DecisionScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(decisions = scaffold.decisions.orEmpty() + DecisionScaffolder(spec).createScaffold())
     }
 
     override fun decision(ref: DecisionRef) {
-        shell = shell.copy(decisions = shell.decisions.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(decisions = scaffold.decisions.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun decision(value: Decision) {
-        shell = shell.copy(decisions = shell.decisions.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(decisions = scaffold.decisions.orEmpty() + ValueScaffold(value))
     }
 
     override fun decisions(decisions: List<Decision>) {
-        shell = shell.copy(decisions = shell.decisions.orEmpty() + decisions.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(decisions = scaffold.decisions.orEmpty() + decisions.map { ValueScaffold(it) })
     }
 }
 
-internal data class DocumentationShell(var decisions: List<Scaffold<Decision>>? = null) : Scaffold<Documentation> {
+internal data class DocumentationScaffold(var decisions: List<Scaffold<Decision>>? = null) : Scaffold<Documentation> {
     override suspend fun resolve(registry: Registry): Documentation {
         coroutineScope {
             decisions?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -1729,44 +1729,44 @@ internal data class DocumentationShell(var decisions: List<Scaffold<Decision>>? 
 
 class DecisionScaffolder(internal val spec: DecisionSpec) : Scaffolder<Decision> {
     override fun createScaffold(): Scaffold<Decision> {
-        val builder = DecisionShellBuilder()
+        val builder = DecisionScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class DecisionShellBuilder(internal var shell: DecisionShell = DecisionShell()) : DecisionBuilder {
+internal class DecisionScaffoldBuilder(internal var scaffold: DecisionScaffold = DecisionScaffold()) : DecisionBuilder {
     override fun elementId(value: String) {
-        shell = shell.copy(elementId = ValueScaffold(value))
+        scaffold = scaffold.copy(elementId = ValueScaffold(value))
     }
 
     override fun id(value: String) {
-        shell = shell.copy(id = ValueScaffold(value))
+        scaffold = scaffold.copy(id = ValueScaffold(value))
     }
 
     override fun date(value: String) {
-        shell = shell.copy(date = ValueScaffold(value))
+        scaffold = scaffold.copy(date = ValueScaffold(value))
     }
 
     override fun title(value: String) {
-        shell = shell.copy(title = ValueScaffold(value))
+        scaffold = scaffold.copy(title = ValueScaffold(value))
     }
 
     override fun status(value: DecisionStatus) {
-        shell = shell.copy(status = ValueScaffold(value))
+        scaffold = scaffold.copy(status = ValueScaffold(value))
     }
 
     override fun content(value: String) {
-        shell = shell.copy(content = ValueScaffold(value))
+        scaffold = scaffold.copy(content = ValueScaffold(value))
     }
 
     override fun format(value: Format) {
-        shell = shell.copy(format = ValueScaffold(value))
+        scaffold = scaffold.copy(format = ValueScaffold(value))
     }
 }
 
-internal data class DecisionShell(
+internal data class DecisionScaffold(
         var elementId: Scaffold<String>? = null,
         var id: Scaffold<String>? = null,
         var date: Scaffold<String>? = null,

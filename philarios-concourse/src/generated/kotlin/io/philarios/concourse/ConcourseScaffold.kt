@@ -7,8 +7,8 @@
 // issue in the project's repository.
 package io.philarios.concourse
 
-import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
+import io.philarios.core.RefScaffold
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
 import io.philarios.core.ValueScaffold
@@ -25,36 +25,36 @@ import kotlinx.coroutines.launch
 
 class ConcourseScaffolder(internal val spec: ConcourseSpec) : Scaffolder<Concourse> {
     override fun createScaffold(): Scaffold<Concourse> {
-        val builder = ConcourseShellBuilder()
+        val builder = ConcourseScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ConcourseShellBuilder(internal var shell: ConcourseShell = ConcourseShell()) : ConcourseBuilder {
+internal class ConcourseScaffoldBuilder(internal var scaffold: ConcourseScaffold = ConcourseScaffold()) : ConcourseBuilder {
     override fun team(body: TeamBuilder.() -> Unit) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + TeamScaffolder(TeamSpec(body)).createScaffold())
+        scaffold = scaffold.copy(teams = scaffold.teams.orEmpty() + TeamScaffolder(TeamSpec(body)).createScaffold())
     }
 
     override fun team(spec: TeamSpec) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + TeamScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(teams = scaffold.teams.orEmpty() + TeamScaffolder(spec).createScaffold())
     }
 
     override fun team(ref: TeamRef) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(teams = scaffold.teams.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun team(value: Team) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(teams = scaffold.teams.orEmpty() + ValueScaffold(value))
     }
 
     override fun teams(teams: List<Team>) {
-        shell = shell.copy(teams = shell.teams.orEmpty() + teams.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(teams = scaffold.teams.orEmpty() + teams.map { ValueScaffold(it) })
     }
 }
 
-internal data class ConcourseShell(var teams: List<Scaffold<Team>>? = null) : Scaffold<Concourse> {
+internal data class ConcourseScaffold(var teams: List<Scaffold<Team>>? = null) : Scaffold<Concourse> {
     override suspend fun resolve(registry: Registry): Concourse {
         coroutineScope {
             teams?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -68,40 +68,40 @@ internal data class ConcourseShell(var teams: List<Scaffold<Team>>? = null) : Sc
 
 class TeamScaffolder(internal val spec: TeamSpec) : Scaffolder<Team> {
     override fun createScaffold(): Scaffold<Team> {
-        val builder = TeamShellBuilder()
+        val builder = TeamScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TeamShellBuilder(internal var shell: TeamShell = TeamShell()) : TeamBuilder {
+internal class TeamScaffoldBuilder(internal var scaffold: TeamScaffold = TeamScaffold()) : TeamBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun pipeline(body: PipelineBuilder.() -> Unit) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + PipelineScaffolder(PipelineSpec(body)).createScaffold())
+        scaffold = scaffold.copy(pipelines = scaffold.pipelines.orEmpty() + PipelineScaffolder(PipelineSpec(body)).createScaffold())
     }
 
     override fun pipeline(spec: PipelineSpec) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + PipelineScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(pipelines = scaffold.pipelines.orEmpty() + PipelineScaffolder(spec).createScaffold())
     }
 
     override fun pipeline(ref: PipelineRef) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(pipelines = scaffold.pipelines.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun pipeline(value: Pipeline) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(pipelines = scaffold.pipelines.orEmpty() + ValueScaffold(value))
     }
 
     override fun pipelines(pipelines: List<Pipeline>) {
-        shell = shell.copy(pipelines = shell.pipelines.orEmpty() + pipelines.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(pipelines = scaffold.pipelines.orEmpty() + pipelines.map { ValueScaffold(it) })
     }
 }
 
-internal data class TeamShell(var name: Scaffold<String>? = null, var pipelines: List<Scaffold<Pipeline>>? = null) : Scaffold<Team> {
+internal data class TeamScaffold(var name: Scaffold<String>? = null, var pipelines: List<Scaffold<Pipeline>>? = null) : Scaffold<Team> {
     override suspend fun resolve(registry: Registry): Team {
         checkNotNull(name) { "Team is missing the name property" }
         coroutineScope {
@@ -117,100 +117,100 @@ internal data class TeamShell(var name: Scaffold<String>? = null, var pipelines:
 
 class PipelineScaffolder(internal val spec: PipelineSpec) : Scaffolder<Pipeline> {
     override fun createScaffold(): Scaffold<Pipeline> {
-        val builder = PipelineShellBuilder()
+        val builder = PipelineScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class PipelineShellBuilder(internal var shell: PipelineShell = PipelineShell()) : PipelineBuilder {
+internal class PipelineScaffoldBuilder(internal var scaffold: PipelineScaffold = PipelineScaffold()) : PipelineBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun job(body: JobBuilder.() -> Unit) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + JobScaffolder(JobSpec(body)).createScaffold())
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + JobScaffolder(JobSpec(body)).createScaffold())
     }
 
     override fun job(spec: JobSpec) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + JobScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + JobScaffolder(spec).createScaffold())
     }
 
     override fun job(ref: JobRef) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun job(value: Job) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + ValueScaffold(value))
     }
 
     override fun jobs(jobs: List<Job>) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + jobs.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + jobs.map { ValueScaffold(it) })
     }
 
     override fun resource(body: ResourceBuilder.() -> Unit) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(ResourceSpec(body)).createScaffold())
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ResourceScaffolder(ResourceSpec(body)).createScaffold())
     }
 
     override fun resource(spec: ResourceSpec) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ResourceScaffolder(spec).createScaffold())
     }
 
     override fun resource(ref: ResourceRef) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun resource(value: Resource) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ValueScaffold(value))
     }
 
     override fun resources(resources: List<Resource>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + resources.map { ValueScaffold(it) })
     }
 
     override fun resource_type(body: ResourceTypeBuilder.() -> Unit) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ResourceTypeScaffolder(ResourceTypeSpec(body)).createScaffold())
+        scaffold = scaffold.copy(resource_types = scaffold.resource_types.orEmpty() + ResourceTypeScaffolder(ResourceTypeSpec(body)).createScaffold())
     }
 
     override fun resource_type(spec: ResourceTypeSpec) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ResourceTypeScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(resource_types = scaffold.resource_types.orEmpty() + ResourceTypeScaffolder(spec).createScaffold())
     }
 
     override fun resource_type(ref: ResourceTypeRef) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(resource_types = scaffold.resource_types.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun resource_type(value: ResourceType) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(resource_types = scaffold.resource_types.orEmpty() + ValueScaffold(value))
     }
 
     override fun resource_types(resource_types: List<ResourceType>) {
-        shell = shell.copy(resource_types = shell.resource_types.orEmpty() + resource_types.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(resource_types = scaffold.resource_types.orEmpty() + resource_types.map { ValueScaffold(it) })
     }
 
     override fun group(body: GroupBuilder.() -> Unit) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + GroupScaffolder(GroupSpec(body)).createScaffold())
+        scaffold = scaffold.copy(groups = scaffold.groups.orEmpty() + GroupScaffolder(GroupSpec(body)).createScaffold())
     }
 
     override fun group(spec: GroupSpec) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + GroupScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(groups = scaffold.groups.orEmpty() + GroupScaffolder(spec).createScaffold())
     }
 
     override fun group(ref: GroupRef) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(groups = scaffold.groups.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun group(value: Group) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(groups = scaffold.groups.orEmpty() + ValueScaffold(value))
     }
 
     override fun groups(groups: List<Group>) {
-        shell = shell.copy(groups = shell.groups.orEmpty() + groups.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(groups = scaffold.groups.orEmpty() + groups.map { ValueScaffold(it) })
     }
 }
 
-internal data class PipelineShell(
+internal data class PipelineScaffold(
         var name: Scaffold<String>? = null,
         var jobs: List<Scaffold<Job>>? = null,
         var resources: List<Scaffold<Resource>>? = null,
@@ -238,112 +238,112 @@ internal data class PipelineShell(
 
 class JobScaffolder(internal val spec: JobSpec) : Scaffolder<Job> {
     override fun createScaffold(): Scaffold<Job> {
-        val builder = JobShellBuilder()
+        val builder = JobScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class JobShellBuilder(internal var shell: JobShell = JobShell()) : JobBuilder {
+internal class JobScaffoldBuilder(internal var scaffold: JobScaffold = JobScaffold()) : JobBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun <T : Step> plan(spec: StepSpec<T>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(plan = scaffold.plan.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> plan(ref: StepRef<T>) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(plan = scaffold.plan.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Step> plan(value: T) {
-        shell = shell.copy(plan = shell.plan.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(plan = scaffold.plan.orEmpty() + ValueScaffold(value))
     }
 
     override fun serial(value: Boolean) {
-        shell = shell.copy(serial = ValueScaffold(value))
+        scaffold = scaffold.copy(serial = ValueScaffold(value))
     }
 
     override fun build_logs_to_retain(value: Int) {
-        shell = shell.copy(build_logs_to_retain = ValueScaffold(value))
+        scaffold = scaffold.copy(build_logs_to_retain = ValueScaffold(value))
     }
 
     override fun serial_group(value: String) {
-        shell = shell.copy(serial_groups = shell.serial_groups.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(serial_groups = scaffold.serial_groups.orEmpty() + ValueScaffold(value))
     }
 
     override fun serial_groups(serial_groups: List<String>) {
-        shell = shell.copy(serial_groups = shell.serial_groups.orEmpty() + serial_groups.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(serial_groups = scaffold.serial_groups.orEmpty() + serial_groups.map { ValueScaffold(it) })
     }
 
     override fun max_in_flight(value: Int) {
-        shell = shell.copy(max_in_flight = ValueScaffold(value))
+        scaffold = scaffold.copy(max_in_flight = ValueScaffold(value))
     }
 
     override fun public(value: Boolean) {
-        shell = shell.copy(public = ValueScaffold(value))
+        scaffold = scaffold.copy(public = ValueScaffold(value))
     }
 
     override fun disable_manual_trigger(value: Boolean) {
-        shell = shell.copy(disable_manual_trigger = ValueScaffold(value))
+        scaffold = scaffold.copy(disable_manual_trigger = ValueScaffold(value))
     }
 
     override fun interruptible(value: Boolean) {
-        shell = shell.copy(interruptible = ValueScaffold(value))
+        scaffold = scaffold.copy(interruptible = ValueScaffold(value))
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 }
 
-internal data class JobShell(
+internal data class JobScaffold(
         var name: Scaffold<String>? = null,
         var plan: List<Scaffold<Step>>? = null,
         var serial: Scaffold<Boolean>? = null,
@@ -402,629 +402,629 @@ class StepScaffolder<out T : Step>(internal val spec: StepSpec<T>) : Scaffolder<
 
 class GetScaffolder(internal val spec: GetSpec) : Scaffolder<Get> {
     override fun createScaffold(): Scaffold<Get> {
-        val builder = GetShellBuilder()
+        val builder = GetScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class PutScaffolder(internal val spec: PutSpec) : Scaffolder<Put> {
     override fun createScaffold(): Scaffold<Put> {
-        val builder = PutShellBuilder()
+        val builder = PutScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class TaskScaffolder(internal val spec: TaskSpec) : Scaffolder<Task> {
     override fun createScaffold(): Scaffold<Task> {
-        val builder = TaskShellBuilder()
+        val builder = TaskScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class AggregateScaffolder(internal val spec: AggregateSpec) : Scaffolder<Aggregate> {
     override fun createScaffold(): Scaffold<Aggregate> {
-        val builder = AggregateShellBuilder()
+        val builder = AggregateScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class DoScaffolder(internal val spec: DoSpec) : Scaffolder<Do> {
     override fun createScaffold(): Scaffold<Do> {
-        val builder = DoShellBuilder()
+        val builder = DoScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class TryScaffolder(internal val spec: TrySpec) : Scaffolder<Try> {
     override fun createScaffold(): Scaffold<Try> {
-        val builder = TryShellBuilder()
+        val builder = TryScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class GetShellBuilder(internal var shell: GetShell = GetShell()) : GetBuilder {
+internal class GetScaffoldBuilder(internal var scaffold: GetScaffold = GetScaffold()) : GetBuilder {
     override fun get(value: String) {
-        shell = shell.copy(get = ValueScaffold(value))
+        scaffold = scaffold.copy(get = ValueScaffold(value))
     }
 
     override fun resource(value: String) {
-        shell = shell.copy(resource = ValueScaffold(value))
+        scaffold = scaffold.copy(resource = ValueScaffold(value))
     }
 
     override fun version(value: String) {
-        shell = shell.copy(version = ValueScaffold(value))
+        scaffold = scaffold.copy(version = ValueScaffold(value))
     }
 
     override fun passed(value: String) {
-        shell = shell.copy(passed = shell.passed.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(passed = scaffold.passed.orEmpty() + ValueScaffold(value))
     }
 
     override fun passed(passed: List<String>) {
-        shell = shell.copy(passed = shell.passed.orEmpty() + passed.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(passed = scaffold.passed.orEmpty() + passed.map { ValueScaffold(it) })
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun trigger(value: Boolean) {
-        shell = shell.copy(trigger = ValueScaffold(value))
+        scaffold = scaffold.copy(trigger = ValueScaffold(value))
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class PutShellBuilder(internal var shell: PutShell = PutShell()) : PutBuilder {
+internal class PutScaffoldBuilder(internal var scaffold: PutScaffold = PutScaffold()) : PutBuilder {
     override fun put(value: String) {
-        shell = shell.copy(put = ValueScaffold(value))
+        scaffold = scaffold.copy(put = ValueScaffold(value))
     }
 
     override fun resource(value: String) {
-        shell = shell.copy(resource = ValueScaffold(value))
+        scaffold = scaffold.copy(resource = ValueScaffold(value))
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun get_params(key: String, value: Any) {
-        shell = shell.copy(get_params = shell.get_params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(get_params = scaffold.get_params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun get_params(pair: Pair<String, Any>) {
-        shell = shell.copy(get_params = shell.get_params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(get_params = scaffold.get_params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun get_params(get_params: Map<String, Any>) {
-        shell = shell.copy(get_params = shell.get_params.orEmpty() + get_params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(get_params = scaffold.get_params.orEmpty() + get_params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class TaskShellBuilder(internal var shell: TaskShell = TaskShell()) : TaskBuilder {
+internal class TaskScaffoldBuilder(internal var scaffold: TaskScaffold = TaskScaffold()) : TaskBuilder {
     override fun task(value: String) {
-        shell = shell.copy(task = ValueScaffold(value))
+        scaffold = scaffold.copy(task = ValueScaffold(value))
     }
 
     override fun config(body: TaskConfigBuilder.() -> Unit) {
-        shell = shell.copy(config = TaskConfigScaffolder(TaskConfigSpec(body)).createScaffold())
+        scaffold = scaffold.copy(config = TaskConfigScaffolder(TaskConfigSpec(body)).createScaffold())
     }
 
     override fun config(spec: TaskConfigSpec) {
-        shell = shell.copy(config = TaskConfigScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(config = TaskConfigScaffolder(spec).createScaffold())
     }
 
     override fun config(ref: TaskConfigRef) {
-        shell = shell.copy(config = RefScaffold(ref.key))
+        scaffold = scaffold.copy(config = RefScaffold(ref.key))
     }
 
     override fun config(value: TaskConfig) {
-        shell = shell.copy(config = ValueScaffold(value))
+        scaffold = scaffold.copy(config = ValueScaffold(value))
     }
 
     override fun file(value: String) {
-        shell = shell.copy(file = ValueScaffold(value))
+        scaffold = scaffold.copy(file = ValueScaffold(value))
     }
 
     override fun privileged(value: String) {
-        shell = shell.copy(privileged = ValueScaffold(value))
+        scaffold = scaffold.copy(privileged = ValueScaffold(value))
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun image(value: String) {
-        shell = shell.copy(image = ValueScaffold(value))
+        scaffold = scaffold.copy(image = ValueScaffold(value))
     }
 
     override fun input_mapping(key: String, value: String) {
-        shell = shell.copy(input_mapping = shell.input_mapping.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(input_mapping = scaffold.input_mapping.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun input_mapping(pair: Pair<String, String>) {
-        shell = shell.copy(input_mapping = shell.input_mapping.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(input_mapping = scaffold.input_mapping.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun input_mapping(input_mapping: Map<String, String>) {
-        shell = shell.copy(input_mapping = shell.input_mapping.orEmpty() + input_mapping.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(input_mapping = scaffold.input_mapping.orEmpty() + input_mapping.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun output_mapping(key: String, value: String) {
-        shell = shell.copy(output_mapping = shell.output_mapping.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(output_mapping = scaffold.output_mapping.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun output_mapping(pair: Pair<String, String>) {
-        shell = shell.copy(output_mapping = shell.output_mapping.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(output_mapping = scaffold.output_mapping.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun output_mapping(output_mapping: Map<String, String>) {
-        shell = shell.copy(output_mapping = shell.output_mapping.orEmpty() + output_mapping.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(output_mapping = scaffold.output_mapping.orEmpty() + output_mapping.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class AggregateShellBuilder(internal var shell: AggregateShell = AggregateShell()) : AggregateBuilder {
+internal class AggregateScaffoldBuilder(internal var scaffold: AggregateScaffold = AggregateScaffold()) : AggregateBuilder {
     override fun <T : Step> aggregate(spec: StepSpec<T>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(aggregate = scaffold.aggregate.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> aggregate(ref: StepRef<T>) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(aggregate = scaffold.aggregate.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Step> aggregate(value: T) {
-        shell = shell.copy(aggregate = shell.aggregate.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(aggregate = scaffold.aggregate.orEmpty() + ValueScaffold(value))
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class DoShellBuilder(internal var shell: DoShell = DoShell()) : DoBuilder {
+internal class DoScaffoldBuilder(internal var scaffold: DoScaffold = DoScaffold()) : DoBuilder {
     override fun <T : Step> `do`(spec: StepSpec<T>) {
-        shell = shell.copy(`do` = shell.`do`.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(`do` = scaffold.`do`.orEmpty() + StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> `do`(ref: StepRef<T>) {
-        shell = shell.copy(`do` = shell.`do`.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(`do` = scaffold.`do`.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Step> `do`(value: T) {
-        shell = shell.copy(`do` = shell.`do`.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(`do` = scaffold.`do`.orEmpty() + ValueScaffold(value))
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class TryShellBuilder(internal var shell: TryShell = TryShell()) : TryBuilder {
+internal class TryScaffoldBuilder(internal var scaffold: TryScaffold = TryScaffold()) : TryBuilder {
     override fun <T : Step> `try`(spec: StepSpec<T>) {
-        shell = shell.copy(`try` = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(`try` = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> `try`(ref: StepRef<T>) {
-        shell = shell.copy(`try` = RefScaffold(ref.key))
+        scaffold = scaffold.copy(`try` = RefScaffold(ref.key))
     }
 
     override fun <T : Step> `try`(value: T) {
-        shell = shell.copy(`try` = ValueScaffold(value))
+        scaffold = scaffold.copy(`try` = ValueScaffold(value))
     }
 
     override fun <T : Step> on_success(spec: StepSpec<T>) {
-        shell = shell.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_success = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_success(ref: StepRef<T>) {
-        shell = shell.copy(on_success = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_success = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_success(value: T) {
-        shell = shell.copy(on_success = ValueScaffold(value))
+        scaffold = scaffold.copy(on_success = ValueScaffold(value))
     }
 
     override fun <T : Step> on_failure(spec: StepSpec<T>) {
-        shell = shell.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_failure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_failure(ref: StepRef<T>) {
-        shell = shell.copy(on_failure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_failure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_failure(value: T) {
-        shell = shell.copy(on_failure = ValueScaffold(value))
+        scaffold = scaffold.copy(on_failure = ValueScaffold(value))
     }
 
     override fun <T : Step> on_abort(spec: StepSpec<T>) {
-        shell = shell.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(on_abort = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> on_abort(ref: StepRef<T>) {
-        shell = shell.copy(on_abort = RefScaffold(ref.key))
+        scaffold = scaffold.copy(on_abort = RefScaffold(ref.key))
     }
 
     override fun <T : Step> on_abort(value: T) {
-        shell = shell.copy(on_abort = ValueScaffold(value))
+        scaffold = scaffold.copy(on_abort = ValueScaffold(value))
     }
 
     override fun <T : Step> ensure(spec: StepSpec<T>) {
-        shell = shell.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
+        scaffold = scaffold.copy(ensure = StepScaffolder<Step>(spec).createScaffold())
     }
 
     override fun <T : Step> ensure(ref: StepRef<T>) {
-        shell = shell.copy(ensure = RefScaffold(ref.key))
+        scaffold = scaffold.copy(ensure = RefScaffold(ref.key))
     }
 
     override fun <T : Step> ensure(value: T) {
-        shell = shell.copy(ensure = ValueScaffold(value))
+        scaffold = scaffold.copy(ensure = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun timeout(value: String) {
-        shell = shell.copy(timeout = ValueScaffold(value))
+        scaffold = scaffold.copy(timeout = ValueScaffold(value))
     }
 
     override fun attempts(value: Int) {
-        shell = shell.copy(attempts = ValueScaffold(value))
+        scaffold = scaffold.copy(attempts = ValueScaffold(value))
     }
 }
 
-internal sealed class StepShell
+internal sealed class StepScaffold
 
-internal data class GetShell(
+internal data class GetScaffold(
         var get: Scaffold<String>? = null,
         var resource: Scaffold<String>? = null,
         var version: Scaffold<String>? = null,
@@ -1038,7 +1038,7 @@ internal data class GetShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Get> {
+) : StepScaffold(), Scaffold<Get> {
     override suspend fun resolve(registry: Registry): Get {
         checkNotNull(get) { "Get is missing the get property" }
         coroutineScope {
@@ -1066,7 +1066,7 @@ internal data class GetShell(
     }
 }
 
-internal data class PutShell(
+internal data class PutScaffold(
         var put: Scaffold<String>? = null,
         var resource: Scaffold<String>? = null,
         var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
@@ -1078,7 +1078,7 @@ internal data class PutShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Put> {
+) : StepScaffold(), Scaffold<Put> {
     override suspend fun resolve(registry: Registry): Put {
         checkNotNull(put) { "Put is missing the put property" }
         coroutineScope {
@@ -1104,7 +1104,7 @@ internal data class PutShell(
     }
 }
 
-internal data class TaskShell(
+internal data class TaskScaffold(
         var task: Scaffold<String>? = null,
         var config: Scaffold<TaskConfig>? = null,
         var file: Scaffold<String>? = null,
@@ -1120,7 +1120,7 @@ internal data class TaskShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Task> {
+) : StepScaffold(), Scaffold<Task> {
     override suspend fun resolve(registry: Registry): Task {
         checkNotNull(task) { "Task is missing the task property" }
         checkNotNull(config) { "Task is missing the config property" }
@@ -1152,7 +1152,7 @@ internal data class TaskShell(
     }
 }
 
-internal data class AggregateShell(
+internal data class AggregateScaffold(
         var aggregate: List<Scaffold<Step>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -1161,7 +1161,7 @@ internal data class AggregateShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Aggregate> {
+) : StepScaffold(), Scaffold<Aggregate> {
     override suspend fun resolve(registry: Registry): Aggregate {
         coroutineScope {
             aggregate?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -1184,7 +1184,7 @@ internal data class AggregateShell(
     }
 }
 
-internal data class DoShell(
+internal data class DoScaffold(
         var `do`: List<Scaffold<Step>>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -1193,7 +1193,7 @@ internal data class DoShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Do> {
+) : StepScaffold(), Scaffold<Do> {
     override suspend fun resolve(registry: Registry): Do {
         coroutineScope {
             `do`?.let{ it.forEach { launch { it.resolve(registry) } } }
@@ -1216,7 +1216,7 @@ internal data class DoShell(
     }
 }
 
-internal data class TryShell(
+internal data class TryScaffold(
         var `try`: Scaffold<Step>? = null,
         var on_success: Scaffold<Step>? = null,
         var on_failure: Scaffold<Step>? = null,
@@ -1225,7 +1225,7 @@ internal data class TryShell(
         var tags: List<Scaffold<String>>? = null,
         var timeout: Scaffold<String>? = null,
         var attempts: Scaffold<Int>? = null
-) : StepShell(), Scaffold<Try> {
+) : StepScaffold(), Scaffold<Try> {
     override suspend fun resolve(registry: Registry): Try {
         checkNotNull(`try`) { "Try is missing the try property" }
         coroutineScope {
@@ -1251,128 +1251,128 @@ internal data class TryShell(
 
 class TaskConfigScaffolder(internal val spec: TaskConfigSpec) : Scaffolder<TaskConfig> {
     override fun createScaffold(): Scaffold<TaskConfig> {
-        val builder = TaskConfigShellBuilder()
+        val builder = TaskConfigScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskConfigShellBuilder(internal var shell: TaskConfigShell = TaskConfigShell()) : TaskConfigBuilder {
+internal class TaskConfigScaffoldBuilder(internal var scaffold: TaskConfigScaffold = TaskConfigScaffold()) : TaskConfigBuilder {
     override fun platform(value: String) {
-        shell = shell.copy(platform = ValueScaffold(value))
+        scaffold = scaffold.copy(platform = ValueScaffold(value))
     }
 
     override fun image_resource(body: TaskResourceBuilder.() -> Unit) {
-        shell = shell.copy(image_resource = TaskResourceScaffolder(TaskResourceSpec(body)).createScaffold())
+        scaffold = scaffold.copy(image_resource = TaskResourceScaffolder(TaskResourceSpec(body)).createScaffold())
     }
 
     override fun image_resource(spec: TaskResourceSpec) {
-        shell = shell.copy(image_resource = TaskResourceScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(image_resource = TaskResourceScaffolder(spec).createScaffold())
     }
 
     override fun image_resource(ref: TaskResourceRef) {
-        shell = shell.copy(image_resource = RefScaffold(ref.key))
+        scaffold = scaffold.copy(image_resource = RefScaffold(ref.key))
     }
 
     override fun image_resource(value: TaskResource) {
-        shell = shell.copy(image_resource = ValueScaffold(value))
+        scaffold = scaffold.copy(image_resource = ValueScaffold(value))
     }
 
     override fun rootfs_uri(value: String) {
-        shell = shell.copy(rootfs_uri = ValueScaffold(value))
+        scaffold = scaffold.copy(rootfs_uri = ValueScaffold(value))
     }
 
     override fun input(body: TaskInputBuilder.() -> Unit) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + TaskInputScaffolder(TaskInputSpec(body)).createScaffold())
+        scaffold = scaffold.copy(inputs = scaffold.inputs.orEmpty() + TaskInputScaffolder(TaskInputSpec(body)).createScaffold())
     }
 
     override fun input(spec: TaskInputSpec) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + TaskInputScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(inputs = scaffold.inputs.orEmpty() + TaskInputScaffolder(spec).createScaffold())
     }
 
     override fun input(ref: TaskInputRef) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(inputs = scaffold.inputs.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun input(value: TaskInput) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(inputs = scaffold.inputs.orEmpty() + ValueScaffold(value))
     }
 
     override fun inputs(inputs: List<TaskInput>) {
-        shell = shell.copy(inputs = shell.inputs.orEmpty() + inputs.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(inputs = scaffold.inputs.orEmpty() + inputs.map { ValueScaffold(it) })
     }
 
     override fun output(body: TaskOutputBuilder.() -> Unit) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + TaskOutputScaffolder(TaskOutputSpec(body)).createScaffold())
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + TaskOutputScaffolder(TaskOutputSpec(body)).createScaffold())
     }
 
     override fun output(spec: TaskOutputSpec) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + TaskOutputScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + TaskOutputScaffolder(spec).createScaffold())
     }
 
     override fun output(ref: TaskOutputRef) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun output(value: TaskOutput) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + ValueScaffold(value))
     }
 
     override fun outputs(outputs: List<TaskOutput>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + outputs.map { ValueScaffold(it) })
     }
 
     override fun cache(body: TaskCacheBuilder.() -> Unit) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + TaskCacheScaffolder(TaskCacheSpec(body)).createScaffold())
+        scaffold = scaffold.copy(caches = scaffold.caches.orEmpty() + TaskCacheScaffolder(TaskCacheSpec(body)).createScaffold())
     }
 
     override fun cache(spec: TaskCacheSpec) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + TaskCacheScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(caches = scaffold.caches.orEmpty() + TaskCacheScaffolder(spec).createScaffold())
     }
 
     override fun cache(ref: TaskCacheRef) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(caches = scaffold.caches.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun cache(value: TaskCache) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(caches = scaffold.caches.orEmpty() + ValueScaffold(value))
     }
 
     override fun caches(caches: List<TaskCache>) {
-        shell = shell.copy(caches = shell.caches.orEmpty() + caches.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(caches = scaffold.caches.orEmpty() + caches.map { ValueScaffold(it) })
     }
 
     override fun run(body: TaskRunConfigBuilder.() -> Unit) {
-        shell = shell.copy(run = TaskRunConfigScaffolder(TaskRunConfigSpec(body)).createScaffold())
+        scaffold = scaffold.copy(run = TaskRunConfigScaffolder(TaskRunConfigSpec(body)).createScaffold())
     }
 
     override fun run(spec: TaskRunConfigSpec) {
-        shell = shell.copy(run = TaskRunConfigScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(run = TaskRunConfigScaffolder(spec).createScaffold())
     }
 
     override fun run(ref: TaskRunConfigRef) {
-        shell = shell.copy(run = RefScaffold(ref.key))
+        scaffold = scaffold.copy(run = RefScaffold(ref.key))
     }
 
     override fun run(value: TaskRunConfig) {
-        shell = shell.copy(run = ValueScaffold(value))
+        scaffold = scaffold.copy(run = ValueScaffold(value))
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
-internal data class TaskConfigShell(
+internal data class TaskConfigScaffold(
         var platform: Scaffold<String>? = null,
         var image_resource: Scaffold<TaskResource>? = null,
         var rootfs_uri: Scaffold<String>? = null,
@@ -1408,56 +1408,56 @@ internal data class TaskConfigShell(
 
 class TaskResourceScaffolder(internal val spec: TaskResourceSpec) : Scaffolder<TaskResource> {
     override fun createScaffold(): Scaffold<TaskResource> {
-        val builder = TaskResourceShellBuilder()
+        val builder = TaskResourceScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskResourceShellBuilder(internal var shell: TaskResourceShell = TaskResourceShell()) : TaskResourceBuilder {
+internal class TaskResourceScaffoldBuilder(internal var scaffold: TaskResourceScaffold = TaskResourceScaffold()) : TaskResourceBuilder {
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun source(key: String, value: Any) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun source(pair: Pair<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun source(source: Map<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun version(key: String, value: String) {
-        shell = shell.copy(version = shell.version.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(version = scaffold.version.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun version(pair: Pair<String, String>) {
-        shell = shell.copy(version = shell.version.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(version = scaffold.version.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun version(version: Map<String, String>) {
-        shell = shell.copy(version = shell.version.orEmpty() + version.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(version = scaffold.version.orEmpty() + version.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
-internal data class TaskResourceShell(
+internal data class TaskResourceScaffold(
         var type: Scaffold<String>? = null,
         var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
         var params: Map<Scaffold<String>, Scaffold<Any>>? = null,
@@ -1477,28 +1477,28 @@ internal data class TaskResourceShell(
 
 class TaskInputScaffolder(internal val spec: TaskInputSpec) : Scaffolder<TaskInput> {
     override fun createScaffold(): Scaffold<TaskInput> {
-        val builder = TaskInputShellBuilder()
+        val builder = TaskInputScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskInputShellBuilder(internal var shell: TaskInputShell = TaskInputShell()) : TaskInputBuilder {
+internal class TaskInputScaffoldBuilder(internal var scaffold: TaskInputScaffold = TaskInputScaffold()) : TaskInputBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun path(value: String) {
-        shell = shell.copy(path = ValueScaffold(value))
+        scaffold = scaffold.copy(path = ValueScaffold(value))
     }
 
     override fun optional(value: Boolean) {
-        shell = shell.copy(optional = ValueScaffold(value))
+        scaffold = scaffold.copy(optional = ValueScaffold(value))
     }
 }
 
-internal data class TaskInputShell(
+internal data class TaskInputScaffold(
         var name: Scaffold<String>? = null,
         var path: Scaffold<String>? = null,
         var optional: Scaffold<Boolean>? = null
@@ -1516,24 +1516,24 @@ internal data class TaskInputShell(
 
 class TaskOutputScaffolder(internal val spec: TaskOutputSpec) : Scaffolder<TaskOutput> {
     override fun createScaffold(): Scaffold<TaskOutput> {
-        val builder = TaskOutputShellBuilder()
+        val builder = TaskOutputScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskOutputShellBuilder(internal var shell: TaskOutputShell = TaskOutputShell()) : TaskOutputBuilder {
+internal class TaskOutputScaffoldBuilder(internal var scaffold: TaskOutputScaffold = TaskOutputScaffold()) : TaskOutputBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun path(value: String) {
-        shell = shell.copy(path = ValueScaffold(value))
+        scaffold = scaffold.copy(path = ValueScaffold(value))
     }
 }
 
-internal data class TaskOutputShell(var name: Scaffold<String>? = null, var path: Scaffold<String>? = null) : Scaffold<TaskOutput> {
+internal data class TaskOutputScaffold(var name: Scaffold<String>? = null, var path: Scaffold<String>? = null) : Scaffold<TaskOutput> {
     override suspend fun resolve(registry: Registry): TaskOutput {
         checkNotNull(name) { "TaskOutput is missing the name property" }
         val value = TaskOutput(
@@ -1546,20 +1546,20 @@ internal data class TaskOutputShell(var name: Scaffold<String>? = null, var path
 
 class TaskCacheScaffolder(internal val spec: TaskCacheSpec) : Scaffolder<TaskCache> {
     override fun createScaffold(): Scaffold<TaskCache> {
-        val builder = TaskCacheShellBuilder()
+        val builder = TaskCacheScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskCacheShellBuilder(internal var shell: TaskCacheShell = TaskCacheShell()) : TaskCacheBuilder {
+internal class TaskCacheScaffoldBuilder(internal var scaffold: TaskCacheScaffold = TaskCacheScaffold()) : TaskCacheBuilder {
     override fun path(value: String) {
-        shell = shell.copy(path = ValueScaffold(value))
+        scaffold = scaffold.copy(path = ValueScaffold(value))
     }
 }
 
-internal data class TaskCacheShell(var path: Scaffold<String>? = null) : Scaffold<TaskCache> {
+internal data class TaskCacheScaffold(var path: Scaffold<String>? = null) : Scaffold<TaskCache> {
     override suspend fun resolve(registry: Registry): TaskCache {
         checkNotNull(path) { "TaskCache is missing the path property" }
         val value = TaskCache(
@@ -1571,36 +1571,36 @@ internal data class TaskCacheShell(var path: Scaffold<String>? = null) : Scaffol
 
 class TaskRunConfigScaffolder(internal val spec: TaskRunConfigSpec) : Scaffolder<TaskRunConfig> {
     override fun createScaffold(): Scaffold<TaskRunConfig> {
-        val builder = TaskRunConfigShellBuilder()
+        val builder = TaskRunConfigScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TaskRunConfigShellBuilder(internal var shell: TaskRunConfigShell = TaskRunConfigShell()) : TaskRunConfigBuilder {
+internal class TaskRunConfigScaffoldBuilder(internal var scaffold: TaskRunConfigScaffold = TaskRunConfigScaffold()) : TaskRunConfigBuilder {
     override fun path(value: String) {
-        shell = shell.copy(path = ValueScaffold(value))
+        scaffold = scaffold.copy(path = ValueScaffold(value))
     }
 
     override fun arg(value: String) {
-        shell = shell.copy(args = shell.args.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(args = scaffold.args.orEmpty() + ValueScaffold(value))
     }
 
     override fun args(args: List<String>) {
-        shell = shell.copy(args = shell.args.orEmpty() + args.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(args = scaffold.args.orEmpty() + args.map { ValueScaffold(it) })
     }
 
     override fun dir(value: String) {
-        shell = shell.copy(dir = ValueScaffold(value))
+        scaffold = scaffold.copy(dir = ValueScaffold(value))
     }
 
     override fun user(value: String) {
-        shell = shell.copy(user = ValueScaffold(value))
+        scaffold = scaffold.copy(user = ValueScaffold(value))
     }
 }
 
-internal data class TaskRunConfigShell(
+internal data class TaskRunConfigScaffold(
         var path: Scaffold<String>? = null,
         var args: List<Scaffold<String>>? = null,
         var dir: Scaffold<String>? = null,
@@ -1620,52 +1620,52 @@ internal data class TaskRunConfigShell(
 
 class ResourceScaffolder(internal val spec: ResourceSpec) : Scaffolder<Resource> {
     override fun createScaffold(): Scaffold<Resource> {
-        val builder = ResourceShellBuilder()
+        val builder = ResourceScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ResourceShellBuilder(internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder {
+internal class ResourceScaffoldBuilder(internal var scaffold: ResourceScaffold = ResourceScaffold()) : ResourceBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun source(key: String, value: Any) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun source(pair: Pair<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun source(source: Map<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun check_every(value: String) {
-        shell = shell.copy(check_every = ValueScaffold(value))
+        scaffold = scaffold.copy(check_every = ValueScaffold(value))
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 
     override fun webhook_token(value: String) {
-        shell = shell.copy(webhook_token = ValueScaffold(value))
+        scaffold = scaffold.copy(webhook_token = ValueScaffold(value))
     }
 }
 
-internal data class ResourceShell(
+internal data class ResourceScaffold(
         var name: Scaffold<String>? = null,
         var type: Scaffold<String>? = null,
         var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
@@ -1690,60 +1690,60 @@ internal data class ResourceShell(
 
 class ResourceTypeScaffolder(internal val spec: ResourceTypeSpec) : Scaffolder<ResourceType> {
     override fun createScaffold(): Scaffold<ResourceType> {
-        val builder = ResourceTypeShellBuilder()
+        val builder = ResourceTypeScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ResourceTypeShellBuilder(internal var shell: ResourceTypeShell = ResourceTypeShell()) : ResourceTypeBuilder {
+internal class ResourceTypeScaffoldBuilder(internal var scaffold: ResourceTypeScaffold = ResourceTypeScaffold()) : ResourceTypeBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun source(key: String, value: Any) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun source(pair: Pair<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun source(source: Map<String, Any>) {
-        shell = shell.copy(source = shell.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(source = scaffold.source.orEmpty() + source.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun privileged(value: Boolean) {
-        shell = shell.copy(privileged = ValueScaffold(value))
+        scaffold = scaffold.copy(privileged = ValueScaffold(value))
     }
 
     override fun params(key: String, value: Any) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun params(pair: Pair<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun params(params: Map<String, Any>) {
-        shell = shell.copy(params = shell.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(params = scaffold.params.orEmpty() + params.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 
     override fun tag(value: String) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + ValueScaffold(value))
     }
 
     override fun tags(tags: List<String>) {
-        shell = shell.copy(tags = shell.tags.orEmpty() + tags.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(tags = scaffold.tags.orEmpty() + tags.map { ValueScaffold(it) })
     }
 }
 
-internal data class ResourceTypeShell(
+internal data class ResourceTypeScaffold(
         var name: Scaffold<String>? = null,
         var type: Scaffold<String>? = null,
         var source: Map<Scaffold<String>, Scaffold<Any>>? = null,
@@ -1768,36 +1768,36 @@ internal data class ResourceTypeShell(
 
 class GroupScaffolder(internal val spec: GroupSpec) : Scaffolder<Group> {
     override fun createScaffold(): Scaffold<Group> {
-        val builder = GroupShellBuilder()
+        val builder = GroupScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class GroupShellBuilder(internal var shell: GroupShell = GroupShell()) : GroupBuilder {
+internal class GroupScaffoldBuilder(internal var scaffold: GroupScaffold = GroupScaffold()) : GroupBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun job(value: String) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + ValueScaffold(value))
     }
 
     override fun jobs(jobs: List<String>) {
-        shell = shell.copy(jobs = shell.jobs.orEmpty() + jobs.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(jobs = scaffold.jobs.orEmpty() + jobs.map { ValueScaffold(it) })
     }
 
     override fun resource(value: String) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ValueScaffold(value))
     }
 
     override fun resources(resources: List<String>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + resources.map { ValueScaffold(it) })
     }
 }
 
-internal data class GroupShell(
+internal data class GroupScaffold(
         var name: Scaffold<String>? = null,
         var jobs: List<Scaffold<String>>? = null,
         var resources: List<Scaffold<String>>? = null

@@ -7,8 +7,8 @@
 // issue in the project's repository.
 package io.philarios.terraform
 
-import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
+import io.philarios.core.RefScaffold
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
 import io.philarios.core.ValueScaffold
@@ -23,116 +23,116 @@ import kotlinx.coroutines.launch
 
 class TerraformScaffolder(internal val spec: TerraformSpec) : Scaffolder<Terraform> {
     override fun createScaffold(): Scaffold<Terraform> {
-        val builder = TerraformShellBuilder()
+        val builder = TerraformScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class TerraformShellBuilder(internal var shell: TerraformShell = TerraformShell()) : TerraformBuilder {
+internal class TerraformScaffoldBuilder(internal var scaffold: TerraformScaffold = TerraformScaffold()) : TerraformBuilder {
     override fun resource(body: ResourceBuilder.() -> Unit) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(ResourceSpec(body)).createScaffold())
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ResourceScaffolder(ResourceSpec(body)).createScaffold())
     }
 
     override fun resource(spec: ResourceSpec) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ResourceScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ResourceScaffolder(spec).createScaffold())
     }
 
     override fun resource(ref: ResourceRef) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun resource(value: Resource) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + ValueScaffold(value))
     }
 
     override fun resources(resources: List<Resource>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(resources = scaffold.resources.orEmpty() + resources.map { ValueScaffold(it) })
     }
 
     override fun dataSource(body: DataSourceBuilder.() -> Unit) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder(DataSourceSpec(body)).createScaffold())
+        scaffold = scaffold.copy(dataSources = scaffold.dataSources.orEmpty() + DataSourceScaffolder(DataSourceSpec(body)).createScaffold())
     }
 
     override fun dataSource(spec: DataSourceSpec) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + DataSourceScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(dataSources = scaffold.dataSources.orEmpty() + DataSourceScaffolder(spec).createScaffold())
     }
 
     override fun dataSource(ref: DataSourceRef) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(dataSources = scaffold.dataSources.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun dataSource(value: DataSource) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(dataSources = scaffold.dataSources.orEmpty() + ValueScaffold(value))
     }
 
     override fun dataSources(dataSources: List<DataSource>) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + dataSources.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(dataSources = scaffold.dataSources.orEmpty() + dataSources.map { ValueScaffold(it) })
     }
 
     override fun provider(body: ProviderBuilder.() -> Unit) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder(ProviderSpec(body)).createScaffold())
+        scaffold = scaffold.copy(providers = scaffold.providers.orEmpty() + ProviderScaffolder(ProviderSpec(body)).createScaffold())
     }
 
     override fun provider(spec: ProviderSpec) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ProviderScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(providers = scaffold.providers.orEmpty() + ProviderScaffolder(spec).createScaffold())
     }
 
     override fun provider(ref: ProviderRef) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(providers = scaffold.providers.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun provider(value: Provider) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(providers = scaffold.providers.orEmpty() + ValueScaffold(value))
     }
 
     override fun providers(providers: List<Provider>) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + providers.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(providers = scaffold.providers.orEmpty() + providers.map { ValueScaffold(it) })
     }
 
     override fun variable(body: VariableBuilder.() -> Unit) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder(VariableSpec(body)).createScaffold())
+        scaffold = scaffold.copy(variables = scaffold.variables.orEmpty() + VariableScaffolder(VariableSpec(body)).createScaffold())
     }
 
     override fun variable(spec: VariableSpec) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + VariableScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(variables = scaffold.variables.orEmpty() + VariableScaffolder(spec).createScaffold())
     }
 
     override fun variable(ref: VariableRef) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(variables = scaffold.variables.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun variable(value: Variable) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(variables = scaffold.variables.orEmpty() + ValueScaffold(value))
     }
 
     override fun variables(variables: List<Variable>) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + variables.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(variables = scaffold.variables.orEmpty() + variables.map { ValueScaffold(it) })
     }
 
     override fun output(body: OutputBuilder.() -> Unit) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder(OutputSpec(body)).createScaffold())
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + OutputScaffolder(OutputSpec(body)).createScaffold())
     }
 
     override fun output(spec: OutputSpec) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + OutputScaffolder(spec).createScaffold())
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + OutputScaffolder(spec).createScaffold())
     }
 
     override fun output(ref: OutputRef) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun output(value: Output) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + ValueScaffold(value))
     }
 
     override fun outputs(outputs: List<Output>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { ValueScaffold(it) })
+        scaffold = scaffold.copy(outputs = scaffold.outputs.orEmpty() + outputs.map { ValueScaffold(it) })
     }
 }
 
-internal data class TerraformShell(
+internal data class TerraformScaffold(
         var resources: List<Scaffold<Resource>>? = null,
         var dataSources: List<Scaffold<DataSource>>? = null,
         var providers: List<Scaffold<Provider>>? = null,
@@ -160,36 +160,36 @@ internal data class TerraformShell(
 
 class ResourceScaffolder(internal val spec: ResourceSpec) : Scaffolder<Resource> {
     override fun createScaffold(): Scaffold<Resource> {
-        val builder = ResourceShellBuilder()
+        val builder = ResourceScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ResourceShellBuilder(internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder {
+internal class ResourceScaffoldBuilder(internal var scaffold: ResourceScaffold = ResourceScaffold()) : ResourceBuilder {
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
-internal data class ResourceShell(
+internal data class ResourceScaffold(
         var type: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var config: Map<Scaffold<String>, Scaffold<Any>>? = null
@@ -208,36 +208,36 @@ internal data class ResourceShell(
 
 class DataSourceScaffolder(internal val spec: DataSourceSpec) : Scaffolder<DataSource> {
     override fun createScaffold(): Scaffold<DataSource> {
-        val builder = DataSourceShellBuilder()
+        val builder = DataSourceScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class DataSourceShellBuilder(internal var shell: DataSourceShell = DataSourceShell()) : DataSourceBuilder {
+internal class DataSourceScaffoldBuilder(internal var scaffold: DataSourceScaffold = DataSourceScaffold()) : DataSourceBuilder {
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
-internal data class DataSourceShell(
+internal data class DataSourceScaffold(
         var type: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var config: Map<Scaffold<String>, Scaffold<Any>>? = null
@@ -256,32 +256,32 @@ internal data class DataSourceShell(
 
 class ProviderScaffolder(internal val spec: ProviderSpec) : Scaffolder<Provider> {
     override fun createScaffold(): Scaffold<Provider> {
-        val builder = ProviderShellBuilder()
+        val builder = ProviderScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class ProviderShellBuilder(internal var shell: ProviderShell = ProviderShell()) : ProviderBuilder {
+internal class ProviderScaffoldBuilder(internal var scaffold: ProviderScaffold = ProviderScaffold()) : ProviderBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
+        scaffold = scaffold.copy(config = scaffold.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
-internal data class ProviderShell(var name: Scaffold<String>? = null, var config: Map<Scaffold<String>, Scaffold<Any>>? = null) : Scaffold<Provider> {
+internal data class ProviderScaffold(var name: Scaffold<String>? = null, var config: Map<Scaffold<String>, Scaffold<Any>>? = null) : Scaffold<Provider> {
     override suspend fun resolve(registry: Registry): Provider {
         checkNotNull(name) { "Provider is missing the name property" }
         val value = Provider(
@@ -294,28 +294,28 @@ internal data class ProviderShell(var name: Scaffold<String>? = null, var config
 
 class VariableScaffolder(internal val spec: VariableSpec) : Scaffolder<Variable> {
     override fun createScaffold(): Scaffold<Variable> {
-        val builder = VariableShellBuilder()
+        val builder = VariableScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class VariableShellBuilder(internal var shell: VariableShell = VariableShell()) : VariableBuilder {
+internal class VariableScaffoldBuilder(internal var scaffold: VariableScaffold = VariableScaffold()) : VariableBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun type(value: String) {
-        shell = shell.copy(type = ValueScaffold(value))
+        scaffold = scaffold.copy(type = ValueScaffold(value))
     }
 
     override fun default(value: Any) {
-        shell = shell.copy(default = ValueScaffold(value))
+        scaffold = scaffold.copy(default = ValueScaffold(value))
     }
 }
 
-internal data class VariableShell(
+internal data class VariableScaffold(
         var name: Scaffold<String>? = null,
         var type: Scaffold<String>? = null,
         var default: Scaffold<Any>? = null
@@ -335,24 +335,24 @@ internal data class VariableShell(
 
 class OutputScaffolder(internal val spec: OutputSpec) : Scaffolder<Output> {
     override fun createScaffold(): Scaffold<Output> {
-        val builder = OutputShellBuilder()
+        val builder = OutputScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class OutputShellBuilder(internal var shell: OutputShell = OutputShell()) : OutputBuilder {
+internal class OutputScaffoldBuilder(internal var scaffold: OutputScaffold = OutputScaffold()) : OutputBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun value(value: Any) {
-        shell = shell.copy(value = ValueScaffold(value))
+        scaffold = scaffold.copy(value = ValueScaffold(value))
     }
 }
 
-internal data class OutputShell(var name: Scaffold<String>? = null, var value: Scaffold<Any>? = null) : Scaffold<Output> {
+internal data class OutputScaffold(var name: Scaffold<String>? = null, var value: Scaffold<Any>? = null) : Scaffold<Output> {
     override suspend fun resolve(registry: Registry): Output {
         checkNotNull(name) { "Output is missing the name property" }
         checkNotNull(value) { "Output is missing the value property" }

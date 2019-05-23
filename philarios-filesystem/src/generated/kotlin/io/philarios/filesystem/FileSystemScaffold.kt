@@ -7,8 +7,8 @@
 // issue in the project's repository.
 package io.philarios.filesystem
 
-import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
+import io.philarios.core.RefScaffold
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
 import io.philarios.core.ValueScaffold
@@ -30,53 +30,53 @@ class EntryScaffolder<out T : Entry>(internal val spec: EntrySpec<T>) : Scaffold
 
 class DirectoryScaffolder(internal val spec: DirectorySpec) : Scaffolder<Directory> {
     override fun createScaffold(): Scaffold<Directory> {
-        val builder = DirectoryShellBuilder()
+        val builder = DirectoryScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 class FileScaffolder(internal val spec: FileSpec) : Scaffolder<File> {
     override fun createScaffold(): Scaffold<File> {
-        val builder = FileShellBuilder()
+        val builder = FileScaffoldBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.scaffold
     }
 }
 
 @DslBuilder
-internal class DirectoryShellBuilder(internal var shell: DirectoryShell = DirectoryShell()) : DirectoryBuilder {
+internal class DirectoryScaffoldBuilder(internal var scaffold: DirectoryScaffold = DirectoryScaffold()) : DirectoryBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun <T : Entry> entry(spec: EntrySpec<T>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + EntryScaffolder<Entry>(spec).createScaffold())
+        scaffold = scaffold.copy(entries = scaffold.entries.orEmpty() + EntryScaffolder<Entry>(spec).createScaffold())
     }
 
     override fun <T : Entry> entry(ref: EntryRef<T>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + RefScaffold(ref.key))
+        scaffold = scaffold.copy(entries = scaffold.entries.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Entry> entry(value: T) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + ValueScaffold(value))
+        scaffold = scaffold.copy(entries = scaffold.entries.orEmpty() + ValueScaffold(value))
     }
 }
 
 @DslBuilder
-internal class FileShellBuilder(internal var shell: FileShell = FileShell()) : FileBuilder {
+internal class FileScaffoldBuilder(internal var scaffold: FileScaffold = FileScaffold()) : FileBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = ValueScaffold(value))
+        scaffold = scaffold.copy(name = ValueScaffold(value))
     }
 
     override fun content(value: String) {
-        shell = shell.copy(content = ValueScaffold(value))
+        scaffold = scaffold.copy(content = ValueScaffold(value))
     }
 }
 
-internal sealed class EntryShell
+internal sealed class EntryScaffold
 
-internal data class DirectoryShell(var name: Scaffold<String>? = null, var entries: List<Scaffold<Entry>>? = null) : EntryShell(),
+internal data class DirectoryScaffold(var name: Scaffold<String>? = null, var entries: List<Scaffold<Entry>>? = null) : EntryScaffold(),
         Scaffold<Directory> {
     override suspend fun resolve(registry: Registry): Directory {
         checkNotNull(name) { "Directory is missing the name property" }
@@ -91,7 +91,7 @@ internal data class DirectoryShell(var name: Scaffold<String>? = null, var entri
     }
 }
 
-internal data class FileShell(var name: Scaffold<String>? = null, var content: Scaffold<String>? = null) : EntryShell(),
+internal data class FileScaffold(var name: Scaffold<String>? = null, var content: Scaffold<String>? = null) : EntryScaffold(),
         Scaffold<File> {
     override suspend fun resolve(registry: Registry): File {
         checkNotNull(name) { "File is missing the name property" }
