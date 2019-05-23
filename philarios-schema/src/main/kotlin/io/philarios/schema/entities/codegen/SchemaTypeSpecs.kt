@@ -25,15 +25,15 @@ internal enum class Kind(val fileName: String, val layer: Layer) {
     SPEC("Specs", Layer.SPEC),
     BUILDER("Builders", Layer.SPEC),
     REF("Refs", Layer.SPEC),
-    SHELL("Shells", Layer.SCAFFOLD),
-    BUILDER_SHELL("ShellBuilders", Layer.SCAFFOLD),
+    SCAFFOLD("Scaffolds", Layer.SCAFFOLD),
+    SCAFFOLD_BUILDER("ScaffoldBuilders", Layer.SCAFFOLD),
     SCAFFOLDER("Scaffolders", Layer.SCAFFOLD)
 }
 
 internal enum class Layer(val fileName: String) {
     MODEL("Model"),
     SPEC("Spec"),
-    SCAFFOLD("Scaffolding")
+    SCAFFOLD("Scaffold")
 }
 
 internal fun Schema.codeSpecsByClassifier(): Map<Classifier, CodeSpecs> {
@@ -57,8 +57,8 @@ internal fun Type.codeSpecsByKind(typeRefs: Map<RefType, Type>): Map<Kind, CodeS
             Kind.BUILDER to CodeSpecs(builderInterfaceTypeSpecs(typeRefs)),
             Kind.REF to CodeSpecs(refTypeSpecs),
             Kind.SCAFFOLDER to CodeSpecs(scaffolderTypeSpecs),
-            Kind.BUILDER_SHELL to CodeSpecs(builderScaffoldTypeSpecs(typeRefs)),
-            Kind.SHELL to CodeSpecs(shellTypeSpecs(typeRefs))
+            Kind.SCAFFOLD_BUILDER to CodeSpecs(builderScaffoldTypeSpecs(typeRefs)),
+            Kind.SCAFFOLD to CodeSpecs(shellTypeSpecs(typeRefs))
     )
 }
 
