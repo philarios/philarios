@@ -7,7 +7,7 @@ import io.philarios.schema.Struct
 import io.philarios.schema.Type
 import io.philarios.schema.entities.codegen.util.escapedName
 import io.philarios.schema.entities.codegen.util.scaffoldTypeName
-import io.philarios.schema.entities.codegen.util.shellClassName
+import io.philarios.schema.entities.codegen.util.resolvableClassName
 import io.philarios.util.kotlinpoet.superclass
 
 internal fun Struct.shellTypeSpec(
@@ -24,7 +24,7 @@ private fun Struct.dataClassShellTypeSpec(
         superclass: ClassName?,
         shellSuperclass: ClassName?
 ) =
-        TypeSpec.classBuilder(shellClassName)
+        TypeSpec.classBuilder(resolvableClassName)
                 .addSuperinterface(scaffoldTypeName)
                 .superclass(shellSuperclass)
                 .addModifiers(KModifier.INTERNAL)

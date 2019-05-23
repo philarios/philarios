@@ -51,9 +51,9 @@ private val Struct.dataClassScaffolderTypeSpec
                         .addModifiers(KModifier.OVERRIDE)
                         .returns(scaffoldTypeName)
                         .addStatements(
-                                Statement("val builder = %T()", listOf(shellBuilderClassName)),
+                                Statement("val builder = %T()", listOf(resolvableBuilderClassName)),
                                 Statement("builder.apply(spec.body)"),
-                                Statement("return builder.shell")
+                                Statement("return builder.resolvable")
                         )
                         .build())
                 .build()

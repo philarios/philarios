@@ -21,36 +21,36 @@ import kotlinx.coroutines.launch
 
 class SchemaScaffolder(internal val spec: SchemaSpec) : Scaffolder<Schema> {
     override fun createScaffold(): Scaffold<Schema> {
-        val builder = SchemaShellBuilder()
+        val builder = SchemaResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 @DslBuilder
-internal class SchemaShellBuilder(internal var shell: SchemaShell = SchemaShell()) : SchemaBuilder {
+internal class SchemaResolvableBuilder(internal var resolvable: SchemaResolvable = SchemaResolvable()) : SchemaBuilder {
     override fun pkg(value: String) {
-        shell = shell.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = Wrapper(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 
     override fun <T : Type> type(spec: TypeSpec<T>) {
-        shell = shell.copy(types = shell.types.orEmpty() + TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(types = shell.types.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        shell = shell.copy(types = shell.types.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + Wrapper(value))
     }
 }
 
-internal data class SchemaShell(
+internal data class SchemaResolvable(
         var pkg: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var types: List<Scaffold<Type>>? = null
@@ -98,57 +98,57 @@ class TypeScaffolder<out T : Type>(internal val spec: TypeSpec<T>) : Scaffolder<
 
 class StructScaffolder(internal val spec: StructSpec) : Scaffolder<Struct> {
     override fun createScaffold(): Scaffold<Struct> {
-        val builder = StructShellBuilder()
+        val builder = StructResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class UnionScaffolder(internal val spec: UnionSpec) : Scaffolder<Union> {
     override fun createScaffold(): Scaffold<Union> {
-        val builder = UnionShellBuilder()
+        val builder = UnionResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class EnumTypeScaffolder(internal val spec: EnumTypeSpec) : Scaffolder<EnumType> {
     override fun createScaffold(): Scaffold<EnumType> {
-        val builder = EnumTypeShellBuilder()
+        val builder = EnumTypeResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class RefTypeScaffolder(internal val spec: RefTypeSpec) : Scaffolder<RefType> {
     override fun createScaffold(): Scaffold<RefType> {
-        val builder = RefTypeShellBuilder()
+        val builder = RefTypeResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class OptionTypeScaffolder(internal val spec: OptionTypeSpec) : Scaffolder<OptionType> {
     override fun createScaffold(): Scaffold<OptionType> {
-        val builder = OptionTypeShellBuilder()
+        val builder = OptionTypeResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class ListTypeScaffolder(internal val spec: ListTypeSpec) : Scaffolder<ListType> {
     override fun createScaffold(): Scaffold<ListType> {
-        val builder = ListTypeShellBuilder()
+        val builder = ListTypeResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 class MapTypeScaffolder(internal val spec: MapTypeSpec) : Scaffolder<MapType> {
     override fun createScaffold(): Scaffold<MapType> {
-        val builder = MapTypeShellBuilder()
+        val builder = MapTypeResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
@@ -193,161 +193,161 @@ class AnyTypeScaffolder(internal val spec: AnyTypeSpec) : Scaffolder<AnyType> {
 }
 
 @DslBuilder
-internal class StructShellBuilder(internal var shell: StructShell = StructShell()) : StructBuilder {
+internal class StructResolvableBuilder(internal var resolvable: StructResolvable = StructResolvable()) : StructBuilder {
     override fun pkg(value: String) {
-        shell = shell.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = Wrapper(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 
     override fun field(body: FieldBuilder.() -> Unit) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder(FieldSpec(body)).createScaffold())
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + FieldScaffolder(FieldSpec(body)).createScaffold())
     }
 
     override fun field(spec: FieldSpec) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + FieldScaffolder(spec).createScaffold())
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + FieldScaffolder(spec).createScaffold())
     }
 
     override fun field(ref: FieldRef) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + Deferred(ref.key))
     }
 
     override fun field(value: Field) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + Wrapper(value))
     }
 
     override fun fields(fields: List<Field>) {
-        shell = shell.copy(fields = shell.fields.orEmpty() + fields.map { Wrapper(it) })
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + fields.map { Wrapper(it) })
     }
 }
 
 @DslBuilder
-internal class UnionShellBuilder(internal var shell: UnionShell = UnionShell()) : UnionBuilder {
+internal class UnionResolvableBuilder(internal var resolvable: UnionResolvable = UnionResolvable()) : UnionBuilder {
     override fun pkg(value: String) {
-        shell = shell.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = Wrapper(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 
     override fun shape(body: StructBuilder.() -> Unit) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder(StructSpec(body)).createScaffold())
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + StructScaffolder(StructSpec(body)).createScaffold())
     }
 
     override fun shape(spec: StructSpec) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + StructScaffolder(spec).createScaffold())
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + StructScaffolder(spec).createScaffold())
     }
 
     override fun shape(ref: StructRef) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + Deferred(ref.key))
     }
 
     override fun shape(value: Struct) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + Wrapper(value))
     }
 
     override fun shapes(shapes: List<Struct>) {
-        shell = shell.copy(shapes = shell.shapes.orEmpty() + shapes.map { Wrapper(it) })
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + shapes.map { Wrapper(it) })
     }
 }
 
 @DslBuilder
-internal class EnumTypeShellBuilder(internal var shell: EnumTypeShell = EnumTypeShell()) : EnumTypeBuilder {
+internal class EnumTypeResolvableBuilder(internal var resolvable: EnumTypeResolvable = EnumTypeResolvable()) : EnumTypeBuilder {
     override fun pkg(value: String) {
-        shell = shell.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = Wrapper(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 
     override fun value(value: String) {
-        shell = shell.copy(values = shell.values.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + Wrapper(value))
     }
 
     override fun values(values: List<String>) {
-        shell = shell.copy(values = shell.values.orEmpty() + values.map { Wrapper(it) })
+        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + values.map { Wrapper(it) })
     }
 }
 
 @DslBuilder
-internal class RefTypeShellBuilder(internal var shell: RefTypeShell = RefTypeShell()) : RefTypeBuilder {
+internal class RefTypeResolvableBuilder(internal var resolvable: RefTypeResolvable = RefTypeResolvable()) : RefTypeBuilder {
     override fun pkg(value: String) {
-        shell = shell.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = Wrapper(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 }
 
 @DslBuilder
-internal class OptionTypeShellBuilder(internal var shell: OptionTypeShell = OptionTypeShell()) : OptionTypeBuilder {
+internal class OptionTypeResolvableBuilder(internal var resolvable: OptionTypeResolvable = OptionTypeResolvable()) : OptionTypeBuilder {
     override fun <T : Type> type(spec: TypeSpec<T>) {
-        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        shell = shell.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = Wrapper(value))
     }
 }
 
 @DslBuilder
-internal class ListTypeShellBuilder(internal var shell: ListTypeShell = ListTypeShell()) : ListTypeBuilder {
+internal class ListTypeResolvableBuilder(internal var resolvable: ListTypeResolvable = ListTypeResolvable()) : ListTypeBuilder {
     override fun <T : Type> type(spec: TypeSpec<T>) {
-        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        shell = shell.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = Wrapper(value))
     }
 }
 
 @DslBuilder
-internal class MapTypeShellBuilder(internal var shell: MapTypeShell = MapTypeShell()) : MapTypeBuilder {
+internal class MapTypeResolvableBuilder(internal var resolvable: MapTypeResolvable = MapTypeResolvable()) : MapTypeBuilder {
     override fun <T : Type> keyType(spec: TypeSpec<T>) {
-        shell = shell.copy(keyType = TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(keyType = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> keyType(ref: TypeRef<T>) {
-        shell = shell.copy(keyType = Deferred(ref.key))
+        resolvable = resolvable.copy(keyType = Deferred(ref.key))
     }
 
     override fun <T : Type> keyType(value: T) {
-        shell = shell.copy(keyType = Wrapper(value))
+        resolvable = resolvable.copy(keyType = Wrapper(value))
     }
 
     override fun <T : Type> valueType(spec: TypeSpec<T>) {
-        shell = shell.copy(valueType = TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(valueType = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> valueType(ref: TypeRef<T>) {
-        shell = shell.copy(valueType = Deferred(ref.key))
+        resolvable = resolvable.copy(valueType = Deferred(ref.key))
     }
 
     override fun <T : Type> valueType(value: T) {
-        shell = shell.copy(valueType = Wrapper(value))
+        resolvable = resolvable.copy(valueType = Wrapper(value))
     }
 }
 
-internal sealed class TypeShell
+internal sealed class TypeResolvable
 
-internal data class StructShell(
+internal data class StructResolvable(
         var pkg: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var fields: List<Scaffold<Field>>? = null
-) : TypeShell(), Scaffold<Struct> {
+) : TypeResolvable(), Scaffold<Struct> {
     override suspend fun resolve(registry: Registry): Struct {
         checkNotNull(name) { "Struct is missing the name property" }
         coroutineScope {
@@ -364,11 +364,11 @@ internal data class StructShell(
     }
 }
 
-internal data class UnionShell(
+internal data class UnionResolvable(
         var pkg: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var shapes: List<Scaffold<Struct>>? = null
-) : TypeShell(), Scaffold<Union> {
+) : TypeResolvable(), Scaffold<Union> {
     override suspend fun resolve(registry: Registry): Union {
         checkNotNull(name) { "Union is missing the name property" }
         coroutineScope {
@@ -385,11 +385,11 @@ internal data class UnionShell(
     }
 }
 
-internal data class EnumTypeShell(
+internal data class EnumTypeResolvable(
         var pkg: Scaffold<String>? = null,
         var name: Scaffold<String>? = null,
         var values: List<Scaffold<String>>? = null
-) : TypeShell(), Scaffold<EnumType> {
+) : TypeResolvable(), Scaffold<EnumType> {
     override suspend fun resolve(registry: Registry): EnumType {
         checkNotNull(name) { "EnumType is missing the name property" }
         val value = EnumType(
@@ -403,7 +403,7 @@ internal data class EnumTypeShell(
     }
 }
 
-internal data class RefTypeShell(var pkg: Scaffold<String>? = null, var name: Scaffold<String>? = null) : TypeShell(),
+internal data class RefTypeResolvable(var pkg: Scaffold<String>? = null, var name: Scaffold<String>? = null) : TypeResolvable(),
         Scaffold<RefType> {
     override suspend fun resolve(registry: Registry): RefType {
         checkNotNull(name) { "RefType is missing the name property" }
@@ -417,7 +417,7 @@ internal data class RefTypeShell(var pkg: Scaffold<String>? = null, var name: Sc
     }
 }
 
-internal data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShell(),
+internal data class OptionTypeResolvable(var type: Scaffold<Type>? = null) : TypeResolvable(),
         Scaffold<OptionType> {
     override suspend fun resolve(registry: Registry): OptionType {
         checkNotNull(type) { "OptionType is missing the type property" }
@@ -431,7 +431,7 @@ internal data class OptionTypeShell(var type: Scaffold<Type>? = null) : TypeShel
     }
 }
 
-internal data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(),
+internal data class ListTypeResolvable(var type: Scaffold<Type>? = null) : TypeResolvable(),
         Scaffold<ListType> {
     override suspend fun resolve(registry: Registry): ListType {
         checkNotNull(type) { "ListType is missing the type property" }
@@ -445,7 +445,7 @@ internal data class ListTypeShell(var type: Scaffold<Type>? = null) : TypeShell(
     }
 }
 
-internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeShell(),
+internal data class MapTypeResolvable(var keyType: Scaffold<Type>? = null, var valueType: Scaffold<Type>? = null) : TypeResolvable(),
         Scaffold<MapType> {
     override suspend fun resolve(registry: Registry): MapType {
         checkNotNull(keyType) { "MapType is missing the keyType property" }
@@ -464,40 +464,40 @@ internal data class MapTypeShell(var keyType: Scaffold<Type>? = null, var valueT
 
 class FieldScaffolder(internal val spec: FieldSpec) : Scaffolder<Field> {
     override fun createScaffold(): Scaffold<Field> {
-        val builder = FieldShellBuilder()
+        val builder = FieldResolvableBuilder()
         builder.apply(spec.body)
-        return builder.shell
+        return builder.resolvable
     }
 }
 
 @DslBuilder
-internal class FieldShellBuilder(internal var shell: FieldShell = FieldShell()) : FieldBuilder {
+internal class FieldResolvableBuilder(internal var resolvable: FieldResolvable = FieldResolvable()) : FieldBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = Wrapper(value))
     }
 
     override fun key(value: Boolean) {
-        shell = shell.copy(key = Wrapper(value))
+        resolvable = resolvable.copy(key = Wrapper(value))
     }
 
     override fun singularName(value: String) {
-        shell = shell.copy(singularName = Wrapper(value))
+        resolvable = resolvable.copy(singularName = Wrapper(value))
     }
 
     override fun <T : Type> type(spec: TypeSpec<T>) {
-        shell = shell.copy(type = TypeScaffolder<Type>(spec).createScaffold())
+        resolvable = resolvable.copy(type = TypeScaffolder<Type>(spec).createScaffold())
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        shell = shell.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = Deferred(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        shell = shell.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = Wrapper(value))
     }
 }
 
-internal data class FieldShell(
+internal data class FieldResolvable(
         var name: Scaffold<String>? = null,
         var key: Scaffold<Boolean>? = null,
         var singularName: Scaffold<String>? = null,

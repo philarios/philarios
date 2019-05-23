@@ -9,16 +9,16 @@ import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
 
-internal val builderShellTypeSpecs = createTypeBuilderTypeSpec(Struct::builderShellTypeSpec)
+internal val builderResolvableTypeSpecs = createTypeBuilderTypeSpec(Struct::builderResolvableTypeSpec)
 
-private fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
-    return TypeSpec.classBuilder(shellBuilderClassName)
+private fun Struct.builderResolvableTypeSpec(parameterFunctions: List<ParameterFunction>): TypeSpec {
+    return TypeSpec.classBuilder(resolvableBuilderClassName)
             .addModifiers(KModifier.INTERNAL)
             .addSuperinterface(builderClassName)
             .addAnnotation(DslBuilder::class.className)
             .primaryConstructor(constructor(this))
-            .addProperty(PropertySpec.builder("shell", shellClassName, KModifier.INTERNAL)
-                    .initializer("shell")
+            .addProperty(PropertySpec.builder("resolvable", resolvableClassName, KModifier.INTERNAL)
+                    .initializer("resolvable")
                     .mutable(true)
                     .build())
             .addFunctions(parameterFunctions.map { it.parameterFunSpec })
@@ -27,8 +27,8 @@ private fun Struct.builderShellTypeSpec(parameterFunctions: List<ParameterFuncti
 
 private fun constructor(type: Struct): FunSpec {
     return FunSpec.constructorBuilder()
-            .addParameter(ParameterSpec.builder("shell", type.shellClassName)
-                    .defaultValue("%T()", type.shellClassName)
+            .addParameter(ParameterSpec.builder("resolvable", type.resolvableClassName)
+                    .defaultValue("%T()", type.resolvableClassName)
                     .build())
             .build()
 }
@@ -67,7 +67,7 @@ private val ParameterFunction.SetParameterFunctionWithBody.parameterFunSpec
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(fieldType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(%T(body)).createScaffold())", name, fieldType.scaffolderTypeName, fieldType.specTypeName)
+                .addStatement("resolvable = resolvable.copy(%L = %T(%T(body)).createScaffold())", name, fieldType.scaffolderTypeName, fieldType.specTypeName)
                 .build()
     }
 
@@ -80,7 +80,7 @@ private val ParameterFunction.SetParameterFunctionWithSpec.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(spec).createScaffold())", name, fieldType.scaffolderTypeName)
+                .addStatement("resolvable = resolvable.copy(%L = %T(spec).createScaffold())", name, fieldType.scaffolderTypeName)
                 .build()
     }
 
@@ -93,7 +93,7 @@ private val ParameterFunction.SetParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(ref.key))", name, Deferred::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = %T(ref.key))", name, Deferred::class.className)
                 .build()
     }
 
@@ -106,7 +106,7 @@ private val ParameterFunction.SetParameterFunctionWithWrapper.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.wrapperParameterSpec)
-                .addStatement("shell = shell.copy(%L = %T(value))", name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = %T(value))", name, Wrapper::class.className)
                 .build()
     }
 
@@ -117,7 +117,7 @@ private val ParameterFunction.AddParameterFunctionWithBody.parameterFunSpec
         return FunSpec.builder(singularName)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(listType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(%T(body)).createScaffold())", name, name, listType.scaffolderTypeName, listType.specTypeName)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(%T(body)).createScaffold())", name, name, listType.scaffolderTypeName, listType.specTypeName)
                 .build()
     }
 
@@ -131,7 +131,7 @@ private val ParameterFunction.AddParameterFunctionWithSpec.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(spec).createScaffold())", name, name, listType.scaffolderTypeName)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(spec).createScaffold())", name, name, listType.scaffolderTypeName)
                 .build()
     }
 
@@ -145,7 +145,7 @@ private val ParameterFunction.AddParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(ref.key))", name, name, Deferred::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(ref.key))", name, name, Deferred::class.className)
                 .build()
     }
 
@@ -159,7 +159,7 @@ private val ParameterFunction.AddParameterFunctionWithWrapper.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.wrapperParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %T(value))", name, name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(value))", name, name, Wrapper::class.className)
                 .build()
     }
 
@@ -170,7 +170,7 @@ private val ParameterFunction.AddAllParameterFunctionWithWrapper.parameterFunSpe
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
                 .build()
     }
 
@@ -182,7 +182,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithBody.parameterFunS
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(%T(body)).createScaffold()))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(%T(body)).createScaffold()))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
@@ -198,7 +198,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithSpec.parameterFunS
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(spec).createScaffold()))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(spec).createScaffold()))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
@@ -214,7 +214,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithRef.parameterFunSp
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(ref.key)))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(ref.key)))",
                         name, name, Wrapper::class.className, "key", Deferred::class.className)
                 .build()
     }
@@ -228,7 +228,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithWrapper.parameterF
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(ParameterSpec.builder("value", valueClassName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L),%T(%L)))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(%L)))",
                         name, name, Wrapper::class.className, "key", Wrapper::class.className, "value")
                 .build()
     }
@@ -241,7 +241,7 @@ private val ParameterFunction.PutPairParameterFunctionWithWrapper.parameterFunSp
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + Pair(%T(%L), %T(%L)))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L), %T(%L)))",
                         name, name, Wrapper::class.className, "pair.first", Wrapper::class.className, "pair.second")
                 .build()
     }
@@ -253,7 +253,7 @@ private val ParameterFunction.PutAllParameterFunctionWithWrapper.parameterFunSpe
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
                         name, name, name, Wrapper::class.className, "it.key", Wrapper::class.className, "it.value")
                 .build()
     }
@@ -266,7 +266,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithBody.parameterF
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(%T(%L),%T(%T(body)).createScaffold())))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(%T(%L),%T(%T(body)).createScaffold())))",
                         name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
@@ -282,7 +282,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithSpec.parameterF
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(spec).createScaffold())))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(spec).createScaffold())))",
                         name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
@@ -298,7 +298,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithRef.parameterFu
                 }
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(ref.key))))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(ref.key))))",
                         name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", Deferred::class.className)
                 .build()
     }
@@ -312,7 +312,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithWrapper.paramet
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(ParameterSpec.builder("value", valueClassName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(%L))))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(%L))))",
                         name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", Wrapper::class.className, "value")
                 .build()
     }
@@ -325,7 +325,7 @@ private val ParameterFunction.AddPutPairParameterFunctionWithWrapper.parameterFu
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L), %T(%L))))",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L), %T(%L))))",
                         name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "pair.first", Wrapper::class.className, "pair.second")
                 .build()
     }
@@ -337,7 +337,7 @@ private val ParameterFunction.AddPutAllParameterFunctionWithWrapper.parameterFun
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("shell = shell.copy(%L = shell.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
                         name, name, name, Wrapper::class.className, "it.key", Wrapper::class.className, "it.value")
                 .build()
     }

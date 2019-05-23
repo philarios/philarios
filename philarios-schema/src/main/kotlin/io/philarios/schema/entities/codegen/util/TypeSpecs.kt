@@ -61,9 +61,6 @@ fun Type.className(suffix: String) = when (this) {
     else -> className
 }
 
-val Type.shellClassName
-    get() = className("Shell")
-
 val Type.scaffoldTypeName: TypeName
     get() = when (this) {
         is OptionType -> type.scaffoldTypeName
@@ -115,8 +112,11 @@ val Type.specClassName
 val Type.builderClassName
     get() = className("Builder")
 
-val Type.shellBuilderClassName
-    get() = className("ShellBuilder")
+val Type.resolvableClassName
+    get() = className("Resolvable")
+
+val Type.resolvableBuilderClassName
+    get() = className("ResolvableBuilder")
 
 val Type.bodyLambdaTypeName
     get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))

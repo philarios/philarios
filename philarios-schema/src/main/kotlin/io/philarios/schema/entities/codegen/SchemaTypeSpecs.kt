@@ -7,7 +7,7 @@ import io.philarios.schema.Schema
 import io.philarios.schema.Type
 import io.philarios.schema.entities.codegen.functions.spec.specFunSpecs
 import io.philarios.schema.entities.codegen.types.builder.builderInterfaceTypeSpecs
-import io.philarios.schema.entities.codegen.types.builder.builderShellTypeSpecs
+import io.philarios.schema.entities.codegen.types.builder.builderResolvableTypeSpecs
 import io.philarios.schema.entities.codegen.types.model.modelTypeSpecs
 import io.philarios.schema.entities.codegen.types.refs.refTypeSpecs
 import io.philarios.schema.entities.codegen.types.scaffolder.scaffolderTypeSpecs
@@ -57,7 +57,7 @@ internal fun Type.codeSpecsByKind(typeRefs: Map<RefType, Type>): Map<Kind, CodeS
             Kind.BUILDER to CodeSpecs(builderInterfaceTypeSpecs(typeRefs)),
             Kind.REF to CodeSpecs(refTypeSpecs),
             Kind.SCAFFOLDER to CodeSpecs(scaffolderTypeSpecs),
-            Kind.BUILDER_SHELL to CodeSpecs(builderShellTypeSpecs(typeRefs)),
+            Kind.BUILDER_SHELL to CodeSpecs(builderResolvableTypeSpecs(typeRefs)),
             Kind.SHELL to CodeSpecs(shellTypeSpecs(typeRefs))
     )
 }
