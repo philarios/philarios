@@ -1,4 +1,4 @@
-package io.philarios.schema.entities.codegen.types.shell
+package io.philarios.schema.entities.codegen.types.resolvable
 
 import io.philarios.schema.RefType
 import io.philarios.schema.Struct

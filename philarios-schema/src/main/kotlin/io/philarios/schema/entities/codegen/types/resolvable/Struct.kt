@@ -1,4 +1,4 @@
-package io.philarios.schema.entities.codegen.types.shell
+package io.philarios.schema.entities.codegen.types.resolvable
 
 import com.squareup.kotlinpoet.*
 import io.philarios.schema.Field

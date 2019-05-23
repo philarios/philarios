@@ -11,7 +11,7 @@ import io.philarios.schema.entities.codegen.types.builder.builderShellTypeSpecs
 import io.philarios.schema.entities.codegen.types.model.modelTypeSpecs
 import io.philarios.schema.entities.codegen.types.refs.refTypeSpecs
 import io.philarios.schema.entities.codegen.types.scaffolder.scaffolderTypeSpecs
-import io.philarios.schema.entities.codegen.types.shell.shellTypeSpecs
+import io.philarios.schema.entities.codegen.types.resolvable.shellTypeSpecs
 import io.philarios.schema.entities.codegen.types.spec.specTypeSpecs
 import io.philarios.schema.entities.codegen.util.className
 
