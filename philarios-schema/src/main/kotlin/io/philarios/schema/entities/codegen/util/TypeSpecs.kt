@@ -112,11 +112,11 @@ val Type.specClassName
 val Type.builderClassName
     get() = className("Builder")
 
-val Type.resolvableClassName
-    get() = className("Resolvable")
+val Type.scaffoldClassName
+    get() = className("Scaffold")
 
-val Type.resolvableBuilderClassName
-    get() = className("ResolvableBuilder")
+val Type.scaffoldBuilderClassName
+    get() = className("ScaffoldBuilder")
 
 val Type.bodyLambdaTypeName
     get() = LambdaTypeName.get(builderClassName, emptyList(), ClassName("", "Unit"))
