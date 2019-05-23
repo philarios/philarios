@@ -2,7 +2,7 @@ package io.philarios.schema.entities.codegen.types.scaffolder
 
 import com.squareup.kotlinpoet.*
 import io.philarios.core.Scaffolder
-import io.philarios.core.Wrapper
+import io.philarios.core.ValueScaffold
 import io.philarios.schema.Struct
 import io.philarios.schema.entities.codegen.util.*
 import io.philarios.util.kotlinpoet.Statement
@@ -30,7 +30,7 @@ private val Struct.objectScaffolderTypeSpec
                         .addModifiers(KModifier.OVERRIDE)
                         .returns(scaffoldTypeName)
                         .addStatements(
-                                Statement("return %T(%T)", listOf(Wrapper::class.className, className))
+                                Statement("return %T(%T)", listOf(ValueScaffold::class.className, className))
                         )
                         .build())
                 .build()

@@ -7,11 +7,11 @@
 // issue in the project's repository.
 package io.philarios.schema
 
-import io.philarios.core.Deferred
+import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
-import io.philarios.core.Wrapper
+import io.philarios.core.ValueScaffold
 import io.philarios.util.registry.Registry
 import kotlin.Boolean
 import kotlin.String
@@ -30,11 +30,11 @@ class SchemaScaffolder(internal val spec: SchemaSpec) : Scaffolder<Schema> {
 @DslBuilder
 internal class SchemaResolvableBuilder(internal var resolvable: SchemaResolvable = SchemaResolvable()) : SchemaBuilder {
     override fun pkg(value: String) {
-        resolvable = resolvable.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 
     override fun <T : Type> type(spec: TypeSpec<T>) {
@@ -42,11 +42,11 @@ internal class SchemaResolvableBuilder(internal var resolvable: SchemaResolvable
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(types = resolvable.types.orEmpty() + ValueScaffold(value))
     }
 }
 
@@ -153,53 +153,53 @@ class MapTypeScaffolder(internal val spec: MapTypeSpec) : Scaffolder<MapType> {
 }
 
 class BooleanTypeScaffolder(internal val spec: BooleanTypeSpec) : Scaffolder<BooleanType> {
-    override fun createScaffold(): Scaffold<BooleanType> = Wrapper(BooleanType)
+    override fun createScaffold(): Scaffold<BooleanType> = ValueScaffold(BooleanType)
 }
 
 class DoubleTypeScaffolder(internal val spec: DoubleTypeSpec) : Scaffolder<DoubleType> {
-    override fun createScaffold(): Scaffold<DoubleType> = Wrapper(DoubleType)
+    override fun createScaffold(): Scaffold<DoubleType> = ValueScaffold(DoubleType)
 }
 
 class FloatTypeScaffolder(internal val spec: FloatTypeSpec) : Scaffolder<FloatType> {
-    override fun createScaffold(): Scaffold<FloatType> = Wrapper(FloatType)
+    override fun createScaffold(): Scaffold<FloatType> = ValueScaffold(FloatType)
 }
 
 class LongTypeScaffolder(internal val spec: LongTypeSpec) : Scaffolder<LongType> {
-    override fun createScaffold(): Scaffold<LongType> = Wrapper(LongType)
+    override fun createScaffold(): Scaffold<LongType> = ValueScaffold(LongType)
 }
 
 class IntTypeScaffolder(internal val spec: IntTypeSpec) : Scaffolder<IntType> {
-    override fun createScaffold(): Scaffold<IntType> = Wrapper(IntType)
+    override fun createScaffold(): Scaffold<IntType> = ValueScaffold(IntType)
 }
 
 class ShortTypeScaffolder(internal val spec: ShortTypeSpec) : Scaffolder<ShortType> {
-    override fun createScaffold(): Scaffold<ShortType> = Wrapper(ShortType)
+    override fun createScaffold(): Scaffold<ShortType> = ValueScaffold(ShortType)
 }
 
 class ByteTypeScaffolder(internal val spec: ByteTypeSpec) : Scaffolder<ByteType> {
-    override fun createScaffold(): Scaffold<ByteType> = Wrapper(ByteType)
+    override fun createScaffold(): Scaffold<ByteType> = ValueScaffold(ByteType)
 }
 
 class CharacterTypeScaffolder(internal val spec: CharacterTypeSpec) : Scaffolder<CharacterType> {
-    override fun createScaffold(): Scaffold<CharacterType> = Wrapper(CharacterType)
+    override fun createScaffold(): Scaffold<CharacterType> = ValueScaffold(CharacterType)
 }
 
 class StringTypeScaffolder(internal val spec: StringTypeSpec) : Scaffolder<StringType> {
-    override fun createScaffold(): Scaffold<StringType> = Wrapper(StringType)
+    override fun createScaffold(): Scaffold<StringType> = ValueScaffold(StringType)
 }
 
 class AnyTypeScaffolder(internal val spec: AnyTypeSpec) : Scaffolder<AnyType> {
-    override fun createScaffold(): Scaffold<AnyType> = Wrapper(AnyType)
+    override fun createScaffold(): Scaffold<AnyType> = ValueScaffold(AnyType)
 }
 
 @DslBuilder
 internal class StructResolvableBuilder(internal var resolvable: StructResolvable = StructResolvable()) : StructBuilder {
     override fun pkg(value: String) {
-        resolvable = resolvable.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 
     override fun field(body: FieldBuilder.() -> Unit) {
@@ -211,26 +211,26 @@ internal class StructResolvableBuilder(internal var resolvable: StructResolvable
     }
 
     override fun field(ref: FieldRef) {
-        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun field(value: Field) {
-        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + ValueScaffold(value))
     }
 
     override fun fields(fields: List<Field>) {
-        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + fields.map { Wrapper(it) })
+        resolvable = resolvable.copy(fields = resolvable.fields.orEmpty() + fields.map { ValueScaffold(it) })
     }
 }
 
 @DslBuilder
 internal class UnionResolvableBuilder(internal var resolvable: UnionResolvable = UnionResolvable()) : UnionBuilder {
     override fun pkg(value: String) {
-        resolvable = resolvable.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 
     override fun shape(body: StructBuilder.() -> Unit) {
@@ -242,45 +242,45 @@ internal class UnionResolvableBuilder(internal var resolvable: UnionResolvable =
     }
 
     override fun shape(ref: StructRef) {
-        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + Deferred(ref.key))
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun shape(value: Struct) {
-        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + ValueScaffold(value))
     }
 
     override fun shapes(shapes: List<Struct>) {
-        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + shapes.map { Wrapper(it) })
+        resolvable = resolvable.copy(shapes = resolvable.shapes.orEmpty() + shapes.map { ValueScaffold(it) })
     }
 }
 
 @DslBuilder
 internal class EnumTypeResolvableBuilder(internal var resolvable: EnumTypeResolvable = EnumTypeResolvable()) : EnumTypeBuilder {
     override fun pkg(value: String) {
-        resolvable = resolvable.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 
     override fun value(value: String) {
-        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + Wrapper(value))
+        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + ValueScaffold(value))
     }
 
     override fun values(values: List<String>) {
-        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + values.map { Wrapper(it) })
+        resolvable = resolvable.copy(values = resolvable.values.orEmpty() + values.map { ValueScaffold(it) })
     }
 }
 
 @DslBuilder
 internal class RefTypeResolvableBuilder(internal var resolvable: RefTypeResolvable = RefTypeResolvable()) : RefTypeBuilder {
     override fun pkg(value: String) {
-        resolvable = resolvable.copy(pkg = Wrapper(value))
+        resolvable = resolvable.copy(pkg = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 }
 
@@ -291,11 +291,11 @@ internal class OptionTypeResolvableBuilder(internal var resolvable: OptionTypeRe
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = RefScaffold(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        resolvable = resolvable.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = ValueScaffold(value))
     }
 }
 
@@ -306,11 +306,11 @@ internal class ListTypeResolvableBuilder(internal var resolvable: ListTypeResolv
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = RefScaffold(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        resolvable = resolvable.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = ValueScaffold(value))
     }
 }
 
@@ -321,11 +321,11 @@ internal class MapTypeResolvableBuilder(internal var resolvable: MapTypeResolvab
     }
 
     override fun <T : Type> keyType(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(keyType = Deferred(ref.key))
+        resolvable = resolvable.copy(keyType = RefScaffold(ref.key))
     }
 
     override fun <T : Type> keyType(value: T) {
-        resolvable = resolvable.copy(keyType = Wrapper(value))
+        resolvable = resolvable.copy(keyType = ValueScaffold(value))
     }
 
     override fun <T : Type> valueType(spec: TypeSpec<T>) {
@@ -333,11 +333,11 @@ internal class MapTypeResolvableBuilder(internal var resolvable: MapTypeResolvab
     }
 
     override fun <T : Type> valueType(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(valueType = Deferred(ref.key))
+        resolvable = resolvable.copy(valueType = RefScaffold(ref.key))
     }
 
     override fun <T : Type> valueType(value: T) {
-        resolvable = resolvable.copy(valueType = Wrapper(value))
+        resolvable = resolvable.copy(valueType = ValueScaffold(value))
     }
 }
 
@@ -473,15 +473,15 @@ class FieldScaffolder(internal val spec: FieldSpec) : Scaffolder<Field> {
 @DslBuilder
 internal class FieldResolvableBuilder(internal var resolvable: FieldResolvable = FieldResolvable()) : FieldBuilder {
     override fun name(value: String) {
-        resolvable = resolvable.copy(name = Wrapper(value))
+        resolvable = resolvable.copy(name = ValueScaffold(value))
     }
 
     override fun key(value: Boolean) {
-        resolvable = resolvable.copy(key = Wrapper(value))
+        resolvable = resolvable.copy(key = ValueScaffold(value))
     }
 
     override fun singularName(value: String) {
-        resolvable = resolvable.copy(singularName = Wrapper(value))
+        resolvable = resolvable.copy(singularName = ValueScaffold(value))
     }
 
     override fun <T : Type> type(spec: TypeSpec<T>) {
@@ -489,11 +489,11 @@ internal class FieldResolvableBuilder(internal var resolvable: FieldResolvable =
     }
 
     override fun <T : Type> type(ref: TypeRef<T>) {
-        resolvable = resolvable.copy(type = Deferred(ref.key))
+        resolvable = resolvable.copy(type = RefScaffold(ref.key))
     }
 
     override fun <T : Type> type(value: T) {
-        resolvable = resolvable.copy(type = Wrapper(value))
+        resolvable = resolvable.copy(type = ValueScaffold(value))
     }
 }
 

@@ -7,11 +7,11 @@
 // issue in the project's repository.
 package io.philarios.filesystem
 
-import io.philarios.core.Deferred
+import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
-import io.philarios.core.Wrapper
+import io.philarios.core.ValueScaffold
 import io.philarios.util.registry.Registry
 import kotlin.String
 import kotlin.collections.List
@@ -47,7 +47,7 @@ class FileScaffolder(internal val spec: FileSpec) : Scaffolder<File> {
 @DslBuilder
 internal class DirectoryShellBuilder(internal var shell: DirectoryShell = DirectoryShell()) : DirectoryBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun <T : Entry> entry(spec: EntrySpec<T>) {
@@ -55,22 +55,22 @@ internal class DirectoryShellBuilder(internal var shell: DirectoryShell = Direct
     }
 
     override fun <T : Entry> entry(ref: EntryRef<T>) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(entries = shell.entries.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun <T : Entry> entry(value: T) {
-        shell = shell.copy(entries = shell.entries.orEmpty() + Wrapper(value))
+        shell = shell.copy(entries = shell.entries.orEmpty() + ValueScaffold(value))
     }
 }
 
 @DslBuilder
 internal class FileShellBuilder(internal var shell: FileShell = FileShell()) : FileBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun content(value: String) {
-        shell = shell.copy(content = Wrapper(value))
+        shell = shell.copy(content = ValueScaffold(value))
     }
 }
 

@@ -7,11 +7,11 @@
 // issue in the project's repository.
 package io.philarios.terraform
 
-import io.philarios.core.Deferred
+import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
 import io.philarios.core.Scaffolder
-import io.philarios.core.Wrapper
+import io.philarios.core.ValueScaffold
 import io.philarios.util.registry.Registry
 import kotlin.Any
 import kotlin.Pair
@@ -40,15 +40,15 @@ internal class TerraformShellBuilder(internal var shell: TerraformShell = Terraf
     }
 
     override fun resource(ref: ResourceRef) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(resources = shell.resources.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun resource(value: Resource) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + Wrapper(value))
+        shell = shell.copy(resources = shell.resources.orEmpty() + ValueScaffold(value))
     }
 
     override fun resources(resources: List<Resource>) {
-        shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { Wrapper(it) })
+        shell = shell.copy(resources = shell.resources.orEmpty() + resources.map { ValueScaffold(it) })
     }
 
     override fun dataSource(body: DataSourceBuilder.() -> Unit) {
@@ -60,15 +60,15 @@ internal class TerraformShellBuilder(internal var shell: TerraformShell = Terraf
     }
 
     override fun dataSource(ref: DataSourceRef) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun dataSource(value: DataSource) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + Wrapper(value))
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + ValueScaffold(value))
     }
 
     override fun dataSources(dataSources: List<DataSource>) {
-        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + dataSources.map { Wrapper(it) })
+        shell = shell.copy(dataSources = shell.dataSources.orEmpty() + dataSources.map { ValueScaffold(it) })
     }
 
     override fun provider(body: ProviderBuilder.() -> Unit) {
@@ -80,15 +80,15 @@ internal class TerraformShellBuilder(internal var shell: TerraformShell = Terraf
     }
 
     override fun provider(ref: ProviderRef) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(providers = shell.providers.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun provider(value: Provider) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + Wrapper(value))
+        shell = shell.copy(providers = shell.providers.orEmpty() + ValueScaffold(value))
     }
 
     override fun providers(providers: List<Provider>) {
-        shell = shell.copy(providers = shell.providers.orEmpty() + providers.map { Wrapper(it) })
+        shell = shell.copy(providers = shell.providers.orEmpty() + providers.map { ValueScaffold(it) })
     }
 
     override fun variable(body: VariableBuilder.() -> Unit) {
@@ -100,15 +100,15 @@ internal class TerraformShellBuilder(internal var shell: TerraformShell = Terraf
     }
 
     override fun variable(ref: VariableRef) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(variables = shell.variables.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun variable(value: Variable) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + Wrapper(value))
+        shell = shell.copy(variables = shell.variables.orEmpty() + ValueScaffold(value))
     }
 
     override fun variables(variables: List<Variable>) {
-        shell = shell.copy(variables = shell.variables.orEmpty() + variables.map { Wrapper(it) })
+        shell = shell.copy(variables = shell.variables.orEmpty() + variables.map { ValueScaffold(it) })
     }
 
     override fun output(body: OutputBuilder.() -> Unit) {
@@ -120,15 +120,15 @@ internal class TerraformShellBuilder(internal var shell: TerraformShell = Terraf
     }
 
     override fun output(ref: OutputRef) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + Deferred(ref.key))
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + RefScaffold(ref.key))
     }
 
     override fun output(value: Output) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + Wrapper(value))
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + ValueScaffold(value))
     }
 
     override fun outputs(outputs: List<Output>) {
-        shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { Wrapper(it) })
+        shell = shell.copy(outputs = shell.outputs.orEmpty() + outputs.map { ValueScaffold(it) })
     }
 }
 
@@ -169,23 +169,23 @@ class ResourceScaffolder(internal val spec: ResourceSpec) : Scaffolder<Resource>
 @DslBuilder
 internal class ResourceShellBuilder(internal var shell: ResourceShell = ResourceShell()) : ResourceBuilder {
     override fun type(value: String) {
-        shell = shell.copy(type = Wrapper(value))
+        shell = shell.copy(type = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
@@ -217,23 +217,23 @@ class DataSourceScaffolder(internal val spec: DataSourceSpec) : Scaffolder<DataS
 @DslBuilder
 internal class DataSourceShellBuilder(internal var shell: DataSourceShell = DataSourceShell()) : DataSourceBuilder {
     override fun type(value: String) {
-        shell = shell.copy(type = Wrapper(value))
+        shell = shell.copy(type = ValueScaffold(value))
     }
 
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
@@ -265,19 +265,19 @@ class ProviderScaffolder(internal val spec: ProviderSpec) : Scaffolder<Provider>
 @DslBuilder
 internal class ProviderShellBuilder(internal var shell: ProviderShell = ProviderShell()) : ProviderBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun config(key: String, value: Any) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(key),Wrapper(value)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(key),ValueScaffold(value)))
     }
 
     override fun config(pair: Pair<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + Pair(Wrapper(pair.first), Wrapper(pair.second)))
+        shell = shell.copy(config = shell.config.orEmpty() + Pair(ValueScaffold(pair.first), ValueScaffold(pair.second)))
     }
 
     override fun config(config: Map<String, Any>) {
-        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(Wrapper(it.key), Wrapper(it.value)) })
+        shell = shell.copy(config = shell.config.orEmpty() + config.map { Pair(ValueScaffold(it.key), ValueScaffold(it.value)) })
     }
 }
 
@@ -303,15 +303,15 @@ class VariableScaffolder(internal val spec: VariableSpec) : Scaffolder<Variable>
 @DslBuilder
 internal class VariableShellBuilder(internal var shell: VariableShell = VariableShell()) : VariableBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun type(value: String) {
-        shell = shell.copy(type = Wrapper(value))
+        shell = shell.copy(type = ValueScaffold(value))
     }
 
     override fun default(value: Any) {
-        shell = shell.copy(default = Wrapper(value))
+        shell = shell.copy(default = ValueScaffold(value))
     }
 }
 
@@ -344,11 +344,11 @@ class OutputScaffolder(internal val spec: OutputSpec) : Scaffolder<Output> {
 @DslBuilder
 internal class OutputShellBuilder(internal var shell: OutputShell = OutputShell()) : OutputBuilder {
     override fun name(value: String) {
-        shell = shell.copy(name = Wrapper(value))
+        shell = shell.copy(name = ValueScaffold(value))
     }
 
     override fun value(value: Any) {
-        shell = shell.copy(value = Wrapper(value))
+        shell = shell.copy(value = ValueScaffold(value))
     }
 }
 

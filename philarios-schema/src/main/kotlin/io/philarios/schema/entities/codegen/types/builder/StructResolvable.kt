@@ -1,10 +1,10 @@
 package io.philarios.schema.entities.codegen.types.builder
 
 import com.squareup.kotlinpoet.*
-import io.philarios.core.Deferred
+import io.philarios.core.RefScaffold
 import io.philarios.core.DslBuilder
 import io.philarios.core.Scaffold
-import io.philarios.core.Wrapper
+import io.philarios.core.ValueScaffold
 import io.philarios.schema.Struct
 import io.philarios.schema.Union
 import io.philarios.schema.entities.codegen.util.*
@@ -93,7 +93,7 @@ private val ParameterFunction.SetParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.refParameterSpec)
-                .addStatement("resolvable = resolvable.copy(%L = %T(ref.key))", name, Deferred::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = %T(ref.key))", name, RefScaffold::class.className)
                 .build()
     }
 
@@ -106,7 +106,7 @@ private val ParameterFunction.SetParameterFunctionWithWrapper.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(fieldType.className))
                 }
                 .addParameter(fieldType.wrapperParameterSpec)
-                .addStatement("resolvable = resolvable.copy(%L = %T(value))", name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = %T(value))", name, ValueScaffold::class.className)
                 .build()
     }
 
@@ -145,7 +145,7 @@ private val ParameterFunction.AddParameterFunctionWithRef.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.refParameterSpec)
-                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(ref.key))", name, name, Deferred::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(ref.key))", name, name, RefScaffold::class.className)
                 .build()
     }
 
@@ -159,7 +159,7 @@ private val ParameterFunction.AddParameterFunctionWithWrapper.parameterFunSpec
                     addTypeVariable(TypeVariableName("T").withBounds(listType.className))
                 }
                 .addParameter(listType.wrapperParameterSpec)
-                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(value))", name, name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %T(value))", name, name, ValueScaffold::class.className)
                 .build()
     }
 
@@ -170,7 +170,7 @@ private val ParameterFunction.AddAllParameterFunctionWithWrapper.parameterFunSpe
         return FunSpec.builder(name)
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
-                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { %T(it) })", name, name, name, Wrapper::class.className)
+                .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { %T(it) })", name, name, name, ValueScaffold::class.className)
                 .build()
     }
 
@@ -183,7 +183,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithBody.parameterFunS
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(%T(body)).createScaffold()))",
-                        name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
+                        name, name, ValueScaffold::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
 
@@ -199,7 +199,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithSpec.parameterFunS
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(spec).createScaffold()))",
-                        name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName)
+                        name, name, ValueScaffold::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
 
@@ -215,7 +215,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithRef.parameterFunSp
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(ref.key)))",
-                        name, name, Wrapper::class.className, "key", Deferred::class.className)
+                        name, name, ValueScaffold::class.className, "key", RefScaffold::class.className)
                 .build()
     }
 
@@ -229,7 +229,7 @@ private val ParameterFunction.PutKeyValueParameterFunctionWithWrapper.parameterF
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(ParameterSpec.builder("value", valueClassName).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L),%T(%L)))",
-                        name, name, Wrapper::class.className, "key", Wrapper::class.className, "value")
+                        name, name, ValueScaffold::class.className, "key", ValueScaffold::class.className, "value")
                 .build()
     }
 
@@ -242,7 +242,7 @@ private val ParameterFunction.PutPairParameterFunctionWithWrapper.parameterFunSp
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + Pair(%T(%L), %T(%L)))",
-                        name, name, Wrapper::class.className, "pair.first", Wrapper::class.className, "pair.second")
+                        name, name, ValueScaffold::class.className, "pair.first", ValueScaffold::class.className, "pair.second")
                 .build()
     }
 
@@ -254,7 +254,7 @@ private val ParameterFunction.PutAllParameterFunctionWithWrapper.parameterFunSpe
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
-                        name, name, name, Wrapper::class.className, "it.key", Wrapper::class.className, "it.value")
+                        name, name, name, ValueScaffold::class.className, "it.key", ValueScaffold::class.className, "it.value")
                 .build()
     }
 
@@ -267,7 +267,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithBody.parameterF
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.bodyParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<Scaffold<String>, Scaffold<WorkflowJob>>(Pair(%T(%L),%T(%T(body)).createScaffold())))",
-                        name, name, Wrapper::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
+                        name, name, ValueScaffold::class.className, "key", valueType.scaffolderTypeName, valueType.specTypeName)
                 .build()
     }
 
@@ -283,7 +283,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithSpec.parameterF
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.specParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(spec).createScaffold())))",
-                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", valueType.scaffolderTypeName)
+                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, ValueScaffold::class.className, "key", valueType.scaffolderTypeName)
                 .build()
     }
 
@@ -299,7 +299,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithRef.parameterFu
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(valueType.refParameterSpec)
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(ref.key))))",
-                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", Deferred::class.className)
+                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, ValueScaffold::class.className, "key", RefScaffold::class.className)
                 .build()
     }
 
@@ -313,7 +313,7 @@ private val ParameterFunction.AddPutKeyValueParameterFunctionWithWrapper.paramet
                 .addParameter(ParameterSpec.builder("key", keyClassName).build())
                 .addParameter(ParameterSpec.builder("value", valueClassName).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L),%T(%L))))",
-                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "key", Wrapper::class.className, "value")
+                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, ValueScaffold::class.className, "key", ValueScaffold::class.className, "value")
                 .build()
     }
 
@@ -326,7 +326,7 @@ private val ParameterFunction.AddPutPairParameterFunctionWithWrapper.parameterFu
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder("pair", ParameterizedTypeName.get(Pair::class.className, keyClassName, valueClassName)).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + mapOf<%T<%T>, %T<%T>>(Pair(%T(%L), %T(%L))))",
-                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, Wrapper::class.className, "pair.first", Wrapper::class.className, "pair.second")
+                        name, name, Scaffold::class.className, keyType.className, Scaffold::class.className, valueType.className, ValueScaffold::class.className, "pair.first", ValueScaffold::class.className, "pair.second")
                 .build()
     }
 
@@ -338,6 +338,6 @@ private val ParameterFunction.AddPutAllParameterFunctionWithWrapper.parameterFun
                 .addModifiers(KModifier.OVERRIDE)
                 .addParameter(ParameterSpec.builder(name, typeName).build())
                 .addStatement("resolvable = resolvable.copy(%L = resolvable.%L.orEmpty() + %L.map { Pair(%T(%L), %T(%L)) })",
-                        name, name, name, Wrapper::class.className, "it.key", Wrapper::class.className, "it.value")
+                        name, name, name, ValueScaffold::class.className, "it.key", ValueScaffold::class.className, "it.value")
                 .build()
     }

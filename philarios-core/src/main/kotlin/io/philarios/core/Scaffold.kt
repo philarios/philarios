@@ -11,13 +11,13 @@ interface Scaffold<out T : Any> {
     suspend fun resolve(registry: Registry): T
 }
 
-class Wrapper<T : Any>(private val value: T) : Scaffold<T> {
+class ValueScaffold<T : Any>(private val value: T) : Scaffold<T> {
     override suspend fun resolve(registry: Registry): T = value
 }
 
-inline fun <reified T : Any> Deferred(key: String) = Deferred(T::class, key)
+inline fun <reified T : Any> RefScaffold(key: String) = RefScaffold(T::class, key)
 
-class Deferred<T : Any>(private val clazz: KClass<T>, private val key: String) : Scaffold<T> {
+class RefScaffold<T : Any>(private val clazz: KClass<T>, private val key: String) : Scaffold<T> {
     override suspend fun resolve(registry: Registry): T {
         return registry.get(clazz, key)!!
     }
