@@ -7,9 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import io.philarios.circleci.CircleCIScaffolder
 import io.philarios.circleci.CircleCISpec
-import io.philarios.core.emptyContext
-import io.philarios.core.map
-import io.philarios.core.mapScaffolder
+import io.philarios.core.resolve
 import java.io.FileWriter
 
 object GenerateCircleCIConfig {
@@ -22,9 +20,8 @@ object GenerateCircleCIConfig {
     }
 
     suspend operator fun invoke(spec: CircleCISpec) {
-        emptyContext()
-                .mapScaffolder { CircleCIScaffolder(spec) }
-                .map {
+        CircleCIScaffolder(spec).createScaffold().resolve()
+                .let {
                     // We have to manually inject the version into the workflows map
                     val tree = objectMapper.valueToTree<ObjectNode>(it)
                     tree["workflows"]

@@ -1,8 +1,6 @@
 package io.philarios.jsonschema.usecases
 
-import io.philarios.core.contextOf
-import io.philarios.core.map
-import io.philarios.core.mapScaffolder
+import io.philarios.core.resolve
 import io.philarios.jsonschema.entities.JsonSchemaObject
 import io.philarios.jsonschema.entities.jsonSchemaSchema
 import io.philarios.jsonschema.gateways.reader.readJsonSchema
@@ -19,8 +17,8 @@ class GenerateCode(
         val inputStream = ClassLoader.getSystemResourceAsStream(inputResource)
         val jsonSchema = readJsonSchema(inputStream) as JsonSchemaObject
 
-        contextOf(jsonSchema)
-                .mapScaffolder { SchemaScaffolder(jsonSchemaSchema(pkg, name, it)) }
-                .map { schemaGenerateCode(it) }
+        jsonSchemaSchema(pkg, name, jsonSchema)
+                .let { SchemaScaffolder(it).createScaffold().resolve() }
+                .let { schemaGenerateCode(it) }
     }
 }

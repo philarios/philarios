@@ -1,6 +1,7 @@
 package io.philarios.core
 
 import io.philarios.util.registry.Registry
+import io.philarios.util.registry.emptyRegistry
 import kotlin.reflect.KClass
 
 interface Scaffolder<out T : Any> {
@@ -10,6 +11,8 @@ interface Scaffolder<out T : Any> {
 interface Scaffold<out T : Any> {
     suspend fun resolve(registry: Registry): T
 }
+
+suspend fun <T: Any> Scaffold<T>.resolve() = resolve(emptyRegistry())
 
 class ValueScaffold<T : Any>(private val value: T) : Scaffold<T> {
     override suspend fun resolve(registry: Registry): T = value

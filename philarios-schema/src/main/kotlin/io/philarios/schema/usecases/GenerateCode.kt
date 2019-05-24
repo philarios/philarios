@@ -1,14 +1,12 @@
 package io.philarios.schema.usecases
 
-import io.philarios.core.emptyContext
-import io.philarios.core.map
-import io.philarios.core.mapScaffolder
 import io.philarios.schema.Schema
 import io.philarios.schema.SchemaScaffolder
 import io.philarios.schema.SchemaSpec
 import io.philarios.schema.entities.codegen.fileSpecs
 import io.philarios.schema.gateways.writers.DirectoryFileSpecWriter
 import io.philarios.schema.gateways.writers.FileSpecWriter
+import io.philarios.util.registry.emptyRegistry
 
 suspend fun generateCode(schemaSpec: SchemaSpec) = GenerateCode()(schemaSpec)
 
@@ -19,9 +17,10 @@ class GenerateCode(
 ) {
 
     suspend operator fun invoke(schemaSpec: SchemaSpec) {
-        emptyContext()
-                .mapScaffolder { SchemaScaffolder(schemaSpec) }
-                .map { invoke(it) }
+        SchemaScaffolder(schemaSpec)
+                .createScaffold()
+                .resolve(emptyRegistry())
+                .let { invoke(it) }
     }
 
     operator fun invoke(schema: Schema) {

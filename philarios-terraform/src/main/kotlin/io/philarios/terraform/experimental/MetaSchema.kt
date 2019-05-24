@@ -3,8 +3,7 @@ package io.philarios.terraform.experimental
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.philarios.core.emptyContext
-import io.philarios.core.mapScaffolder
+import io.philarios.core.resolve
 import io.philarios.schema.*
 import io.philarios.schema.usecases.generateCode
 
@@ -98,9 +97,7 @@ suspend fun main() {
 
     val value = objectMapper.readValue<ResourceProviderSchema>(resource)
 
-    val schema = emptyContext()
-            .mapScaffolder { SchemaScaffolder(providerSchema(value)) }
-            .value
+    val schema = SchemaScaffolder(providerSchema(value)).createScaffold().resolve()
 
     println(schema)
 

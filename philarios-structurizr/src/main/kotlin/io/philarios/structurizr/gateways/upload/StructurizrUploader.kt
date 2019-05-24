@@ -14,6 +14,7 @@ class StructurizrUploader {
     }
 
     fun upload(workspace: Workspace) {
+        client.unlockWorkspace(workspaceId)
         client.putWorkspace(workspaceId, workspace)
     }
 

@@ -10,12 +10,8 @@ typealias Body<B> = B.() -> Unit
 
 @DslBuilder
 interface Builder<S : Spec<B>, B : Builder<S, B>> {
-    val genericContext: GenericContext
-        get() = NopGenericContext
-
     fun apply(spec: S) {
         val body = spec.body as? Builder<S, B>.() -> Unit ?: return
         apply(body)
     }
-
 }

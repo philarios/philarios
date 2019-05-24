@@ -1,7 +1,6 @@
 package io.philarios.structurizr.usecases
 
-import io.philarios.core.emptyContext
-import io.philarios.core.mapScaffolder
+import io.philarios.core.resolve
 import io.philarios.structurizr.*
 import io.philarios.structurizr.entities.convert
 import io.philarios.structurizr.gateways.upload.StructurizrUploader
@@ -9,9 +8,9 @@ import io.philarios.structurizr.gateways.upload.StructurizrUploader
 suspend fun putWorkspaceSpecs(vararg workspaceSpecs: WorkspaceSpec) {
     val workspace = workspaceSpecs
             .map { workspaceSpec ->
-                emptyContext()
-                        .mapScaffolder { WorkspaceScaffolder(workspaceSpec) }
-                        .value
+                WorkspaceScaffolder(workspaceSpec)
+                        .createScaffold()
+                        .resolve()
             }
             .reduce(Workspace::plus)
             .let(Workspace::convert)
