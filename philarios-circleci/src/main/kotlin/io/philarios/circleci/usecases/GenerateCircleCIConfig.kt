@@ -20,17 +20,16 @@ object GenerateCircleCIConfig {
     }
 
     suspend operator fun invoke(spec: CircleCISpec) {
-        CircleCIScaffolder(spec).createScaffold().resolve()
-                .let {
-                    // We have to manually inject the version into the workflows map
-                    val tree = objectMapper.valueToTree<ObjectNode>(it)
-                    tree["workflows"]
-                            ?.let { it as? ObjectNode }
-                            ?.let { it.put("version", 2) }
+        val circleCI = CircleCIScaffolder(spec).resolve()
 
-                    val writer = FileWriter("../.circleci/config.yml")
+        // We have to manually inject the version into the workflows map
+        val tree = objectMapper.valueToTree<ObjectNode>(circleCI)
+        tree["workflows"]
+                ?.let { it as? ObjectNode }
+                ?.let { it.put("version", 2) }
 
-                    objectMapper.writeValue(writer, tree)
-                }
+        val writer = FileWriter("../.circleci/config.yml")
+
+        objectMapper.writeValue(writer, tree)
     }
 }

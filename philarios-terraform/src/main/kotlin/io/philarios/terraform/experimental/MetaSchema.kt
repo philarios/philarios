@@ -97,7 +97,7 @@ suspend fun main() {
 
     val value = objectMapper.readValue<ResourceProviderSchema>(resource)
 
-    val schema = SchemaScaffolder(providerSchema(value)).createScaffold().resolve()
+    val schema = SchemaScaffolder(providerSchema(value)).resolve()
 
     println(schema)
 

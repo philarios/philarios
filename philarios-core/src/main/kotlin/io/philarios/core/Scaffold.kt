@@ -8,11 +8,15 @@ interface Scaffolder<out T : Any> {
     fun createScaffold(): Scaffold<T>
 }
 
+suspend fun <T : Any> Scaffolder<T>.resolve(): T = resolve(emptyRegistry())
+
+suspend fun <T : Any> Scaffolder<T>.resolve(registry: Registry): T = createScaffold().resolve(registry)
+
 interface Scaffold<out T : Any> {
     suspend fun resolve(registry: Registry): T
 }
 
-suspend fun <T: Any> Scaffold<T>.resolve() = resolve(emptyRegistry())
+suspend fun <T : Any> Scaffold<T>.resolve(): T = resolve(emptyRegistry())
 
 class ValueScaffold<T : Any>(private val value: T) : Scaffold<T> {
     override suspend fun resolve(registry: Registry): T = value
